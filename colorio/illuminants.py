@@ -5,6 +5,14 @@ from __future__ import division
 import numpy
 
 
+def white_point(illuminant):
+    '''From <https://en.wikipedia.org/wiki/White_point>:
+    The white point of an illuminant is the chromaticity of a white object
+    under the illuminant.
+    '''
+    return
+
+
 def a():
     '''CIE standard illuminant A is intended to represent typical, domestic,
     tungsten-filament lighting. Its relative spectral power distribution is
@@ -45,7 +53,12 @@ def d50():
 
 
 def d65():
+    # See
+    #
     # http://www.npsg.uwaterloo.ca/data/illuminant.php
+    # https://www.rit.edu/cos/colorscience/rc_useful_data.php
+    #
+    # for the raw data.
     lmbda = numpy.arange(300, 831)
     vals = numpy.array([
         0.0341, 0.36014, 0.68618, 1.01222, 1.33826, 1.6643, 1.99034, 2.31638,
