@@ -3,8 +3,8 @@
 import numpy
 
 
-def cie_standard_observer_2():
-    '''CIE standard observer, 2 degrees.
+def cie_1931_2():
+    '''CIE 1931 standard observer, 2 degrees.
     '''
     # See
     # https://www.rit.edu/cos/colorscience/rc_useful_data.php
@@ -486,8 +486,8 @@ def cie_standard_observer_2():
     return lmbda, data
 
 
-def cie_standard_observer_10():
-    '''CIE standard observer, 10 degrees.
+def cie_1964_10():
+    '''CIE 1964 standard observer, 10 degrees.
     '''
     # See
     # https://www.rit.edu/cos/colorscience/rc_useful_data.php

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 def test_observers():
-    lmbda, data = colorio.observers.cie_standard_observer_2()
+    lmbda, data = colorio.observers.cie_1931_2()
 
     # Choose the colors such that they roughly correspond to the color of the
     # maximum response,
