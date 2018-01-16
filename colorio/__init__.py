@@ -13,6 +13,8 @@ from .__about__ import (
     __status__,
     )
 
+from .conversions import *
+
 try:
     import pipdate
 except ImportError:
