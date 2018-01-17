@@ -55,7 +55,7 @@ def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2()):
 
 
 def xyz_to_xyy(xyz):
-    return numpy.stack([xyz[:2] / numpy.sum(xyz, axis=0), xyz[1]])
+    return numpy.concatenate([xyz[:2] / numpy.sum(xyz, axis=0), [xyz[1]]])
 
 
 def xyy_to_xyz(xyy):
