@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 #
-import colorio
-
 import matplotlib.pyplot as plt
 import numpy
 import pytest
+
+import colorio
 
 
 @pytest.mark.parametrize('illuminant,decimals,values', [
@@ -17,7 +17,7 @@ import pytest
     (colorio.illuminants.d75(), 3, [0.043, 5.132, 29.808]),
     ])
 def test_values(illuminant, decimals, values):
-    lmbda, data = illuminant
+    _, data = illuminant
     rdata = numpy.around(data, decimals=decimals)
     assert rdata[0] == values[0]
     assert rdata[1] == values[1]

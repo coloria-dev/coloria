@@ -13,6 +13,7 @@ from .__about__ import (
     __status__,
     )
 
+# pylint: disable=wildcard-import
 from .conversions import *
 from . import illuminants
 from . import observers
