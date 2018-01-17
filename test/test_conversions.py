@@ -3,8 +3,10 @@
 import colorio
 
 
-def test_dsad():
-    xyz = [0.5, 0.4, 0.3]
-    srgb = colorio.xyz_to_srgb(xyz)
-    print(srgb)
+def test_spectrum_to_xyz():
+    print(colorio.spectrum_to_xyz(colorio.illuminants.d65))
     return
+
+
+if __name__ == '__main__':
+    test_spectrum_to_xyz()

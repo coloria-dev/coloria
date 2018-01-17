@@ -14,8 +14,8 @@ from .__about__ import (
     )
 
 from .conversions import *
-import illuminants
-import observers
+from . import illuminants
+from . import observers
 
 try:
     import pipdate

@@ -4,6 +4,47 @@ from __future__ import division
 
 import numpy
 
+from . import observers
+
+
+def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2):
+    '''Computes the tristimulus values XYZ from a given spectrum for a given
+    observer via
+
+    X_i = int_lambda spectrum_i(lambda) * observer_i(lambda) dlambda.
+    '''
+    lambda_o, data_o = observer()
+
+    # CIE 15:2004 says about the D65 illuminant:
+    # If values at other wavelengths than printed in Table 1 of the standard
+    # (CIE, 1998c) at 1 nm intervals are needed, linear interpolation should be
+    # used.
+    lambda_s, data_s = spectrum()
+
+    # form the union of lambdas
+    lmbda = numpy.sort(numpy.unique(numpy.concatenate([lambda_o, lambda_s])))
+
+    # interpolate data
+    idata_o = numpy.array([numpy.interp(lmbda, lambda_o, d) for d in data_o])
+    idata_s = numpy.interp(lmbda, lambda_s, data_s)
+
+    print(idata_o[0])
+
+    exit(1)
+    return
+
+
+def xyz_to_xyy(xyz):
+    return numpy.stack([xyz[:2] / numpy.sum(xyz, axis=0), xyz[1]])
+
+
+def xyy_to_xyz(xyy):
+    return numpy.stack([
+        xyy[2] / xyy[1] * xyy[0],
+        xyy[2],
+        xyy[2] / xyy[1] * (1 - xyy[0] - xyy[1]),
+        ])
+
 
 def xyz_to_srgb1(xyz):
     # https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
