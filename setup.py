@@ -31,6 +31,7 @@ setup(
     author=about['__author__'],
     author_email=about['__email__'],
     install_requires=[
+        'matplotlib',
         'numpy',
         ],
     description='tools for color models',
