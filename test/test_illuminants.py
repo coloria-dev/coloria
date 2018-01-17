@@ -25,13 +25,20 @@ def test_values(illuminant, decimals, values):
     return
 
 
-# def test_a():
-#     lmbda, data = colorio.illuminants.a()
-#     plt.plot(lmbda, data)
-#     plt.ylim(ymin=0)
-#     plt.show()
-#     return
+def test_white_point():
+    values = colorio.illuminants.white_point(colorio.illuminants.d65())
+    assert numpy.all(abs(values - [0.9504716, 1.0, 1.08883546]) < 1.0e-8)
+    return
+
+
+def test_show():
+    lmbda, data = colorio.illuminants.d65()
+    plt.plot(lmbda, data)
+    plt.ylim(ymin=0)
+    plt.show()
+    return
 
 
 if __name__ == '__main__':
-    test_d(colorio.illuminants.d65)
+    test_white_point()
+    # test_show()

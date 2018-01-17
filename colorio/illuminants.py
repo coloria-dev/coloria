@@ -4,13 +4,16 @@ from __future__ import division
 
 import numpy
 
+from . import conversions
+from . import observers
 
-def white_point(illuminant):
+
+def white_point(illuminant, observer=observers.cie_1931_2()):
     '''From <https://en.wikipedia.org/wiki/White_point>:
     The white point of an illuminant is the chromaticity of a white object
     under the illuminant.
     '''
-    return
+    return conversions.spectrum_to_xyz(illuminant, observer)
 
 
 def a(interval=1):

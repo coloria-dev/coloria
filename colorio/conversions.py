@@ -46,7 +46,12 @@ def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2()):
     # the midpoint rule for integration anyways.
     idata_s = numpy.interp(lmbda, lambda_s, data_s)
 
-    return numpy.dot(idata_o, idata_s)
+    values = numpy.dot(idata_o, idata_s)
+
+    # scale the values such that Y=1
+    values /= values[1]
+
+    return values
 
 
 def xyz_to_xyy(xyz):
