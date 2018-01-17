@@ -13,7 +13,7 @@ def white_point(illuminant):
     return
 
 
-def a():
+def a(interval=1):
     '''CIE Standard Illuminants for Colorimetry, 1999:
     CIE standard illuminant A is intended to represent typical, domestic,
     tungsten-filament lighting. Its relative spectral power distribution is
@@ -23,7 +23,7 @@ def a():
     reasons for using a different illuminant.
     '''
     # https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_A
-    lmbda = numpy.arange(300, 831)
+    lmbda = numpy.arange(300, 831, interval)
     c2 = 1.435e7
     color_temp = 2848
     vals = 100 * (560 / lmbda)**5 * (
@@ -60,7 +60,7 @@ def d(nominal_temperature):
     #      at intermediate wavelengths.
     tcp = 1.4388/1.4380 * nominal_temperature
 
-    if 4000 < tcp <= 7000:
+    if 4000 <= tcp <= 7000:
         xd = -4.6070e9/tcp**3 + 2.9678e6/tcp**2 + 0.09911e3/tcp + 0.244063
     else:
         assert 7000 < tcp <= 25000

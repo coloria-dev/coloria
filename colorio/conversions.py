@@ -7,31 +7,46 @@ import numpy
 from . import observers
 
 
-def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2):
+def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2()):
     '''Computes the tristimulus values XYZ from a given spectrum for a given
     observer via
 
     X_i = int_lambda spectrum_i(lambda) * observer_i(lambda) dlambda.
-    '''
-    lambda_o, data_o = observer()
 
-    # CIE 15:2004 says about the D65 illuminant:
-    # If values at other wavelengths than printed in Table 1 of the standard
-    # (CIE, 1998c) at 1 nm intervals are needed, linear interpolation should be
-    # used.
-    lambda_s, data_s = spectrum()
+    In section 7, the technical report CIE Standard Illuminants for
+    Colorimetry, 1999, gives a recommendation on how to perform the
+    computation.
+    '''
+    lambda_o, data_o = observer
+    lambda_s, data_s = spectrum
 
     # form the union of lambdas
     lmbda = numpy.sort(numpy.unique(numpy.concatenate([lambda_o, lambda_s])))
 
+    # The technical document prescribes that the integration be performed "over
+    # the wavelength range corresponding to the entire visible spectrum, 360 nm
+    # to 830 nm.
+    assert lmbda[0] <= 360
+    assert lmbda[-1] >= 830
+
     # interpolate data
     idata_o = numpy.array([numpy.interp(lmbda, lambda_o, d) for d in data_o])
+    # The technical report specifies the interpolation techniques, too:
+    # ```
+    # Use one of the four following methods to calculate needed but unmeasured
+    # values of phi(l), R(l) or tau(l) within the range of measurements:
+    #   1) the third-order polynomial interpolation (Lagrange) from the four
+    #      neighbouring data points around the point to be interpolated, or
+    #   2) cubic spline interpolation formula, or
+    #   3) a fifth order polynomial interpolation formula from the six
+    #      neighboring data points around the point to be interpolated, or
+    #   4) a Sprague interpolation (see Seve, 2003).
+    # ```
+    # Well, don't do that but simply use linear interpolation now. We only use
+    # the midpoint rule for integration anyways.
     idata_s = numpy.interp(lmbda, lambda_s, data_s)
 
-    print(idata_o[0])
-
-    exit(1)
-    return
+    return numpy.dot(idata_o, idata_s)
 
 
 def xyz_to_xyy(xyz):
