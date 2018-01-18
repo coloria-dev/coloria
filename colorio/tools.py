@@ -58,19 +58,16 @@ def _plot_rgb_triangle():
     corners = xyz_to_xyy(srgb1_to_xyz([[1, 0, 0], [0, 1, 0], [0, 0, 1]])).T
 
     bary = numpy.array(_partition(3, n)).T / n
-    X = numpy.sum([
+    xyy = numpy.sum([
         numpy.outer(bary[k], corners[k]) for k in range(3)
         ], axis=0).T
-    x = numpy.array(X[0])
-    y = numpy.array(X[1])
-    xyy = numpy.array([x, y, 1-x-y])
     rgb = xyz_to_srgb1(xyy_to_xyz(xyy))
-    # plot the points
+
     # plt.plot(X[0], X[1], 'xk')
-    z = numpy.arange(len(x))
+    z = numpy.arange(xyy.shape[1])
     cmap = colors_to_cmap(rgb.T)
 
-    triang = matplotlib.tri.Triangulation(x, y)
+    triang = matplotlib.tri.Triangulation(xyy[0], xyy[1])
     plt.tripcolor(triang, z, shading='gouraud', cmap=cmap)
     return
 

@@ -74,13 +74,14 @@ def xyz_to_srgb1(xyz):
         [+0.0557, -0.2040, +1.0570],
         ])
     srgb_linear = numpy.dot(M, xyz)
+
     a = 0.055
     is_smaller = srgb_linear <= 0.0031308
+    is_greater = numpy.logical_not(is_smaller)
 
     srgb = srgb_linear
     srgb[is_smaller] *= 12.92
-    srgb[numpy.logical_not(is_smaller)] = \
-        (1+a) * srgb[numpy.logical_not(is_smaller)]**(1/2.4) - a
+    srgb[is_greater] = (1+a) * srgb[is_greater]**(1/2.4) - a
     return srgb
 
 
@@ -96,11 +97,11 @@ def srgb1_to_xyz(srgb1):
     srgb_linear[is_greater] = ((srgb_linear[is_greater] + a) / (1+a))**2.4
 
     M = numpy.array([
-        [0.4124, 0.3576, 0.1805],
-        [0.2126, 0.7152, 0.0722],
-        [0.0193, 0.1192, 0.9505],
+        [+3.2406, -1.5372, -0.4986],
+        [-0.9689, +1.8758, +0.0415],
+        [+0.0557, -0.2040, +1.0570],
         ])
-    return numpy.dot(M, srgb_linear)
+    return numpy.linalg.solve(M, srgb_linear)
 
 
 def srgb1_to_srgb256(srgb1):
