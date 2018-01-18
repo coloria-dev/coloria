@@ -16,6 +16,19 @@ def white_point(illuminant, observer=observers.cie_1931_2()):
     return conversions.spectrum_to_xyz(illuminant, observer)
 
 
+def planckian_radiator(temperature):
+    lmbda = numpy.arange(300, 831)
+    # light speed
+    c = 299792458.0
+    # Plank constant
+    h = 6.62607004e-34
+    # Boltzmann constant
+    k = 1.38064852e-23
+    c1 = 2*numpy.pi*h*c**2
+    c2 = h*c / k
+    return lmbda, c1 / (lmbda*1.0e-9)**5 / (numpy.exp(c2/(lmbda*1.0e-9)/temperature)-1)
+
+
 def a(interval=1):
     '''CIE Standard Illuminants for Colorimetry, 1999:
     CIE standard illuminant A is intended to represent typical, domestic,

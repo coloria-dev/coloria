@@ -32,13 +32,15 @@ def test_white_point():
 
 
 def test_show():
-    lmbda, data = colorio.illuminants.d65()
-    plt.plot(lmbda, data)
+    # lmbda, data = colorio.illuminants.d65()
+    for T in [1000, 2000, 3000, 4000, 5000, 1000]:
+        lmbda, data = colorio.illuminants.planckian_radiator(T)
+        plt.plot(lmbda, data)
     plt.ylim(ymin=0)
     plt.show()
     return
 
 
 if __name__ == '__main__':
-    test_white_point()
-    # test_show()
+    # test_white_point()
+    test_show()
