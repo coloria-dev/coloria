@@ -31,6 +31,24 @@ def _partition(boxes, balls):
     return list(rec(boxes, balls))
 
 
+def _plot_horseshoe():
+    # draw outline of monochromatic spectra
+    lmbda = 1.0e-9 * numpy.arange(380, 701)
+    values = []
+    for k, wave_length in enumerate(lmbda):
+        data = numpy.zeros(len(lmbda))
+        data[k] = 1.0
+        xyz = spectrum_to_xyz((lmbda, data))
+        xyy = xyz_to_xyy(xyz)
+        values.append(xyy[:2])
+    values = numpy.array(values)
+    # fill horseshoe area
+    plt.fill(values[:, 0], values[:, 1], color=[0.8, 0.8, 0.8], zorder=0)
+    # plot horseshoe outline
+    plt.plot(values[:, 0], values[:, 1], '-k', label='monochromatic light')
+    return
+
+
 def _plot_rgb_triangle():
     # plot sRGB triangle
     # discretization points
@@ -65,33 +83,21 @@ def _plot_rgb_triangle():
     return
 
 
-def plot_gamut_diagram():
-    # draw outline of monochromatic spectra
-    lmbda = 1.0e-9 * numpy.arange(380, 701)
-    values = []
-    for k, wave_length in enumerate(lmbda):
-        data = numpy.zeros(len(lmbda))
-        data[k] = 1.0
-        xyz = spectrum_to_xyz((lmbda, data))
-        xyy = xyz_to_xyy(xyz)
-        values.append(xyy[:2])
-    values = numpy.array(values)
-    # fill horseshoe area
-    plt.fill(values[:, 0], values[:, 1], color=[0.8, 0.8, 0.8], zorder=0)
-    # plot horseshoe outline
-    plt.plot(values[:, 0], values[:, 1], '-k', label='monochromatic light')
-
-    _plot_rgb_triangle()
-
+def _plot_planckian_locus():
     # plot planckian locus
     values = []
-    for temp in [k*1000 for k in range(1, 11)]:
-        lmbda, data = planckian_radiator(temp)
-        xyz = xyz_to_xyy(spectrum_to_xyz((lmbda, data)))
-        xyy = xyz_to_xyy(xyz)
+    for temp in numpy.arange(1000, 20001, 100):
+        xyy = xyz_to_xyy(spectrum_to_xyz(planckian_radiator(temp)))
         values.append(xyy[:2])
     values = numpy.array(values)
     plt.plot(values[:, 0], values[:, 1], ':k', label='Planckian locus')
+    return
+
+
+def plot_gamut_diagram():
+    _plot_horseshoe()
+    _plot_rgb_triangle()
+    _plot_planckian_locus()
 
     plt.xlim(xmin=0)
     plt.ylim(ymin=0)
