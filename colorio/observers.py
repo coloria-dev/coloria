@@ -9,7 +9,7 @@ def cie_1931_2():
     # See
     # https://www.rit.edu/cos/colorscience/rc_useful_data.php
     # for the raw data.
-    lmbda = numpy.arange(360, 831)
+    lmbda = 1.0e-9 * numpy.arange(360, 831)
     data = numpy.array([
         # 360 nm:
         [0.0001299, 3.917E-06, 0.0006061],
@@ -495,7 +495,7 @@ def cie_1964_10():
     # See
     # https://www.rit.edu/cos/colorscience/rc_useful_data.php
     # for the raw data.
-    lmbda = numpy.arange(360, 831)
+    lmbda = 1.0e-9 * numpy.arange(360, 831)
     data = numpy.array([
         # 360 nm:
         [1.222E-07, 1.3398E-08, 5.35027E-07],

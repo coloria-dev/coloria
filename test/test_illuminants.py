@@ -8,7 +8,7 @@ import colorio
 
 
 @pytest.mark.parametrize('illuminant,decimals,values', [
-    (colorio.illuminants.a(5), 5, [0.93048, 1.12821, 1.35769]),
+    (colorio.illuminants.a(5e-9), 5, [0.93048, 1.12821, 1.35769]),
     (colorio.illuminants.d50(), 3, [0.019, 2.051, 7.778]),
     (colorio.illuminants.d55(), 3, [0.024, 2.072, 11.224]),
     (colorio.illuminants.d65(), 4, [0.03410, 3.2945, 20.2360]),
@@ -32,13 +32,15 @@ def test_white_point():
 
 
 def test_show():
-    lmbda, data = colorio.illuminants.d65()
-    plt.plot(lmbda, data)
+    # lmbda, data = colorio.illuminants.d65()
+    for T in [1000, 2000, 3000, 4000, 5000, 1000]:
+        lmbda, data = colorio.illuminants.planckian_radiator(T)
+        plt.plot(lmbda, data)
     plt.ylim(ymin=0)
     plt.show()
     return
 
 
 if __name__ == '__main__':
-    test_white_point()
-    # test_show()
+    # test_white_point()
+    test_show()
