@@ -17,7 +17,7 @@ def show_gamut_diagram(*args, **kwargs):
 
 def plot_gamut_diagram():
     # draw outline of monochromatic spectra
-    lmbda = numpy.arange(400, 701, 1)
+    lmbda = 1.0e-9 * numpy.arange(380, 751, 1)
     values = []
     for k, wave_length in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
@@ -27,6 +27,11 @@ def plot_gamut_diagram():
         values.append(xyy[:2])
     values = numpy.array(values)
     plt.plot(values[:, 0], values[:, 1], '-k', label='monochromatic light')
+    # plot connecting line
+    plt.plot(
+        values[[0, -1], 0], values[[0, -1], 1],
+        '-', color=[0.8, 0.8, 0.8]
+        )
 
     # plot sRGB triangle
     for rgb in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]:
@@ -39,10 +44,9 @@ def plot_gamut_diagram():
         lmbda, data = planckian_radiator(temp)
         xyz = xyz_to_xyy(spectrum_to_xyz((lmbda, data)))
         xyy = xyz_to_xyy(xyz)
-        print(temp, xyz, xyy)
         values.append(xyy[:2])
     values = numpy.array(values)
-    plt.plot(values[:, 0], values[:, 1], '-x', label='Planckian locus')
+    plt.plot(values[:, 0], values[:, 1], ':k', label='Planckian locus')
 
     plt.xlim(xmin=0)
     plt.ylim(ymin=0)
