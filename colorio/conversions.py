@@ -75,11 +75,12 @@ def xyz_to_srgb1(xyz):
         ])
     srgb_linear = numpy.dot(M, xyz)
     a = 0.055
-    srgb = numpy.array([
-        12.92 * c if c <= 0.0031308 else
-        (1+a) * c**(1/2.4) - a
-        for c in srgb_linear
-        ])
+    is_smaller = srgb_linear <= 0.0031308
+
+    srgb = srgb_linear
+    srgb[is_smaller] *= 12.92
+    srgb[numpy.logical_not(is_smaller)] = \
+        (1+a) * srgb[numpy.logical_not(is_smaller)]**(1/2.4) - a
     return srgb
 
 
