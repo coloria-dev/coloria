@@ -35,7 +35,7 @@ def _plot_horseshoe():
     # draw outline of monochromatic spectra
     lmbda = 1.0e-9 * numpy.arange(380, 701)
     values = []
-    for k, wave_length in enumerate(lmbda):
+    for k, _ in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
         xyz = spectrum_to_xyz((lmbda, data))
@@ -75,8 +75,8 @@ def _plot_rgb_triangle():
     # that associates the integer values with the respective RGBs.
     z = numpy.arange(xyy.shape[1])
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
-            'gamut', rgb.T, N=rgb.shape[1]
-            )
+        'gamut', rgb.T, N=rgb.shape[1]
+        )
 
     triang = matplotlib.tri.Triangulation(xyy[0], xyy[1])
     plt.tripcolor(triang, z, shading='gouraud', cmap=cmap)
