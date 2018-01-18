@@ -85,13 +85,16 @@ def xyz_to_srgb1(xyz):
 
 
 def srgb1_to_xyz(srgb1):
+    srgb_linear = numpy.array(srgb1, dtype=float)
+
     # https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation
+    is_smaller = srgb_linear <= 0.04045
+    is_greater = numpy.logical_not(is_smaller)
+
     a = 0.055
-    srgb_linear = numpy.array([
-        c / 12.92 if c <= 0.04045 else
-        ((c+a) / (1+a)) ** 2.4
-        for c in srgb1
-        ])
+    srgb_linear[is_smaller] /= 12.92
+    srgb_linear[is_greater] = ((srgb_linear[is_greater] + a) / (1+a))**2.4
+
     M = numpy.array([
         [0.4124, 0.3576, 0.1805],
         [0.2126, 0.7152, 0.0722],

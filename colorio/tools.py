@@ -54,11 +54,9 @@ def colors_to_cmap(colors):
 def _plot_rgb_triangle():
     # plot sRGB triangle
     # discretization points
-    n = 50
-    corners = numpy.array([
-        xyz_to_xyy(srgb1_to_xyz(rgb))
-        for rgb in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-        ])
+    n = 10
+    corners = xyz_to_xyy(srgb1_to_xyz([[1, 0, 0], [0, 1, 0], [0, 0, 1]])).T
+
     bary = numpy.array(_partition(3, n)).T / n
     X = numpy.sum([
         numpy.outer(bary[k], corners[k]) for k in range(3)
@@ -88,14 +86,14 @@ def plot_gamut_diagram():
         xyy = xyz_to_xyy(xyz)
         values.append(xyy[:2])
     values = numpy.array(values)
-    # fill area
+    # fill horseshoe area
     plt.fill(values[:, 0], values[:, 1], color=[0.8, 0.8, 0.8], zorder=0)
-    # plot outline
+    # plot horseshoe outline
     plt.plot(values[:, 0], values[:, 1], '-k', label='monochromatic light')
 
     _plot_rgb_triangle()
 
-    # # plot planckian locus
+    # plot planckian locus
     values = []
     for temp in [k*1000 for k in range(1, 11)]:
         lmbda, data = planckian_radiator(temp)
