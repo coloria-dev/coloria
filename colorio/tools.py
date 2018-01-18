@@ -43,11 +43,9 @@ def _plot_rgb_triangle():
         ], axis=0).T
     rgb = xyz_to_srgb1(xyy_to_xyz(xyy))
     # Some values can be slightly off (in the range of 1.0e-15)
-    print(rgb-1.0)
-    print(max(rgb.flatten()))
     assert numpy.all(rgb > -1.0e-14)
-    # assert numpy.all(rgb-1.0 < 1.0e-2)
     rgb[rgb < 0] = 0.0
+    # assert numpy.all(rgb-1.0 < 1.0e-2)
     rgb[rgb > 1] = 1.0
 
     # plt.plot(X[0], X[1], 'xk')

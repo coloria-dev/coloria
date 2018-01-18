@@ -68,10 +68,11 @@ def xyy_to_xyz(xyy):
 
 def xyz_to_srgb1(xyz):
     # https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
+    # http://www.color.org/srgb.pdf
     M = numpy.array([
-        [+3.2406, -1.5372, -0.4986],
-        [-0.9689, +1.8758, +0.0415],
-        [+0.0557, -0.2040, +1.0570],
+        [+3.2406255, -1.537208, -0.4986286],
+        [-0.9689307, +1.8757561, +0.0415175],
+        [+0.0557101, -0.2040211, +1.0569959],
         ])
     srgb_linear = numpy.dot(M, xyz)
 
@@ -97,9 +98,9 @@ def srgb1_to_xyz(srgb1):
     srgb_linear[is_greater] = ((srgb_linear[is_greater] + a) / (1+a))**2.4
 
     M = numpy.array([
-        [+3.2406, -1.5372, -0.4986],
-        [-0.9689, +1.8758, +0.0415],
-        [+0.0557, -0.2040, +1.0570],
+        [+3.2406255, -1.537208, -0.4986286],
+        [-0.9689307, +1.8757561, +0.0415175],
+        [+0.0557101, -0.2040211, +1.0569959],
         ])
     return numpy.linalg.solve(M, srgb_linear)
 
