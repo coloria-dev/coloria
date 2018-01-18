@@ -8,7 +8,7 @@ import colorio
 
 
 @pytest.mark.parametrize('illuminant,decimals,values', [
-    (colorio.illuminants.a(5), 5, [0.93048, 1.12821, 1.35769]),
+    (colorio.illuminants.a(5e-9), 5, [0.93048, 1.12821, 1.35769]),
     (colorio.illuminants.d50(), 3, [0.019, 2.051, 7.778]),
     (colorio.illuminants.d55(), 3, [0.024, 2.072, 11.224]),
     (colorio.illuminants.d65(), 4, [0.03410, 3.2945, 20.2360]),

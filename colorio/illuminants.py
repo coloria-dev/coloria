@@ -17,7 +17,7 @@ def white_point(illuminant, observer=observers.cie_1931_2()):
 
 
 def planckian_radiator(temperature):
-    lmbda = numpy.arange(300, 831)
+    lmbda = 1.0e-9 * numpy.arange(300, 831)
     # light speed
     c = 299792458.0
     # Plank constant
@@ -26,10 +26,10 @@ def planckian_radiator(temperature):
     k = 1.38064852e-23
     c1 = 2*numpy.pi*h*c**2
     c2 = h*c / k
-    return lmbda, c1 / (lmbda*1.0e-9)**5 / (numpy.exp(c2/(lmbda*1.0e-9)/temperature)-1)
+    return lmbda, c1 / lmbda**5 / (numpy.exp(c2/lmbda/temperature)-1)
 
 
-def a(interval=1):
+def a(interval=1.0e-9):
     '''CIE Standard Illuminants for Colorimetry, 1999:
     CIE standard illuminant A is intended to represent typical, domestic,
     tungsten-filament lighting. Its relative spectral power distribution is
@@ -39,11 +39,12 @@ def a(interval=1):
     reasons for using a different illuminant.
     '''
     # https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_A
-    lmbda = numpy.arange(300, 831, interval)
-    c2 = 1.435e7
+    lmbda = numpy.arange(300e-9, 831e-9, interval)
+    c2 = 1.435e-2
     color_temp = 2848
-    vals = 100 * (560 / lmbda)**5 * (
-        (numpy.exp(c2 / (color_temp * 560)) - 1) /
+    numpy.exp(c2 / (color_temp * 560e-9))
+    vals = 100 * (560e-9 / lmbda)**5 * (
+        (numpy.exp(c2 / (color_temp * 560e-9)) - 1) /
         (numpy.exp(c2 / (color_temp * lmbda)) - 1)
         )
     return lmbda, vals
@@ -74,7 +75,7 @@ def d(nominal_temperature):
     #      Table T.2.
     #   6. Interpolate the 10 nm values of S(lambda) linearly to obtain values
     #      at intermediate wavelengths.
-    tcp = 1.4388/1.4380 * nominal_temperature
+    tcp = 1.4388e-2/1.4380e-2 * nominal_temperature
 
     if 4000 <= tcp <= 7000:
         xd = -4.6070e9/tcp**3 + 2.9678e6/tcp**2 + 0.09911e3/tcp + 0.244063
@@ -90,7 +91,7 @@ def d(nominal_temperature):
     m1 = numpy.around(m1, decimals=3)
     m2 = numpy.around(m2, decimals=3)
 
-    lmbda = numpy.arange(300, 831, 10)
+    lmbda = 1.0e-9 * numpy.arange(300, 831, 10)
     # The standard gives values every 5nm, but every other value is just an
     # interpolation from 10nm data. No idea why they are listed in the standard
     s = numpy.array([
@@ -189,14 +190,14 @@ def e():
     '''This is a hypothetical reference radiator. All wavelengths in CIE
     illuminant E are weighted equally with a relative spectral power of 100.0.
     '''
-    lmbda = numpy.arange(300, 831)
+    lmbda = 1.0e-9 * numpy.arange(300, 831)
     data = numpy.full(lmbda.shape, 100.0)
     return lmbda, data
 
 
 def f2():
     # http://www.npsg.uwaterloo.ca/data/illuminant.php
-    lmbda = numpy.arange(300, 781, 5)
+    lmbda = 1.0e-9 * numpy.arange(300, 781, 5)
     vals = numpy.array([
         1.18, 1.48, 1.84, 2.15, 3.44, 15.69, 3.85, 3.74, 4.19, 4.62, 5.06,
         34.98, 11.81, 6.27, 6.63, 6.93, 7.19, 7.40, 7.54, 7.62, 7.65, 7.62,

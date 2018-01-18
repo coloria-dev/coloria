@@ -26,8 +26,8 @@ def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2()):
     # The technical document prescribes that the integration be performed "over
     # the wavelength range corresponding to the entire visible spectrum, 360 nm
     # to 830 nm.
-    assert lmbda[0] <= 360
-    assert lmbda[-1] >= 830
+    assert lmbda[0] < 361e-9
+    assert lmbda[-1] > 829e-9
 
     # interpolate data
     idata_o = numpy.array([numpy.interp(lmbda, lambda_o, d) for d in data_o])
