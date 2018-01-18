@@ -31,30 +31,10 @@ def _partition(boxes, balls):
     return list(rec(boxes, balls))
 
 
-# https://stackoverflow.com/a/41856550/353337
-def colors_to_cmap(colors):
-    colors = numpy.asarray(colors)
-    if colors.shape[1] == 3:
-        colors = numpy.hstack((colors, numpy.ones((len(colors), 1))))
-    steps = (0.5 + numpy.asarray(range(len(colors)-1), dtype=numpy.float))/(len(colors) - 1)
-    return matplotlib.colors.LinearSegmentedColormap(
-        'auto_cmap',
-        {clrname: (
-           [(0, col[0], col[0])] +
-           [(step, c0, c1) for (step, c0, c1) in zip(steps, col[:-1], col[1:])] +
-           [(1, col[-1], col[-1])]
-           )
-         for (clridx, clrname) in enumerate(['red', 'green', 'blue', 'alpha'])
-         for col in [colors[:, clridx]]
-         },
-        N=len(colors)
-        )
-
-
 def _plot_rgb_triangle():
     # plot sRGB triangle
     # discretization points
-    n = 10
+    n = 50
     corners = xyz_to_xyy(srgb1_to_xyz([[1, 0, 0], [0, 1, 0], [0, 0, 1]])).T
 
     bary = numpy.array(_partition(3, n)).T / n
@@ -62,10 +42,25 @@ def _plot_rgb_triangle():
         numpy.outer(bary[k], corners[k]) for k in range(3)
         ], axis=0).T
     rgb = xyz_to_srgb1(xyy_to_xyz(xyy))
+    # Some values can be slightly off (in the range of 1.0e-15)
+    print(rgb-1.0)
+    print(max(rgb.flatten()))
+    assert numpy.all(rgb > -1.0e-14)
+    # assert numpy.all(rgb-1.0 < 1.0e-2)
+    rgb[rgb < 0] = 0.0
+    rgb[rgb > 1] = 1.0
 
     # plt.plot(X[0], X[1], 'xk')
+
+    # Unfortunately, one cannot yet use tripcolors with explicit RGB
+    # specification (see
+    # <https://github.com/matplotlib/matplotlib/issues/10265>). As a
+    # workaround, associate range(n) data with the points and create a colormap
+    # that associates the integer values with the respective RGBs.
     z = numpy.arange(xyy.shape[1])
-    cmap = colors_to_cmap(rgb.T)
+    cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+            'gamut', rgb.T, N=rgb.shape[1]
+            )
 
     triang = matplotlib.tri.Triangulation(xyy[0], xyy[1])
     plt.tripcolor(triang, z, shading='gouraud', cmap=cmap)
