@@ -4,8 +4,55 @@ from __future__ import division
 
 import numpy
 
-from . import conversions
+from . import illuminants
 from . import observers
+
+
+def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2()):
+    '''Computes the tristimulus values XYZ from a given spectrum for a given
+    observer via
+
+    X_i = int_lambda spectrum_i(lambda) * observer_i(lambda) dlambda.
+
+    In section 7, the technical report CIE Standard Illuminants for
+    Colorimetry, 1999, gives a recommendation on how to perform the
+    computation.
+    '''
+    lambda_o, data_o = observer
+    lambda_s, data_s = spectrum
+
+    # form the union of lambdas
+    lmbda = numpy.sort(numpy.unique(numpy.concatenate([lambda_o, lambda_s])))
+
+    # The technical document prescribes that the integration be performed "over
+    # the wavelength range corresponding to the entire visible spectrum, 360 nm
+    # to 830 nm.
+    assert lmbda[0] < 361e-9
+    assert lmbda[-1] > 829e-9
+
+    # interpolate data
+    idata_o = numpy.array([numpy.interp(lmbda, lambda_o, d) for d in data_o])
+    # The technical report specifies the interpolation techniques, too:
+    # ```
+    # Use one of the four following methods to calculate needed but unmeasured
+    # values of phi(l), R(l) or tau(l) within the range of measurements:
+    #   1) the third-order polynomial interpolation (Lagrange) from the four
+    #      neighbouring data points around the point to be interpolated, or
+    #   2) cubic spline interpolation formula, or
+    #   3) a fifth order polynomial interpolation formula from the six
+    #      neighboring data points around the point to be interpolated, or
+    #   4) a Sprague interpolation (see Seve, 2003).
+    # ```
+    # Well, don't do that but simply use linear interpolation now. We only use
+    # the midpoint rule for integration anyways.
+    idata_s = numpy.interp(lmbda, lambda_s, data_s)
+
+    values = numpy.dot(idata_o, idata_s)
+
+    # scale the values such that Y=1
+    values /= values[1]
+
+    return values
 
 
 def white_point(illuminant, observer=observers.cie_1931_2()):
@@ -13,7 +60,7 @@ def white_point(illuminant, observer=observers.cie_1931_2()):
     The white point of an illuminant is the chromaticity of a white object
     under the illuminant.
     '''
-    return conversions.spectrum_to_xyz(illuminant, observer)
+    return illuminants.spectrum_to_xyz(illuminant, observer)
 
 
 def planckian_radiator(temperature):

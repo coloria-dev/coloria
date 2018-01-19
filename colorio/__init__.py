@@ -14,9 +14,11 @@ from .__about__ import (
     )
 
 # pylint: disable=wildcard-import
-from .conversions import *
+from . import cielab
 from . import illuminants
 from . import observers
+from . import srgb1
+from . import xyy
 from .tools import *
 
 try:
