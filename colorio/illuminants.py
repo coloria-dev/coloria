@@ -4,7 +4,6 @@ from __future__ import division
 
 import numpy
 
-from . import illuminants
 from . import observers
 
 
@@ -60,7 +59,7 @@ def white_point(illuminant, observer=observers.cie_1931_2()):
     The white point of an illuminant is the chromaticity of a white object
     under the illuminant.
     '''
-    return illuminants.spectrum_to_xyz(illuminant, observer)
+    return spectrum_to_xyz(illuminant, observer)
 
 
 def planckian_radiator(temperature):
