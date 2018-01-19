@@ -17,9 +17,8 @@ def from_xyz(xyz, whitepoint=100*white_point(d65())):
         delta = 6.0/29.0
         out = numpy.array(t, dtype=float)
         is_greater = out > delta**3
-        is_smaller = numpy.logical_not(is_greater)
         out[is_greater] = numpy.cbrt(out[is_greater])
-        out[is_smaller] = out[is_smaller]/3/delta**2 + 4.0/29.0
+        out[~is_greater] = out[~is_greater]/3/delta**2 + 4.0/29.0
         return out
 
     fxyz = f((xyz.T / whitepoint).T)
@@ -35,9 +34,8 @@ def to_xyz(cielab, whitepoint=100*white_point(d65())):
         delta = 6.0/29.0
         out = numpy.array(t, dtype=float)
         is_greater = out > delta
-        is_smaller = numpy.logical_not(is_greater)
         out[is_greater] = out[is_greater]**3
-        out[is_smaller] = 3*delta**2 * (out[is_smaller] - 4.0/29.0)
+        out[~is_greater] = 3*delta**2 * (out[~is_greater] - 4.0/29.0)
         return out
 
     return (f1(numpy.array([
@@ -84,6 +82,7 @@ def _plot_rgb_triangle(L):
     xyz = srgb_linear.to_xyz(rgb_linear)
     xyz *= y_target / xyz[1]
     cielab_vals = from_xyz(xyz, wp)
+    assert numpy.all(abs(cielab_vals[0] - L) < 1.0e-13)
 
     # rgb_linear = srgb_linear.from_xyz(xyz)
     rgb = srgb1.from_srgb_linear(rgb_linear)
