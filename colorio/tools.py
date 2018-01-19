@@ -56,15 +56,15 @@ def _plot_rgb_triangle():
 
     # Get all RGB values that sum up to 1.
     rgb_linear = numpy.array(partition(3, n)).T / n
+    # For the x-y-diagram, it doesn't matter if the values are scaled in any
+    # way. After all, the tranlation to XYZ is linear, and then to xyY it's
+    # (X/(X+Y+Z), Y/(X+Y+Z), Y), so the factor will only be present in the last
+    # component which is discarded. To make the plot a bit brighter, scale the
+    # colors up as much as possible.
+    rgb_linear /= numpy.max(rgb_linear, axis=0)
+
     xyz = srgb_linear.to_xyz(rgb_linear)
     xyy_vals = xyy.from_xyz(xyz)
-
-    # For each point in the x-y-diagram that is also an SRGB value, there are
-    # many different SRGB values. Essentially, from [x, y, Y], the last
-    # components can be chosen at will, and many choices will lead to a valid
-    # SRGB. One choice would be to take the Y that results in the brightest
-    # SRGB. For simplicity, we rather just take in the input SRGB here.
-    rgb = srgb1.from_srgb_linear(rgb_linear)
 
     # Unfortunately, one cannot yet use tripcolors with explicit RGB
     # specification (see
@@ -72,6 +72,7 @@ def _plot_rgb_triangle():
     # workaround, associate range(n) data with the points and create a colormap
     # that associates the integer values with the respective RGBs.
     z = numpy.arange(xyy_vals.shape[1])
+    rgb = srgb1.from_srgb_linear(rgb_linear)
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
         'gamut', rgb.T, N=len(rgb.T)
         )
