@@ -46,7 +46,14 @@ def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2()):
     # the midpoint rule for integration anyways.
     idata_s = numpy.interp(lmbda, lambda_s, data_s)
 
-    values = numpy.dot(idata_o, idata_s)
+    # step sizes
+    delta = numpy.zeros(len(lmbda))
+    diff = lmbda[1:] - lmbda[:-1]
+    delta[1:] += diff
+    delta[:-1] += diff
+    delta /= 2
+
+    values = numpy.dot(idata_o, idata_s * delta)
 
     return values
 
