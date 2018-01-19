@@ -36,7 +36,7 @@ def _plot_monochromatic():
     # draw outline of monochromatic spectra
     lmbda = 1.0e-9 * numpy.arange(380, 701)
     values = []
-    # TODO vectorize
+    # TODO vectorize (see <https://github.com/numpy/numpy/issues/10439>)
     for k, _ in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
@@ -66,9 +66,8 @@ def _plot_rgb_triangle():
     xyz = srgb_linear.to_xyz(rgb_linear)
     xyy_vals = xyy.from_xyz(xyz)
 
-    # Unfortunately, one cannot yet use tripcolors with explicit RGB
-    # specification (see
-    # <https://github.com/matplotlib/matplotlib/issues/10265>). As a
+    # Unfortunately, one cannot use tripcolors with explicit RGB specification
+    # (see <https://github.com/matplotlib/matplotlib/issues/10265>). As a
     # workaround, associate range(n) data with the points and create a colormap
     # that associates the integer values with the respective RGBs.
     z = numpy.arange(xyy_vals.shape[1])
