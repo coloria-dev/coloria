@@ -24,4 +24,5 @@ def test_conversion(xyz):
 
 
 if __name__ == '__main__':
-    test_luminance_level()
+    colorio.cielab.show_luminance_level(50)
+    # test_luminance_level()

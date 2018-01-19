@@ -37,14 +37,14 @@ def to_xyz(cielab, whitepoint=100*white_point(d65())):
         is_greater = out > delta
         is_smaller = numpy.logical_not(is_greater)
         out[is_greater] = out[is_greater]**3
-        out[is_smaller] = 3*delta**2 + (out[is_smaller] - 4.0/29.0)
+        out[is_smaller] = 3*delta**2 * (out[is_smaller] - 4.0/29.0)
         return out
 
-    return whitepoint * f1(numpy.array([
+    return (f1(numpy.array([
         (cielab[0]+16)/116 + cielab[1]/500,
         (cielab[0]+16)/116,
-        (cielab[0]+16)/116 - cielab[2]/500,
-        ]))
+        (cielab[0]+16)/116 - cielab[2]/200,
+        ])).T * whitepoint).T
 
 
 def show_luminance_level(*args, **kwargs):
