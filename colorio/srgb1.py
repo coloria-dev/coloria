@@ -4,18 +4,8 @@ from __future__ import division
 
 import numpy
 
-_M = numpy.array([
-    [+3.2406255, -1.537208, -0.4986286],
-    [-0.9689307, +1.8757561, +0.0415175],
-    [+0.0557101, -0.2040211, +1.0569959],
-    ])
 
-
-def from_xyz(xyz):
-    # https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
-    # http://www.color.org/srgb.pdf
-    srgb_linear = numpy.dot(_M, xyz)
-
+def from_srgb_linear(srgb_linear):
     a = 0.055
     is_smaller = srgb_linear <= 0.0031308
     is_greater = numpy.logical_not(is_smaller)
@@ -26,7 +16,7 @@ def from_xyz(xyz):
     return srgb
 
 
-def to_xyz(srgb1):
+def to_srgb_linear(srgb1):
     srgb_linear = numpy.array(srgb1, dtype=float)
 
     # https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation
@@ -36,8 +26,7 @@ def to_xyz(srgb1):
     a = 0.055
     srgb_linear[is_smaller] /= 12.92
     srgb_linear[is_greater] = ((srgb_linear[is_greater] + a) / (1+a))**2.4
-
-    return numpy.linalg.solve(_M, srgb_linear)
+    return srgb_linear
 
 
 def to_srgb256(srgb1):

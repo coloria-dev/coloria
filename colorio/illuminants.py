@@ -48,9 +48,6 @@ def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2()):
 
     values = numpy.dot(idata_o, idata_s)
 
-    # scale the values such that Y=1
-    values /= values[1]
-
     return values
 
 
@@ -59,7 +56,10 @@ def white_point(illuminant, observer=observers.cie_1931_2()):
     The white point of an illuminant is the chromaticity of a white object
     under the illuminant.
     '''
-    return spectrum_to_xyz(illuminant, observer)
+    values = spectrum_to_xyz(illuminant, observer)
+    # normalize for relative luminance, Y=1
+    values /= values[1]
+    return values
 
 
 def planckian_radiator(temperature):

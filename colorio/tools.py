@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy
 
 from .illuminants import spectrum_to_xyz
+from . import srgb_linear
 from . import srgb1
 from . import xyy
 from .illuminants import planckian_radiator
@@ -18,7 +19,7 @@ def show_gamut_diagram(*args, **kwargs):
     return
 
 
-def _partition(boxes, balls):
+def partition(boxes, balls):
     # <https://stackoverflow.com/a/36748940/353337>
     def rec(boxes, balls, parent=tuple()):
         if boxes > 1:
@@ -52,20 +53,18 @@ def _plot_rgb_triangle():
     # plot sRGB triangle
     # discretization points
     n = 50
-    corners = xyy.from_xyz(srgb1.to_xyz([[1, 0, 0], [0, 1, 0], [0, 0, 1]])).T
 
-    bary = numpy.array(_partition(3, n)).T / n
-    xyy_vals = numpy.sum([
-        numpy.outer(bary[k], corners[k]) for k in range(3)
-        ], axis=0).T
-    rgb = srgb1.from_xyz(xyy.to_xyz(xyy_vals))
-    # Some values can be slightly off (in the range of 1.0e-15)
-    assert numpy.all(rgb > -1.0e-14)
-    rgb[rgb < 0] = 0.0
-    # assert numpy.all(rgb-1.0 < 1.0e-2)
-    rgb[rgb > 1] = 1.0
+    # Get all RGB values that sum up to 1.
+    rgb_linear = numpy.array(partition(3, n)).T / n
+    xyz = srgb_linear.to_xyz(rgb_linear)
+    xyy_vals = xyy.from_xyz(xyz)
 
-    # plt.plot(X[0], X[1], 'xk')
+    # For each point in the x-y-diagram that is also an SRGB value, there are
+    # many different SRGB values. Essentially, from [x, y, Y], the last
+    # components can be chosen at will, and many choices will lead to a valid
+    # SRGB. One choice would be to take the Y that results in the brightest
+    # SRGB. For simplicity, we rather just take in the input SRGB here.
+    rgb = srgb1.from_srgb_linear(rgb_linear)
 
     # Unfortunately, one cannot yet use tripcolors with explicit RGB
     # specification (see
@@ -74,7 +73,7 @@ def _plot_rgb_triangle():
     # that associates the integer values with the respective RGBs.
     z = numpy.arange(xyy_vals.shape[1])
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
-        'gamut', rgb.T, N=rgb.shape[1]
+        'gamut', rgb.T, N=len(rgb.T)
         )
 
     triang = matplotlib.tri.Triangulation(xyy_vals[0], xyy_vals[1])
