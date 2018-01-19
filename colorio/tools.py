@@ -32,7 +32,7 @@ def partition(boxes, balls):
     return list(rec(boxes, balls))
 
 
-def _plot_horseshoe():
+def _plot_monochromatic():
     # draw outline of monochromatic spectra
     lmbda = 1.0e-9 * numpy.arange(380, 701)
     values = []
@@ -93,7 +93,7 @@ def _plot_planckian_locus():
 
 
 def plot_gamut_diagram():
-    _plot_horseshoe()
+    _plot_monochromatic()
     _plot_rgb_triangle()
     _plot_planckian_locus()
 
