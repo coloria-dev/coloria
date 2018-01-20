@@ -33,3 +33,15 @@ def to_srgb256(srgb1):
 
 def from_srgb256(srgb256):
     return srgb256 / 256
+
+
+def srgb_gamut(filename='srgb.vtu', n=50):
+    import meshio
+    import meshzoo
+    points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
+    meshio.write(
+        filename,
+        points, {'tetra': cells},
+        point_data={'srgb1': from_srgb_linear(points)}
+        )
+    return

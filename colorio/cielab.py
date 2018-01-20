@@ -112,7 +112,7 @@ def _plot_horseshoe(L):
         )
 
     # draw outline of monochromatic spectra
-    lmbda = 1.0e-9 * numpy.arange(380, 701)
+    lmbda = 1.0e-9 * numpy.arange(380, 781)
 
     # TODO vectorize
     values = []
@@ -130,4 +130,18 @@ def _plot_horseshoe(L):
 
     plt.fill(values[:, 0], values[:, 1], color=[0.8, 0.8, 0.8], zorder=0)
     plt.plot(values[:, 0], values[:, 1], '-k', label='monochromatic light')
+    return
+
+
+def srgb_gamut(filename='srgb-cielab.vtu', n=50):
+    import meshio
+    import meshzoo
+    from . import srgb_linear
+    srgb, cells = meshzoo.cube(nx=n, ny=n, nz=n)
+    pts = from_xyz(srgb_linear.to_xyz(srgb.T)).T
+    meshio.write(
+        filename,
+        pts, {'tetra': cells},
+        point_data={'srgb': srgb}
+        )
     return

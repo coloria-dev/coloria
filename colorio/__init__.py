@@ -19,6 +19,7 @@ from . import illuminants
 from . import observers
 from . import srgb1
 from . import xyy
+from . import xyz
 from .tools import *
 
 try:

@@ -23,6 +23,12 @@ def test_conversion(xyz):
 #     return
 
 
+def test_srgb_gamut():
+    colorio.cielab.srgb_gamut()
+    return
+
+
 if __name__ == '__main__':
-    colorio.cielab.show_luminance_level(50)
+    # colorio.cielab.show_luminance_level(50)
     # test_luminance_level()
+    test_srgb_gamut()
