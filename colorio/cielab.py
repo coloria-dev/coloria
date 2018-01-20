@@ -12,7 +12,7 @@ from . import srgb1
 from .tools import partition
 
 
-def from_xyz(xyz, whitepoint=100*white_point(d65())):
+def from_xyz(xyz, whitepoint=white_point(d65())):
     def f(t):
         delta = 6.0/29.0
         out = numpy.array(t, dtype=float)
@@ -29,7 +29,7 @@ def from_xyz(xyz, whitepoint=100*white_point(d65())):
         ])
 
 
-def to_xyz(cielab, whitepoint=100*white_point(d65())):
+def to_xyz(cielab, whitepoint=white_point(d65())):
     def f1(t):
         delta = 6.0/29.0
         out = numpy.array(t, dtype=float)
@@ -136,12 +136,12 @@ def _plot_horseshoe(L):
 def srgb_gamut(filename='srgb-cielab.vtu', n=50):
     import meshio
     import meshzoo
-    from . import srgb_linear
-    srgb, cells = meshzoo.cube(nx=n, ny=n, nz=n)
-    pts = from_xyz(srgb_linear.to_xyz(srgb.T)).T
+    points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
+    pts = from_xyz(srgb_linear.to_xyz(points.T)).T
+    rgb = srgb1.from_srgb_linear(points)
     meshio.write(
         filename,
         pts, {'tetra': cells},
-        point_data={'srgb': srgb}
+        point_data={'srgb': rgb}
         )
     return
