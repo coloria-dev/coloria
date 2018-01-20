@@ -18,11 +18,11 @@ def from_xyz(xyz, whitepoint=white_point(d65())):
         out[~is_greater] = out[~is_greater]/3/delta**2 + 4.0/29.0
         return out
 
-    fxyz = f((xyz.T / whitepoint).T)
+    fx, fy, fz = f((xyz.T / whitepoint).T)
     return numpy.array([
-        116 * fxyz[1] - 16,
-        500 * (fxyz[0] - fxyz[1]),
-        200 * (fxyz[1] - fxyz[2]),
+        116 * fy - 16,
+        500 * (fx - fy),
+        200 * (fy - fz),
         ])
 
 
@@ -35,10 +35,11 @@ def to_xyz(cielab, whitepoint=white_point(d65())):
         out[~is_greater] = 3*delta**2 * (out[~is_greater] - 4.0/29.0)
         return out
 
+    L, a, b = cielab
     return (f1(numpy.array([
-        (cielab[0]+16)/116 + cielab[1]/500,
-        (cielab[0]+16)/116,
-        (cielab[0]+16)/116 - cielab[2]/200,
+        (L+16)/116 + a/500,
+        (L+16)/116,
+        (L+16)/116 - b/200,
         ])).T * whitepoint).T
 
 

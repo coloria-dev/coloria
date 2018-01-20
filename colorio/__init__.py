@@ -13,19 +13,21 @@ from .__about__ import (
     __status__,
     )
 
-# pylint: disable=wildcard-import
 from . import cielab
+from . import cielch
+from . import cieluv
 from . import illuminants
 from . import observers
 from . import srgb1
 from . import xyy
 from . import xyz
+# pylint: disable=wildcard-import
 from .tools import *
 
-try:
-    import pipdate
-except ImportError:
-    pass
-else:
-    if pipdate.needs_checking(__name__):
-        print(pipdate.check(__name__, __version__))
+# try:
+#     import pipdate
+# except ImportError:
+#     pass
+# else:
+#     if pipdate.needs_checking(__name__):
+#         print(pipdate.check(__name__, __version__))

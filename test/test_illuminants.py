@@ -25,9 +25,14 @@ def test_values(illuminant, decimals, values):
     return
 
 
-def test_white_point():
-    values = colorio.illuminants.white_point(colorio.illuminants.d65())
-    assert numpy.all(abs(values - [0.95048974, 1.0, 1.08892197]) < 1.0e-8)
+@pytest.mark.parametrize('illuminant,ref,tol', [
+    (colorio.illuminants.d65(), [0.95048974, 1.0, 1.08892197], 1.0e-8),
+    (colorio.illuminants.e(), [1.00015018, 1.0, 1.00066598], 1.0e-8),
+    (colorio.illuminants.f2(), [0.99146841, 1.0, 0.67318498], 1.0e-8),
+    ])
+def test_white_point(illuminant, ref, tol):
+    values = colorio.illuminants.white_point(illuminant)
+    assert numpy.all(abs(values - ref) < tol)
     return
 
 
