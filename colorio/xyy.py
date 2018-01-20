@@ -8,6 +8,7 @@ from .srgb_linear import SrgbLinear
 from .srgb1 import SRGB1
 
 
+# pylint: disable=no-self-use
 class XYY(object):
     def __init__(self):
         return

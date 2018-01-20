@@ -9,6 +9,7 @@ from .srgb_linear import SrgbLinear
 from .srgb1 import SRGB1
 
 
+# pylint: disable=too-many-instance-attributes
 class JzAzBz(object):
     '''
     Muhammad Safdar, Guihua Cui, Youn Jin Kim, and Ming Ronnier Luo,

@@ -26,8 +26,8 @@ class SRGB1(object):
 
         srgb_linear[is_smaller] /= 12.92
         srgb_linear[~is_smaller] = (
-                (srgb_linear[~is_smaller] + self.a) / (1+self.a)
-                )**2.4
+            (srgb_linear[~is_smaller] + self.a) / (1+self.a)
+            )**2.4
         return srgb_linear
 
     def srgb_gamut(self, filename='srgb.vtu', n=50):
