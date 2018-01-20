@@ -11,6 +11,7 @@ import colorio
     numpy.random.rand(3, 7),
     ])
 def test_conversion(xyz):
-    out = colorio.ciehcl.to_xyz(colorio.ciehcl.from_xyz(xyz))
+    ciehcl = colorio.CIEHCL()
+    out = ciehcl.to_xyz(ciehcl.from_xyz(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
     return

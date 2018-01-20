@@ -11,6 +11,7 @@ import colorio
     numpy.random.rand(3, 7),
     ])
 def test_conversion(xyz):
-    out = colorio.srgb_linear.to_xyz(colorio.srgb_linear.from_xyz(xyz))
+    srgb_linear = colorio.SrgbLinear()
+    out = srgb_linear.to_xyz(srgb_linear.from_xyz(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
     return

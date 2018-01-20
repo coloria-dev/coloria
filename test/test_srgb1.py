@@ -11,13 +11,14 @@ import colorio
     numpy.random.rand(3, 7),
     ])
 def test_conversion(vals):
-    out = colorio.srgb1.to_srgb_linear(colorio.srgb1.from_srgb_linear(vals))
+    srgb1 = colorio.SRGB1()
+    out = srgb1.to_srgb_linear(srgb1.from_srgb_linear(vals))
     assert numpy.all(abs(vals - out) < 1.0e-14)
     return
 
 
 def test_gamut():
-    colorio.srgb1.srgb_gamut(n=10)
+    colorio.SRGB1().srgb_gamut(n=10)
     return
 
 

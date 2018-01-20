@@ -6,14 +6,18 @@ from .illuminants import white_point, d65
 from . import cielab
 
 
-def from_xyz(xyz, whitepoint=white_point(d65())):
-    L, u, v = cielab.from_xyz(xyz, whitepoint=whitepoint)
-    C = numpy.sqrt(u**2 + v**2)
-    h = numpy.arctan2(v, u)
-    return numpy.array([L, C, h])
+class CIELCH(object):
+    def __init__(self, whitepoint=white_point(d65())):
+        self.cielab = cielab.CIELAB(whitepoint=whitepoint)
+        return
 
+    def from_xyz(self, xyz):
+        L, u, v = self.cielab.from_xyz(xyz)
+        C = numpy.sqrt(u**2 + v**2)
+        h = numpy.arctan2(v, u)
+        return numpy.array([L, C, h])
 
-def to_xyz(lch, whitepoint=white_point(d65())):
-    L, C, h = lch
-    lab = numpy.array([L, C * numpy.cos(h), C * numpy.sin(h)])
-    return cielab.to_xyz(lab, whitepoint=whitepoint)
+    def to_xyz(self, lch):
+        L, C, h = lch
+        lab = numpy.array([L, C * numpy.cos(h), C * numpy.sin(h)])
+        return self.cielab.to_xyz(lab)

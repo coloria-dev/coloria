@@ -11,6 +11,7 @@ import colorio
     numpy.random.rand(3, 7),
     ])
 def test_conversion(xyz):
-    out = colorio.cielch.to_xyz(colorio.cielch.from_xyz(xyz))
+    cielch = colorio.CIELCH()
+    out = cielch.to_xyz(cielch.from_xyz(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
     return

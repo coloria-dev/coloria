@@ -11,13 +11,14 @@ import colorio
     numpy.random.rand(3, 7),
     ])
 def test_conversion(xyz):
-    out = colorio.cielab.to_xyz(colorio.cielab.from_xyz(xyz))
+    cielab = colorio.CIELAB()
+    out = cielab.to_xyz(cielab.from_xyz(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
     return
 
 
 def test_srgb_gamut():
-    colorio.cielab.srgb_gamut(n=10)
+    colorio.CIELAB().srgb_gamut(n=10)
     return
 
 

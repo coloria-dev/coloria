@@ -11,13 +11,14 @@ import colorio
     numpy.random.rand(3, 7),
     ])
 def test_conversion(xyz):
-    out = colorio.xyy.to_xyz(colorio.xyy.from_xyz(xyz))
+    xyy = colorio.XYY()
+    out = xyy.to_xyz(xyy.from_xyz(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
     return
 
 
 def test_plot():
-    colorio.xyy.srgb_gamut(n=10)
+    colorio.XYY().srgb_gamut(n=10)
     return
 
 

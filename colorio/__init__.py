@@ -13,15 +13,16 @@ from .__about__ import (
     __status__,
     )
 
-from . import ciehcl
-from . import cielab
-from . import cielch
-from . import cieluv
+from .ciehcl import CIEHCL
+from .cielab import CIELAB
+from .cielch import CIELCH
+from .cieluv import CIELUV
 from . import illuminants
-from . import jzazbz
+from .jzazbz import JzAzBz
 from . import observers
-from . import srgb1
-from . import xyy
+from .srgb1 import SRGB1
+from .srgb_linear import SrgbLinear
+from .xyy import XYY
 from . import xyz
 # pylint: disable=wildcard-import
 from .tools import *

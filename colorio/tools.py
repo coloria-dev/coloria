@@ -6,11 +6,11 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy
 
-from .illuminants import spectrum_to_xyz
-from . import srgb_linear
-from . import srgb1
-from . import xyy
-from .illuminants import planckian_radiator
+from .illuminants import spectrum_to_xyz, planckian_radiator
+from .xyy import XYY
+
+from .srgb_linear import SrgbLinear
+from .srgb1 import SRGB1
 
 
 def show_gamut_diagram(*args, **kwargs):
@@ -40,7 +40,7 @@ def _plot_monochromatic():
     for k, _ in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
-        values.append(xyy.from_xyz(spectrum_to_xyz((lmbda, data)))[:2])
+        values.append(XYY().from_xyz(spectrum_to_xyz((lmbda, data)))[:2])
     values = numpy.array(values)
     # fill horseshoe area
     plt.fill(values[:, 0], values[:, 1], color=[0.8, 0.8, 0.8], zorder=0)
@@ -63,15 +63,15 @@ def _plot_rgb_triangle():
     # colors up as much as possible.
     rgb_linear /= numpy.max(rgb_linear, axis=0)
 
-    xyz = srgb_linear.to_xyz(rgb_linear)
-    xyy_vals = xyy.from_xyz(xyz)
+    xyz = SrgbLinear().to_xyz(rgb_linear)
+    xyy_vals = XYY().from_xyz(xyz)
 
     # Unfortunately, one cannot use tripcolors with explicit RGB specification
     # (see <https://github.com/matplotlib/matplotlib/issues/10265>). As a
     # workaround, associate range(n) data with the points and create a colormap
     # that associates the integer values with the respective RGBs.
     z = numpy.arange(xyy_vals.shape[1])
-    rgb = srgb1.from_srgb_linear(rgb_linear)
+    rgb = SRGB1().from_srgb_linear(rgb_linear)
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
         'gamut', rgb.T, N=len(rgb.T)
         )
@@ -85,7 +85,7 @@ def _plot_planckian_locus():
     # plot planckian locus
     values = []
     for temp in numpy.arange(1000, 20001, 100):
-        xyy_vals = xyy.from_xyz(spectrum_to_xyz(planckian_radiator(temp)))
+        xyy_vals = XYY().from_xyz(spectrum_to_xyz(planckian_radiator(temp)))
         values.append(xyy_vals[:2])
     values = numpy.array(values)
     plt.plot(values[:, 0], values[:, 1], ':k', label='Planckian locus')
