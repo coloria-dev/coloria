@@ -13,8 +13,9 @@ from .__about__ import (
     __status__,
     )
 
-from . import cielab
 from . import ciehcl
+from . import cielab
+from . import cielch
 from . import cieluv
 from . import illuminants
 from . import observers
