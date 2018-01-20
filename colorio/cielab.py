@@ -2,14 +2,11 @@
 #
 from __future__ import division
 
-import matplotlib
-import matplotlib.pyplot as plt
 import numpy
 
-from .illuminants import spectrum_to_xyz, white_point, d65
+from .illuminants import white_point, d65
 from . import srgb_linear
 from . import srgb1
-from .tools import partition
 
 
 def from_xyz(xyz, whitepoint=white_point(d65())):
@@ -43,94 +40,6 @@ def to_xyz(cielab, whitepoint=white_point(d65())):
         (cielab[0]+16)/116,
         (cielab[0]+16)/116 - cielab[2]/200,
         ])).T * whitepoint).T
-
-
-def show_luminance_level(*args, **kwargs):
-    plot_luminance_level(*args, **kwargs)
-    plt.show()
-    return
-
-
-def plot_luminance_level(L):
-    _plot_horseshoe(L)
-    _plot_rgb_triangle(L)
-
-    plt.title('L*={}'.format(L))
-    plt.gca().set_aspect('equal')
-    plt.legend()
-    plt.xlabel('a*')
-    plt.ylabel('b*')
-    return
-
-
-def _plot_rgb_triangle(L):
-    wp = 100 * white_point(d65())
-
-    # plot sRGB triangle
-    # discretization points
-    n = 10
-
-    # The target Y is chosen such that the desired luminance is achieved.
-    delta = 6.0 / 29.0
-    y_target = (
-        ((L+16)/116)**3 * wp[1] if L > 8 else
-        3*L*delta**2*wp[1]
-        )
-
-    # Get all RGB values that sum up to 1.
-    rgb_linear = numpy.array(partition(3, n)).T / n
-    xyz = srgb_linear.to_xyz(rgb_linear)
-    xyz *= y_target / xyz[1]
-    cielab_vals = from_xyz(xyz, wp)
-    assert numpy.all(abs(cielab_vals[0] - L) < 1.0e-13)
-
-    # rgb_linear = srgb_linear.from_xyz(xyz)
-    rgb = srgb1.from_srgb_linear(rgb_linear)
-
-    # Unfortunately, one cannot use tripcolors with explicit RGB specification
-    # (see <https://github.com/matplotlib/matplotlib/issues/10265>). As a
-    # workaround, associate range(n) data with the points and create a colormap
-    # that associates the integer values with the respective RGBs.
-    z = numpy.arange(cielab_vals.shape[1])
-    cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
-        'gamut', rgb.T, N=len(rgb.T)
-        )
-
-    triang = matplotlib.tri.Triangulation(cielab_vals[1], cielab_vals[2])
-    plt.tripcolor(triang, z, shading='gouraud', cmap=cmap)
-    return
-
-
-def _plot_horseshoe(L):
-    wp = 100 * white_point(d65())
-
-    # The target Y is chosen such that the desired luminance is achieved.
-    delta = 6.0 / 29.0
-    y_target = (
-        ((L+16)/116)**3 * wp[1] if L > 8 else
-        3*L*delta**2*wp[1]
-        )
-
-    # draw outline of monochromatic spectra
-    lmbda = 1.0e-9 * numpy.arange(380, 781)
-
-    # TODO vectorize
-    values = []
-    for k, _ in enumerate(lmbda):
-        data = numpy.zeros(len(lmbda))
-        data[k] = 1.0
-        xyz = spectrum_to_xyz((lmbda, data))
-        # normalize to get the target luminance
-        xyz *= y_target / xyz[1]
-        vals = from_xyz(xyz, wp)
-        assert abs(vals[0] - L) < 1.0e-13
-        values.append(vals[1:])
-
-    values = numpy.array(values)
-
-    plt.fill(values[:, 0], values[:, 1], color=[0.8, 0.8, 0.8], zorder=0)
-    plt.plot(values[:, 0], values[:, 1], '-k', label='monochromatic light')
-    return
 
 
 def srgb_gamut(filename='srgb-cielab.vtu', n=50):
