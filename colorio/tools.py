@@ -6,9 +6,10 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy
 
-from .conversions import (
-    spectrum_to_xyz, xyz_to_xyy, srgb1_to_xyz, xyz_to_srgb1, xyy_to_xyz
-    )
+from .illuminants import spectrum_to_xyz
+from . import srgb_linear
+from . import srgb1
+from . import xyy
 from .illuminants import planckian_radiator
 
 
@@ -18,7 +19,7 @@ def show_gamut_diagram(*args, **kwargs):
     return
 
 
-def _partition(boxes, balls):
+def partition(boxes, balls):
     # <https://stackoverflow.com/a/36748940/353337>
     def rec(boxes, balls, parent=tuple()):
         if boxes > 1:
@@ -31,16 +32,15 @@ def _partition(boxes, balls):
     return list(rec(boxes, balls))
 
 
-def _plot_horseshoe():
+def _plot_monochromatic():
     # draw outline of monochromatic spectra
     lmbda = 1.0e-9 * numpy.arange(380, 701)
     values = []
+    # TODO vectorize (see <https://github.com/numpy/numpy/issues/10439>)
     for k, _ in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
-        xyz = spectrum_to_xyz((lmbda, data))
-        xyy = xyz_to_xyy(xyz)
-        values.append(xyy[:2])
+        values.append(xyy.from_xyz(spectrum_to_xyz((lmbda, data)))[:2])
     values = numpy.array(values)
     # fill horseshoe area
     plt.fill(values[:, 0], values[:, 1], color=[0.8, 0.8, 0.8], zorder=0)
@@ -53,32 +53,30 @@ def _plot_rgb_triangle():
     # plot sRGB triangle
     # discretization points
     n = 50
-    corners = xyz_to_xyy(srgb1_to_xyz([[1, 0, 0], [0, 1, 0], [0, 0, 1]])).T
 
-    bary = numpy.array(_partition(3, n)).T / n
-    xyy = numpy.sum([
-        numpy.outer(bary[k], corners[k]) for k in range(3)
-        ], axis=0).T
-    rgb = xyz_to_srgb1(xyy_to_xyz(xyy))
-    # Some values can be slightly off (in the range of 1.0e-15)
-    assert numpy.all(rgb > -1.0e-14)
-    rgb[rgb < 0] = 0.0
-    # assert numpy.all(rgb-1.0 < 1.0e-2)
-    rgb[rgb > 1] = 1.0
+    # Get all RGB values that sum up to 1.
+    rgb_linear = numpy.array(partition(3, n)).T / n
+    # For the x-y-diagram, it doesn't matter if the values are scaled in any
+    # way. After all, the tranlation to XYZ is linear, and then to xyY it's
+    # (X/(X+Y+Z), Y/(X+Y+Z), Y), so the factor will only be present in the last
+    # component which is discarded. To make the plot a bit brighter, scale the
+    # colors up as much as possible.
+    rgb_linear /= numpy.max(rgb_linear, axis=0)
 
-    # plt.plot(X[0], X[1], 'xk')
+    xyz = srgb_linear.to_xyz(rgb_linear)
+    xyy_vals = xyy.from_xyz(xyz)
 
-    # Unfortunately, one cannot yet use tripcolors with explicit RGB
-    # specification (see
-    # <https://github.com/matplotlib/matplotlib/issues/10265>). As a
+    # Unfortunately, one cannot use tripcolors with explicit RGB specification
+    # (see <https://github.com/matplotlib/matplotlib/issues/10265>). As a
     # workaround, associate range(n) data with the points and create a colormap
     # that associates the integer values with the respective RGBs.
-    z = numpy.arange(xyy.shape[1])
+    z = numpy.arange(xyy_vals.shape[1])
+    rgb = srgb1.from_srgb_linear(rgb_linear)
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
-        'gamut', rgb.T, N=rgb.shape[1]
+        'gamut', rgb.T, N=len(rgb.T)
         )
 
-    triang = matplotlib.tri.Triangulation(xyy[0], xyy[1])
+    triang = matplotlib.tri.Triangulation(xyy_vals[0], xyy_vals[1])
     plt.tripcolor(triang, z, shading='gouraud', cmap=cmap)
     return
 
@@ -87,15 +85,15 @@ def _plot_planckian_locus():
     # plot planckian locus
     values = []
     for temp in numpy.arange(1000, 20001, 100):
-        xyy = xyz_to_xyy(spectrum_to_xyz(planckian_radiator(temp)))
-        values.append(xyy[:2])
+        xyy_vals = xyy.from_xyz(spectrum_to_xyz(planckian_radiator(temp)))
+        values.append(xyy_vals[:2])
     values = numpy.array(values)
     plt.plot(values[:, 0], values[:, 1], ':k', label='Planckian locus')
     return
 
 
 def plot_gamut_diagram():
-    _plot_horseshoe()
+    _plot_monochromatic()
     _plot_rgb_triangle()
     _plot_planckian_locus()
 

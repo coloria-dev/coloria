@@ -27,7 +27,7 @@ def test_values(illuminant, decimals, values):
 
 def test_white_point():
     values = colorio.illuminants.white_point(colorio.illuminants.d65())
-    assert numpy.all(abs(values - [0.9504716, 1.0, 1.08883546]) < 1.0e-8)
+    assert numpy.all(abs(values - [0.95048974, 1.0, 1.08892197]) < 1.0e-8)
     return
 
 
