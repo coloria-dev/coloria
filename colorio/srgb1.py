@@ -27,14 +27,6 @@ def to_srgb_linear(srgb1):
     return srgb_linear
 
 
-def to_srgb256(srgb1):
-    return (256 * srgb1).astype(int)
-
-
-def from_srgb256(srgb256):
-    return srgb256 / 256
-
-
 def srgb_gamut(filename='srgb.vtu', n=50):
     import meshio
     import meshzoo
