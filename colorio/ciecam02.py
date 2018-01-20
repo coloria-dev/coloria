@@ -92,6 +92,8 @@ class CIECAM02(object):
         return
 
     def from_xyz(self, xyz):
+        # TODO scale xyz w.r.t. test illuminant?
+
         # Step 1: Calculate (sharpened) cone responses (transfer
         #         colour-matching functions to sharper sensors)
         rgb = numpy.dot(self.M_cat02, xyz)
@@ -145,26 +147,37 @@ class CIECAM02(object):
         s = 100 * numpy.sqrt(M/Q)
         return numpy.array([J, C, H, h, M, s, Q])
 
-    def to_xyz(self, cam):
+    def to_xyz(self, input_dict):
         # Step 1: Obtain J, C and h from H, Q, M, s
         #
-        # Step 1–1: Compute J from Q (if start from Q)
-        J = 6.25 * (self.c*Q / (self.A_w+4) / self.F_L**0.25)**2
+        if 'J' in input_dict:
+            J = input_dict['J']
+            # Q perhaps needed for C
+            Q = (4/self.c) * numpy.sqrt(J/100) * (self.A_w+4) * self.F_L**0.25
+        else:
+            # Step 1–1: Compute J from Q (if start from Q)
+            Q = input_dict['Q']
+            J = 6.25 * (self.c*Q / (self.A_w+4) / self.F_L**0.25)**2
 
         # Step 1–2: Calculate C from M or s
-        C = M / self.F_L**0.25  # if start from M
-        # if start from s:
-        Q = (4/self.c) * numpy.sqrt(J/100) * (self.A_w+4) * self.F_L**0.25
-        C = (s/100)**2 * (Q/self.F_L**0.25)
+        if 'M' in input_dict:
+            C = input_dict['M'] / self.F_L**0.25
+        else:
+            s = input_dict['s']
+            C = (s/100)**2 * (Q/self.F_L**0.25)
 
-        # Step 1–3: Calculate h from H (if start from H)
-        i0 = numpy.where(H > self.Hi)[0][0] - 1
-        Hi = self.Hi[i0]
-        hi, hi1 = self.hi[i0], self.hi[i0+1]
-        ei, ei1 = self.ei[i0], self.ei[i0+1]
-        h_ = ((H - Hi) * (ei1*hi - ei*hi1) - 100*hi*ei1) \
-            / ((H - Hi) * (ei1 - ei) - 100*ei1)
-        h = h_-2*numpy.pi if h_ > 2*numpy.pi else h_
+        if 'h' in input_dict:
+            h = input_dict['h']
+        else:
+            # Step 1–3: Calculate h from H (if start from H)
+            H = input_dict['H']
+            i0 = numpy.where(H > self.Hi)[0][0] - 1
+            Hi = self.Hi[i0]
+            hi, hi1 = self.hi[i0], self.hi[i0+1]
+            ei, ei1 = self.ei[i0], self.ei[i0+1]
+            h_ = ((H - Hi) * (ei1*hi - ei*hi1) - 100*hi*ei1) \
+                / ((H - Hi) * (ei1 - ei) - 100*ei1)
+            h = h_-2*numpy.pi if h_ > 2*numpy.pi else h_
 
         # Step 2: Calculate t, et , p1, p2 and p3
         t = (C / numpy.sqrt(J/100) / (1.64-0.29**self.n)**0.74)**(1/0.9)
@@ -214,7 +227,7 @@ class CIECAM02(object):
 
         # Step 8: Calculate X, Y and Z
         xyz = numpy.solve(self.M_cat02, rgb)
-
+        # TODO scale xyz w.r.t. test illuminant?
         return xyz
 
     def srgb_gamut(self, filename='srgb-ciecam02.vtu', n=50):
