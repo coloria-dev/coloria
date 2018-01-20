@@ -30,7 +30,7 @@ def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2()):
     assert lmbda[-1] > 829e-9
 
     # interpolate data
-    idata_o = numpy.array([numpy.interp(lmbda, lambda_o, d) for d in data_o])
+    idata_o = numpy.array([numpy.interp(lmbda, lambda_o, dt) for dt in data_o])
     # The technical report specifies the interpolation techniques, too:
     # ```
     # Use one of the four following methods to calculate needed but unmeasured

@@ -11,9 +11,7 @@ import colorio
     numpy.random.rand(3, 7),
     ])
 def test_conversion(xyz):
-    print(xyz)
     out = colorio.cielab.to_xyz(colorio.cielab.from_xyz(xyz))
-    print(out)
     assert numpy.all(abs(xyz - out) < 1.0e-14)
     return
 
