@@ -1,6 +1,7 @@
 *.pyc
 *.swp
 *.prof
+*.vtu
 MANIFEST
 README.rst
 dist/
