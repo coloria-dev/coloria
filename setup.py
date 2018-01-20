@@ -32,6 +32,8 @@ setup(
     author_email=about['__email__'],
     install_requires=[
         'matplotlib',
+        'meshio',
+        'meshzoo',
         'numpy',
         ],
     description='tools for color models',
