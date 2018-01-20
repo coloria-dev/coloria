@@ -250,7 +250,7 @@ def e():
 
 def f2():
     # http://www.npsg.uwaterloo.ca/data/illuminant.php
-    lmbda = 1.0e-9 * numpy.arange(300, 781, 5)
+    lmbda = 1.0e-9 * numpy.arange(380, 781, 5)
     vals = numpy.array([
         1.18, 1.48, 1.84, 2.15, 3.44, 15.69, 3.85, 3.74, 4.19, 4.62, 5.06,
         34.98, 11.81, 6.27, 6.63, 6.93, 7.19, 7.40, 7.54, 7.62, 7.65, 7.62,
