@@ -4,7 +4,7 @@ import colorio
 
 
 def test_gamut():
-    colorio.xyz.srgb_gamut()
+    colorio.xyz.srgb_gamut(n=10)
     return
 
 

@@ -17,7 +17,7 @@ def test_conversion(xyz):
 
 
 def test_plot():
-    colorio.xyy.srgb_gamut()
+    colorio.xyy.srgb_gamut(n=10)
     return
 
 
