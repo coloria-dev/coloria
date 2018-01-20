@@ -14,7 +14,7 @@ from .__about__ import (
     )
 
 from . import cielab
-from . import cielch
+from . import ciehcl
 from . import cieluv
 from . import illuminants
 from . import observers
