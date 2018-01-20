@@ -63,7 +63,7 @@ class CIECAM02(object):
 
         self.D_rgb = D*Y_w/rgb_w + 1 - D
         k = 1 / (5*L_A + 1)
-        self.F_l = 0.2 * k**4 * 5*L_A + 0.1*(1-k**4)**2 * numpy.cbrt(5*L_A)
+        self.F_L = 0.2 * k**4 * 5*L_A + 0.1*(1-k**4)**2 * numpy.cbrt(5*L_A)
 
         n = Y_b / Y_w
         self.z = 1.48 + numpy.sqrt(n)
@@ -81,10 +81,14 @@ class CIECAM02(object):
             self.M_hpe, numpy.linalg_solve(self.M_cat02, rgb_wc)
             )
 
-        alpha = (self.F_l*rgb_w_/100)**0.42
+        alpha = (self.F_L*rgb_w_/100)**0.42
         rgb_aw_ = 400 * (alpha / (alpha + 27.13)) + 0.1
 
         self.A_w = (numpy.dot([2, 1, 0.05], rgb_aw_) - 0.305) * self.N_bb
+
+        self.hi = [20.14, 90.00, 164.25, 237.53, 380.14]
+        self.ei = [0.8, 0.7, 1.0, 1.2, 0.8]
+        self.Hi = [0.0, 100.0, 200.0, 300.0, 400.0]
         return
 
     def from_xyz(self, xyz):
@@ -102,7 +106,7 @@ class CIECAM02(object):
 
         # Step 4: Calculate the post-adaptation cone response (resulting in
         #         dynamic range compression)
-        alpha = (self.F_l*abs(rgb_)/100)**0.42
+        alpha = (self.F_L*abs(rgb_)/100)**0.42
         rgb_a_ = numpy.sign(rgb_[0]) * 400 * (alpha / (alpha+27.13)) + 0.1
 
         # Step 5: Calculate Redness–Greenness (a) , Yellowness–Blueness (b)
@@ -115,15 +119,13 @@ class CIECAM02(object):
         # Step 6: Calculate eccentricity (et) and hue composition (H), using
         #         the unique hue data given in Table 2.4.
         # Red Yellow Green Blue Red
-        hi = [20.14, 90.00, 164.25, 237.53, 380.14]
-        ei = [0.8, 0.7, 1.0, 1.2, 0.8]
-        Hi = [0.0, 100.0, 200.0, 300.0, 400.0]
         #
-        h_ = h + 2*numpy.pi if h < hi[0] else h
+        h_ = h + 2*numpy.pi if h < self.hi[0] else h
         e_t = 0.25 * (numpy.cos(h_+2) + 3.8)
-        i0 = numpy.where(h_ > hi)[0][0] - 1
-        beta = (h_-hi[i0])/ei[i0]
-        H = Hi[i0] + 100 * beta / (beta + (hi[i0+1] - h_)/ei[i0+1])
+        i0 = numpy.where(h_ > self.hi)[0][0] - 1
+        beta = (h_ - self.hi[i0]) / self.ei[i0]
+        H = self.Hi[i0] + 100 * beta \
+            / (beta + (self.hi[i0+1] - h_)/self.ei[i0+1])
 
         # Step 7: Calculate achromatic response A
         A = (numpy.dot([2, 1, 1/20], rgb_a_) - 0.305) * self.N_bb
@@ -132,19 +134,88 @@ class CIECAM02(object):
         J = 100 * (A/self.A_w)**(self.c*self.z)
 
         # Step 9: Calculate the correlate of brightness
-        Q = (4/self.c) * numpy.sqrt(J/100) * (self.A_w + 4) * self.F_l**0.25
+        Q = (4/self.c) * numpy.sqrt(J/100) * (self.A_w + 4) * self.F_L**0.25
 
         # Step 10: Calculate the correlates of chroma (C), colourfulness (M)
         #          and saturation (s)
         t = (50000/13 * self.N_c * self.N_cb) * e_t * numpy.sqrt(a**2 + b**2) \
             / numpy.dot([1, 1, 21/20], rgb_a_)
         C = t**0.9 * numpy.sqrt(J/100) * (1.64 - 0.29**self.n)**0.73
-        M = C * self.F_l**0.25
+        M = C * self.F_L**0.25
         s = 100 * numpy.sqrt(M/Q)
         return numpy.array([J, C, H, h, M, s, Q])
 
-    def to_xyz(cam):
-        return
+    def to_xyz(self, cam):
+        # Step 1: Obtain J, C and h from H, Q, M, s
+        #
+        # Step 1–1: Compute J from Q (if start from Q)
+        J = 6.25 * (self.c*Q / (self.A_w+4) / self.F_L**0.25)**2
+
+        # Step 1–2: Calculate C from M or s
+        C = M / self.F_L**0.25  # if start from M
+        # if start from s:
+        Q = (4/self.c) * numpy.sqrt(J/100) * (self.A_w+4) * self.F_L**0.25
+        C = (s/100)**2 * (Q/self.F_L**0.25)
+
+        # Step 1–3: Calculate h from H (if start from H)
+        i0 = numpy.where(H > self.Hi)[0][0] - 1
+        Hi = self.Hi[i0]
+        hi, hi1 = self.hi[i0], self.hi[i0+1]
+        ei, ei1 = self.ei[i0], self.ei[i0+1]
+        h_ = ((H - Hi) * (ei1*hi - ei*hi1) - 100*hi*ei1) \
+            / ((H - Hi) * (ei1 - ei) - 100*ei1)
+        h = h_-2*numpy.pi if h_ > 2*numpy.pi else h_
+
+        # Step 2: Calculate t, et , p1, p2 and p3
+        t = (C / numpy.sqrt(J/100) / (1.64-0.29**self.n)**0.74)**(1/0.9)
+        e_t = 0.25 * (numpy.cos(h+2) + 3.8)
+        A = self.A_w * (J/100)**(1/self.c/self.z)
+
+        p2 = A / self.N_bb + 0.305
+
+        # Step 3: Calculate a and b
+        if abs(t) < 1.0e-15:
+            a = 0
+            b = 0
+        else:
+            p1 = (50000/13 * self.N_c * self.N_cb) * e_t * (1/t)
+            p3 = 21/20
+            cosh = numpy.cos(h)
+            sinh = numpy.sin(h)
+            if abs(sinh) >= abs(cosh):
+                p4 = p1 / sinh
+                b = p2 * (2+p3) * 460 / \
+                    (1403*p4 + (2+p3)*220*(cosh/sinh) - 27 + p3*6300)
+                a = b * cosh/sinh
+            else:
+                p5 = p1 / cosh
+                a = p2 * (2+p3) * 460 / \
+                    (1403*p5 + (2+p3)*220 - (27 - p3*6300)*sinh/cosh)
+                b = a * sinh/cosh
+
+        # Step 4: Calculate RGB_a_
+        rgb_a_ = numpy.dot(numpy.array([
+            [460, 451, 288],
+            [460, -891, -261],
+            [460, -220, -6300]
+            ]), numpy.array([p2, a, b])
+            ) / 1403
+
+        # Step 5: Calculate RGB_
+        rgb_ = numpy.sign(rgb_a_ - 0.1) * 100/self.F_L * (
+            (27.13 * abs(rgb_a_-0.1)) / (400 - abs(rgb_a_-0.1))
+            )**(1/0.42)
+
+        # Step 6: Calculate RC, GC and BC
+        rgb_c = numpy.dot(self.M_cat02, numpy.linalg.solve(self.M_hpe, rgb_))
+
+        # Step 7: Calculate R, G and B
+        rgb = rgb_c / self.D_rgb
+
+        # Step 8: Calculate X, Y and Z
+        xyz = numpy.solve(self.M_cat02, rgb)
+
+        return xyz
 
     def srgb_gamut(self, filename='srgb-ciecam02.vtu', n=50):
         import meshio
