@@ -12,8 +12,6 @@ import colorio
     ])
 def test_conversion(vals):
     out = colorio.srgb1.to_srgb_linear(colorio.srgb1.from_srgb_linear(vals))
-    print(vals)
-    print(out)
     assert numpy.all(abs(vals - out) < 1.0e-14)
     return
 

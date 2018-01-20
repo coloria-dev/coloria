@@ -9,7 +9,7 @@ def from_srgb_linear(srgb_linear):
     a = 0.055
     is_smaller = srgb_linear <= 0.0031308
 
-    srgb = srgb_linear
+    srgb = numpy.array(srgb_linear, dtype=float)
     srgb[is_smaller] *= 12.92
     srgb[~is_smaller] = (1+a) * srgb[~is_smaller]**(1/2.4) - a
     return srgb
@@ -19,7 +19,7 @@ def to_srgb_linear(srgb1):
     srgb_linear = numpy.array(srgb1, dtype=float)
 
     # https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation
-    is_smaller = srgb_linear <= 0.04045
+    is_smaller = srgb_linear <= 12.92 * 0.0031308  # 0.040449936
 
     a = 0.055
     srgb_linear[is_smaller] /= 12.92
