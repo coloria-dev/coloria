@@ -9,15 +9,14 @@ from . import srgb1
 
 
 def from_xyz(xyz):
-    return numpy.concatenate([xyz[:2] / numpy.sum(xyz, axis=0), [xyz[1]]])
+    sum_xyz = numpy.sum(xyz, axis=0)
+    x, y, z = xyz
+    return numpy.array([x/sum_xyz, y/sum_xyz, y])
 
 
 def to_xyz(xyy):
-    return numpy.stack([
-        xyy[2] / xyy[1] * xyy[0],
-        xyy[2],
-        xyy[2] / xyy[1] * (1 - xyy[0] - xyy[1]),
-        ])
+    x, y, Y = xyy
+    return numpy.array([Y/y*x, Y, Y/y * (1-x-y)])
 
 
 def srgb_gamut(filename='srgb-xyy.vtu', n=50):
