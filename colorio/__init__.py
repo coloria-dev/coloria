@@ -18,6 +18,7 @@ from . import cielab
 from . import cielch
 from . import cieluv
 from . import illuminants
+from . import jzazbz
 from . import observers
 from . import srgb1
 from . import xyy
