@@ -32,8 +32,6 @@ def test_values(illuminant, decimals, values):
     ])
 def test_white_point(illuminant, ref, tol):
     values = colorio.illuminants.white_point(illuminant)
-    print(values)
-    print(ref)
     assert numpy.all(abs(values - ref) < tol)
     return
 
