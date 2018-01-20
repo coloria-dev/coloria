@@ -10,7 +10,7 @@ from . import srgb1
 
 def from_xyz(xyz):
     sum_xyz = numpy.sum(xyz, axis=0)
-    x, y, z = xyz
+    x, y, _ = xyz
     return numpy.array([x/sum_xyz, y/sum_xyz, y])
 
 
