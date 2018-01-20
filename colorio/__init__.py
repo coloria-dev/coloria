@@ -13,13 +13,14 @@ from .__about__ import (
     __status__,
     )
 
-# pylint: disable=wildcard-import
 from . import cielab
+from . import cieluv
 from . import illuminants
 from . import observers
 from . import srgb1
 from . import xyy
 from . import xyz
+# pylint: disable=wildcard-import
 from .tools import *
 
 # try:
