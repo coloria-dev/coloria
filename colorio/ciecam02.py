@@ -5,8 +5,8 @@ from __future__ import division
 import numpy
 
 from .illuminants import white_point, d65
-from . import srgb_linear
-from . import srgb1
+from .srgb_linear import SrgbLinear
+from .srgb1 import SRGB1
 
 
 def _find_first(a, alpha):
@@ -41,10 +41,11 @@ class CIECAM02(object):
     A colour appearance model for colour management systems: CIECAM02,
     <DOI: 10.1002/col.20198>.
     '''
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, c, Y_b, L_A, whitepoint=white_point(d65())):
         # step0: Calculate all values/parameters which are independent of input
         #        samples
-        X_w, Y_w, Z_w = whitepoint
+        Y_w = whitepoint[1]
 
         # Nc and F are modelled as a function of c, and can be linearly
         # interpolated.
@@ -124,7 +125,7 @@ class CIECAM02(object):
         b = numpy.dot([1, 1, -2], rgb_a_) / 9
         # Make sure that h is in [0, 2*pi]
         h = numpy.mod(numpy.arctan2(b, a), 2*numpy.pi)
-        assert numpy.all(0 <= h) and numpy.all(h <= 2*numpy.pi)
+        assert numpy.all(h >= 0) and numpy.all(h <= 2*numpy.pi)
 
         # Step 6: Calculate eccentricity (et) and hue composition (H), using
         #         the unique hue data given in Table 2.4.
@@ -224,8 +225,7 @@ class CIECAM02(object):
             [460, 451, 288],
             [460, -891, -261],
             [460, -220, -6300]
-            ]), numpy.array([p2, a, b])
-            ) / 1403
+            ]), numpy.array([p2, a, b])) / 1403
 
         # Step 5: Calculate RGB_
         rgb_ = numpy.sign(rgb_a_ - 0.1) * 100/self.F_L * (
@@ -247,8 +247,8 @@ class CIECAM02(object):
         import meshio
         import meshzoo
         points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
-        pts = self.from_xyz(srgb_linear.to_xyz(points.T)).T
-        rgb = srgb1.from_srgb_linear(points)
+        pts = self.from_xyz(SrgbLinear().to_xyz(points.T)).T
+        rgb = SRGB1().from_srgb_linear(points)
         meshio.write(
             filename,
             pts, {'tetra': cells},
