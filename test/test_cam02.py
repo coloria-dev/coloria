@@ -21,11 +21,12 @@ def test_conversion(xyz):
     return
 
 
-# def test_srgb_gamut():
-#     colorio.cam02_ucs.srgb_gamut(n=10)
-#     return
+def test_srgb_gamut(n=10):
+    L_A = 64 / numpy.pi / 5
+    cam02_ucs = colorio.CAM02_UCS(0.69, 20, L_A)
+    cam02_ucs.srgb_gamut(n=n)
+    return
 
 
 if __name__ == '__main__':
-    # test_srgb_gamut()
-    test_conversion(numpy.random.rand(3))
+    test_srgb_gamut(n=50)
