@@ -9,6 +9,14 @@ from . import srgb_linear
 from . import srgb1
 
 
+def _find_first(a, alpha):
+    '''Given an array a and a value alpha, this method returns the first index
+    i where a[i] > alpha. Vectorized in alpha.
+    '''
+    # https://stackoverflow.com/a/48367770/353337
+    return numpy.argmax(numpy.add.outer(alpha, -a) < 0, axis=-1)
+
+
 class CIECAM02(object):
     '''
     Ming Ronnier Luo and Changjun Li,
@@ -86,8 +94,8 @@ class CIECAM02(object):
 
         self.h = \
             numpy.array([20.14, 90.00, 164.25, 237.53, 380.14]) * numpy.pi/180
-        self.e = [0.8, 0.7, 1.0, 1.2, 0.8]
-        self.H = [0.0, 100.0, 200.0, 300.0, 400.0]
+        self.e = numpy.array([0.8, 0.7, 1.0, 1.2, 0.8])
+        self.H = numpy.array([0.0, 100.0, 200.0, 300.0, 400.0])
         return
 
     def from_xyz(self, xyz):
@@ -100,7 +108,7 @@ class CIECAM02(object):
         # Step 2: Calculate the corresponding (sharpened) cone response
         #         (considering various luminance level and surround conditions
         #         included in D; hence, in DR, DG and DB)
-        rgb_c = self.D_RGB * rgb
+        rgb_c = (rgb.T * self.D_RGB).T
 
         # Step 3: Calculate the Hunt-Pointer-Estevez response
         rgb_ = numpy.dot(self.M_hpe, numpy.linalg.solve(self.M_cat02, rgb_c))
@@ -114,17 +122,17 @@ class CIECAM02(object):
         #         components and hue angle (h)
         a = numpy.dot([1, -12/11, 1/11], rgb_a_)
         b = numpy.dot([1, 1, -2], rgb_a_) / 9
-        h = numpy.arctan2(b, a)
-        assert 0 <= h <= 2*numpy.pi
+        # Make sure that h is in [0, 2*pi]
+        h = numpy.mod(numpy.arctan2(b, a), 2*numpy.pi)
+        assert numpy.all(0 <= h) and numpy.all(h <= 2*numpy.pi)
 
         # Step 6: Calculate eccentricity (et) and hue composition (H), using
         #         the unique hue data given in Table 2.4.
-        # Red Yellow Green Blue Red
-        #
-        h_ = h + 2*numpy.pi if h < self.h[0] else h
+        h_ = numpy.mod(h - self.h[0], 2*numpy.pi) + self.h[0]
+        assert numpy.all(self.h[0] <= h_) and numpy.all(h_ < self.h[-1])
         e_t = 1/4 * (numpy.cos(h_+2) + 3.8)
-        i = numpy.where(h_ > self.h)[0][0] + 1
-        assert self.h[i] <= h_ <= self.h[i+1]
+        i = _find_first(self.h, h_) - 1
+        assert numpy.all(self.h[i] <= h_) and numpy.all(h_ <= self.h[i+1])
         beta = (h_ - self.h[i]) / self.e[i]
         H = self.H[i] + 100 * beta / (beta + (self.h[i+1] - h_)/self.e[i+1])
 
@@ -178,14 +186,14 @@ class CIECAM02(object):
             assert description[2] == 'H'
             # Step 1–3: Calculate h from H (if start from H)
             H = data[2]
-            i = numpy.where(H > self.H)[0][0] + 1
-            assert self.H[i] <= H < self.H[i+1]
+            i = _find_first(self.H, H) - 1
+            assert numpy.all(self.H[i] <= H) and numpy.all(H < self.H[i+1])
             Hi = self.H[i]
             hi, hi1 = self.h[i], self.h[i+1]
             ei, ei1 = self.e[i], self.e[i+1]
             h_ = ((H - Hi) * (ei1*hi - ei*hi1) - 100*hi*ei1) \
                 / ((H - Hi) * (ei1 - ei) - 100*ei1)
-            h = h_-2*numpy.pi if h_ > 2*numpy.pi else h_
+            h = numpy.mod(h_, 2*numpy.pi)
 
         # Step 2: Calculate t, et , p1, p2 and p3
         t = (C / numpy.sqrt(J/100) / (1.64-0.29**self.n)**0.73)**(1/0.9)
@@ -195,24 +203,21 @@ class CIECAM02(object):
         p2 = A / self.N_bb + 0.305
 
         # Step 3: Calculate a and b
-        if abs(t) < 1.0e-15:
-            a = 0
-            b = 0
-        else:
-            p1 = (50000/13 * self.N_c * self.N_cb) * e_t * (1/t)
-            p3 = 21/20
-            cosh = numpy.cos(h)
-            sinh = numpy.sin(h)
-            if abs(sinh) >= abs(cosh):
-                p4 = p1 / sinh
-                b = p2 * (2+p3) * 460 / \
-                    (1403*p4 + (2+p3)*220*(cosh/sinh) - 27 + p3*6300)
-                a = b * cosh/sinh
-            else:
-                p5 = p1 / cosh
-                a = p2 * (2+p3) * 460 / \
-                    (1403*p5 + (2+p3)*220 - (27 - p3*6300)*sinh/cosh)
-                b = a * sinh/cosh
+        # ENH Slightly deviate from the standard implementation here. One
+        # actually needs to take t=0 into account as
+        #     p1 = 50000/13 * self.N_c * self.N_cb * e_t / t.
+        # Since none of the other quantities can be zero, simply formulate it
+        # all with one_over_p1. This also enables multiple other improvements.
+        one_over_p1 = t / e_t * 13/50000 / self.N_c / self.N_cb
+        p3 = 21/20
+        cosh = numpy.cos(h)
+        sinh = numpy.sin(h)
+        one_over_p4 = one_over_p1 * sinh
+        one_over_p5 = one_over_p1 * cosh
+        a, b = numpy.array([one_over_p5, one_over_p4]) * (
+            p2 * (2+p3) * 460 /
+            (1403 + one_over_p5*(2+p3)*220 - one_over_p4*(27 - p3*6300))
+            )
 
         # Step 4: Calculate RGB_a_
         rgb_a_ = numpy.dot(numpy.array([
@@ -231,7 +236,7 @@ class CIECAM02(object):
         rgb_c = numpy.dot(self.M_cat02, numpy.linalg.solve(self.M_hpe, rgb_))
 
         # Step 7: Calculate R, G and B
-        rgb = rgb_c / self.D_RGB
+        rgb = (rgb_c.T / self.D_RGB).T
 
         # Step 8: Calculate X, Y and Z
         xyz = numpy.linalg.solve(self.M_cat02, rgb)
