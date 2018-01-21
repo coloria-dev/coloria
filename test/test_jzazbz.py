@@ -11,16 +11,16 @@ import colorio
     numpy.random.rand(3, 7),
     ])
 def test_conversion(xyz):
-    cielab = colorio.CIELAB()
-    out = cielab.to_xyz(cielab.from_xyz(xyz))
-    assert numpy.all(abs(xyz - out) < 1.0e-14)
+    jzazbz = colorio.JzAzBz()
+    out = jzazbz.to_xyz(jzazbz.from_xyz(xyz))
+    assert numpy.all(abs(xyz - out) < 1.0e-13)
     return
 
 
-def test_srgb_gamut():
-    colorio.CIELAB().srgb_gamut(n=10)
+def test_srgb_gamut(n=10):
+    colorio.JzAzBz().srgb_gamut(n=n)
     return
 
 
 if __name__ == '__main__':
-    test_srgb_gamut()
+    test_srgb_gamut(n=50)

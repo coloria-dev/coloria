@@ -4,7 +4,7 @@ import colorio
 
 
 def test_spectrum_to_xyz():
-    colorio.spectrum_to_xyz(colorio.illuminants.d65())
+    colorio.illuminants.spectrum_to_xyz(colorio.illuminants.d65())
     return
 
 
