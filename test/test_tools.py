@@ -8,7 +8,7 @@ import colorio
 
 @pytest.mark.parametrize('colorspace', [
     colorio.CIELAB(),
-    colorio.CAM02_UCS(0.69, 20, 64/numpy.pi/5),
+    colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5),
     ])
 def test_srgb_gamut(colorspace):
     colorio.show_srgb_gamut(colorspace, 'srgb.vtu', n=10)
