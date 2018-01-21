@@ -18,9 +18,7 @@ def test_conversion(xyz):
     ciecam02 = colorio.CIECAM02(0.69, 20, L_A)
     J, C, H, h, M, s, Q = ciecam02.from_xyz(xyz)
 
-    print(xyz)
     out = ciecam02.to_xyz(numpy.array([J, C, H]), 'JCH')
-    print(out)
     assert numpy.all(abs(xyz - out) < 1.0e-14)
 
     out = ciecam02.to_xyz(numpy.array([Q, M, h]), 'QMh')

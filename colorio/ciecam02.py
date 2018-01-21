@@ -36,7 +36,7 @@ class CIECAM02(object):
     def __init__(self, c, Y_b, L_A, whitepoint=white_point(d65())):
         # step0: Calculate all values/parameters which are independent of input
         #        samples
-        # Table 2.3 Surround parameters
+        X_w, Y_w, Z_w = whitepoint
 
         # Nc and F are modelled as a function of c, and can be linearly
         # interpolated.
@@ -47,21 +47,19 @@ class CIECAM02(object):
         self.c = c
         self.N_c = F
 
-        XYZ_w = whitepoint
         self.M_cat02 = numpy.array([
             [+0.7328, +0.4296, -0.1624],
             [-0.7036, +1.6975, +0.0061],
             [+0.0030, +0.0136, +0.9834],
             ])
-        rgb_w = numpy.dot(self.M_cat02, XYZ_w)
+        RGB_w = numpy.dot(self.M_cat02, whitepoint)
 
         D = F * (1 - 1/3.6 * numpy.exp((-L_A-42)/92))
         D = min(D, 1.0)
         D = max(D, 0.0)
 
-        X_w, Y_w, Z_w = XYZ_w
+        self.D_RGB = D*Y_w/RGB_w + 1 - D
 
-        self.D_rgb = D*Y_w/rgb_w + 1 - D
         k = 1 / (5*L_A + 1)
         self.F_L = 0.2 * k**4 * 5*L_A + 0.1*(1-k**4)**2 * numpy.cbrt(5*L_A)
 
@@ -70,21 +68,21 @@ class CIECAM02(object):
         self.N_bb = 0.725 * 1/self.n**0.2
         self.N_cb = self.N_bb
 
-        rgb_wc = self.D_rgb * rgb_w
+        RGB_wc = self.D_RGB * RGB_w
 
         self.M_hpe = numpy.array([
             [+0.38971, +0.68898, -0.07868],
             [-0.22981, +1.18340, +0.04641],
             [+0.00000, +0.00000, +1.00000],
             ])
-        rgb_w_ = numpy.dot(
-            self.M_hpe, numpy.linalg.solve(self.M_cat02, rgb_wc)
+        RGB_w_ = numpy.dot(
+            self.M_hpe, numpy.linalg.solve(self.M_cat02, RGB_wc)
             )
 
-        alpha = (self.F_L*rgb_w_/100)**0.42
-        rgb_aw_ = 400 * (alpha / (alpha + 27.13)) + 0.1
+        alpha = (self.F_L*RGB_w_/100)**0.42
+        RGB_aw_ = 400 * alpha / (alpha + 27.13) + 0.1
 
-        self.A_w = (numpy.dot([2, 1, 0.05], rgb_aw_) - 0.305) * self.N_bb
+        self.A_w = (numpy.dot([2, 1, 1/20], RGB_aw_) - 0.305) * self.N_bb
 
         self.h = \
             numpy.array([20.14, 90.00, 164.25, 237.53, 380.14]) * numpy.pi/180
@@ -102,7 +100,7 @@ class CIECAM02(object):
         # Step 2: Calculate the corresponding (sharpened) cone response
         #         (considering various luminance level and surround conditions
         #         included in D; hence, in DR, DG and DB)
-        rgb_c = self.D_rgb * rgb
+        rgb_c = self.D_RGB * rgb
 
         # Step 3: Calculate the Hunt-Pointer-Estevez response
         rgb_ = numpy.dot(self.M_hpe, numpy.linalg.solve(self.M_cat02, rgb_c))
@@ -110,25 +108,25 @@ class CIECAM02(object):
         # Step 4: Calculate the post-adaptation cone response (resulting in
         #         dynamic range compression)
         alpha = (self.F_L*abs(rgb_)/100)**0.42
-        rgb_a_ = numpy.sign(rgb_[0]) * 400 * (alpha / (alpha+27.13)) + 0.1
+        rgb_a_ = numpy.sign(rgb_) * 400 * alpha / (alpha+27.13) + 0.1
 
         # Step 5: Calculate Redness–Greenness (a) , Yellowness–Blueness (b)
         #         components and hue angle (h)
         a = numpy.dot([1, -12/11, 1/11], rgb_a_)
         b = numpy.dot([1, 1, -2], rgb_a_) / 9
         h = numpy.arctan2(b, a)
-        assert 0 < h < 2*numpy.pi
+        assert 0 <= h <= 2*numpy.pi
 
         # Step 6: Calculate eccentricity (et) and hue composition (H), using
         #         the unique hue data given in Table 2.4.
         # Red Yellow Green Blue Red
         #
         h_ = h + 2*numpy.pi if h < self.h[0] else h
-        e_t = 0.25 * (numpy.cos(h_+2) + 3.8)
-        i0 = numpy.where(h_ > self.h)[0][0] - 1
-        beta = (h_ - self.h[i0]) / self.e[i0]
-        H = self.H[i0] + 100 * beta \
-            / (beta + (self.h[i0+1] - h_)/self.e[i0+1])
+        e_t = 1/4 * (numpy.cos(h_+2) + 3.8)
+        i = numpy.where(h_ > self.h)[0][0] + 1
+        assert self.h[i] <= h_ <= self.h[i+1]
+        beta = (h_ - self.h[i]) / self.e[i]
+        H = self.H[i] + 100 * beta / (beta + (self.h[i+1] - h_)/self.e[i+1])
 
         # Step 7: Calculate achromatic response A
         A = (numpy.dot([2, 1, 1/20], rgb_a_) - 0.305) * self.N_bb
@@ -172,7 +170,7 @@ class CIECAM02(object):
         else:
             assert description[1] == 's'
             s = data[1]
-            C = (s/100)**2 * (Q/self.F_L**0.25)
+            C = (s/100)**2 * Q / self.F_L**0.25
 
         if description[2] == 'h':
             h = data[2]
@@ -180,16 +178,17 @@ class CIECAM02(object):
             assert description[2] == 'H'
             # Step 1–3: Calculate h from H (if start from H)
             H = data[2]
-            i0 = numpy.where(H > self.H)[0][0] - 1
-            Hi = self.H[i0]
-            hi, hi1 = self.h[i0], self.h[i0+1]
-            ei, ei1 = self.e[i0], self.e[i0+1]
+            i = numpy.where(H > self.H)[0][0] + 1
+            assert self.H[i] <= H < self.H[i+1]
+            Hi = self.H[i]
+            hi, hi1 = self.h[i], self.h[i+1]
+            ei, ei1 = self.e[i], self.e[i+1]
             h_ = ((H - Hi) * (ei1*hi - ei*hi1) - 100*hi*ei1) \
                 / ((H - Hi) * (ei1 - ei) - 100*ei1)
             h = h_-2*numpy.pi if h_ > 2*numpy.pi else h_
 
         # Step 2: Calculate t, et , p1, p2 and p3
-        t = (C / numpy.sqrt(J/100) / (1.64-0.29**self.n)**0.74)**(1/0.9)
+        t = (C / numpy.sqrt(J/100) / (1.64-0.29**self.n)**0.73)**(1/0.9)
         e_t = 0.25 * (numpy.cos(h+2) + 3.8)
         A = self.A_w * (J/100)**(1/self.c/self.z)
 
@@ -232,7 +231,7 @@ class CIECAM02(object):
         rgb_c = numpy.dot(self.M_cat02, numpy.linalg.solve(self.M_hpe, rgb_))
 
         # Step 7: Calculate R, G and B
-        rgb = rgb_c / self.D_rgb
+        rgb = rgb_c / self.D_RGB
 
         # Step 8: Calculate X, Y and Z
         xyz = numpy.linalg.solve(self.M_cat02, rgb)
