@@ -13,6 +13,7 @@ from .__about__ import (
     __status__,
     )
 
+from .ciecam02 import CIECAM02
 from .ciehcl import CIEHCL
 from .cielab import CIELAB
 from .cielch import CIELCH

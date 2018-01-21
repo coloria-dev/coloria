@@ -40,10 +40,10 @@ class CIECAM02(object):
 
         # Nc and F are modelled as a function of c, and can be linearly
         # interpolated.
-        c_vals = [0.69, 0.59, 0.535]
-        F_Nc_vals = [1.0, 0.9, 0.8]
+        c_vals = [0.535, 0.59, 0.69]
+        F_Nc_vals = [0.8, 0.9, 1.0]
         assert 0.535 <= c <= 0.69
-        F = numpy.interp(c_vals, c, F_Nc_vals)
+        F = numpy.interp(c, c_vals, F_Nc_vals)
         self.c = c
         self.N_c = F
 
@@ -65,9 +65,9 @@ class CIECAM02(object):
         k = 1 / (5*L_A + 1)
         self.F_L = 0.2 * k**4 * 5*L_A + 0.1*(1-k**4)**2 * numpy.cbrt(5*L_A)
 
-        n = Y_b / Y_w
-        self.z = 1.48 + numpy.sqrt(n)
-        self.N_bb = 0.725 * 1/n**0.2
+        self.n = Y_b / Y_w
+        self.z = 1.48 + numpy.sqrt(self.n)
+        self.N_bb = 0.725 * 1/self.n**0.2
         self.N_cb = self.N_bb
 
         rgb_wc = self.D_rgb * rgb_w
@@ -78,7 +78,7 @@ class CIECAM02(object):
             [+0.00000, +0.00000, +1.00000],
             ])
         rgb_w_ = numpy.dot(
-            self.M_hpe, numpy.linalg_solve(self.M_cat02, rgb_wc)
+            self.M_hpe, numpy.linalg.solve(self.M_cat02, rgb_wc)
             )
 
         alpha = (self.F_L*rgb_w_/100)**0.42
@@ -86,9 +86,10 @@ class CIECAM02(object):
 
         self.A_w = (numpy.dot([2, 1, 0.05], rgb_aw_) - 0.305) * self.N_bb
 
-        self.hi = [20.14, 90.00, 164.25, 237.53, 380.14]
-        self.ei = [0.8, 0.7, 1.0, 1.2, 0.8]
-        self.Hi = [0.0, 100.0, 200.0, 300.0, 400.0]
+        self.h = \
+            numpy.array([20.14, 90.00, 164.25, 237.53, 380.14]) * numpy.pi/180
+        self.e = [0.8, 0.7, 1.0, 1.2, 0.8]
+        self.H = [0.0, 100.0, 200.0, 300.0, 400.0]
         return
 
     def from_xyz(self, xyz):
@@ -115,19 +116,19 @@ class CIECAM02(object):
         #         components and hue angle (h)
         a = numpy.dot([1, -12/11, 1/11], rgb_a_)
         b = numpy.dot([1, 1, -2], rgb_a_) / 9
-        h = numpy.arctan2(b/a)
+        h = numpy.arctan2(b, a)
         assert 0 < h < 2*numpy.pi
 
         # Step 6: Calculate eccentricity (et) and hue composition (H), using
         #         the unique hue data given in Table 2.4.
         # Red Yellow Green Blue Red
         #
-        h_ = h + 2*numpy.pi if h < self.hi[0] else h
+        h_ = h + 2*numpy.pi if h < self.h[0] else h
         e_t = 0.25 * (numpy.cos(h_+2) + 3.8)
-        i0 = numpy.where(h_ > self.hi)[0][0] - 1
-        beta = (h_ - self.hi[i0]) / self.ei[i0]
-        H = self.Hi[i0] + 100 * beta \
-            / (beta + (self.hi[i0+1] - h_)/self.ei[i0+1])
+        i0 = numpy.where(h_ > self.h)[0][0] - 1
+        beta = (h_ - self.h[i0]) / self.e[i0]
+        H = self.H[i0] + 100 * beta \
+            / (beta + (self.h[i0+1] - h_)/self.e[i0+1])
 
         # Step 7: Calculate achromatic response A
         A = (numpy.dot([2, 1, 1/20], rgb_a_) - 0.305) * self.N_bb
@@ -147,34 +148,42 @@ class CIECAM02(object):
         s = 100 * numpy.sqrt(M/Q)
         return numpy.array([J, C, H, h, M, s, Q])
 
-    def to_xyz(self, input_dict):
+    def to_xyz(self, data, description):
+        '''Input: J or Q; C, M or s; H or h
+        '''
         # Step 1: Obtain J, C and h from H, Q, M, s
         #
-        if 'J' in input_dict:
-            J = input_dict['J']
+        if description[0] == 'J':
+            J = data[0]
             # Q perhaps needed for C
             Q = (4/self.c) * numpy.sqrt(J/100) * (self.A_w+4) * self.F_L**0.25
         else:
             # Step 1–1: Compute J from Q (if start from Q)
-            Q = input_dict['Q']
+            assert description[0] == 'Q'
+            Q = data[0]
             J = 6.25 * (self.c*Q / (self.A_w+4) / self.F_L**0.25)**2
 
         # Step 1–2: Calculate C from M or s
-        if 'M' in input_dict:
-            C = input_dict['M'] / self.F_L**0.25
+        if description[1] == 'C':
+            C = data[1]
+        elif description[1] == 'M':
+            M = data[1]
+            C = M / self.F_L**0.25
         else:
-            s = input_dict['s']
+            assert description[1] == 's'
+            s = data[1]
             C = (s/100)**2 * (Q/self.F_L**0.25)
 
-        if 'h' in input_dict:
-            h = input_dict['h']
+        if description[2] == 'h':
+            h = data[2]
         else:
+            assert description[2] == 'H'
             # Step 1–3: Calculate h from H (if start from H)
-            H = input_dict['H']
-            i0 = numpy.where(H > self.Hi)[0][0] - 1
-            Hi = self.Hi[i0]
-            hi, hi1 = self.hi[i0], self.hi[i0+1]
-            ei, ei1 = self.ei[i0], self.ei[i0+1]
+            H = data[2]
+            i0 = numpy.where(H > self.H)[0][0] - 1
+            Hi = self.H[i0]
+            hi, hi1 = self.h[i0], self.h[i0+1]
+            ei, ei1 = self.e[i0], self.e[i0+1]
             h_ = ((H - Hi) * (ei1*hi - ei*hi1) - 100*hi*ei1) \
                 / ((H - Hi) * (ei1 - ei) - 100*ei1)
             h = h_-2*numpy.pi if h_ > 2*numpy.pi else h_
@@ -226,7 +235,7 @@ class CIECAM02(object):
         rgb = rgb_c / self.D_rgb
 
         # Step 8: Calculate X, Y and Z
-        xyz = numpy.solve(self.M_cat02, rgb)
+        xyz = numpy.linalg.solve(self.M_cat02, rgb)
         # TODO scale xyz w.r.t. test illuminant?
         return xyz
 
