@@ -53,7 +53,3 @@ class CIELUV(object):
         X = Y * 9*uu/(4*vv)
         Z = Y * (12 - 3*uu - 20*vv) / (4*vv)
         return numpy.array([X, Y, Z])
-
-    def srgb_gamut(self, filename='srgb-cieluv.vtu', n=50):
-        srgb.show_gamut(filename, self.from_xyz, n=n, cut_000=True)
-        return

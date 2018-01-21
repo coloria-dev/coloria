@@ -46,6 +46,11 @@ def test_show():
     return
 
 
+def test_spectrum_to_xyz():
+    colorio.illuminants.spectrum_to_xyz(colorio.illuminants.d65())
+    return
+
+
 if __name__ == '__main__':
     # test_white_point()
     test_show()

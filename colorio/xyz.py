@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 #
-from __future__ import division
-
-from .import srgb
 
 
-def srgb_gamut(filename='srgb-xyz.vtu', n=50):
-    srgb.show_gamut(filename, lambda x: x, n=n)
-    return
+# pylint: disable=no-self-use
+class XYZ(object):
+    def __init__(self):
+        return
+
+    def from_xyz(self, xyz):
+        return xyz
+
+    def to_xyz(self, xyz):
+        return xyz

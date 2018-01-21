@@ -44,7 +44,3 @@ class CIELAB(object):
             (L+16)/116,
             (L+16)/116 - b/200,
             ])).T * self.whitepoint).T
-
-    def srgb_gamut(self, filename='srgb-cielab.vtu', n=50):
-        srgb.show_gamut(filename, self.from_xyz, n=n)
-        return

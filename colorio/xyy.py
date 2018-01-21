@@ -8,7 +8,6 @@ import numpy
 
 from .illuminants import spectrum_to_xyz, planckian_radiator
 from .srgb import SrgbLinear, SRGB1
-from . import srgb
 
 
 # pylint: disable=no-self-use
@@ -24,10 +23,6 @@ class XYY(object):
     def to_xyz(self, xyy):
         x, y, Y = xyy
         return numpy.array([Y/y*x, Y, Y/y * (1-x-y)])
-
-    def srgb_gamut(self, filename='srgb-xyy.vtu', n=50):
-        srgb.show_gamut(filename, self.from_xyz, n=n, cut_000=True)
-        return
 
 
 def show_gamut_diagram(*args, **kwargs):

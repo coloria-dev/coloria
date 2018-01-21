@@ -26,12 +26,3 @@ def test_conversion(xyz):
     out = srgb_linear.to_xyz(srgb_linear.from_xyz(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
     return
-
-
-def test_gamut():
-    colorio.SrgbLinear().srgb_gamut(n=10)
-    return
-
-
-if __name__ == '__main__':
-    test_gamut()

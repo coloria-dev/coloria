@@ -40,10 +40,6 @@ class CAM02_LCD(object):
     def to_xyz(self, jab):
         return self.ciecam02.to_xyz(_Jab_to_JMh(jab, self.c1, self.c2), 'JMh')
 
-    def srgb_gamut(self, filename='srgb-cam02lcd.vtu', n=50):
-        srgb.show_gamut(filename, self.from_xyz, n=n)
-        return
-
 
 class CAM02_SCD(object):
     def __init__(self, c, Y_b, L_A, whitepoint=white_point(d65())):
@@ -60,10 +56,6 @@ class CAM02_SCD(object):
     def to_xyz(self, jab):
         return self.ciecam02.to_xyz(_Jab_to_JMh(jab, self.c1, self.c2), 'JMh')
 
-    def srgb_gamut(self, filename='srgb-cam02scd.vtu', n=50):
-        srgb.show_gamut(filename, self.from_xyz, n=n)
-        return
-
 
 class CAM02_UCS(object):
     def __init__(self, c, Y_b, L_A, whitepoint=white_point(d65())):
@@ -79,7 +71,3 @@ class CAM02_UCS(object):
 
     def to_xyz(self, jab):
         return self.ciecam02.to_xyz(_Jab_to_JMh(jab, self.c1, self.c2), 'JMh')
-
-    def srgb_gamut(self, filename='srgb-cam02ucs.vtu', n=50):
-        srgb.show_gamut(filename, self.from_xyz, n=n)
-        return

@@ -1,0 +1,19 @@
+# -*- coding: utf-8 -*-
+#
+import numpy
+import pytest
+
+import colorio
+
+
+@pytest.mark.parametrize('colorspace', [
+    colorio.CIELAB(),
+    colorio.CAM02_UCS(0.69, 20, 64/numpy.pi/5),
+    ])
+def test_srgb_gamut(colorspace):
+    colorio.show_srgb_gamut(colorspace, 'srgb.vtu', n=10)
+    return
+
+
+if __name__ == '__main__':
+    test_srgb_gamut(colorio.CIELAB())

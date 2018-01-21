@@ -17,11 +17,6 @@ def test_conversion(xyz):
     return
 
 
-def test_plot():
-    colorio.XYY().srgb_gamut(n=10)
-    return
-
-
 def test_gamut_diagram():
     colorio.xyy.show_gamut_diagram()
     return
@@ -29,7 +24,3 @@ def test_gamut_diagram():
 
 if __name__ == '__main__':
     test_gamut_diagram()
-
-
-if __name__ == '__main__':
-    test_plot()

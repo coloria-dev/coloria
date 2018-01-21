@@ -22,10 +22,6 @@ class SrgbLinear(object):
     def to_xyz(self, srgb1_linear):
         return numpy.linalg.solve(self.M, srgb1_linear)
 
-    def srgb_gamut(self, filename='srgb.vtu', n=50):
-        show_gamut(filename, self.from_xyz, n=n)
-        return
-
 
 class SRGB1(object):
     def __init__(self):
@@ -51,24 +47,3 @@ class SRGB1(object):
             (srgb_linear[~is_smaller] + self.a) / (1+self.a)
             )**2.4
         return srgb_linear
-
-
-def show_gamut(filename, from_xyz, n=50, cut_000=False):
-    import meshio
-    import meshzoo
-    points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
-
-    if cut_000:
-        # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
-        points = points[1:]
-        cells = cells[~numpy.any(cells == 0, axis=1)]
-        cells -= 1
-
-    pts = from_xyz(SrgbLinear().to_xyz(points.T)).T
-    rgb = SRGB1().from_srgb_linear(points)
-    meshio.write(
-        filename,
-        pts, {'tetra': cells},
-        point_data={'srgb': rgb}
-        )
-    return
