@@ -15,5 +15,10 @@ def test_srgb_gamut(colorspace):
     return
 
 
+def test_gamut_diagram():
+    colorio.show_gamut_diagram()
+    return
+
+
 if __name__ == '__main__':
     test_srgb_gamut(colorio.CIELAB())

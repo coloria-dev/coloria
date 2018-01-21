@@ -125,7 +125,7 @@ class CIECAM02(object):
         h = numpy.mod(numpy.arctan2(b, a), 2*numpy.pi)
         assert numpy.all(h >= 0) and numpy.all(h <= 2*numpy.pi)
 
-        # Step 6: Calculate eccentricity (et) and hue composition (H), using
+        # Step 6: Calculate eccentricity (e_t) and hue composition (H), using
         #         the unique hue data given in Table 2.4.
         h_ = numpy.mod(h - self.h[0], 2*numpy.pi) + self.h[0]
         assert numpy.all(self.h[0] <= h_) and numpy.all(h_ < self.h[-1])
@@ -202,11 +202,12 @@ class CIECAM02(object):
         p2 = A / self.N_bb + 0.305
 
         # Step 3: Calculate a and b
-        # ENH Slightly deviate from the standard implementation here. One
-        # actually needs to take t=0 into account as
+        # ENH In the specification, the case t=0 is treated separately as
+        # otherwise, division by 0 occurs in
         #     p1 = 50000/13 * self.N_c * self.N_cb * e_t / t.
-        # Since none of the other quantities can be zero, simply formulate it
-        # all with one_over_p1. This also enables multiple other improvements.
+        # It turns out that things simplify a great deal when simply
+        # calculating with one_over_p1. (This is legal since all other
+        # quantities in the above term are nonzero.)
         one_over_p1 = t / e_t * 13/50000 / self.N_c / self.N_cb
         p3 = 21/20
         cosh = numpy.cos(h)

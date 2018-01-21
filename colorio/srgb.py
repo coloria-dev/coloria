@@ -17,6 +17,7 @@ class SrgbLinear(object):
     def from_xyz(self, xyz):
         # https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
         # http://www.color.org/srgb.pdf
+        # TODO NaN the values smaller than 0 and larger than 1
         return numpy.dot(self.M, xyz)
 
     def to_xyz(self, srgb1_linear):
