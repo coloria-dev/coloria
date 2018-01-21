@@ -5,8 +5,6 @@ from __future__ import division
 import numpy
 
 from .illuminants import white_point, d65
-from .srgb_linear import SrgbLinear
-from .srgb1 import SRGB1
 
 
 def _find_first(a, alpha):
@@ -242,16 +240,3 @@ class CIECAM02(object):
         xyz = numpy.linalg.solve(self.M_cat02, rgb)
         # TODO scale xyz w.r.t. test illuminant?
         return xyz
-
-    def srgb_gamut(self, filename='srgb-ciecam02.vtu', n=50):
-        import meshio
-        import meshzoo
-        points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
-        pts = self.from_xyz(SrgbLinear().to_xyz(points.T)).T
-        rgb = SRGB1().from_srgb_linear(points)
-        meshio.write(
-            filename,
-            pts, {'tetra': cells},
-            point_data={'srgb': rgb}
-            )
-        return
