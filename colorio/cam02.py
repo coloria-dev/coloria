@@ -25,6 +25,46 @@ def _Jab_to_JMh(jab, c1, c2):
     return numpy.array([J, M, h])
 
 
+class CAM02_LCD(object):
+    def __init__(self, c, Y_b, L_A, whitepoint=white_point(d65())):
+        self.ciecam02 = CIECAM02(c, Y_b, L_A, whitepoint)
+        self.K_L = 0.77
+        self.c1 = 0.007
+        self.c2 = 0.0053
+        return
+
+    def from_xyz(self, xyz):
+        J, _, _, h, M, _, _ = self.ciecam02.from_xyz(xyz)
+        return _JMh_to_Jab(J, M, h, self.c1, self.c2)
+
+    def to_xyz(self, jab):
+        return self.ciecam02.to_xyz(_Jab_to_JMh(jab, self.c1, self.c2), 'JMh')
+
+    def srgb_gamut(self, filename='srgb-cam02lcd.vtu', n=50):
+        srgb.show_gamut(filename, self.from_xyz, n=n)
+        return
+
+
+class CAM02_SCD(object):
+    def __init__(self, c, Y_b, L_A, whitepoint=white_point(d65())):
+        self.ciecam02 = CIECAM02(c, Y_b, L_A, whitepoint)
+        self.K_L = 1.24
+        self.c1 = 0.007
+        self.c2 = 0.0363
+        return
+
+    def from_xyz(self, xyz):
+        J, _, _, h, M, _, _ = self.ciecam02.from_xyz(xyz)
+        return _JMh_to_Jab(J, M, h, self.c1, self.c2)
+
+    def to_xyz(self, jab):
+        return self.ciecam02.to_xyz(_Jab_to_JMh(jab, self.c1, self.c2), 'JMh')
+
+    def srgb_gamut(self, filename='srgb-cam02scd.vtu', n=50):
+        srgb.show_gamut(filename, self.from_xyz, n=n)
+        return
+
+
 class CAM02_UCS(object):
     def __init__(self, c, Y_b, L_A, whitepoint=white_point(d65())):
         self.ciecam02 = CIECAM02(c, Y_b, L_A, whitepoint)

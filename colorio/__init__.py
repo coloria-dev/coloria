@@ -13,7 +13,7 @@ from .__about__ import (
     __status__,
     )
 
-from .cam02 import CAM02_UCS
+from .cam02 import CAM02_LCD, CAM02_SCD, CAM02_UCS
 from .ciecam02 import CIECAM02
 from .ciehcl import CIEHCL
 from .cielab import CIELAB
