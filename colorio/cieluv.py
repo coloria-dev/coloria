@@ -5,8 +5,7 @@ from __future__ import division
 import numpy
 
 from .illuminants import white_point, d65
-from .srgb_linear import SrgbLinear
-from .srgb1 import SRGB1
+from . import srgb
 
 
 class CIELUV(object):
@@ -56,20 +55,5 @@ class CIELUV(object):
         return numpy.array([X, Y, Z])
 
     def srgb_gamut(self, filename='srgb-cieluv.vtu', n=50):
-        import meshio
-        import meshzoo
-        points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
-
-        # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
-        points = points[1:]
-        cells = cells[~numpy.any(cells == 0, axis=1)]
-        cells -= 1
-
-        pts = self.from_xyz(SrgbLinear().to_xyz(points.T)).T
-        rgb = SRGB1().from_srgb_linear(points)
-        meshio.write(
-            filename,
-            pts, {'tetra': cells},
-            point_data={'srgb': rgb}
-            )
+        srgb.show_gamut(filename, self.from_xyz, n=n, cut_000=True)
         return

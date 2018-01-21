@@ -22,12 +22,9 @@ from .cieluv import CIELUV
 from . import illuminants
 from .jzazbz import JzAzBz
 from . import observers
-from .srgb1 import SRGB1
-from .srgb_linear import SrgbLinear
+from .srgb import SRGB1, SrgbLinear
 from .xyy import XYY
 from . import xyz
-# pylint: disable=wildcard-import
-from .tools import *
 
 # try:
 #     import pipdate

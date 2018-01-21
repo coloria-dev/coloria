@@ -5,8 +5,7 @@ from __future__ import division
 import numpy
 
 from .illuminants import white_point, d65
-from .srgb_linear import SrgbLinear
-from .srgb1 import SRGB1
+from . import srgb
 
 
 # pylint: disable=too-many-instance-attributes
@@ -71,14 +70,5 @@ class JzAzBz(object):
         return (numpy.array([x, y, z_]).T * self.whitepoint).T
 
     def srgb_gamut(self, filename='srgb-jzazbz.vtu', n=50):
-        import meshio
-        import meshzoo
-        points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
-        pts = self.from_xyz(SrgbLinear().to_xyz(points.T)).T
-        rgb = SRGB1().from_srgb_linear(points)
-        meshio.write(
-            filename,
-            pts, {'tetra': cells},
-            point_data={'srgb': rgb}
-            )
+        srgb.show_gamut(filename, self.from_xyz, n=n)
         return
