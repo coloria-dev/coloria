@@ -4,7 +4,7 @@ from __future__ import division
 
 import numpy
 
-from .illuminants import white_point, d65
+from .illuminants import whitepoints_cie1931
 
 
 def find_first(a, alpha):
@@ -44,7 +44,7 @@ class CIECAM02(object):
     <DOI: 10.1002/col.20198>.
     '''
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, c, Y_b, L_A, whitepoint=white_point(d65())):
+    def __init__(self, c, Y_b, L_A, whitepoint=whitepoints_cie1931['D65']):
         # step0: Calculate all values/parameters which are independent of input
         #        samples
         Y_w = whitepoint[1]
@@ -245,7 +245,9 @@ class CIECAM02(object):
 
 class CAM02(object):
     # pylint: disable=too-many-arguments
-    def __init__(self, variant, c, Y_b, L_A, whitepoint=white_point(d65())):
+    def __init__(
+            self, variant, c, Y_b, L_A, whitepoint=whitepoints_cie1931['D65']
+            ):
         params = {
             'LCD': (0.77, 0.007, 0.0053),
             'SCD': (1.24, 0.007, 0.0363),

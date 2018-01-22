@@ -4,7 +4,7 @@ from __future__ import division
 
 import numpy
 
-from .illuminants import white_point, d65
+from .illuminants import whitepoints_cie1931
 
 
 # pylint: disable=too-many-instance-attributes
@@ -16,7 +16,7 @@ class JzAzBz(object):
     Optics Express Vol. 25, Issue 13, pp. 15131-15151 (2017),
     <https://doi.org/10.1364/OE.25.015131>.
     '''
-    def __init__(self, whitepoint=white_point(d65())):
+    def __init__(self, whitepoint=whitepoints_cie1931['D65']):
         self.whitepoint = whitepoint
 
         self.b = 1.15

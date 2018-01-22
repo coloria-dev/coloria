@@ -2,13 +2,13 @@
 #
 import numpy
 
-from .illuminants import white_point, d65
 from . import cieluv
+from .illuminants import whitepoints_cie1931
 
 
 class CIEHCL(object):
 
-    def __init__(self, whitepoint=white_point(d65())):
+    def __init__(self, whitepoint=whitepoints_cie1931['D65']):
         self.cieluv = cieluv.CIELUV(whitepoint=whitepoint)
         return
 

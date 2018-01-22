@@ -2,12 +2,12 @@
 #
 import numpy
 
-from .illuminants import white_point, d65
 from . import cielab
+from .illuminants import whitepoints_cie1931
 
 
 class CIELCH(object):
-    def __init__(self, whitepoint=white_point(d65())):
+    def __init__(self, whitepoint=whitepoints_cie1931['D65']):
         self.cielab = cielab.CIELAB(whitepoint=whitepoint)
         return
 

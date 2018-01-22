@@ -24,13 +24,10 @@ def test_conversion(xyz):
     ([0.5, 0.6, 0.4], [5.4198, -2.8790, 3.6230]),
     ])
 def test_reference_xyz(xyz100, ref):
-    # TODO default whitepoint
-    cielab = colorio.CIELAB(
-        whitepoint=numpy.array([95.047, 100, 108.883])/100
-        )
-    xyz = numpy.array(xyz100) / 100
+    cielab = colorio.CIELAB()
+    xyz100 = numpy.array(xyz100)
     assert numpy.all(
-        abs(cielab.from_xyz100(xyz) - ref) < 1.0e-4 * abs(numpy.array(ref))
+        abs(cielab.from_xyz100(xyz100) - ref) < 1.0e-4 * abs(numpy.array(ref))
         )
     return
 
@@ -42,9 +39,11 @@ def test_reference_xyz(xyz100, ref):
     ([0.5, 0.6, 0.4], [5.4198, -3.1711, 1.7953])
     ])
 def test_reference_xyz_d50(xyz100, ref):
-    cielab = colorio.CIELAB(whitepoint=numpy.array([96.422, 100, 82.521])/100)
-    xyz = numpy.array(xyz100) / 100
+    cielab = colorio.CIELAB(
+        whitepoint=colorio.illuminants.whitepoints_cie1931['D50']
+        )
+    xyz100 = numpy.array(xyz100)
     assert numpy.all(
-        abs(cielab.from_xyz100(xyz) - ref) < 1.0e-4 * abs(numpy.array(ref))
+        abs(cielab.from_xyz100(xyz100) - ref) < 1.0e-4 * abs(numpy.array(ref))
         )
     return

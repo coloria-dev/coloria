@@ -5,7 +5,7 @@ from __future__ import division
 import numpy
 
 from .ciecam02 import find_first
-from .illuminants import white_point, d65
+from .illuminants import whitepoints_cie1931
 
 
 class CAM16(object):
@@ -16,7 +16,7 @@ class CAM16(object):
     <https://doi.org/10.1002/col.22131>.
     '''
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, c, Y_b, L_A, whitepoint=white_point(d65())):
+    def __init__(self, c, Y_b, L_A, whitepoint=whitepoints_cie1931['D65']):
         # step0: Calculate all values/parameters which are independent of input
         #        samples
         Y_w = whitepoint[1]
@@ -64,8 +64,6 @@ class CAM16(object):
         return
 
     def from_xyz100(self, xyz):
-        # TODO scale xyz w.r.t. test illuminant?
-
         # Step 1: Calculate 'cone' responses
         rgb = numpy.dot(self.M16, xyz)
 
@@ -195,12 +193,11 @@ class CAM16(object):
 
         # Step 7: Calculate X, Y and Z
         xyz = numpy.linalg.solve(self.M16, rgb)
-        # TODO scale xyz w.r.t. test illuminant?
         return xyz
 
 
 class CAM16UCS(object):
-    def __init__(self, c, Y_b, L_A, whitepoint=white_point(d65())):
+    def __init__(self, c, Y_b, L_A, whitepoint=whitepoints_cie1931['D65']):
         self.K_L = 1.0
         self.c1 = 0.007
         self.c2 = 0.0228

@@ -4,11 +4,11 @@ from __future__ import division
 
 import numpy
 
-from .illuminants import white_point, d65
+from .illuminants import whitepoints_cie1931
 
 
 class CIELAB(object):
-    def __init__(self, whitepoint=white_point(d65())):
+    def __init__(self, whitepoint=whitepoints_cie1931['D65']):
         self.whitepoint = whitepoint
         return
 
