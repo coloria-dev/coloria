@@ -11,6 +11,7 @@ numpy.random.seed(0)
 @pytest.mark.parametrize('xyz', [
     numpy.random.rand(3),
     numpy.random.rand(3, 7),
+    numpy.random.rand(3, 4, 5),
     ])
 def test_conversion(xyz):
     # test with srgb conditions
@@ -44,6 +45,7 @@ def test_breakdown():
 @pytest.mark.parametrize('xyz', [
     numpy.random.rand(3),
     numpy.random.rand(3, 7),
+    numpy.random.rand(3, 4, 5),
     ])
 def test_conversion_variants(variant, xyz):
     # test with srgb conditions

@@ -11,6 +11,7 @@ numpy.random.seed(0)
 @pytest.mark.parametrize('xyz', [
     100 * numpy.random.rand(3),
     100 * numpy.random.rand(3, 7),
+    100 * numpy.random.rand(3, 4, 5),
     ])
 def test_conversion(xyz):
     # test with srgb conditions
@@ -22,16 +23,17 @@ def test_conversion(xyz):
     assert numpy.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
 
     out = cam16.to_xyz100(numpy.array([Q, M, h]), 'QMh')
-    assert numpy.all(abs(xyz - out) < 1.0e-14 * abs(xyz))
+    assert numpy.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
 
     out = cam16.to_xyz100(numpy.array([J, s, h]), 'Jsh')
-    assert numpy.all(abs(xyz - out) < 1.0e-14 * abs(xyz))
+    assert numpy.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
     return
 
 
 @pytest.mark.parametrize('xyz', [
     numpy.random.rand(3),
     numpy.random.rand(3, 7),
+    numpy.random.rand(3, 4, 5),
     ])
 def test_conversion_variants(xyz):
     # test with srgb conditions

@@ -5,6 +5,7 @@ from __future__ import division
 import numpy
 
 from .illuminants import whitepoints_cie1931
+from .linalg import dot, solve
 
 
 def find_first(a, alpha):
@@ -103,7 +104,7 @@ class CIECAM02(object):
     def from_xyz100(self, xyz):
         # Step 1: Calculate (sharpened) cone responses (transfer
         #         colour-matching functions to sharper sensors)
-        rgb = numpy.dot(self.M_cat02, xyz)
+        rgb = dot(self.M_cat02, xyz)
 
         # Step 2: Calculate the corresponding (sharpened) cone response
         #         (considering various luminance level and surround conditions
@@ -111,7 +112,7 @@ class CIECAM02(object):
         rgb_c = (rgb.T * self.D_RGB).T
 
         # Step 3: Calculate the Hunt-Pointer-Estevez response
-        rgb_ = numpy.dot(self.M_hpe, numpy.linalg.solve(self.M_cat02, rgb_c))
+        rgb_ = dot(self.M_hpe, solve(self.M_cat02, rgb_c))
 
         # Step 4: Calculate the post-adaptation cone response (resulting in
         #         dynamic range compression)
@@ -120,8 +121,8 @@ class CIECAM02(object):
 
         # Step 5: Calculate Redness–Greenness (a) , Yellowness–Blueness (b)
         #         components and hue angle (h)
-        a = numpy.dot([1, -12/11, 1/11], rgb_a_)
-        b = numpy.dot([1, 1, -2], rgb_a_) / 9
+        a = rgb_a_[0] - 12/11 * rgb_a_[1] + rgb_a_[2]/11
+        b = (rgb_a_[0] + rgb_a_[1] - 2*rgb_a_[2]) / 9
         # Make sure that h is in [0, 2*pi]
         h = numpy.mod(numpy.arctan2(b, a) / numpy.pi * 180, 360)
         assert numpy.all(h >= 0) and numpy.all(h < 360)
@@ -137,7 +138,7 @@ class CIECAM02(object):
         H = self.H[i] + 100 * beta / (beta + self.e[i]*(self.h[i+1] - h_))
 
         # Step 7: Calculate achromatic response A
-        A = (numpy.dot([2, 1, 1/20], rgb_a_) - 0.305) * self.N_bb
+        A = (2*rgb_a_[0] + rgb_a_[1] + rgb_a_[2]/20 - 0.305) * self.N_bb
         if numpy.any(A < 0):
             raise NegativeAError('CIECAM02 breakdown')
 
@@ -150,7 +151,7 @@ class CIECAM02(object):
         # Step 10: Calculate the correlates of chroma (C), colourfulness (M)
         #          and saturation (s)
         t = (50000/13 * self.N_c * self.N_cb) * e_t * numpy.sqrt(a**2 + b**2) \
-            / numpy.dot([1, 1, 21/20], rgb_a_)
+            / (rgb_a_[0] + rgb_a_[1] + 21/20*rgb_a_[2])
         C = t**0.9 * numpy.sqrt(J/100) * (1.64 - 0.29**self.n)**0.73
         M = C * self.F_L**0.25
         s = 100 * numpy.sqrt(M/Q)
@@ -221,7 +222,7 @@ class CIECAM02(object):
             )
 
         # Step 4: Calculate RGB_a_
-        rgb_a_ = numpy.dot(numpy.array([
+        rgb_a_ = dot(numpy.array([
             [460, 451, 288],
             [460, -891, -261],
             [460, -220, -6300]
@@ -233,13 +234,13 @@ class CIECAM02(object):
             )**(1/0.42)
 
         # Step 6: Calculate RC, GC and BC
-        rgb_c = numpy.dot(self.M_cat02, numpy.linalg.solve(self.M_hpe, rgb_))
+        rgb_c = dot(self.M_cat02, solve(self.M_hpe, rgb_))
 
         # Step 7: Calculate R, G and B
         rgb = (rgb_c.T / self.D_RGB).T
 
         # Step 8: Calculate X, Y and Z
-        xyz = numpy.linalg.solve(self.M_cat02, rgb)
+        xyz = solve(self.M_cat02, rgb)
         return xyz
 
 

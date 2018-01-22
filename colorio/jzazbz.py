@@ -5,6 +5,7 @@ from __future__ import division
 import numpy
 
 from .illuminants import whitepoints_cie1931
+from .linalg import dot, solve
 
 
 # pylint: disable=too-many-instance-attributes
@@ -46,24 +47,24 @@ class JzAzBz(object):
         x, y, z = (xyz.T / self.whitepoint).T
         x_ = self.b*x - (self.b-1)*z
         y_ = self.g*y - (self.g-1)*x
-        lms = numpy.dot(self.M1, numpy.array([x_, y_, z]))
+        lms = dot(self.M1, numpy.array([x_, y_, z]))
         lms_ = (
             (self.c1 + self.c2*(lms/10000)**self.n)
             / (1 + self.c3*(lms/10000)**self.n)
             )**self.p
-        iz, az, bz = numpy.dot(self.M2, lms_)
+        iz, az, bz = dot(self.M2, lms_)
         jz = (1+self.d) * iz / (1+self.d*iz) - self.d0
         return numpy.array([jz, az, bz])
 
     def to_xyz100(self, jzazbz):
         jz, az, bz = jzazbz
         iz = (jz + self.d0) / (1 + self.d - self.d*(jz+self.d0))
-        lms_ = numpy.linalg.solve(self.M2, numpy.array([iz, az, bz]))
+        lms_ = solve(self.M2, numpy.array([iz, az, bz]))
         lms = 10000 * (
             (self.c1 - lms_**(1/self.p))
             / (self.c3*lms_**(1/self.p) - self.c2)
             )**(1/self.n)
-        x_, y_, z_ = numpy.linalg.solve(self.M1, lms)
+        x_, y_, z_ = solve(self.M1, lms)
         x = (x_ + (self.b-1)*z_) / self.b
         y = (y_ + (self.g-1)*x) / self.g
         return (numpy.array([x, y, z_]).T * self.whitepoint).T
