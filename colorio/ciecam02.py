@@ -95,15 +95,12 @@ class CIECAM02(object):
 
         self.A_w = (numpy.dot([2, 1, 1/20], RGB_aw_) - 0.305) * self.N_bb
 
-        self.h = \
-            numpy.array([20.14, 90.00, 164.25, 237.53, 380.14]) * numpy.pi/180
+        self.h = numpy.array([20.14, 90.00, 164.25, 237.53, 380.14])
         self.e = numpy.array([0.8, 0.7, 1.0, 1.2, 0.8])
         self.H = numpy.array([0.0, 100.0, 200.0, 300.0, 400.0])
         return
 
     def from_xyz100(self, xyz):
-        # TODO scale xyz w.r.t. test illuminant?
-
         # Step 1: Calculate (sharpened) cone responses (transfer
         #         colour-matching functions to sharper sensors)
         rgb = numpy.dot(self.M_cat02, xyz)
@@ -126,14 +123,14 @@ class CIECAM02(object):
         a = numpy.dot([1, -12/11, 1/11], rgb_a_)
         b = numpy.dot([1, 1, -2], rgb_a_) / 9
         # Make sure that h is in [0, 2*pi]
-        h = numpy.mod(numpy.arctan2(b, a), 2*numpy.pi)
-        assert numpy.all(h >= 0) and numpy.all(h <= 2*numpy.pi)
+        h = numpy.mod(numpy.arctan2(b, a) / numpy.pi * 180, 360)
+        assert numpy.all(h >= 0) and numpy.all(h < 360)
 
         # Step 6: Calculate eccentricity (e_t) and hue composition (H), using
         #         the unique hue data given in Table 2.4.
-        h_ = numpy.mod(h - self.h[0], 2*numpy.pi) + self.h[0]
+        h_ = numpy.mod(h - self.h[0], 360) + self.h[0]
         assert numpy.all(self.h[0] <= h_) and numpy.all(h_ < self.h[-1])
-        e_t = 1/4 * (numpy.cos(h_+2) + 3.8)
+        e_t = 1/4 * (numpy.cos(h_*numpy.pi/180 + 2) + 3.8)
         i = find_first(self.h, h_) - 1
         assert numpy.all(self.h[i] <= h_) and numpy.all(h_ <= self.h[i+1])
         beta = (h_ - self.h[i]) / self.e[i]
@@ -157,9 +154,6 @@ class CIECAM02(object):
         C = t**0.9 * numpy.sqrt(J/100) * (1.64 - 0.29**self.n)**0.73
         M = C * self.F_L**0.25
         s = 100 * numpy.sqrt(M/Q)
-
-        # TODO scale everything to [0, 360]
-        h *= 180 / numpy.pi
         return numpy.array([J, C, H, h, M, s, Q])
 
     def to_xyz100(self, data, description):
@@ -190,7 +184,6 @@ class CIECAM02(object):
 
         if description[2] == 'h':
             h = data[2]
-            h *= numpy.pi / 180
         else:
             assert description[2] == 'H'
             # Step 1–3: Calculate h from H (if start from H)
@@ -202,11 +195,11 @@ class CIECAM02(object):
             ei, ei1 = self.e[i], self.e[i+1]
             h_ = ((H - Hi) * (ei1*hi - ei*hi1) - 100*hi*ei1) \
                 / ((H - Hi) * (ei1 - ei) - 100*ei1)
-            h = numpy.mod(h_, 2*numpy.pi)
+            h = numpy.mod(h_, 360)
 
         # Step 2: Calculate t, et , p1, p2 and p3
         t = (C / numpy.sqrt(J/100) / (1.64-0.29**self.n)**0.73)**(1/0.9)
-        e_t = 0.25 * (numpy.cos(h+2) + 3.8)
+        e_t = 0.25 * (numpy.cos(h*numpy.pi/180 + 2) + 3.8)
         A = self.A_w * (J/100)**(1/self.c/self.z)
 
         p2 = A / self.N_bb + 0.305
@@ -220,8 +213,8 @@ class CIECAM02(object):
         # quantities in the above term are nonzero.)
         one_over_p1 = t / e_t * 13/50000 / self.N_c / self.N_cb
         p3 = 21/20
-        one_over_p4 = one_over_p1 * numpy.sin(h)
-        one_over_p5 = one_over_p1 * numpy.cos(h)
+        one_over_p4 = one_over_p1 * numpy.sin(h * numpy.pi / 180)
+        one_over_p5 = one_over_p1 * numpy.cos(h * numpy.pi / 180)
         a, b = numpy.array([one_over_p5, one_over_p4]) * (
             p2 * (2+p3) * 460 /
             (1403 + one_over_p5*(2+p3)*220 - one_over_p4*(27 - p3*6300))
@@ -247,7 +240,6 @@ class CIECAM02(object):
 
         # Step 8: Calculate X, Y and Z
         xyz = numpy.linalg.solve(self.M_cat02, rgb)
-        # TODO scale xyz w.r.t. test illuminant?
         return xyz
 
 

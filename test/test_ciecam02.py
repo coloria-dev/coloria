@@ -19,13 +19,13 @@ def test_conversion(xyz):
     J, C, H, h, M, s, Q = ciecam02.from_xyz100(xyz)
 
     out = ciecam02.to_xyz100(numpy.array([J, C, H]), 'JCH')
-    assert numpy.all(abs(xyz - out) < 1.0e-14)
+    assert numpy.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
 
     out = ciecam02.to_xyz100(numpy.array([Q, M, h]), 'QMh')
-    assert numpy.all(abs(xyz - out) < 1.0e-14)
+    assert numpy.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
 
     out = ciecam02.to_xyz100(numpy.array([J, s, h]), 'Jsh')
-    assert numpy.all(abs(xyz - out) < 1.0e-14)
+    assert numpy.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
     return
 
 
