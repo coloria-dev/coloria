@@ -23,6 +23,7 @@ class SrgbLinear(object):
     def to_xyz(self, srgb1_linear):
         return numpy.linalg.solve(self.M, srgb1_linear)
 
+    # pylint: disable=no-self-use
     def from_srgb1(self, srgb1):
         srgb_linear = numpy.array(srgb1, dtype=float)
 
