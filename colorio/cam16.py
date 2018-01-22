@@ -16,7 +16,10 @@ class CAM16(object):
     <https://doi.org/10.1002/col.22131>.
     '''
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, c, Y_b, L_A, whitepoint=whitepoints_cie1931['D65']):
+    def __init__(
+            self, c, Y_b, L_A, exact_inversion=True,
+            whitepoint=whitepoints_cie1931['D65']
+            ):
         # step0: Calculate all values/parameters which are independent of input
         #        samples
         Y_w = whitepoint[1]
@@ -35,6 +38,17 @@ class CAM16(object):
             [-0.250268, +1.204414, +0.045854],
             [-0.002079, +0.048952, +0.953127],
             ])
+        # The standard acutally recommends using this approximation as
+        # inversion operation.
+        approx_inv_M16 = numpy.array([
+            [+1.86206786, -1.01125463, +0.14918677],
+            [+0.38752654, +0.62144744, -0.00897398],
+            [-0.01584150, -0.03412294, +1.04996444],
+            ])
+        self.solve_M16 = (
+            lambda x: numpy.linalg.solve(self.M16, x.reshape(x.shape[0], -1)).reshape(x.shape) if exact_inversion else
+            lambda x: numpy.dot(approx_inv_M16, x)
+            )
         RGB_w = numpy.dot(self.M16, whitepoint)
 
         D = F * (1 - 1/3.6 * numpy.exp((-L_A-42)/92))
@@ -65,7 +79,7 @@ class CAM16(object):
 
     def from_xyz100(self, xyz):
         # Step 1: Calculate 'cone' responses
-        rgb = numpy.dot(self.M16, xyz)
+        rgb = numpy.einsum('ij,j...->i...', self.M16, xyz)
 
         # Step 2: Complete the color adaptation of the illuminant in
         #         the corresponding cone response space
@@ -78,8 +92,8 @@ class CAM16(object):
 
         # Step 4: Calculate Redness–Greenness (a) , Yellowness–Blueness (b)
         #         components, and hue angle (h)
-        a = numpy.dot([1, -12/11, 1/11], rgb_a)
-        b = numpy.dot([1, 1, -2], rgb_a) / 9
+        a = numpy.einsum('i,i...->...', [1, -12/11, 1/11], rgb_a)
+        b = numpy.einsum('i,i...->...', [1, 1, -2], rgb_a) / 9
         # Make sure that h is in [0, 2*pi]
         h = numpy.mod(numpy.arctan2(b, a) / numpy.pi * 180, 360)
         assert numpy.all(h >= 0) and numpy.all(h < 360)
@@ -95,7 +109,9 @@ class CAM16(object):
         H = self.H[i] + 100 * beta / (beta + (self.h[i+1] - h_)*self.e[i])
 
         # Step 6: Calculate achromatic response A
-        A = (numpy.dot([2, 1, 1/20], rgb_a) - 0.305) * self.N_bb
+        A = (
+            numpy.einsum('i,i...->...', [2, 1, 1/20], rgb_a) - 0.305
+            ) * self.N_bb
 
         # Step 7: Calculate the correlate of lightness
         J = 100 * (A/self.A_w)**(self.c*self.z)
@@ -106,7 +122,7 @@ class CAM16(object):
         # Step 9: Calculate the correlates of chroma (C), colourfulness (M)
         #          and saturation (s)
         t = (50000/13 * self.N_c * self.N_cb) * e_t * numpy.sqrt(a**2 + b**2) \
-            / numpy.dot([1, 1, 21/20], rgb_a)
+            / numpy.einsum('i,i...->...', [1, 1, 21/20], rgb_a)
         C = t**0.9 * numpy.sqrt(J/100) * (1.64 - 0.29**self.n)**0.73
         M = C * self.F_L**0.25
         s = 100 * numpy.sqrt(M/Q)
@@ -177,7 +193,7 @@ class CAM16(object):
             )
 
         # Step 4: Calculate RGB_a
-        rgb_a = numpy.dot(numpy.array([
+        rgb_a = numpy.einsum('ij,j...->i...', numpy.array([
             [460, 451, 288],
             [460, -891, -261],
             [460, -220, -6300]
@@ -192,12 +208,15 @@ class CAM16(object):
         rgb = (rgb_c.T / self.D_RGB).T
 
         # Step 7: Calculate X, Y and Z
-        xyz = numpy.linalg.solve(self.M16, rgb)
+        xyz = self.solve_M16(rgb)
         return xyz
 
 
 class CAM16UCS(object):
-    def __init__(self, c, Y_b, L_A, whitepoint=whitepoints_cie1931['D65']):
+    def __init__(
+            self, c, Y_b, L_A, exact_inversion=True,
+            whitepoint=whitepoints_cie1931['D65']
+            ):
         self.K_L = 1.0
         self.c1 = 0.007
         self.c2 = 0.0228
