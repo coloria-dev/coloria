@@ -5,7 +5,6 @@ from __future__ import division
 import numpy
 
 from .illuminants import white_point, d65
-from . import srgb
 
 
 # pylint: disable=too-many-instance-attributes
@@ -68,7 +67,3 @@ class JzAzBz(object):
         x = (x_ + (self.b-1)*z_) / self.b
         y = (y_ + (self.g-1)*x) / self.g
         return (numpy.array([x, y, z_]).T * self.whitepoint).T
-
-    def srgb_gamut(self, filename='srgb-jzazbz.vtu', n=50):
-        srgb.show_gamut(filename, self.from_xyz, n=n)
-        return

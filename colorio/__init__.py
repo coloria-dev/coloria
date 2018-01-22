@@ -13,8 +13,8 @@ from .__about__ import (
     __status__,
     )
 
-from .cam02 import CAM02_LCD, CAM02_SCD, CAM02_UCS
-from .ciecam02 import CIECAM02
+from .cam16 import CAM16, CAM16UCS
+from .ciecam02 import CIECAM02, CAM02
 from .ciehcl import CIEHCL
 from .cielab import CIELAB
 from .cielch import CIELCH
@@ -22,9 +22,10 @@ from .cieluv import CIELUV
 from . import illuminants
 from .jzazbz import JzAzBz
 from . import observers
-from .srgb import SRGB1, SrgbLinear
+from .srgb import SrgbLinear
 from .xyy import XYY
-from . import xyz
+from .xyz import XYZ
+from .tools import show_srgb_gamut, show_gamut_diagram
 
 # try:
 #     import pipdate

@@ -15,29 +15,12 @@ def _find_first(a, alpha):
     return numpy.argmax(numpy.add.outer(alpha, -a) < 0, axis=-1)
 
 
-class CIECAM02(object):
+class CAM16(object):
     '''
-    Ming Ronnier Luo and Changjun Li,
-    CIECAM02 and Its Recent Developments,
-    Chapter 2
-    <https://link.springer.com/chapter/10.1007%2F978-1-4419-6190-7_2>
-    <https://www.springer.com/cda/content/document/cda_downloaddocument/9781441961891-c1.pdf?SGWID=0-0-45-1337202-p173968189>
-
-    Appendix: CIE Colour Appearance Model: CIECAM02
-    Part 1: The Forward Mode
-
-    c ... surround parameter (average: 0.69, dim: 0.59, dark: 0.535)
-
-    L_A ... in cd/m^2
-    Table 2.1 Parameter settings for some typical applications:
-    Surface colour evaluation in a light booth: 60
-    Viewing self-luminous display at home: 20
-    Viewing slides in dark room: 30
-    Viewing self-luminous display under office illumination: 15
-
-    Publication CIE 159:
-    A colour appearance model for colour management systems: CIECAM02,
-    <DOI: 10.1002/col.20198>.
+    Li C, Li Z, Wang Z, et al.,
+    Comprehensive color solutions: CAM16, CAT16, and CAM16-UCS.
+    Color Res Appl. 2017;00:1–12.
+    <https://doi.org/10.1002/col.22131>.
     '''
     # pylint: disable=too-many-instance-attributes
     def __init__(self, c, Y_b, L_A, whitepoint=white_point(d65())):
@@ -47,19 +30,19 @@ class CIECAM02(object):
 
         # Nc and F are modelled as a function of c, and can be linearly
         # interpolated.
-        c_vals = [0.535, 0.59, 0.69]
+        c_vals = [0.525, 0.59, 0.69]  # 0.525 vs. 0.535 in CIECAM02
         F_Nc_vals = [0.8, 0.9, 1.0]
-        assert 0.535 <= c <= 0.69
+        assert 0.525 <= c <= 0.69
         F = numpy.interp(c, c_vals, F_Nc_vals)
         self.c = c
         self.N_c = F
 
-        self.M_cat02 = numpy.array([
-            [+0.7328, +0.4296, -0.1624],
-            [-0.7036, +1.6975, +0.0061],
-            [+0.0030, +0.0136, +0.9834],
+        self.M16 = numpy.array([
+            [+0.401288, +0.650173, -0.051461],
+            [-0.250268, +1.204414, +0.045854],
+            [-0.002079, +0.048952, +0.953127],
             ])
-        RGB_w = numpy.dot(self.M_cat02, whitepoint)
+        RGB_w = numpy.dot(self.M16, whitepoint)
 
         D = F * (1 - 1/3.6 * numpy.exp((-L_A-42)/92))
         D = min(D, 1.0)
@@ -77,16 +60,7 @@ class CIECAM02(object):
 
         RGB_wc = self.D_RGB * RGB_w
 
-        self.M_hpe = numpy.array([
-            [+0.38971, +0.68898, -0.07868],
-            [-0.22981, +1.18340, +0.04641],
-            [+0.00000, +0.00000, +1.00000],
-            ])
-        RGB_w_ = numpy.dot(
-            self.M_hpe, numpy.linalg.solve(self.M_cat02, RGB_wc)
-            )
-
-        alpha = (self.F_L*RGB_w_/100)**0.42
+        alpha = (self.F_L*RGB_wc/100)**0.42
         RGB_aw_ = 400 * alpha / (alpha + 27.13) + 0.1
 
         self.A_w = (numpy.dot([2, 1, 1/20], RGB_aw_) - 0.305) * self.N_bb
@@ -100,32 +74,27 @@ class CIECAM02(object):
     def from_xyz(self, xyz):
         # TODO scale xyz w.r.t. test illuminant?
 
-        # Step 1: Calculate (sharpened) cone responses (transfer
-        #         colour-matching functions to sharper sensors)
-        rgb = numpy.dot(self.M_cat02, xyz)
+        # Step 1: Calculate 'cone' responses
+        rgb = numpy.dot(self.M16, xyz)
 
-        # Step 2: Calculate the corresponding (sharpened) cone response
-        #         (considering various luminance level and surround conditions
-        #         included in D; hence, in DR, DG and DB)
+        # Step 2: Complete the color adaptation of the illuminant in
+        #         the corresponding cone response space
         rgb_c = (rgb.T * self.D_RGB).T
 
-        # Step 3: Calculate the Hunt-Pointer-Estevez response
-        rgb_ = numpy.dot(self.M_hpe, numpy.linalg.solve(self.M_cat02, rgb_c))
-
-        # Step 4: Calculate the post-adaptation cone response (resulting in
+        # Step 3: Calculate the postadaptation cone response (resulting in
         #         dynamic range compression)
-        alpha = (self.F_L*abs(rgb_)/100)**0.42
-        rgb_a_ = numpy.sign(rgb_) * 400 * alpha / (alpha+27.13) + 0.1
+        alpha = (self.F_L*abs(rgb_c)/100)**0.42
+        rgb_a = numpy.sign(rgb_c) * 400 * alpha / (alpha+27.13) + 0.1
 
-        # Step 5: Calculate Redness–Greenness (a) , Yellowness–Blueness (b)
-        #         components and hue angle (h)
-        a = numpy.dot([1, -12/11, 1/11], rgb_a_)
-        b = numpy.dot([1, 1, -2], rgb_a_) / 9
+        # Step 4: Calculate Redness–Greenness (a) , Yellowness–Blueness (b)
+        #         components, and hue angle (h)
+        a = numpy.dot([1, -12/11, 1/11], rgb_a)
+        b = numpy.dot([1, 1, -2], rgb_a) / 9
         # Make sure that h is in [0, 2*pi]
         h = numpy.mod(numpy.arctan2(b, a), 2*numpy.pi)
         assert numpy.all(h >= 0) and numpy.all(h <= 2*numpy.pi)
 
-        # Step 6: Calculate eccentricity (e_t) and hue composition (H), using
+        # Step 5: Calculate eccentricity (e_t) and hue composition (H), using
         #         the unique hue data given in Table 2.4.
         h_ = numpy.mod(h - self.h[0], 2*numpy.pi) + self.h[0]
         assert numpy.all(self.h[0] <= h_) and numpy.all(h_ < self.h[-1])
@@ -135,19 +104,19 @@ class CIECAM02(object):
         beta = (h_ - self.h[i]) / self.e[i]
         H = self.H[i] + 100 * beta / (beta + (self.h[i+1] - h_)/self.e[i+1])
 
-        # Step 7: Calculate achromatic response A
-        A = (numpy.dot([2, 1, 1/20], rgb_a_) - 0.305) * self.N_bb
+        # Step 6: Calculate achromatic response A
+        A = (numpy.dot([2, 1, 1/20], rgb_a) - 0.305) * self.N_bb
 
-        # Step 8: Calculate the correlate of lightness
+        # Step 7: Calculate the correlate of lightness
         J = 100 * (A/self.A_w)**(self.c*self.z)
 
-        # Step 9: Calculate the correlate of brightness
+        # Step 8: Calculate the correlate of brightness
         Q = (4/self.c) * numpy.sqrt(J/100) * (self.A_w + 4) * self.F_L**0.25
 
-        # Step 10: Calculate the correlates of chroma (C), colourfulness (M)
+        # Step 9: Calculate the correlates of chroma (C), colourfulness (M)
         #          and saturation (s)
         t = (50000/13 * self.N_c * self.N_cb) * e_t * numpy.sqrt(a**2 + b**2) \
-            / numpy.dot([1, 1, 21/20], rgb_a_)
+            / numpy.dot([1, 1, 21/20], rgb_a)
         C = t**0.9 * numpy.sqrt(J/100) * (1.64 - 0.29**self.n)**0.73
         M = C * self.F_L**0.25
         s = 100 * numpy.sqrt(M/Q)
@@ -194,7 +163,7 @@ class CIECAM02(object):
                 / ((H - Hi) * (ei1 - ei) - 100*ei1)
             h = numpy.mod(h_, 2*numpy.pi)
 
-        # Step 2: Calculate t, et , p1, p2 and p3
+        # Step 2: Calculate t, e_t, p1, p2, and p3
         t = (C / numpy.sqrt(J/100) / (1.64-0.29**self.n)**0.73)**(1/0.9)
         e_t = 0.25 * (numpy.cos(h+2) + 3.8)
         A = self.A_w * (J/100)**(1/self.c/self.z)
@@ -219,40 +188,33 @@ class CIECAM02(object):
             (1403 + one_over_p5*(2+p3)*220 - one_over_p4*(27 - p3*6300))
             )
 
-        # Step 4: Calculate RGB_a_
-        rgb_a_ = numpy.dot(numpy.array([
+        # Step 4: Calculate RGB_a
+        rgb_a = numpy.dot(numpy.array([
             [460, 451, 288],
             [460, -891, -261],
             [460, -220, -6300]
             ]), numpy.array([p2, a, b])) / 1403
 
-        # Step 5: Calculate RGB_
-        rgb_ = numpy.sign(rgb_a_ - 0.1) * 100/self.F_L * (
-            (27.13 * abs(rgb_a_-0.1)) / (400 - abs(rgb_a_-0.1))
+        # Step 5: Calculate RGB_c
+        rgb_c = numpy.sign(rgb_a - 0.1) * 100/self.F_L * (
+            (27.13 * abs(rgb_a-0.1)) / (400 - abs(rgb_a-0.1))
             )**(1/0.42)
 
-        # Step 6: Calculate RC, GC and BC
-        rgb_c = numpy.dot(self.M_cat02, numpy.linalg.solve(self.M_hpe, rgb_))
-
-        # Step 7: Calculate R, G and B
+        # Step 6: Calculate R, G and B
         rgb = (rgb_c.T / self.D_RGB).T
 
-        # Step 8: Calculate X, Y and Z
-        xyz = numpy.linalg.solve(self.M_cat02, rgb)
+        # Step 7: Calculate X, Y and Z
+        xyz = numpy.linalg.solve(self.M16, rgb)
         # TODO scale xyz w.r.t. test illuminant?
         return xyz
 
 
-class CAM02(object):
-    # pylint: disable=too-many-arguments
-    def __init__(self, variant, c, Y_b, L_A, whitepoint=white_point(d65())):
-        params = {
-            'LCD': (0.77, 0.007, 0.0053),
-            'SCD': (1.24, 0.007, 0.0363),
-            'UCS': (1.00, 0.007, 0.0228),
-            }
-        self.K_L, self.c1, self.c2 = params[variant]
-        self.ciecam02 = CIECAM02(c, Y_b, L_A, whitepoint)
+class CAM16UCS(object):
+    def __init__(self, c, Y_b, L_A, whitepoint=white_point(d65())):
+        self.K_L = 1.0
+        self.c1 = 0.007
+        self.c2 = 0.0228
+        self.ciecam02 = CAM16(c, Y_b, L_A, whitepoint)
         return
 
     def from_xyz(self, xyz):
