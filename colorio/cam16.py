@@ -4,15 +4,8 @@ from __future__ import division
 
 import numpy
 
+from .ciecam02 import find_first
 from .illuminants import white_point, d65
-
-
-def _find_first(a, alpha):
-    '''Given an array a and a value alpha, this method returns the first index
-    i where a[i] > alpha. Vectorized in alpha.
-    '''
-    # https://stackoverflow.com/a/48367770/353337
-    return numpy.argmax(numpy.add.outer(alpha, -a) < 0, axis=-1)
 
 
 class CAM16(object):
@@ -99,7 +92,7 @@ class CAM16(object):
         h_ = numpy.mod(h - self.h[0], 2*numpy.pi) + self.h[0]
         assert numpy.all(self.h[0] <= h_) and numpy.all(h_ < self.h[-1])
         e_t = 1/4 * (numpy.cos(h_+2) + 3.8)
-        i = _find_first(self.h, h_) - 1
+        i = find_first(self.h, h_) - 1
         assert numpy.all(self.h[i] <= h_) and numpy.all(h_ <= self.h[i+1])
         beta = (h_ - self.h[i]) / self.e[i]
         H = self.H[i] + 100 * beta / (beta + (self.h[i+1] - h_)/self.e[i+1])
@@ -154,7 +147,7 @@ class CAM16(object):
             assert description[2] == 'H'
             # Step 1–3: Calculate h from H (if start from H)
             H = data[2]
-            i = _find_first(self.H, H) - 1
+            i = find_first(self.H, H) - 1
             assert numpy.all(self.H[i] <= H) and numpy.all(H < self.H[i+1])
             Hi = self.H[i]
             hi, hi1 = self.h[i], self.h[i+1]
