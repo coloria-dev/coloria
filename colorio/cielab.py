@@ -4,15 +4,15 @@ from __future__ import division
 
 import numpy
 
-from .illuminants import white_point, d65
+from .illuminants import whitepoints_cie1931
 
 
 class CIELAB(object):
-    def __init__(self, whitepoint=white_point(d65())):
+    def __init__(self, whitepoint=whitepoints_cie1931['D65']):
         self.whitepoint = whitepoint
         return
 
-    def from_xyz(self, xyz):
+    def from_xyz100(self, xyz):
         def f(t):
             delta = 6.0/29.0
             out = numpy.array(t, dtype=float)
@@ -28,7 +28,7 @@ class CIELAB(object):
             200 * (fy - fz),
             ])
 
-    def to_xyz(self, lab):
+    def to_xyz100(self, lab):
         def f1(t):
             delta = 6.0/29.0
             out = numpy.array(t, dtype=float)

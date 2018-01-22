@@ -4,7 +4,7 @@ from __future__ import division
 
 import numpy
 
-from .illuminants import white_point, d65
+from .illuminants import whitepoints_cie1931
 
 
 # pylint: disable=too-many-instance-attributes
@@ -16,7 +16,7 @@ class JzAzBz(object):
     Optics Express Vol. 25, Issue 13, pp. 15131-15151 (2017),
     <https://doi.org/10.1364/OE.25.015131>.
     '''
-    def __init__(self, whitepoint=white_point(d65())):
+    def __init__(self, whitepoint=whitepoints_cie1931['D65']):
         self.whitepoint = whitepoint
 
         self.b = 1.15
@@ -42,7 +42,7 @@ class JzAzBz(object):
             ])
         return
 
-    def from_xyz(self, xyz):
+    def from_xyz100(self, xyz):
         x, y, z = (xyz.T / self.whitepoint).T
         x_ = self.b*x - (self.b-1)*z
         y_ = self.g*y - (self.g-1)*x
@@ -55,7 +55,7 @@ class JzAzBz(object):
         jz = (1+self.d) * iz / (1+self.d*iz) - self.d0
         return numpy.array([jz, az, bz])
 
-    def to_xyz(self, jzazbz):
+    def to_xyz100(self, jzazbz):
         jz, az, bz = jzazbz
         iz = (jz + self.d0) / (1 + self.d - self.d*(jz+self.d0))
         lms_ = numpy.linalg.solve(self.M2, numpy.array([iz, az, bz]))

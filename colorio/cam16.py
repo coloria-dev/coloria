@@ -4,15 +4,8 @@ from __future__ import division
 
 import numpy
 
-from .illuminants import white_point, d65
-
-
-def _find_first(a, alpha):
-    '''Given an array a and a value alpha, this method returns the first index
-    i where a[i] > alpha. Vectorized in alpha.
-    '''
-    # https://stackoverflow.com/a/48367770/353337
-    return numpy.argmax(numpy.add.outer(alpha, -a) < 0, axis=-1)
+from .ciecam02 import find_first
+from .illuminants import whitepoints_cie1931
 
 
 class CAM16(object):
@@ -23,7 +16,7 @@ class CAM16(object):
     <https://doi.org/10.1002/col.22131>.
     '''
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, c, Y_b, L_A, whitepoint=white_point(d65())):
+    def __init__(self, c, Y_b, L_A, whitepoint=whitepoints_cie1931['D65']):
         # step0: Calculate all values/parameters which are independent of input
         #        samples
         Y_w = whitepoint[1]
@@ -65,15 +58,12 @@ class CAM16(object):
 
         self.A_w = (numpy.dot([2, 1, 1/20], RGB_aw_) - 0.305) * self.N_bb
 
-        self.h = \
-            numpy.array([20.14, 90.00, 164.25, 237.53, 380.14]) * numpy.pi/180
+        self.h = numpy.array([20.14, 90.00, 164.25, 237.53, 380.14])
         self.e = numpy.array([0.8, 0.7, 1.0, 1.2, 0.8])
         self.H = numpy.array([0.0, 100.0, 200.0, 300.0, 400.0])
         return
 
-    def from_xyz(self, xyz):
-        # TODO scale xyz w.r.t. test illuminant?
-
+    def from_xyz100(self, xyz):
         # Step 1: Calculate 'cone' responses
         rgb = numpy.dot(self.M16, xyz)
 
@@ -91,18 +81,18 @@ class CAM16(object):
         a = numpy.dot([1, -12/11, 1/11], rgb_a)
         b = numpy.dot([1, 1, -2], rgb_a) / 9
         # Make sure that h is in [0, 2*pi]
-        h = numpy.mod(numpy.arctan2(b, a), 2*numpy.pi)
-        assert numpy.all(h >= 0) and numpy.all(h <= 2*numpy.pi)
+        h = numpy.mod(numpy.arctan2(b, a) / numpy.pi * 180, 360)
+        assert numpy.all(h >= 0) and numpy.all(h < 360)
 
         # Step 5: Calculate eccentricity (e_t) and hue composition (H), using
         #         the unique hue data given in Table 2.4.
-        h_ = numpy.mod(h - self.h[0], 2*numpy.pi) + self.h[0]
+        h_ = numpy.mod(h - self.h[0], 360) + self.h[0]
         assert numpy.all(self.h[0] <= h_) and numpy.all(h_ < self.h[-1])
-        e_t = 1/4 * (numpy.cos(h_+2) + 3.8)
-        i = _find_first(self.h, h_) - 1
+        e_t = 1/4 * (numpy.cos(h_*numpy.pi/180 + 2) + 3.8)
+        i = find_first(self.h, h_) - 1
         assert numpy.all(self.h[i] <= h_) and numpy.all(h_ <= self.h[i+1])
-        beta = (h_ - self.h[i]) / self.e[i]
-        H = self.H[i] + 100 * beta / (beta + (self.h[i+1] - h_)/self.e[i+1])
+        beta = (h_ - self.h[i]) * self.e[i+1]
+        H = self.H[i] + 100 * beta / (beta + (self.h[i+1] - h_)*self.e[i])
 
         # Step 6: Calculate achromatic response A
         A = (numpy.dot([2, 1, 1/20], rgb_a) - 0.305) * self.N_bb
@@ -122,7 +112,7 @@ class CAM16(object):
         s = 100 * numpy.sqrt(M/Q)
         return numpy.array([J, C, H, h, M, s, Q])
 
-    def to_xyz(self, data, description):
+    def to_xyz100(self, data, description):
         '''Input: J or Q; C, M or s; H or h
         '''
         # Step 1: Obtain J, C and h from H, Q, M, s
@@ -154,18 +144,18 @@ class CAM16(object):
             assert description[2] == 'H'
             # Step 1–3: Calculate h from H (if start from H)
             H = data[2]
-            i = _find_first(self.H, H) - 1
+            i = find_first(self.H, H) - 1
             assert numpy.all(self.H[i] <= H) and numpy.all(H < self.H[i+1])
             Hi = self.H[i]
             hi, hi1 = self.h[i], self.h[i+1]
             ei, ei1 = self.e[i], self.e[i+1]
             h_ = ((H - Hi) * (ei1*hi - ei*hi1) - 100*hi*ei1) \
                 / ((H - Hi) * (ei1 - ei) - 100*ei1)
-            h = numpy.mod(h_, 2*numpy.pi)
+            h = numpy.mod(h_, 360)
 
         # Step 2: Calculate t, e_t, p1, p2, and p3
         t = (C / numpy.sqrt(J/100) / (1.64-0.29**self.n)**0.73)**(1/0.9)
-        e_t = 0.25 * (numpy.cos(h+2) + 3.8)
+        e_t = 0.25 * (numpy.cos(h*numpy.pi/180 + 2) + 3.8)
         A = self.A_w * (J/100)**(1/self.c/self.z)
 
         p2 = A / self.N_bb + 0.305
@@ -179,10 +169,8 @@ class CAM16(object):
         # quantities in the above term are nonzero.)
         one_over_p1 = t / e_t * 13/50000 / self.N_c / self.N_cb
         p3 = 21/20
-        cosh = numpy.cos(h)
-        sinh = numpy.sin(h)
-        one_over_p4 = one_over_p1 * sinh
-        one_over_p5 = one_over_p1 * cosh
+        one_over_p4 = one_over_p1 * numpy.sin(h * numpy.pi / 180)
+        one_over_p5 = one_over_p1 * numpy.cos(h * numpy.pi / 180)
         a, b = numpy.array([one_over_p5, one_over_p4]) * (
             p2 * (2+p3) * 460 /
             (1403 + one_over_p5*(2+p3)*220 - one_over_p4*(27 - p3*6300))
@@ -205,28 +193,28 @@ class CAM16(object):
 
         # Step 7: Calculate X, Y and Z
         xyz = numpy.linalg.solve(self.M16, rgb)
-        # TODO scale xyz w.r.t. test illuminant?
         return xyz
 
 
 class CAM16UCS(object):
-    def __init__(self, c, Y_b, L_A, whitepoint=white_point(d65())):
+    def __init__(self, c, Y_b, L_A, whitepoint=whitepoints_cie1931['D65']):
         self.K_L = 1.0
         self.c1 = 0.007
         self.c2 = 0.0228
         self.ciecam02 = CAM16(c, Y_b, L_A, whitepoint)
         return
 
-    def from_xyz(self, xyz):
-        J, _, _, h, M, _, _ = self.ciecam02.from_xyz(xyz)
+    def from_xyz100(self, xyz):
+        J, _, _, h, M, _, _ = self.ciecam02.from_xyz100(xyz)
         J_ = (1+100*self.c1)*J / (1 + self.c1*J)
         M_ = 1/self.c2 * numpy.log(1 + self.c2*M)
-        return numpy.array([J_, M_*numpy.cos(h), M_*numpy.sin(h)])
+        h_ = h * numpy.pi / 180
+        return numpy.array([J_, M_*numpy.cos(h_), M_*numpy.sin(h_)])
 
-    def to_xyz(self, jab):
+    def to_xyz100(self, jab):
         J_, a, b = jab
         J = J_ / (1 - (J_-100)*self.c1)
-        h = numpy.arctan2(b, a)
+        h = numpy.mod(numpy.arctan2(b, a) / numpy.pi * 180, 360)
         M_ = numpy.sqrt(a**2 + b**2)
         M = (numpy.exp(M_ * self.c2) - 1) / self.c2
-        return self.ciecam02.to_xyz(numpy.array([J, M, h]), 'JMh')
+        return self.ciecam02.to_xyz100(numpy.array([J, M, h]), 'JMh')

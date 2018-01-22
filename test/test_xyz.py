@@ -12,6 +12,6 @@ import colorio
     ])
 def test_conversion(xyz):
     colorspace = colorio.XYZ()
-    out = colorspace.to_xyz(colorspace.from_xyz(xyz))
+    out = colorspace.to_xyz100(colorspace.from_xyz100(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
     return

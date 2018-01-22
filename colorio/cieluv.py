@@ -4,15 +4,15 @@ from __future__ import division
 
 import numpy
 
-from .illuminants import white_point, d65
+from .illuminants import whitepoints_cie1931
 
 
 class CIELUV(object):
-    def __init__(self, whitepoint=white_point(d65())):
+    def __init__(self, whitepoint=whitepoints_cie1931['D65']):
         self.whitepoint = whitepoint
         return
 
-    def from_xyz(self, xyz):
+    def from_xyz100(self, xyz):
         def f(t):
             delta = 6.0/29.0
             out = numpy.array(t, dtype=float)
@@ -31,7 +31,7 @@ class CIELUV(object):
         vn = 9*wy / (wx + 15*wy + 3*wz)
         return numpy.array([L, 13*L*(u - un), 13*L*(v - vn)])
 
-    def to_xyz(self, luv):
+    def to_xyz100(self, luv):
         def f1(t):
             out = numpy.array(t, dtype=float)
             is_greater = out > 8

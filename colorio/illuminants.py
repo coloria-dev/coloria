@@ -7,7 +7,30 @@ import numpy
 from . import observers
 
 
-def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2()):
+# The 'standard' 2 degree observer (CIE 1931). From
+# <https://github.com/njsmith/colorspacious/blob/master/colorspacious/illuminants.py>
+whitepoints_cie1931 = {
+    'A': (109.850, 100, 35.585),
+    'C': (98.074, 100, 118.232),
+    'D50': (96.422, 100, 82.521),
+    'D55': (95.682, 100, 92.149),
+    'D65': (95.047, 100, 108.883),
+    'D75': (94.972, 100, 122.638),
+    }
+
+# The 'supplementary' 10 degree observer (CIE 1964). From
+# <https://github.com/njsmith/colorspacious/blob/master/colorspacious/illuminants.py>
+whitepoints_cie1964 = {
+    'A': (111.144, 100, 35.200),
+    'C': (97.285, 100, 116.145),
+    'D50': (96.720, 100, 81.427),
+    'D55': (95.799, 100, 90.926),
+    'D65': (94.811, 100, 107.304),
+    'D75': (94.416, 100, 120.641),
+    }
+
+
+def spectrum_to_xyz100(spectrum, observer=observers.cie_1931_2()):
     '''Computes the tristimulus values XYZ from a given spectrum for a given
     observer via
 
@@ -23,7 +46,7 @@ def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2()):
     # form the union of lambdas
     lmbda = numpy.sort(numpy.unique(numpy.concatenate([lambda_o, lambda_s])))
 
-    # The technical document prescribes that the integration be performed "over
+    # The technical document prescribes that the integration be performed over
     # the wavelength range corresponding to the entire visible spectrum, 360 nm
     # to 830 nm.
     assert lmbda[0] < 361e-9
@@ -55,7 +78,7 @@ def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2()):
 
     values = numpy.dot(idata_o, idata_s * delta)
 
-    return values
+    return values * 100
 
 
 def white_point(illuminant, observer=observers.cie_1931_2()):
@@ -63,9 +86,10 @@ def white_point(illuminant, observer=observers.cie_1931_2()):
     The white point of an illuminant is the chromaticity of a white object
     under the illuminant.
     '''
-    values = spectrum_to_xyz(illuminant, observer)
-    # normalize for relative luminance, Y=1
+    values = spectrum_to_xyz100(illuminant, observer)
+    # normalize for relative luminance, Y=100
     values /= values[1]
+    values *= 100
     return values
 
 

@@ -12,6 +12,6 @@ import colorio
     ])
 def test_conversion(xyz):
     cieluv = colorio.CIELUV()
-    out = cieluv.to_xyz(cieluv.from_xyz(xyz))
+    out = cieluv.to_xyz100(cieluv.from_xyz100(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
     return
