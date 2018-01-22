@@ -18,6 +18,8 @@ xyz = colorspace.to_xyz100(vals)
 ```
 for conversion from and to XYZ100.
 
+The images below all show the SRGB gamut in the respective color space.
+
 #### SRGB
 
 <img src="https://nschloe.github.io/colorio/srgb.png" width="40%">
@@ -46,12 +48,32 @@ for conversion from and to standard RGB.
 #### CIECAM / CAM02-UCS
 <img src="https://nschloe.github.io/colorio/cam02ucs.png" width="40%">
 
+The implementation contains a few improvements over the CIECAM02 specification.
+
 #### CAM16 / CAM16-UCS
 <img src="https://nschloe.github.io/colorio/cam16ucs.png" width="40%">
+
+From the article [Comprehensive color solutions: CAM16, CAT16, and
+CAM16-UCS](https://doi.org/10.1002/col.22131) by Li et al.
+
+The implementation contains a few improvements over the CAM16 specification.
 
 #### J<sub>z</sub>a<sub>z</sub>b<sub>z</sub>
 <img src="https://nschloe.github.io/colorio/jzazbz.png" width="40%">
 
+From the article [Perceptually uniform color space for image signals including
+high dynamic range and wide gamut](https://doi.org/10.1364/OE.25.015131) by
+Safdar et al.
+
+### Other tools
+
+To create the above gamut plots, write the corresponding mesh out to a file with`
+```python
+colorio.show_srgb_gamut(colorspace, 'srgb.vtu', n=20)
+```
+and open it with any program that knows how to handle VTU (e.g.,
+[ParaView](https://www.paraview.org/)). The `srgb` data set is defined in all
+points of the mesh.
 
 ### Installation
 
