@@ -244,7 +244,7 @@ class CIECAM02(object):
 
 
 class CAM02(object):
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments, bad-continuation
     def __init__(
             self, variant, c, Y_b, L_A, whitepoint=whitepoints_cie1931['D65']
             ):

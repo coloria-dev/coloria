@@ -46,6 +46,6 @@ def test_reference_srgb(vals, ref):
 def test_reference_xyz(vals, ref):
     srgb_linear = colorio.SrgbLinear()
     assert numpy.all(
-        abs(srgb_linear.to_xyz100(vals)*100 - ref) < 1.0e-3 * numpy.array(ref)
+        abs(srgb_linear.to_xyz100(vals) - ref) < 1.0e-3 * numpy.array(ref)
         )
     return

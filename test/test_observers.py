@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 
 import colorio
 
-import numpy
-
 
 def test_observers():
     lmbda, data = colorio.observers.cie_1931_2()
@@ -16,8 +14,8 @@ def test_observers():
     colors = []
     for k in range(3):
         out = colorio.illuminants.spectrum_to_xyz100(
-                (lmbda, data[k]), observer=colorio.observers.cie_1931_2()
-                )
+            (lmbda, data[k]), observer=colorio.observers.cie_1931_2()
+            )
         out *= 100 / out[1]
         srgb = colorio.SrgbLinear()
         rgb_vals = srgb.from_xyz100(out)
