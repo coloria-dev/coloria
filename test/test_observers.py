@@ -4,20 +4,31 @@ import matplotlib.pyplot as plt
 
 import colorio
 
+import numpy
+
 
 def test_observers():
     lmbda, data = colorio.observers.cie_1931_2()
 
-    # Choose the colors such that they roughly correspond to the color of the
-    # maximum response,
-    # data[0]: 595 nm
-    # data[1]: 557 nm
-    # data[2]: 445 nm
-    #
-    # TODO adjust this better
-    plt.plot(lmbda, data[0], color='#FFC400')
-    plt.plot(lmbda, data[1], color='#ABFF00')
-    plt.plot(lmbda, data[2], color='#0019FF')
+    # For plot colors, take the SRGB approximation of the color that the
+    # observer would perceive if a light spectrum hits its eye that corresponds
+    # to the sensitivity spectrum.
+    colors = []
+    for k in range(3):
+        out = colorio.illuminants.spectrum_to_xyz100(
+                (lmbda, data[k]), observer=colorio.observers.cie_1931_2()
+                )
+        out *= 100 / out[1]
+        srgb = colorio.SrgbLinear()
+        rgb_vals = srgb.from_xyz100(out)
+        rgb_vals[rgb_vals < 0] = 0
+        # project down to proper rgb
+        rgb_vals /= max(rgb_vals)
+        colors.append(srgb.to_srgb1(rgb_vals))
+
+    plt.plot(lmbda, data[0], color=colors[0])
+    plt.plot(lmbda, data[1], color=colors[1])
+    plt.plot(lmbda, data[2], color=colors[2])
 
     plt.xlabel('wavelength (nm)')
     plt.grid()

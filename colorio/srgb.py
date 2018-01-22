@@ -18,10 +18,10 @@ class SrgbLinear(object):
         # https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
         # http://www.color.org/srgb.pdf
         # TODO NaN the values smaller than 0 and larger than 1
-        return numpy.dot(self.M, xyz)
+        return numpy.dot(self.M, xyz) / 100
 
     def to_xyz100(self, srgb1_linear):
-        return numpy.linalg.solve(self.M, srgb1_linear)
+        return 100 * numpy.linalg.solve(self.M, srgb1_linear)
 
     # pylint: disable=no-self-use
     def from_srgb1(self, srgb1):
