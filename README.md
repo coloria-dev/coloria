@@ -8,6 +8,7 @@ Tools for color models.
 [![PyPi Version](https://img.shields.io/pypi/v/colorio.svg)](https://pypi.python.org/pypi/colorio)
 [![GitHub stars](https://img.shields.io/github/stars/nschloe/colorio.svg?style=social&label=Stars)](https://github.com/nschloe/colorio)
 
+All methods in colorio are fully vectorized.
 
 ### Color spaces
 
@@ -16,7 +17,7 @@ All color spaces implement the two methods
 vals = colorspace.from_xyz100(xyz)
 xyz = colorspace.to_xyz100(vals)
 ```
-for conversion from and to XYZ100.
+for conversion from and to XYZ100. Adding new color maps is as easy as that.
 
 The images below all show the SRGB gamut in the respective color space.
 
