@@ -5,7 +5,6 @@ from __future__ import division
 import numpy
 
 from .illuminants import white_point, d65
-from . import srgb
 
 
 class CIELUV(object):
