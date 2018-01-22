@@ -133,8 +133,8 @@ class CIECAM02(object):
         e_t = 1/4 * (numpy.cos(h_*numpy.pi/180 + 2) + 3.8)
         i = find_first(self.h, h_) - 1
         assert numpy.all(self.h[i] <= h_) and numpy.all(h_ <= self.h[i+1])
-        beta = (h_ - self.h[i]) / self.e[i]
-        H = self.H[i] + 100 * beta / (beta + (self.h[i+1] - h_)/self.e[i+1])
+        beta = (h_ - self.h[i]) * self.e[i+1]
+        H = self.H[i] + 100 * beta / (beta + self.e[i]*(self.h[i+1] - h_))
 
         # Step 7: Calculate achromatic response A
         A = (numpy.dot([2, 1, 1/20], rgb_a_) - 0.305) * self.N_bb
