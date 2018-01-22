@@ -9,6 +9,7 @@ import colorio
 @pytest.mark.parametrize('vals', [
     numpy.random.rand(3),
     numpy.random.rand(3, 7),
+    numpy.random.rand(3, 4, 5),
     ])
 def test_conversion(vals):
     srgb_linear = colorio.SrgbLinear()
