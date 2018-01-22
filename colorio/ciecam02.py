@@ -157,6 +157,9 @@ class CIECAM02(object):
         C = t**0.9 * numpy.sqrt(J/100) * (1.64 - 0.29**self.n)**0.73
         M = C * self.F_L**0.25
         s = 100 * numpy.sqrt(M/Q)
+
+        # TODO scale everything to [0, 360]
+        h *= 180 / numpy.pi
         return numpy.array([J, C, H, h, M, s, Q])
 
     def to_xyz(self, data, description):
@@ -187,6 +190,7 @@ class CIECAM02(object):
 
         if description[2] == 'h':
             h = data[2]
+            h *= numpy.pi / 180
         else:
             assert description[2] == 'H'
             # Step 1–3: Calculate h from H (if start from H)
@@ -216,10 +220,8 @@ class CIECAM02(object):
         # quantities in the above term are nonzero.)
         one_over_p1 = t / e_t * 13/50000 / self.N_c / self.N_cb
         p3 = 21/20
-        cosh = numpy.cos(h)
-        sinh = numpy.sin(h)
-        one_over_p4 = one_over_p1 * sinh
-        one_over_p5 = one_over_p1 * cosh
+        one_over_p4 = one_over_p1 * numpy.sin(h)
+        one_over_p5 = one_over_p1 * numpy.cos(h)
         a, b = numpy.array([one_over_p5, one_over_p4]) * (
             p2 * (2+p3) * 460 /
             (1403 + one_over_p5*(2+p3)*220 - one_over_p4*(27 - p3*6300))
@@ -265,12 +267,13 @@ class CAM02(object):
         J, _, _, h, M, _, _ = self.ciecam02.from_xyz(xyz)
         J_ = (1+100*self.c1)*J / (1 + self.c1*J)
         M_ = 1/self.c2 * numpy.log(1 + self.c2*M)
-        return numpy.array([J_, M_*numpy.cos(h), M_*numpy.sin(h)])
+        h_ = h / 180 * numpy.pi
+        return numpy.array([J_, M_*numpy.cos(h_), M_*numpy.sin(h_)])
 
     def to_xyz(self, jab):
         J_, a, b = jab
         J = J_ / (1 - (J_-100)*self.c1)
-        h = numpy.arctan2(b, a)
+        h = numpy.mod(numpy.arctan2(b, a), 2*numpy.pi) / numpy.pi * 180
         M_ = numpy.sqrt(a**2 + b**2)
         M = (numpy.exp(M_ * self.c2) - 1) / self.c2
         return self.ciecam02.to_xyz(numpy.array([J, M, h]), 'JMh')
