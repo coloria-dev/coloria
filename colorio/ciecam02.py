@@ -15,6 +15,10 @@ def find_first(a, alpha):
     return numpy.argmax(numpy.add.outer(alpha, -a) < 0, axis=-1)
 
 
+class NegativeAError(ValueError):
+    pass
+
+
 class CIECAM02(object):
     '''
     Ming Ronnier Luo and Changjun Li,
@@ -137,6 +141,8 @@ class CIECAM02(object):
 
         # Step 7: Calculate achromatic response A
         A = (numpy.dot([2, 1, 1/20], rgb_a_) - 0.305) * self.N_bb
+        if numpy.any(A < 0):
+            raise NegativeAError('CIECAM02 breakdown')
 
         # Step 8: Calculate the correlate of lightness
         J = 100 * (A/self.A_w)**(self.c*self.z)
