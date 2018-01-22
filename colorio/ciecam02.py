@@ -68,11 +68,11 @@ class CIECAM02(object):
         self.D_RGB = D*Y_w/RGB_w + 1 - D
 
         k = 1 / (5*L_A + 1)
-        self.F_L = 0.2 * k**4 * 5*L_A + 0.1*(1-k**4)**2 * numpy.cbrt(5*L_A)
+        self.F_L = k**4 * L_A + 0.1*(1-k**4)**2 * numpy.cbrt(5*L_A)
 
         self.n = Y_b / Y_w
         self.z = 1.48 + numpy.sqrt(self.n)
-        self.N_bb = 0.725 * 1/self.n**0.2
+        self.N_bb = 0.725 / self.n**0.2
         self.N_cb = self.N_bb
 
         RGB_wc = self.D_RGB * RGB_w
