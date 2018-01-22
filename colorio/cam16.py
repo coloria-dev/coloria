@@ -16,11 +16,9 @@ class CAM16(object):
     Color Res Appl. 2017;00:1–12.
     <https://doi.org/10.1002/col.22131>.
     '''
-    # pylint: disable=too-many-instance-attributes
-    def __init__(
-            self, c, Y_b, L_A, exact_inversion=True,
-            whitepoint=whitepoints_cie1931['D65']
-            ):
+    # pylint: disable=too-many-instance-attributes, too-many-arguments
+    def __init__(self, c, Y_b, L_A, exact_inversion=True,
+                 whitepoint=whitepoints_cie1931['D65']):
         # step0: Calculate all values/parameters which are independent of input
         #        samples
         Y_w = whitepoint[1]
@@ -212,10 +210,9 @@ class CAM16(object):
 
 
 class CAM16UCS(object):
-    def __init__(
-            self, c, Y_b, L_A, exact_inversion=True,
-            whitepoint=whitepoints_cie1931['D65']
-            ):
+    # pylint: disable=too-many-arguments
+    def __init__(self, c, Y_b, L_A, exact_inversion=True,
+                 whitepoint=whitepoints_cie1931['D65']):
         self.K_L = 1.0
         self.c1 = 0.007
         self.c2 = 0.0228
