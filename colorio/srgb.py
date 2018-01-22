@@ -23,28 +23,21 @@ class SrgbLinear(object):
     def to_xyz(self, srgb1_linear):
         return numpy.linalg.solve(self.M, srgb1_linear)
 
-
-class SRGB1(object):
-    def __init__(self):
-        self.a = 0.055
-        return
-
-    def from_srgb_linear(self, srgb_linear):
-        is_smaller = srgb_linear <= 0.0031308
-
-        srgb = numpy.array(srgb_linear, dtype=float)
-        srgb[is_smaller] *= 12.92
-        srgb[~is_smaller] = (1+self.a) * srgb[~is_smaller]**(1/2.4) - self.a
-        return srgb
-
-    def to_srgb_linear(self, srgb1):
+    def from_srgb1(self, srgb1):
         srgb_linear = numpy.array(srgb1, dtype=float)
 
+        a = 0.055
         # https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation
         is_smaller = srgb_linear <= 12.92 * 0.0031308  # 0.040449936
 
         srgb_linear[is_smaller] /= 12.92
-        srgb_linear[~is_smaller] = (
-            (srgb_linear[~is_smaller] + self.a) / (1+self.a)
-            )**2.4
+        srgb_linear[~is_smaller] = ((srgb_linear[~is_smaller] + a)/(1+a))**2.4
         return srgb_linear
+
+    def to_srgb1(self, srgb_linear):
+        a = 0.055
+        is_smaller = srgb_linear <= 0.0031308
+        srgb = numpy.array(srgb_linear, dtype=float)
+        srgb[is_smaller] *= 12.92
+        srgb[~is_smaller] = (1+a) * srgb[~is_smaller]**(1/2.4) - a
+        return srgb

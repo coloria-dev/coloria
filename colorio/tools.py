@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy
 
 from .illuminants import spectrum_to_xyz, planckian_radiator
-from .srgb import SrgbLinear, SRGB1
+from .srgb import SrgbLinear
 from .xyy import XYY
 
 
@@ -22,8 +22,9 @@ def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
         cells = cells[~numpy.any(cells == 0, axis=1)]
         cells -= 1
 
-    pts = colorspace.from_xyz(SrgbLinear().to_xyz(points.T)).T
-    rgb = SRGB1().from_srgb_linear(points)
+    srgb_linear = SrgbLinear()
+    pts = colorspace.from_xyz(srgb_linear.to_xyz(points.T)).T
+    rgb = srgb_linear.to_srgb1(points)
     meshio.write(
         filename,
         pts, {'tetra': cells},
@@ -82,7 +83,8 @@ def _plot_rgb_triangle():
     # colors up as much as possible.
     rgb_linear /= numpy.max(rgb_linear, axis=0)
 
-    xyz = SrgbLinear().to_xyz(rgb_linear)
+    srgb_linear = SrgbLinear()
+    xyz = srgb_linear.to_xyz(rgb_linear)
     xyy_vals = XYY().from_xyz(xyz)
 
     # Unfortunately, one cannot use tripcolors with explicit RGB specification
@@ -90,7 +92,7 @@ def _plot_rgb_triangle():
     # workaround, associate range(n) data with the points and create a colormap
     # that associates the integer values with the respective RGBs.
     z = numpy.arange(xyy_vals.shape[1])
-    rgb = SRGB1().from_srgb_linear(rgb_linear)
+    rgb = srgb_linear.to_srgb1(rgb_linear)
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
         'gamut', rgb.T, N=len(rgb.T)
         )
