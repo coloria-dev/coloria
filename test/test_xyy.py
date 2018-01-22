@@ -12,6 +12,6 @@ import colorio
     ])
 def test_conversion(xyz):
     xyy = colorio.XYY()
-    out = xyy.to_xyz(xyy.from_xyz(xyz))
+    out = xyy.to_xyz100(xyy.from_xyz100(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
     return

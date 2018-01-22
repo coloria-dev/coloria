@@ -12,7 +12,7 @@ import colorio
     ])
 def test_conversion(xyz):
     cielab = colorio.CIELAB()
-    out = cielab.to_xyz(cielab.from_xyz(xyz))
+    out = cielab.to_xyz100(cielab.from_xyz100(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
     return
 
@@ -30,7 +30,7 @@ def test_reference_xyz(xyz100, ref):
         )
     xyz = numpy.array(xyz100) / 100
     assert numpy.all(
-        abs(cielab.from_xyz(xyz) - ref) < 1.0e-4 * abs(numpy.array(ref))
+        abs(cielab.from_xyz100(xyz) - ref) < 1.0e-4 * abs(numpy.array(ref))
         )
     return
 
@@ -45,6 +45,6 @@ def test_reference_xyz_d50(xyz100, ref):
     cielab = colorio.CIELAB(whitepoint=numpy.array([96.422, 100, 82.521])/100)
     xyz = numpy.array(xyz100) / 100
     assert numpy.all(
-        abs(cielab.from_xyz(xyz) - ref) < 1.0e-4 * abs(numpy.array(ref))
+        abs(cielab.from_xyz100(xyz) - ref) < 1.0e-4 * abs(numpy.array(ref))
         )
     return

@@ -12,13 +12,14 @@ class CIEHCL(object):
         self.cieluv = cieluv.CIELUV(whitepoint=whitepoint)
         return
 
-    def from_xyz(self, xyz):
-        L, u, v = self.cieluv.from_xyz(xyz)
+    def from_xyz100(self, xyz):
+        L, u, v = self.cieluv.from_xyz100(xyz)
         C = numpy.sqrt(u**2 + v**2)
-        h = numpy.arctan2(v, u)
+        h = numpy.mod(numpy.arctan2(v, u), 2*numpy.pi) / numpy.pi * 180
         return numpy.array([L, C, h])
 
-    def to_xyz(self, lch):
+    def to_xyz100(self, lch):
         L, C, h = lch
-        luv = numpy.array([L, C * numpy.cos(h), C * numpy.sin(h)])
-        return self.cieluv.to_xyz(luv)
+        h_ = h * numpy.pi / 180
+        luv = numpy.array([L, C * numpy.cos(h_), C * numpy.sin(h_)])
+        return self.cieluv.to_xyz100(luv)

@@ -12,7 +12,7 @@ class CIELUV(object):
         self.whitepoint = whitepoint
         return
 
-    def from_xyz(self, xyz):
+    def from_xyz100(self, xyz):
         def f(t):
             delta = 6.0/29.0
             out = numpy.array(t, dtype=float)
@@ -31,7 +31,7 @@ class CIELUV(object):
         vn = 9*wy / (wx + 15*wy + 3*wz)
         return numpy.array([L, 13*L*(u - un), 13*L*(v - vn)])
 
-    def to_xyz(self, luv):
+    def to_xyz100(self, luv):
         def f1(t):
             out = numpy.array(t, dtype=float)
             is_greater = out > 8

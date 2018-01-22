@@ -7,7 +7,7 @@ import numpy
 from . import observers
 
 
-def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2()):
+def spectrum_to_xyz100(spectrum, observer=observers.cie_1931_2()):
     '''Computes the tristimulus values XYZ from a given spectrum for a given
     observer via
 
@@ -55,7 +55,7 @@ def spectrum_to_xyz(spectrum, observer=observers.cie_1931_2()):
 
     values = numpy.dot(idata_o, idata_s * delta)
 
-    return values
+    return values * 100
 
 
 def white_point(illuminant, observer=observers.cie_1931_2()):
@@ -63,9 +63,10 @@ def white_point(illuminant, observer=observers.cie_1931_2()):
     The white point of an illuminant is the chromaticity of a white object
     under the illuminant.
     '''
-    values = spectrum_to_xyz(illuminant, observer)
-    # normalize for relative luminance, Y=1
+    values = spectrum_to_xyz100(illuminant, observer)
+    # normalize for relative luminance, Y=100
     values /= values[1]
+    values *= 100
     return values
 
 

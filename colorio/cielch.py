@@ -11,14 +11,14 @@ class CIELCH(object):
         self.cielab = cielab.CIELAB(whitepoint=whitepoint)
         return
 
-    def from_xyz(self, xyz):
-        L, u, v = self.cielab.from_xyz(xyz)
+    def from_xyz100(self, xyz):
+        L, u, v = self.cielab.from_xyz100(xyz)
         C = numpy.sqrt(u**2 + v**2)
         h = numpy.mod(numpy.arctan2(v, u), 2*numpy.pi) / numpy.pi * 180
         return numpy.array([L, C, h])
 
-    def to_xyz(self, lch):
+    def to_xyz100(self, lch):
         L, C, h = lch
         h_ = h * numpy.pi / 180
         lab = numpy.array([L, C * numpy.cos(h_), C * numpy.sin(h_)])
-        return self.cielab.to_xyz(lab)
+        return self.cielab.to_xyz100(lab)

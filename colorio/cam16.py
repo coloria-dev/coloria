@@ -64,7 +64,7 @@ class CAM16(object):
         self.H = numpy.array([0.0, 100.0, 200.0, 300.0, 400.0])
         return
 
-    def from_xyz(self, xyz):
+    def from_xyz100(self, xyz):
         # TODO scale xyz w.r.t. test illuminant?
 
         # Step 1: Calculate 'cone' responses
@@ -115,7 +115,7 @@ class CAM16(object):
         s = 100 * numpy.sqrt(M/Q)
         return numpy.array([J, C, H, h, M, s, Q])
 
-    def to_xyz(self, data, description):
+    def to_xyz100(self, data, description):
         '''Input: J or Q; C, M or s; H or h
         '''
         # Step 1: Obtain J, C and h from H, Q, M, s
@@ -210,16 +210,16 @@ class CAM16UCS(object):
         self.ciecam02 = CAM16(c, Y_b, L_A, whitepoint)
         return
 
-    def from_xyz(self, xyz):
-        J, _, _, h, M, _, _ = self.ciecam02.from_xyz(xyz)
+    def from_xyz100(self, xyz):
+        J, _, _, h, M, _, _ = self.ciecam02.from_xyz100(xyz)
         J_ = (1+100*self.c1)*J / (1 + self.c1*J)
         M_ = 1/self.c2 * numpy.log(1 + self.c2*M)
         return numpy.array([J_, M_*numpy.cos(h), M_*numpy.sin(h)])
 
-    def to_xyz(self, jab):
+    def to_xyz100(self, jab):
         J_, a, b = jab
         J = J_ / (1 - (J_-100)*self.c1)
         h = numpy.arctan2(b, a)
         M_ = numpy.sqrt(a**2 + b**2)
         M = (numpy.exp(M_ * self.c2) - 1) / self.c2
-        return self.ciecam02.to_xyz(numpy.array([J, M, h]), 'JMh')
+        return self.ciecam02.to_xyz100(numpy.array([J, M, h]), 'JMh')

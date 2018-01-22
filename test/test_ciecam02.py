@@ -16,15 +16,15 @@ def test_conversion(xyz):
     # test with srgb conditions
     L_A = 64 / numpy.pi / 5
     ciecam02 = colorio.CIECAM02(0.69, 20, L_A)
-    J, C, H, h, M, s, Q = ciecam02.from_xyz(xyz)
+    J, C, H, h, M, s, Q = ciecam02.from_xyz100(xyz)
 
-    out = ciecam02.to_xyz(numpy.array([J, C, H]), 'JCH')
+    out = ciecam02.to_xyz100(numpy.array([J, C, H]), 'JCH')
     assert numpy.all(abs(xyz - out) < 1.0e-14)
 
-    out = ciecam02.to_xyz(numpy.array([Q, M, h]), 'QMh')
+    out = ciecam02.to_xyz100(numpy.array([Q, M, h]), 'QMh')
     assert numpy.all(abs(xyz - out) < 1.0e-14)
 
-    out = ciecam02.to_xyz(numpy.array([J, s, h]), 'Jsh')
+    out = ciecam02.to_xyz100(numpy.array([J, s, h]), 'Jsh')
     assert numpy.all(abs(xyz - out) < 1.0e-14)
     return
 
@@ -34,7 +34,7 @@ def test_breakdown():
     L_A = 64 / numpy.pi / 5
     ciecam02 = colorio.CIECAM02(0.69, 20, L_A)
     with pytest.raises(colorio.ciecam02.NegativeAError):
-        ciecam02.from_xyz(bad_xyz)
+        ciecam02.from_xyz100(bad_xyz)
     return
 
 
@@ -49,7 +49,7 @@ def test_conversion_variants(variant, xyz):
     # test with srgb conditions
     L_A = 64 / numpy.pi / 5
     cam02 = colorio.CAM02(variant, 0.69, 20, L_A)
-    out = cam02.to_xyz(cam02.from_xyz(xyz))
+    out = cam02.to_xyz100(cam02.from_xyz100(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
     return
 
@@ -59,7 +59,7 @@ def test_gold():
     # https://github.com/njsmith/colorspacious/blob/master/colorspacious/gold_values.py
     xyz = [19.31, 23.93, 10.14]
     ciecam02 = colorio.CIECAM02(0.69, 18, 200, whitepoint=[98.88, 90, 32.03])
-    values = ciecam02.from_xyz(xyz)
+    values = ciecam02.from_xyz100(xyz)
     reference_values = numpy.array([
         # J, C, H, h, M, s, Q
         48.0314, 38.7789, 240.8885, 191.0452, 38.7789, 46.0177, 183.1240
@@ -71,7 +71,7 @@ def test_gold():
     # different L_A
     xyz = [19.31, 23.93, 10.14]
     ciecam02 = colorio.CIECAM02(0.69, 18, 20, whitepoint=[98.88, 90, 32.03])
-    values = ciecam02.from_xyz(xyz)
+    values = ciecam02.from_xyz100(xyz)
     reference_values = numpy.array([
         # J, C, H, h, M, s, Q
         47.6856, 36.0527, 232.6630, 185.3445, 29.7580, 51.1275, 113.8401
@@ -86,7 +86,7 @@ def test_gold():
     ciecam02 = colorio.CIECAM02(
         0.69, 20, 318.30988618379, whitepoint=[95.05, 100.0, 108.88]
         )
-    values = ciecam02.from_xyz(xyz)
+    values = ciecam02.from_xyz100(xyz)
     reference_values = numpy.array([
         # J, C, H, h, M, s, Q
         4.17310911e+01, 1.04707861e-01, 2.78060724e+02, 2.19048423e+02,
@@ -100,7 +100,7 @@ def test_gold():
     ciecam02 = colorio.CIECAM02(
         0.69, 20, 31.830988618379, whitepoint=[95.05, 100.0, 108.88],
         )
-    values = ciecam02.from_xyz(xyz)
+    values = ciecam02.from_xyz100(xyz)
     reference_values = numpy.array([
         # J, C, H, h, M, s, Q
         65.95523, 48.57050, 399.38837, 19.55739, 41.67327, 52.24549, 152.67220
@@ -127,7 +127,7 @@ def test_gold():
 #         )
 #     xyz = numpy.array(xyz100) / 100
 #     assert numpy.all(
-#         abs(cs.from_xyz(xyz) - ref) < 1.0e-6 * abs(numpy.array(ref))
+#         abs(cs.from_xyz100(xyz) - ref) < 1.0e-6 * abs(numpy.array(ref))
 #         )
 #     return
 

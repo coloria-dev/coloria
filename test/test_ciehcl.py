@@ -12,6 +12,6 @@ import colorio
     ])
 def test_conversion(xyz):
     ciehcl = colorio.CIEHCL()
-    out = ciehcl.to_xyz(ciehcl.from_xyz(xyz))
+    out = ciehcl.to_xyz100(ciehcl.from_xyz100(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
     return

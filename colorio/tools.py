@@ -6,7 +6,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy
 
-from .illuminants import spectrum_to_xyz, planckian_radiator
+from .illuminants import spectrum_to_xyz100, planckian_radiator
 from .srgb import SrgbLinear
 from .xyy import XYY
 
@@ -23,7 +23,7 @@ def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
         cells -= 1
 
     srgb_linear = SrgbLinear()
-    pts = colorspace.from_xyz(srgb_linear.to_xyz(points.T)).T
+    pts = colorspace.from_xyz100(srgb_linear.to_xyz100(points.T)).T
     rgb = srgb_linear.to_srgb1(points)
     meshio.write(
         filename,
@@ -60,7 +60,7 @@ def _plot_monochromatic():
     for k, _ in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
-        values.append(XYY().from_xyz(spectrum_to_xyz((lmbda, data)))[:2])
+        values.append(XYY().from_xyz100(spectrum_to_xyz100((lmbda, data)))[:2])
     values = numpy.array(values)
     # fill horseshoe area
     plt.fill(values[:, 0], values[:, 1], color=[0.8, 0.8, 0.8], zorder=0)
@@ -84,8 +84,8 @@ def _plot_rgb_triangle():
     rgb_linear /= numpy.max(rgb_linear, axis=0)
 
     srgb_linear = SrgbLinear()
-    xyz = srgb_linear.to_xyz(rgb_linear)
-    xyy_vals = XYY().from_xyz(xyz)
+    xyz = srgb_linear.to_xyz100(rgb_linear)
+    xyy_vals = XYY().from_xyz100(xyz)
 
     # Unfortunately, one cannot use tripcolors with explicit RGB specification
     # (see <https://github.com/matplotlib/matplotlib/issues/10265>). As a
@@ -106,7 +106,7 @@ def _plot_planckian_locus():
     # plot planckian locus
     values = []
     for temp in numpy.arange(1000, 20001, 100):
-        xyy_vals = XYY().from_xyz(spectrum_to_xyz(planckian_radiator(temp)))
+        xyy_vals = XYY().from_xyz100(spectrum_to_xyz100(planckian_radiator(temp)))
         values.append(xyy_vals[:2])
     values = numpy.array(values)
     plt.plot(values[:, 0], values[:, 1], ':k', label='Planckian locus')

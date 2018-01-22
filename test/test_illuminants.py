@@ -46,8 +46,8 @@ def test_show():
     return
 
 
-def test_spectrum_to_xyz():
-    colorio.illuminants.spectrum_to_xyz(colorio.illuminants.d65())
+def test_spectrum_to_xyz100():
+    colorio.illuminants.spectrum_to_xyz100(colorio.illuminants.d65())
     return
 
 

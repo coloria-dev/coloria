@@ -13,7 +13,7 @@ import colorio
 def test_conversion(vals):
     srgb_linear = colorio.SrgbLinear()
 
-    out = srgb_linear.to_xyz(srgb_linear.from_xyz(vals))
+    out = srgb_linear.to_xyz100(srgb_linear.from_xyz100(vals))
     assert numpy.all(abs(vals - out) < 1.0e-14)
 
     out = srgb_linear.to_srgb1(srgb_linear.from_srgb1(vals))
@@ -46,6 +46,6 @@ def test_reference_srgb(vals, ref):
 def test_reference_xyz(vals, ref):
     srgb_linear = colorio.SrgbLinear()
     assert numpy.all(
-        abs(srgb_linear.to_xyz(vals)*100 - ref) < 1.0e-3 * numpy.array(ref)
+        abs(srgb_linear.to_xyz100(vals)*100 - ref) < 1.0e-3 * numpy.array(ref)
         )
     return
