@@ -21,5 +21,5 @@ def test_gamut_diagram():
 
 
 if __name__ == '__main__':
-    colorspace = colorio.CAM16UCS(0.69, 20, 64/numpy.pi/5)
-    test_srgb_gamut(colorspace)
+    colorspace_ = colorio.CAM16UCS(0.69, 20, 64/numpy.pi/5)
+    test_srgb_gamut(colorspace_)
