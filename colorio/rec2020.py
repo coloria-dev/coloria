@@ -42,7 +42,7 @@ class Rec2020(object):
         is_smaller = out <= 4.5 * self.beta
         out[is_smaller] /= 4.5
         out[~is_smaller] = (
-            (out[~is_smaller] + self.alpha + 1) / self.alpha
+            (out[~is_smaller] + self.alpha - 1) / self.alpha
             )**(1/0.45)
         return out
 
@@ -51,5 +51,5 @@ class Rec2020(object):
 
         is_smaller = linear <= self.beta
         out[is_smaller] *= 4.5
-        out[~is_smaller] = self.alpha*out[~is_smaller]**0.45 - self.alpha-1
+        out[~is_smaller] = self.alpha*out[~is_smaller]**0.45 - self.alpha+1
         return out

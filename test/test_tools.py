@@ -15,6 +15,15 @@ def test_srgb_gamut(colorspace, n=10):
     return
 
 
+@pytest.mark.parametrize('colorspace', [
+    colorio.CIELAB(),
+    colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5),
+    ])
+def test_hdr_gamut(colorspace, n=10):
+    colorio.show_hdr_gamut(colorspace, 'hdr.vtu', n=n)
+    return
+
+
 def test_gamut_diagram():
     colorio.show_gamut_diagram()
     return
@@ -22,6 +31,7 @@ def test_gamut_diagram():
 
 if __name__ == '__main__':
     # colorspace_ = colorio.SrgbLinear()
+    # colorspace_ = colorio.Rec2020()
     # colorspace_ = colorio.XYZ()
     # colorspace_ = colorio.XYY()
     colorspace_ = colorio.JzAzBz()
@@ -29,4 +39,4 @@ if __name__ == '__main__':
     # colorspace_ = colorio.CIELAB()
     # colorspace_ = colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5)
     # colorspace_ = colorio.CAM16UCS(0.69, 20, 64/numpy.pi/5)
-    test_srgb_gamut(colorspace_, n=10)
+    test_hdr_gamut(colorspace_, n=10)

@@ -26,7 +26,7 @@ from .rec2020 import Rec2020
 from .srgb import SrgbLinear
 from .xyy import XYY
 from .xyz import XYZ
-from .tools import show_srgb_gamut, show_gamut_diagram
+from .tools import show_srgb_gamut, show_hdr_gamut, show_gamut_diagram
 
 # try:
 #     import pipdate
