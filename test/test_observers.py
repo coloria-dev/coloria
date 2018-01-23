@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 #
 import matplotlib.pyplot as plt
+import pytest
 
 import colorio
 
 
-def test_observers():
-    lmbda, data = colorio.observers.cie_1931_2()
+@pytest.mark.parametrize('observer', [
+    colorio.observers.cie_1931_2(),
+    colorio.observers.cie_1964_10(),
+    ])
+def test_observers(observer):
+    lmbda, data = observer
 
     # For plot colors, take the SRGB approximation of the color that the
     # observer would perceive if a light spectrum hits its eye that corresponds
@@ -14,7 +19,7 @@ def test_observers():
     colors = []
     for k in range(3):
         out = colorio.illuminants.spectrum_to_xyz100(
-            (lmbda, data[k]), observer=colorio.observers.cie_1931_2()
+            (lmbda, data[k]), observer=observer
             )
         out *= 100 / out[1]
         srgb = colorio.SrgbLinear()
@@ -38,4 +43,7 @@ def test_observers():
 
 
 if __name__ == '__main__':
-    test_observers()
+    test_observers(
+        colorio.observers.cie_1931_2()
+        # colorio.observers.cie_1964_10()
+        )

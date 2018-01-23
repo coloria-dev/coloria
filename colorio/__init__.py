@@ -22,15 +22,16 @@ from .cieluv import CIELUV
 from . import illuminants
 from .jzazbz import JzAzBz
 from . import observers
+from .rec2020 import Rec2020
 from .srgb import SrgbLinear
 from .xyy import XYY
 from .xyz import XYZ
-from .tools import show_srgb_gamut, show_gamut_diagram
+from .tools import show_srgb_gamut, show_hdr_gamut, show_gamut_diagram, delta
 
-# try:
-#     import pipdate
-# except ImportError:
-#     pass
-# else:
-#     if pipdate.needs_checking(__name__):
-#         print(pipdate.check(__name__, __version__))
+try:
+    import pipdate
+except ImportError:
+    pass
+else:
+    if pipdate.needs_checking(__name__):
+        print(pipdate.check(__name__, __version__))

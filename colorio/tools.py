@@ -7,8 +7,17 @@ import matplotlib.pyplot as plt
 import numpy
 
 from .illuminants import spectrum_to_xyz100, planckian_radiator
+from .rec2020 import Rec2020
 from .srgb import SrgbLinear
 from .xyy import XYY
+
+
+def delta(a, b):
+    '''Computes the distances between two colors or color sets. The shape of
+    `a` and `b` must be equal.
+    '''
+    diff = a - b
+    return numpy.einsum('i...,i...->...', diff, diff)
 
 
 def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
@@ -29,6 +38,28 @@ def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
         filename,
         pts, {'tetra': cells},
         point_data={'srgb': rgb}
+        )
+    return
+
+
+def show_hdr_gamut(colorspace, filename, n=50, cut_000=False):
+    import meshio
+    import meshzoo
+    points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
+
+    if cut_000:
+        # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
+        points = points[1:]
+        cells = cells[~numpy.any(cells == 0, axis=1)]
+        cells -= 1
+
+    cs = Rec2020()
+    pts = colorspace.from_xyz100(cs.to_xyz100(points.T)).T
+    rgb = cs.to_gamma(points)
+    meshio.write(
+        filename,
+        pts, {'tetra': cells},
+        point_data={'rec2020-rgb': rgb}
         )
     return
 
@@ -106,7 +137,9 @@ def _plot_planckian_locus():
     # plot planckian locus
     values = []
     for temp in numpy.arange(1000, 20001, 100):
-        xyy_vals = XYY().from_xyz100(spectrum_to_xyz100(planckian_radiator(temp)))
+        xyy_vals = XYY().from_xyz100(
+            spectrum_to_xyz100(planckian_radiator(temp))
+            )
         values.append(xyy_vals[:2])
     values = numpy.array(values)
     plt.plot(values[:, 0], values[:, 1], ':k', label='Planckian locus')
