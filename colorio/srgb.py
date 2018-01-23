@@ -4,6 +4,8 @@ from __future__ import division
 
 import numpy
 
+from .linalg import dot, solve
+
 
 class SrgbLinear(object):
     def __init__(self):
@@ -18,14 +20,12 @@ class SrgbLinear(object):
         # https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
         # http://www.color.org/srgb.pdf
         # TODO NaN the values smaller than 0 and larger than 1
-        return numpy.einsum('ij,j...->i...', self.M, xyz) / 100
+        return dot(self.M, xyz) / 100
 
     def to_xyz100(self, srgb1_linear):
         # https://stackoverflow.com/a/48387507/353337
         x = numpy.array(srgb1_linear)
-        return 100 * numpy.linalg.solve(
-            self.M, x.reshape(x.shape[0], -1)
-            ).reshape(x.shape)
+        return 100 * solve(self.M, x)
 
     # pylint: disable=no-self-use
     def from_srgb1(self, srgb1):
