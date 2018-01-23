@@ -47,7 +47,7 @@ class JzAzBz(object):
         x, y, z = (xyz.T / self.whitepoint).T
         x_ = self.b*x - (self.b-1)*z
         y_ = self.g*y - (self.g-1)*x
-        lms = dot(self.M1, numpy.array([x_, y_, z]))
+        lms = dot(self.M1, [x_, y_, z])
         lms_ = (
             (self.c1 + self.c2*(lms/10000)**self.n)
             / (1 + self.c3*(lms/10000)**self.n)

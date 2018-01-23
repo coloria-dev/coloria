@@ -15,4 +15,5 @@ def solve(A, x):
     array of shape (n, ...). The output has the same shape as the second
     argument.
     '''
+    x = numpy.asarray(x)
     return numpy.linalg.solve(A, x.reshape(x.shape[0], -1)).reshape(x.shape)

@@ -4,28 +4,36 @@ from __future__ import division
 
 import numpy
 
+from .xyy import XYY
+from .linalg import dot, solve
+
 
 class SrgbLinear(object):
     def __init__(self):
-        self.M = numpy.array([
-            [+3.2406255, -1.537208, -0.4986286],
-            [-0.9689307, +1.8757561, +0.0415175],
-            [+0.0557101, -0.2040211, +1.0569959],
+        # The standard actually gives the values in terms of M, but really
+        # inv(M) is a direct derivative of the primary specification.
+        primaries_xyy = numpy.array([
+            [0.64, 0.33, 0.2126],
+            [0.30, 0.60, 0.7152],
+            [0.15, 0.06, 0.0722],
             ])
+        self.invM = XYY().to_xyz100(primaries_xyy.T) / 100
+        # numpy.linalg.inv(self.invM) is the matrix in the spec:
+        # self.M = numpy.array([
+        #     [+3.2406255, -1.537208, -0.4986286],
+        #     [-0.9689307, +1.8757561, +0.0415175],
+        #     [+0.0557101, -0.2040211, +1.0569959],
+        #     ])
         return
 
     def from_xyz100(self, xyz):
         # https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
         # http://www.color.org/srgb.pdf
         # TODO NaN the values smaller than 0 and larger than 1
-        return numpy.einsum('ij,j...->i...', self.M, xyz) / 100
+        return solve(self.invM, xyz) / 100
 
     def to_xyz100(self, srgb1_linear):
-        # https://stackoverflow.com/a/48387507/353337
-        x = numpy.array(srgb1_linear)
-        return 100 * numpy.linalg.solve(
-            self.M, x.reshape(x.shape[0], -1)
-            ).reshape(x.shape)
+        return 100 * dot(self.invM, srgb1_linear)
 
     # pylint: disable=no-self-use
     def from_srgb1(self, srgb1):
