@@ -23,7 +23,6 @@ class SrgbLinear(object):
         return dot(self.M, xyz) / 100
 
     def to_xyz100(self, srgb1_linear):
-        # https://stackoverflow.com/a/48387507/353337
         x = numpy.array(srgb1_linear)
         return 100 * solve(self.M, x)
 
