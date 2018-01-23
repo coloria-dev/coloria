@@ -22,6 +22,7 @@ from .cieluv import CIELUV
 from . import illuminants
 from .jzazbz import JzAzBz
 from . import observers
+from .rec2020 import Rec2020
 from .srgb import SrgbLinear
 from .xyy import XYY
 from .xyz import XYZ
