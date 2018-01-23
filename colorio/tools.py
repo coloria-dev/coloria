@@ -12,6 +12,14 @@ from .srgb import SrgbLinear
 from .xyy import XYY
 
 
+def delta(a, b):
+    '''Computes the distances between two colors or color sets. The shape of
+    `a` and `b` must be equal.
+    '''
+    diff = a - b
+    return numpy.einsum('i...,i...->...', diff, diff)
+
+
 def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
     import meshio
     import meshzoo

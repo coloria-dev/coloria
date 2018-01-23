@@ -6,12 +6,13 @@ import pytest
 import colorio
 
 
-@pytest.mark.parametrize('colorspace', [
-    colorio.CIELAB(),
-    colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5),
+@pytest.mark.parametrize('colorspace, cut_000', [
+    # colorio.CIELAB(),
+    (colorio.XYY(), True),
+    (colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5), False),
     ])
-def test_srgb_gamut(colorspace, n=10):
-    colorio.show_srgb_gamut(colorspace, 'srgb.vtu', n=n)
+def test_srgb_gamut(colorspace, cut_000, n=10):
+    colorio.show_srgb_gamut(colorspace, 'srgb.vtu', n=n, cut_000=cut_000)
     return
 
 
@@ -26,6 +27,18 @@ def test_hdr_gamut(colorspace, n=10):
 
 def test_gamut_diagram():
     colorio.show_gamut_diagram()
+    return
+
+
+@pytest.mark.parametrize('a', [
+    numpy.random.rand(3),
+    numpy.random.rand(3, 7),
+    numpy.random.rand(3, 4, 5),
+    ])
+def test_conversion_variants(a):
+    b = a + 1.0e-3 * numpy.random.rand(*a.shape)
+    diff = colorio.delta(a, b)
+    assert diff.shape == a.shape[1:]
     return
 
 

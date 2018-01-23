@@ -146,13 +146,15 @@ xyz100 = colorspace.to_xyz100(vals)
 
 ### Other tools
 
-To create the above gamut plots, write the corresponding mesh out to a file with`
-```python
-colorio.show_srgb_gamut(colorspace, 'srgb.vtu', n=20)
-```
-and open it with any program that knows how to handle VTU (e.g.,
-[ParaView](https://www.paraview.org/)). The `srgb` data set is defined in all
-points of the mesh.
+* To create the above gamut plots, write the corresponding mesh out to a file with`
+  ```python
+  colorio.show_srgb_gamut(colorspace, 'srgb.vtu', n=20)
+  ```
+  and open it with any program that knows how to handle VTU (e.g.,
+  [ParaView](https://www.paraview.org/)). The `srgb` data set is defined in all
+  points of the mesh.
+
+* Color differences in any space can be computed with `colorio.delta(a, b)`.
 
 ### Installation
 
