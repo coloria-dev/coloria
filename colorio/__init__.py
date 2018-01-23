@@ -25,7 +25,7 @@ from . import observers
 from .srgb import SrgbLinear
 from .xyy import XYY
 from .xyz import XYZ
-from .tools import show_srgb_gamut, show_gamut_diagram
+from .tools import show_srgb_gamut, show_gamut_diagram, delta
 
 # try:
 #     import pipdate

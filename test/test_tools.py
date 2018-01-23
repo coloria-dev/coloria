@@ -20,6 +20,18 @@ def test_gamut_diagram():
     return
 
 
+@pytest.mark.parametrize('a', [
+    numpy.random.rand(3),
+    numpy.random.rand(3, 7),
+    numpy.random.rand(3, 4, 5),
+    ])
+def test_conversion_variants(a):
+    b = a + 1.0e-3 * numpy.random.rand(*a.shape)
+    diff = colorio.delta(a, b)
+    assert diff.shape == a.shape[1:]
+    return
+
+
 if __name__ == '__main__':
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.XYZ()
