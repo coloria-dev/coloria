@@ -36,6 +36,7 @@ for conversion from and to standard RGB.
 
 #### CIE XYZ
 <img src="https://nschloe.github.io/colorio/xyz.png" width="40%">
+
 ```python
 import colorio
 import numpy
@@ -48,6 +49,7 @@ xyz100 = colorspace.to_xyz100(vals)
 
 #### CIE XYY
 <img src="https://nschloe.github.io/colorio/xyy.png" width="40%">
+
 ```python
 import colorio
 import numpy
@@ -60,6 +62,7 @@ xyz100 = colorspace.to_xyz100(vals)
 
 #### CIELAB
 <img src="https://nschloe.github.io/colorio/cielab.png" width="40%">
+
 ```python
 import colorio
 import numpy
@@ -72,6 +75,7 @@ xyz100 = colorspace.to_xyz100(vals)
 
 #### CIELUV
 <img src="https://nschloe.github.io/colorio/cieluv.png" width="40%">
+
 ```python
 import colorio
 import numpy
