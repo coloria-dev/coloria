@@ -91,7 +91,11 @@ class CAM16(object):
 
         # Step 4: Calculate Redness–Greenness (a) , Yellowness–Blueness (b)
         #         components, and hue angle (h)
-        a = rgb_a[0] - 12/11 * rgb_a[1] + rgb_a[2]/11
+        #
+        # If XYZ=[0, 0, 0], then rgb_a==[0.1, 0.1, 0.1]. Analytically, both a
+        # and b are 0. To avoid numerical oddities, make sure to always
+        # subtract values which are equally large.
+        a = (11*rgb_a[0] + rgb_a[2] - 12*rgb_a[1]) / 11
         b = (rgb_a[0] + rgb_a[1] - 2*rgb_a[2]) / 9
         # Make sure that h is in [0, 2*pi]
         h = numpy.mod(numpy.arctan2(b, a) / numpy.pi * 180, 360)
@@ -108,7 +112,12 @@ class CAM16(object):
         H = self.H[i] + 100 * beta / (beta + (self.h[i+1] - h_)*self.e[i])
 
         # Step 6: Calculate achromatic response A
-        A = (2*rgb_a[0] + rgb_a[1] + rgb_a[2]/20 - 0.305) * self.N_bb
+        #
+        # If XYZ=[0, 0, 0], then rgb_a==[0.1, 0.1, 0.1]. Analytically, A is 0.
+        # To avoid numerical oddities, subtract 0.1 before computing A instead
+        # of subtracting 0.305 in the process.
+        rgb_a_ = rgb_a - 0.1
+        A = (2*rgb_a_[0] + rgb_a_[1] + rgb_a_[2]/20) * self.N_bb
 
         # Step 7: Calculate the correlate of lightness
         J = 100 * (A/self.A_w)**(self.c*self.z)
