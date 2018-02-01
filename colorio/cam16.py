@@ -86,17 +86,19 @@ class CAM16(object):
 
         # Step 3: Calculate the postadaptation cone response (resulting in
         #         dynamic range compression)
-        alpha = (self.F_L*abs(rgb_c)/100)**0.42
-        rgb_a = numpy.sign(rgb_c) * 400 * alpha / (alpha+27.13) + 0.1
+        #
+        # The offset 0.1 actually cancels out in all following computations
+        # except the calculation of t at the very end. If the input values XYZ
+        # are very small (or 0), the extra 0.1 poses some numerical
+        # difficulties. Hence, remove it here and add it only at the
+        # computation for t.
+        alpha = (self.F_L * abs(rgb_c) / 100)**0.42
+        rgb_a_ = numpy.sign(rgb_c) * 400 * alpha / (alpha+27.13)  # + 0.1
 
         # Step 4: Calculate Redness–Greenness (a) , Yellowness–Blueness (b)
         #         components, and hue angle (h)
-        #
-        # If XYZ=[0, 0, 0], then rgb_a==[0.1, 0.1, 0.1]. Analytically, both a
-        # and b are 0. To avoid numerical oddities, make sure to always
-        # subtract values which are equally large.
-        a = (11*rgb_a[0] + rgb_a[2] - 12*rgb_a[1]) / 11
-        b = (rgb_a[0] + rgb_a[1] - 2*rgb_a[2]) / 9
+        a = (11*rgb_a_[0] - 12*rgb_a_[1] + rgb_a_[2]) / 11
+        b = (rgb_a_[0] + rgb_a_[1] - 2*rgb_a_[2]) / 9
         # Make sure that h is in [0, 2*pi]
         h = numpy.mod(numpy.arctan2(b, a) / numpy.pi * 180, 360)
         assert numpy.all(h >= 0) and numpy.all(h < 360)
@@ -112,11 +114,6 @@ class CAM16(object):
         H = self.H[i] + 100 * beta / (beta + (self.h[i+1] - h_)*self.e[i])
 
         # Step 6: Calculate achromatic response A
-        #
-        # If XYZ=[0, 0, 0], then rgb_a==[0.1, 0.1, 0.1]. Analytically, A is 0.
-        # To avoid numerical oddities, subtract 0.1 before computing A instead
-        # of subtracting 0.305 in the process.
-        rgb_a_ = rgb_a - 0.1
         A = (2*rgb_a_[0] + rgb_a_[1] + rgb_a_[2]/20) * self.N_bb
 
         # Step 7: Calculate the correlate of lightness
@@ -127,11 +124,18 @@ class CAM16(object):
 
         # Step 9: Calculate the correlates of chroma (C), colourfulness (M)
         #          and saturation (s)
-        t = (50000/13 * self.N_c * self.N_cb) * e_t * numpy.sqrt(a**2 + b**2) \
-            / (rgb_a[0] + rgb_a[1] + 21/20*rgb_a[2])
-        C = t**0.9 * numpy.sqrt(J/100) * (1.64 - 0.29**self.n)**0.73
+        #
+        # Note the extra 0.305 here from the adaptation in rgb_a_ above.
+        t = 50000/13 * self.N_c * self.N_cb * e_t * numpy.sqrt(a**2 + b**2) \
+            / (rgb_a_[0] + rgb_a_[1] + 21/20*rgb_a_[2] + 0.305)
+
+        alpha = t**0.9 * (1.64 - 0.29**self.n)**0.73
+        C = alpha * numpy.sqrt(J/100)
         M = C * self.F_L**0.25
-        s = 100 * numpy.sqrt(M/Q)
+
+        # ENH avoid division by 0 (Q) here.
+        # s = 100 * numpy.sqrt(M/Q)
+        s = 50 * numpy.sqrt(self.c * alpha / (self.A_w + 4))
         return numpy.array([J, C, H, h, M, s, Q])
 
     def to_xyz100(self, data, description):

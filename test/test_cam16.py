@@ -41,8 +41,13 @@ def test_zero():
     assert C == 0.0
     assert h == 0.0
     assert M == 0.0
-    assert numpy.isnan(s)
+    assert s == 0.0
     assert Q == 0.0
+
+    out = cam16.to_xyz100(numpy.array([J, C, H]), 'JCH')
+    # assert numpy.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
+    print(out)
+    exit(1)
     return
 
 
