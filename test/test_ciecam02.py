@@ -56,6 +56,33 @@ def test_conversion_variants(variant, xyz):
     return
 
 
+@pytest.mark.parametrize('xyz', [
+    numpy.zeros(3),
+    numpy.zeros((3, 4, 5)),
+    ])
+def test_zero(xyz):
+    L_A = 64 / numpy.pi / 5
+    cs = colorio.CIECAM02(0.69, 20, L_A)
+    J, C, H, h, M, s, Q = cs.from_xyz100(xyz)
+
+    assert numpy.all(J == 0.0)
+    assert numpy.all(C == 0.0)
+    assert numpy.all(h == 0.0)
+    assert numpy.all(M == 0.0)
+    assert numpy.all(s == 0.0)
+    assert numpy.all(Q == 0.0)
+
+    out = cs.to_xyz100(numpy.array([J, C, H]), 'JCH')
+    assert numpy.all(abs(out) < 1.0e-13)
+
+    out = cs.to_xyz100(numpy.array([Q, M, h]), 'QMh')
+    assert numpy.all(abs(out) < 1.0e-13)
+
+    out = cs.to_xyz100(numpy.array([J, s, h]), 'Jsh')
+    assert numpy.all(abs(out) < 1.0e-13)
+    return
+
+
 def test_gold():
     # See
     # https://github.com/njsmith/colorspacious/blob/master/colorspacious/gold_values.py
