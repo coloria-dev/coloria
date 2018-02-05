@@ -9,8 +9,8 @@ from .linalg import dot, solve
 
 
 def find_first(a, alpha):
-    '''Given an array a and a value alpha, this method returns the first index
-    i where a[i] > alpha. Vectorized in alpha.
+    '''Given an array `a` and a value `alpha`, this method returns the first
+    index i where a[i] > alpha. Vectorized in alpha.
     '''
     # https://stackoverflow.com/a/48367770/353337
     return numpy.argmax(numpy.add.outer(alpha, -a) < 0, axis=-1)
@@ -20,7 +20,9 @@ def compute_from(rgb_, cs):
     # Step 4: Calculate the post-adaptation cone response (resulting in
     #         dynamic range compression)
     alpha = (cs.F_L*abs(rgb_)/100)**0.42
-    # Omit the 0.1 here.
+
+    # Omit the 0.1 here; that's canceled out in almost all cases below anyways
+    # (except the computation of `t`).
     rgb_a_ = numpy.sign(rgb_) * 400 * alpha / (alpha+27.13)  # + 0.1
 
     # Step 5: Calculate Redness–Greenness (a) , Yellowness–Blueness (b)
