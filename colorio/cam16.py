@@ -133,7 +133,7 @@ class CAM16(object):
         C = alpha * numpy.sqrt(J/100)
         M = C * self.F_L**0.25
 
-        # ENH avoid division by 0 (Q) here.
+        # ENH avoid division by Q=0 here.
         # s = 100 * numpy.sqrt(M/Q)
         s = 50 * numpy.sqrt(self.c * alpha / (self.A_w + 4))
         return numpy.array([J, C, H, h, M, s, Q])
@@ -180,11 +180,14 @@ class CAM16(object):
             h = numpy.mod(h_, 360)
 
         # Step 2: Calculate t, e_t, p1, p2, and p3
-        t = (C / numpy.sqrt(J/100) / (1.64-0.29**self.n)**0.73)**(1/0.9)
+        j100 = numpy.sqrt(J/100)**(1/0.9)
+        t_ = (C / (1.64-0.29**self.n)**0.73)**(1/0.9)
+        # t = t_ / j100
         e_t = 0.25 * (numpy.cos(h*numpy.pi/180 + 2) + 3.8)
         A = self.A_w * (J/100)**(1/self.c/self.z)
 
-        p2 = A / self.N_bb + 0.305
+        # ENH don't add the extra term 0.305 here
+        p2_ = A / self.N_bb
 
         # Step 3: Calculate a and b
         # ENH In the specification, the case t=0 is treated separately as
@@ -193,25 +196,23 @@ class CAM16(object):
         # It turns out that things simplify a great deal when simply
         # calculating with one_over_p1. (This is legal since all other
         # quantities in the above term are nonzero.)
-        one_over_p1 = t / e_t * 13/50000 / self.N_c / self.N_cb
-        p3 = 21/20
-        one_over_p4 = one_over_p1 * numpy.sin(h * numpy.pi / 180)
-        one_over_p5 = one_over_p1 * numpy.cos(h * numpy.pi / 180)
-        a, b = numpy.array([one_over_p5, one_over_p4]) * (
-            p2 * (2+p3) * 460 /
-            (1403 + one_over_p5*(2+p3)*220 - one_over_p4*(27 - p3*6300))
+        p1_ = 50000/13 * e_t * self.N_c * self.N_cb
+        sinh = numpy.sin(h * numpy.pi / 180)
+        cosh = numpy.cos(h * numpy.pi / 180)
+        a, b = numpy.array([cosh, sinh]) * (
+            23*(p2_+0.305)*t_ / (23*j100*p1_ + 11*cosh*t_ + 108*sinh*t_)
             )
 
         # Step 4: Calculate RGB_a
-        rgb_a = dot(numpy.array([
+        rgb_a_ = dot(numpy.array([
             [460, 451, 288],
             [460, -891, -261],
             [460, -220, -6300]
-            ]), numpy.array([p2, a, b])) / 1403
+            ]), numpy.array([p2_, a, b])) / 1403
 
         # Step 5: Calculate RGB_c
-        rgb_c = numpy.sign(rgb_a - 0.1) * 100/self.F_L * (
-            (27.13 * abs(rgb_a-0.1)) / (400 - abs(rgb_a-0.1))
+        rgb_c = numpy.sign(rgb_a_) * 100/self.F_L * (
+            (27.13 * abs(rgb_a_)) / (400 - abs(rgb_a_))
             )**(1/0.42)
 
         # Step 6: Calculate R, G and B
@@ -229,11 +230,11 @@ class CAM16UCS(object):
         self.K_L = 1.0
         self.c1 = 0.007
         self.c2 = 0.0228
-        self.ciecam02 = CAM16(c, Y_b, L_A, exact_inversion, whitepoint)
+        self.cam16 = CAM16(c, Y_b, L_A, exact_inversion, whitepoint)
         return
 
     def from_xyz100(self, xyz):
-        J, _, _, h, M, _, _ = self.ciecam02.from_xyz100(xyz)
+        J, _, _, h, M, _, _ = self.cam16.from_xyz100(xyz)
         J_ = (1+100*self.c1)*J / (1 + self.c1*J)
         M_ = 1/self.c2 * numpy.log(1 + self.c2*M)
         h_ = h * numpy.pi / 180
@@ -245,4 +246,4 @@ class CAM16UCS(object):
         h = numpy.mod(numpy.arctan2(b, a) / numpy.pi * 180, 360)
         M_ = numpy.sqrt(a**2 + b**2)
         M = (numpy.exp(M_ * self.c2) - 1) / self.c2
-        return self.ciecam02.to_xyz100(numpy.array([J, M, h]), 'JMh')
+        return self.cam16.to_xyz100(numpy.array([J, M, h]), 'JMh')
