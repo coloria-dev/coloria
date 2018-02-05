@@ -71,5 +71,20 @@ def test_conversion_variants(xyz):
     return
 
 
+@pytest.mark.parametrize('xyz,ref', [
+    (
+        [1.0, 0.0, 0.0],
+        [2.28402560268459e+00, 1.01502029350636e+02, 2.42718425228025e+00]
+    )
+    ])
+def test_reference_values(xyz, ref):
+    L_A = 64 / numpy.pi / 5
+    cam16 = colorio.CAM16UCS(0.69, 20, L_A)
+    out = cam16.from_xyz100(xyz)
+    ref = numpy.array(ref)
+    assert numpy.all(abs(ref - out) < 1.0e-14 * ref)
+    return
+
+
 if __name__ == '__main__':
     test_conversion(numpy.random.rand(3))
