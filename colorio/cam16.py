@@ -198,12 +198,7 @@ class CAM16(object):
         p2_ = A / self.N_bb
 
         # Step 3: Calculate a and b
-        # ENH In the specification, the case t=0 is treated separately as
-        # otherwise, division by 0 occurs in
-        #     p1 = 50000/13 * self.N_c * self.N_cb * e_t / t.
-        # It turns out that things simplify a great deal when simply
-        # calculating with one_over_p1. (This is legal since all other
-        # quantities in the above term are nonzero.)
+        # ENH Much more straightforward computation of a, b
         p1_ = 50000/13 * e_t * self.N_c * self.N_cb
         sinh = numpy.sin(h * numpy.pi / 180)
         cosh = numpy.cos(h * numpy.pi / 180)

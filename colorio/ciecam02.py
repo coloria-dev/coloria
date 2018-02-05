@@ -117,7 +117,8 @@ class CIECAM02(object):
         # Step 4: Calculate the post-adaptation cone response (resulting in
         #         dynamic range compression)
         alpha = (self.F_L*abs(rgb_)/100)**0.42
-        rgb_a_ = numpy.sign(rgb_) * 400 * alpha / (alpha+27.13) + 0.1
+        # Omit the 0.1 here.
+        rgb_a_ = numpy.sign(rgb_) * 400 * alpha / (alpha+27.13)  # + 0.1
 
         # Step 5: Calculate Redness–Greenness (a) , Yellowness–Blueness (b)
         #         components and hue angle (h)
@@ -138,7 +139,7 @@ class CIECAM02(object):
         H = self.H[i] + 100 * beta / (beta + self.e[i]*(self.h[i+1] - h_))
 
         # Step 7: Calculate achromatic response A
-        A = (2*rgb_a_[0] + rgb_a_[1] + rgb_a_[2]/20 - 0.305) * self.N_bb
+        A = (2*rgb_a_[0] + rgb_a_[1] + rgb_a_[2]/20) * self.N_bb
         if numpy.any(A < 0):
             raise NegativeAError('CIECAM02 breakdown')
 
@@ -151,10 +152,11 @@ class CIECAM02(object):
         # Step 10: Calculate the correlates of chroma (C), colourfulness (M)
         #          and saturation (s)
         t = (50000/13 * self.N_c * self.N_cb) * e_t * numpy.sqrt(a**2 + b**2) \
-            / (rgb_a_[0] + rgb_a_[1] + 21/20*rgb_a_[2])
-        C = t**0.9 * numpy.sqrt(J/100) * (1.64 - 0.29**self.n)**0.73
+            / (rgb_a_[0] + rgb_a_[1] + 21/20*rgb_a_[2] + 0.305)
+        alpha = t**0.9 * (1.64 - 0.29**self.n)**0.73
+        C = alpha * numpy.sqrt(J/100)
         M = C * self.F_L**0.25
-        s = 100 * numpy.sqrt(M/Q)
+        s = 50 * numpy.sqrt(self.c * alpha / (self.A_w + 4))
         return numpy.array([J, C, H, h, M, s, Q])
 
     def to_xyz100(self, data, description):
@@ -172,16 +174,27 @@ class CIECAM02(object):
             Q = data[0]
             J = 6.25 * (self.c*Q / (self.A_w+4) / self.F_L**0.25)**2
 
-        # Step 1–2: Calculate C from M or s
-        if description[1] == 'C':
-            C = data[1]
-        elif description[1] == 'M':
-            M = data[1]
-            C = M / self.F_L**0.25
+        # Step 1–2: Calculate t from C, M, or s
+        if description[1] in ['C', 'M']:
+            if description[1] == 'M':
+                M = data[1]
+                C = M / self.F_L**0.25
+            else:
+                C = data[1]
+
+            # If C or M is given and 0, the value of `t` cannot algebraically
+            # deduced. However, we know that it must be 0. Hence, allow
+            # division by 0 and set nans to 0 afterwards.
+            with numpy.errstate(invalid='ignore'):
+                alpha = C / numpy.sqrt(J/100)
+            alpha = numpy.nan_to_num(alpha)
         else:
             assert description[1] == 's'
             s = data[1]
             C = (s/100)**2 * Q / self.F_L**0.25
+            alpha = (s/50)**2 * (self.A_w+4) / self.c
+
+        t = (alpha / (1.64 - 0.29**self.n)**0.73)**(1/0.9)
 
         if description[2] == 'h':
             h = data[2]
@@ -199,26 +212,19 @@ class CIECAM02(object):
             h = numpy.mod(h_, 360)
 
         # Step 2: Calculate t, et , p1, p2 and p3
-        t = (C / numpy.sqrt(J/100) / (1.64-0.29**self.n)**0.73)**(1/0.9)
         e_t = 0.25 * (numpy.cos(h*numpy.pi/180 + 2) + 3.8)
         A = self.A_w * (J/100)**(1/self.c/self.z)
 
-        p2 = A / self.N_bb + 0.305
+        # no 0.305
+        p2_ = A / self.N_bb
 
         # Step 3: Calculate a and b
-        # ENH In the specification, the case t=0 is treated separately as
-        # otherwise, division by 0 occurs in
-        #     p1 = 50000/13 * self.N_c * self.N_cb * e_t / t.
-        # It turns out that things simplify a great deal when simply
-        # calculating with one_over_p1. (This is legal since all other
-        # quantities in the above term are nonzero.)
-        one_over_p1 = t / e_t * 13/50000 / self.N_c / self.N_cb
-        p3 = 21/20
-        one_over_p4 = one_over_p1 * numpy.sin(h * numpy.pi / 180)
-        one_over_p5 = one_over_p1 * numpy.cos(h * numpy.pi / 180)
-        a, b = numpy.array([one_over_p5, one_over_p4]) * (
-            p2 * (2+p3) * 460 /
-            (1403 + one_over_p5*(2+p3)*220 - one_over_p4*(27 - p3*6300))
+        # ENH Much more straightforward computation of a, b
+        p1_ = e_t * 50000/13 * self.N_c * self.N_cb
+        sinh = numpy.sin(h * numpy.pi / 180)
+        cosh = numpy.cos(h * numpy.pi / 180)
+        a, b = numpy.array([cosh, sinh]) * (
+            23 * (p2_+0.305) * t / (23*p1_ + 11*t*cosh + 108*t*sinh)
             )
 
         # Step 4: Calculate RGB_a_
@@ -226,11 +232,11 @@ class CIECAM02(object):
             [460, 451, 288],
             [460, -891, -261],
             [460, -220, -6300]
-            ]), numpy.array([p2, a, b])) / 1403
+            ]), numpy.array([p2_, a, b])) / 1403
 
         # Step 5: Calculate RGB_
-        rgb_ = numpy.sign(rgb_a_ - 0.1) * 100/self.F_L * (
-            (27.13 * abs(rgb_a_-0.1)) / (400 - abs(rgb_a_-0.1))
+        rgb_ = numpy.sign(rgb_a_) * 100/self.F_L * (
+            (27.13 * abs(rgb_a_)) / (400 - abs(rgb_a_))
             )**(1/0.42)
 
         # Step 6: Calculate RC, GC and BC
