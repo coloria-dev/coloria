@@ -80,18 +80,12 @@ class CAM16(object):
         # Step 2: Complete the color adaptation of the illuminant in
         #         the corresponding cone response space
         rgb_c = (rgb.T * self.D_RGB).T
-        return compute_from(
-            rgb_c, self.F_L, self.h, self.H, self.e,
-            self.N_c, self.N_cb, self.N_bb, self.A_w, self.c, self.z, self.n
-            )
+        return compute_from(rgb_c, self)
 
     def to_xyz100(self, data, description):
         '''Input: J or Q; C, M or s; H or h
         '''
-        rgb_c = compute_to(
-            data, description, self.c, self.z, self.A_w, self.F_L, self.n,
-            self.H, self.h, self.e, self.N_bb, self.N_cb, self.N_c
-            )
+        rgb_c = compute_to(data, description, self)
 
         # Step 6: Calculate R, G and B
         rgb = (rgb_c.T / self.D_RGB).T

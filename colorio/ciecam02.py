@@ -16,10 +16,10 @@ def find_first(a, alpha):
     return numpy.argmax(numpy.add.outer(alpha, -a) < 0, axis=-1)
 
 
-def compute_from(rgb_, F_L, ha, H, e, N_c, N_cb, N_bb, A_w, c, z, n):
+def compute_from(rgb_, cs):
     # Step 4: Calculate the post-adaptation cone response (resulting in
     #         dynamic range compression)
-    alpha = (F_L*abs(rgb_)/100)**0.42
+    alpha = (cs.F_L*abs(rgb_)/100)**0.42
     # Omit the 0.1 here.
     rgb_a_ = numpy.sign(rgb_) * 400 * alpha / (alpha+27.13)  # + 0.1
 
@@ -33,61 +33,59 @@ def compute_from(rgb_, F_L, ha, H, e, N_c, N_cb, N_bb, A_w, c, z, n):
 
     # Step 6: Calculate eccentricity (e_t) and hue composition (H), using
     #         the unique hue data given in Table 2.4.
-    h_ = numpy.mod(h - ha[0], 360) + ha[0]
-    assert numpy.all(ha[0] <= h_) and numpy.all(h_ < ha[-1])
+    h_ = numpy.mod(h - cs.h[0], 360) + cs.h[0]
+    assert numpy.all(cs.h[0] <= h_) and numpy.all(h_ < cs.h[-1])
     e_t = 1/4 * (numpy.cos(h_*numpy.pi/180 + 2) + 3.8)
-    i = find_first(ha, h_) - 1
-    assert numpy.all(ha[i] <= h_) and numpy.all(h_ <= ha[i+1])
-    beta = (h_ - ha[i]) * e[i+1]
-    H = H[i] + 100 * beta / (beta + e[i]*(ha[i+1] - h_))
+    i = find_first(cs.h, h_) - 1
+    assert numpy.all(cs.h[i] <= h_) and numpy.all(h_ <= cs.h[i+1])
+    beta = (h_ - cs.h[i]) * cs.e[i+1]
+    H = cs.H[i] + 100 * beta / (beta + cs.e[i]*(cs.h[i+1] - h_))
 
     # Step 7: Calculate achromatic response A
-    A = (2*rgb_a_[0] + rgb_a_[1] + rgb_a_[2]/20) * N_bb
+    A = (2*rgb_a_[0] + rgb_a_[1] + rgb_a_[2]/20) * cs.N_bb
     if numpy.any(A < 0):
         raise NegativeAError('CIECAM02 breakdown')
 
     # Step 8: Calculate the correlate of lightness
-    J = 100 * (A/A_w)**(c*z)
+    J = 100 * (A/cs.A_w)**(cs.c*cs.z)
 
     # Step 9: Calculate the correlate of brightness
-    Q = (4/c) * numpy.sqrt(J/100) * (A_w + 4) * F_L**0.25
+    Q = (4/cs.c) * numpy.sqrt(J/100) * (cs.A_w + 4) * cs.F_L**0.25
 
     # Step 10: Calculate the correlates of chroma (C), colourfulness (M)
     #          and saturation (s)
     #
     # Note the extra 0.305 here from the adaptation in rgb_a_ above.
-    p1_ = 50000/13 * e_t * N_c * N_cb
+    p1_ = 50000/13 * e_t * cs.N_c * cs.N_cb
     t = p1_ * numpy.sqrt(a**2 + b**2) \
         / (rgb_a_[0] + rgb_a_[1] + 21/20*rgb_a_[2] + 0.305)
 
-    alpha = t**0.9 * (1.64 - 0.29**n)**0.73
+    alpha = t**0.9 * (1.64 - 0.29**cs.n)**0.73
     C = alpha * numpy.sqrt(J/100)
-    M = C * F_L**0.25
+    M = C * cs.F_L**0.25
 
     # ENH avoid division by Q=0 here.
     # s = 100 * numpy.sqrt(M/Q)
-    s = 50 * numpy.sqrt(c * alpha / (A_w + 4))
+    s = 50 * numpy.sqrt(cs.c * alpha / (cs.A_w + 4))
     return numpy.array([J, C, H, h, M, s, Q])
 
 
-def compute_to(
-        data, description, c, z, A_w, F_L, n, Ha, ha, e, N_bb, N_cb, N_c
-        ):
+def compute_to(data, description, cs):
     if description[0] == 'J':
         J = data[0]
         # Q perhaps needed for C
-        Q = (4/c) * numpy.sqrt(J/100) * (A_w+4) * F_L**0.25
+        Q = (4/cs.c) * numpy.sqrt(J/100) * (cs.A_w+4) * cs.F_L**0.25
     else:
         # Step 1–1: Compute J from Q (if start from Q)
         assert description[0] == 'Q'
         Q = data[0]
-        J = 6.25 * (c*Q / (A_w+4) / F_L**0.25)**2
+        J = 6.25 * (cs.c*Q / (cs.A_w+4) / cs.F_L**0.25)**2
 
     # Step 1–2: Calculate t from C, M, or s
     if description[1] in ['C', 'M']:
         if description[1] == 'M':
             M = data[1]
-            C = M / F_L**0.25
+            C = M / cs.F_L**0.25
         else:
             C = data[1]
 
@@ -101,10 +99,10 @@ def compute_to(
     else:
         assert description[1] == 's'
         s = data[1]
-        C = (s/100)**2 * Q / F_L**0.25
-        alpha = (s/50)**2 * (A_w+4) / c
+        C = (s/100)**2 * Q / cs.F_L**0.25
+        alpha = (s/50)**2 * (cs.A_w+4) / cs.c
 
-    t = (alpha / (1.64 - 0.29**n)**0.73)**(1/0.9)
+    t = (alpha / (1.64 - 0.29**cs.n)**0.73)**(1/0.9)
 
     if description[2] == 'h':
         h = data[2]
@@ -112,25 +110,25 @@ def compute_to(
         assert description[2] == 'H'
         # Step 1–3: Calculate h from H (if start from H)
         H = data[2]
-        i = find_first(Ha, H) - 1
-        assert numpy.all(Ha[i] <= H) and numpy.all(H < Ha[i+1])
-        Hi = Ha[i]
-        hi, hi1 = ha[i], ha[i+1]
-        ei, ei1 = e[i], e[i+1]
+        i = find_first(cs.H, H) - 1
+        assert numpy.all(cs.H[i] <= H) and numpy.all(H < cs.H[i+1])
+        Hi = cs.H[i]
+        hi, hi1 = cs.h[i], cs.h[i+1]
+        ei, ei1 = cs.e[i], cs.e[i+1]
         h_ = ((H - Hi) * (ei1*hi - ei*hi1) - 100*hi*ei1) \
             / ((H - Hi) * (ei1 - ei) - 100*ei1)
         h = numpy.mod(h_, 360)
 
     # Step 2: Calculate t, et , p1, p2 and p3
     e_t = 0.25 * (numpy.cos(h*numpy.pi/180 + 2) + 3.8)
-    A = A_w * (J/100)**(1/c/z)
+    A = cs.A_w * (J/100)**(1/cs.c/cs.z)
 
     # no 0.305
-    p2_ = A / N_bb
+    p2_ = A / cs.N_bb
 
     # Step 3: Calculate a and b
     # ENH Much more straightforward computation of a, b
-    p1_ = e_t * 50000/13 * N_c * N_cb
+    p1_ = e_t * 50000/13 * cs.N_c * cs.N_cb
     sinh = numpy.sin(h * numpy.pi / 180)
     cosh = numpy.cos(h * numpy.pi / 180)
     a, b = numpy.array([cosh, sinh]) * (
@@ -145,7 +143,7 @@ def compute_to(
         ]), numpy.array([p2_, a, b])) / 1403
 
     # Step 5: Calculate RGB_
-    rgb_ = numpy.sign(rgb_a_) * 100/F_L * (
+    rgb_ = numpy.sign(rgb_a_) * 100/cs.F_L * (
         (27.13 * abs(rgb_a_)) / (400 - abs(rgb_a_))
         )**(1/0.42)
 
@@ -250,19 +248,14 @@ class CIECAM02(object):
         # Step 3: Calculate the Hunt-Pointer-Estevez response
         rgb_ = dot(self.M_hpe, solve(self.M_cat02, rgb_c))
 
-        # All other steps
-        return compute_from(
-            rgb_, self.F_L, self.h, self.H, self.e,
-            self.N_c, self.N_cb, self.N_bb, self.A_w, self.c, self.z, self.n
-            )
+        # Steps 4-10
+        return compute_from(rgb_, self)
 
     def to_xyz100(self, data, description):
         '''Input: J or Q; C, M or s; H or h
         '''
-        rgb_ = compute_to(
-            data, description, self.c, self.z, self.A_w, self.F_L, self.n,
-            self.H, self.h, self.e, self.N_bb, self.N_cb, self.N_c
-            )
+        # Steps 1-5
+        rgb_ = compute_to(data, description, self)
 
         # Step 6: Calculate RC, GC and BC
         rgb_c = dot(self.M_cat02, solve(self.M_hpe, rgb_))
