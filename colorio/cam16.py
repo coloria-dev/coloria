@@ -126,7 +126,8 @@ class CAM16(object):
         #          and saturation (s)
         #
         # Note the extra 0.305 here from the adaptation in rgb_a_ above.
-        t = 50000/13 * self.N_c * self.N_cb * e_t * numpy.sqrt(a**2 + b**2) \
+        p1_ = 50000/13 * e_t * self.N_c * self.N_cb
+        t = p1_ * numpy.sqrt(a**2 + b**2) \
             / (rgb_a_[0] + rgb_a_[1] + 21/20*rgb_a_[2] + 0.305)
 
         alpha = t**0.9 * (1.64 - 0.29**self.n)**0.73
@@ -153,16 +154,20 @@ class CAM16(object):
             Q = data[0]
             J = 6.25 * (self.c*Q / (self.A_w+4) / self.F_L**0.25)**2
 
-        # Step 1–2: Calculate C from M or s
-        if description[1] == 'C':
-            C = data[1]
-        elif description[1] == 'M':
-            M = data[1]
-            C = M / self.F_L**0.25
+        # Step 1–2: Calculate t from C, M, or s
+        if description[1] in ['C', 'M']:
+            if description[1] == 'M':
+                M = data[1]
+                C = M / self.F_L**0.25
+            else:
+                C = data[1]
+            t = (C / numpy.sqrt(J/100) / (1.64-0.29**self.n)**0.73)**(1/0.9)
         else:
             assert description[1] == 's'
             s = data[1]
-            C = (s/100)**2 * Q / self.F_L**0.25
+            t = (
+                (s/50)**2 * (self.A_w+4) / self.c / (1.64 - 0.29**self.n)**0.73
+                )**(1/0.9)
 
         if description[2] == 'h':
             h = data[2]
@@ -180,9 +185,6 @@ class CAM16(object):
             h = numpy.mod(h_, 360)
 
         # Step 2: Calculate t, e_t, p1, p2, and p3
-        j100 = numpy.sqrt(J/100)**(1/0.9)
-        t_ = (C / (1.64-0.29**self.n)**0.73)**(1/0.9)
-        # t = t_ / j100
         e_t = 0.25 * (numpy.cos(h*numpy.pi/180 + 2) + 3.8)
         A = self.A_w * (J/100)**(1/self.c/self.z)
 
@@ -200,7 +202,7 @@ class CAM16(object):
         sinh = numpy.sin(h * numpy.pi / 180)
         cosh = numpy.cos(h * numpy.pi / 180)
         a, b = numpy.array([cosh, sinh]) * (
-            23*(p2_+0.305)*t_ / (23*j100*p1_ + 11*cosh*t_ + 108*sinh*t_)
+            23*(p2_+0.305)*t / (23*p1_ + 11*cosh*t + 108*sinh*t)
             )
 
         # Step 4: Calculate RGB_a
