@@ -162,9 +162,10 @@ class CAM16(object):
             else:
                 C = data[1]
 
-            # If C or M is given and 0, the value of `t` cannot algebraically
-            # deduced. However, we know that it must be 0. Hence, allow
-            # division by 0 and set nans to 0 afterwards.
+            # If C or M is given and equal 0, the value of `t` cannot
+            # algebraically deduced just by C or M. However, from other
+            # considerations we know that it must be 0. Hence, allow division
+            # by 0 and set nans to 0 afterwards.
             with numpy.errstate(invalid='ignore'):
                 alpha = C / numpy.sqrt(J/100)
             alpha = numpy.nan_to_num(alpha)
