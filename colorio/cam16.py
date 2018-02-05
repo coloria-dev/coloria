@@ -161,13 +161,19 @@ class CAM16(object):
                 C = M / self.F_L**0.25
             else:
                 C = data[1]
-            t = (C / numpy.sqrt(J/100) / (1.64-0.29**self.n)**0.73)**(1/0.9)
+
+            # If C or M is given and 0, the value of `t` cannot algebraically
+            # deduced. However, we know that it must be 0. Hence, allow
+            # division by 0 and set nans to 0 afterwards.
+            with numpy.errstate(invalid='ignore'):
+                alpha = C / numpy.sqrt(J/100)
+            alpha = numpy.nan_to_num(alpha)
         else:
             assert description[1] == 's'
             s = data[1]
-            t = (
-                (s/50)**2 * (self.A_w+4) / self.c / (1.64 - 0.29**self.n)**0.73
-                )**(1/0.9)
+            alpha = (s/50)**2 * (self.A_w+4) / self.c
+
+        t = (alpha / (1.64 - 0.29**self.n)**0.73)**(1/0.9)
 
         if description[2] == 'h':
             h = data[2]
