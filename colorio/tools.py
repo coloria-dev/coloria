@@ -31,7 +31,7 @@ def show_xyz_gamut(colorspace, filename, n=50):
     max_wl = 700.0e-9
     lmbda = numpy.linspace(min_wl, max_wl, 65)
     values = []
-    for width in range(1, len(lmbda)):
+    for width in range(len(lmbda)+1):
         data = numpy.zeros(len(lmbda))
         data[:width] = 1.0
         for k, _ in enumerate(lmbda):
@@ -39,8 +39,17 @@ def show_xyz_gamut(colorspace, filename, n=50):
             data = numpy.roll(data, shift=1)
 
     values = numpy.array(values)
+    print(values)
+
+    # Scale such that the full spectrum maps to [100, 100, 100]
+    alpha = 100.0 / values[-1]
+    values = alpha * values
+
     hull = ConvexHull(values)
-    meshio.write(filename, values, cells={'triangle': hull.simplices})
+
+    pts = colorspace.from_xyz100(values.T).T
+
+    meshio.write(filename, pts, cells={'triangle': hull.simplices})
     return
 
 

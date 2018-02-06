@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 #
-from setuptools import setup, find_packages
 import os
 import codecs
+
+from setuptools import setup, find_packages
 
 # https://packaging.python.org/single_source_version/
 base_dir = os.path.abspath(os.path.dirname(__file__))

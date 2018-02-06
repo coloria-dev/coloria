@@ -12,12 +12,13 @@ jobs:
       # don't install sympy with apt: it pulls in texlive which takes for ever
       # to download and install
       - run: apt-get install -y git python3-pip pandoc
-      - run: pip3 install -U pytest pytest-cov pylint
+      - run: pip3 install -U pytest pytest-cov pylint bandit
       - checkout
       - run: pip3 install .
-      # lint
+      # lint, bandit
       - run: pylint colorio/
       - run: pylint test/*.py
+      - run: bandit -r .
       # make sure that rst converts correctly
       - run: cat README.md | sed 's_<img src="\([^"]*\)" width="\([^"]*\)">_![](\1){width="\2"}_g' > /tmp/README.md
       - run: pandoc /tmp/README.md -o README.rst
