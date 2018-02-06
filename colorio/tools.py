@@ -31,7 +31,12 @@ def show_visible_gamut(
     # mapped into XYZ space; they form the outer hull.
     lmbda, illu = illuminant
     values = []
-    for width in range(len(lmbda)+1):
+
+    data = numpy.zeros(len(lmbda))
+    values.append(
+        spectrum_to_xyz100((lmbda, illu*data), observer=observer)
+        )
+    for width in range(1, len(lmbda)):
         data = numpy.zeros(len(lmbda))
         data[:width] = 1.0
         for k, _ in enumerate(lmbda):
@@ -39,6 +44,10 @@ def show_visible_gamut(
                 spectrum_to_xyz100((lmbda, illu*data), observer=observer)
                 )
             data = numpy.roll(data, shift=1)
+    data = numpy.ones(len(lmbda))
+    values.append(
+        spectrum_to_xyz100((lmbda, illu*data), observer=observer)
+        )
 
     # scale the values such that the Y-coordinate of the white point has value
     # 100.
@@ -48,15 +57,9 @@ def show_visible_gamut(
     cells = ConvexHull(values).simplices
 
     if cut_000:
-        idx = numpy.where(numpy.all(abs(values) < 1.0e-15, axis=1))[0]
-        n = len(idx)
-        # Make sure that the 0 values are the ones at the beginning.
-        assert numpy.all(idx == numpy.arange(n))
-        # At this point we know that the first `n` points are 0.
-        # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
-        values = values[n:]
-        cells = cells[~numpy.any(cells < n, axis=1)]
-        cells -= n
+        values = values[1:]
+        cells = cells[~numpy.any(cells == 0, axis=1)]
+        cells -= 1
 
     pts = colorspace.from_xyz100(values.T).T
 
