@@ -21,7 +21,9 @@ def delta(a, b):
     return numpy.einsum('i...,i...->...', diff, diff)
 
 
-def show_visible_gamut(colorspace, observer, illuminant, filename):
+def show_visible_gamut(
+        colorspace, observer, illuminant, filename, cut_000=False
+        ):
     import meshio
 
     # The XYZ gamut is actually defined by an arbitrarily chosen maximum
@@ -43,11 +45,22 @@ def show_visible_gamut(colorspace, observer, illuminant, filename):
     values = numpy.array(values)
     values *= 100 / values[-1][1]
 
-    hull = ConvexHull(values)
+    cells = ConvexHull(values).simplices
+
+    if cut_000:
+        idx = numpy.where(numpy.all(abs(values) < 1.0e-15, axis=1))[0]
+        n = len(idx)
+        # Make sure that the 0 values are the ones at the beginning.
+        assert numpy.all(idx == numpy.arange(n))
+        # At this point we know that the first `n` points are 0.
+        # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
+        values = values[n:]
+        cells = cells[~numpy.any(cells < n, axis=1)]
+        cells -= n
 
     pts = colorspace.from_xyz100(values.T).T
 
-    meshio.write(filename, pts, cells={'triangle': hull.simplices})
+    meshio.write(filename, pts, cells={'triangle': cells})
     return
 
 
