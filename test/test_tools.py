@@ -31,7 +31,8 @@ def test_hdr_gamut(colorspace, n=10):
     ])
 def test_visible_gamut(colorspace, n=10):
     illuminant = colorio.illuminants.d65()
-    colorio.show_visible_gamut(colorspace, illuminant, 'visible.vtu', n=n)
+    observer = colorio.observers.cie_1931_2()
+    colorio.show_visible_gamut(colorspace, observer, illuminant, 'visible.vtu')
     return
 
 

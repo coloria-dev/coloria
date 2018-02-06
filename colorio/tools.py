@@ -21,7 +21,7 @@ def delta(a, b):
     return numpy.einsum('i...,i...->...', diff, diff)
 
 
-def show_visible_gamut(colorspace, illuminant, filename, n=50):
+def show_visible_gamut(colorspace, observer, illuminant, filename):
     import meshio
 
     # The XYZ gamut is actually defined by an arbitrarily chosen maximum
@@ -33,13 +33,14 @@ def show_visible_gamut(colorspace, illuminant, filename, n=50):
         data = numpy.zeros(len(lmbda))
         data[:width] = 1.0
         for k, _ in enumerate(lmbda):
-            values.append(spectrum_to_xyz100((lmbda, illu*data)))
+            values.append(
+                spectrum_to_xyz100((lmbda, illu*data), observer=observer)
+                )
             data = numpy.roll(data, shift=1)
-
-    values = numpy.array(values)
 
     # scale the values such that the Y-coordinate of the white point has value
     # 100.
+    values = numpy.array(values)
     values *= 100 / values[-1][1]
 
     hull = ConvexHull(values)
