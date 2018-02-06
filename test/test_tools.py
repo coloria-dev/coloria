@@ -29,8 +29,9 @@ def test_hdr_gamut(colorspace, n=10):
     colorio.CIELAB(),
     colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5),
     ])
-def test_xyz_gamut(colorspace, n=10):
-    colorio.show_xyz_gamut(colorspace, 'xyz.vtu', n=n)
+def test_visible_gamut(colorspace, n=10):
+    illuminant = colorio.illuminants.d65()
+    colorio.show_visible_gamut(colorspace, illuminant, 'visible.vtu', n=n)
     return
 
 
@@ -54,12 +55,12 @@ def test_conversion_variants(a):
 if __name__ == '__main__':
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.Rec2020()
-    # colorspace_ = colorio.XYZ()
+    colorspace_ = colorio.XYZ()
     # colorspace_ = colorio.XYY()
     # colorspace_ = colorio.JzAzBz()
     # colorspace_ = colorio.CIELUV()
     # colorspace_ = colorio.CIELAB()
     # colorspace_ = colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5)
-    colorspace_ = colorio.CAM16UCS(0.69, 20, 64/numpy.pi/5)
+    # colorspace_ = colorio.CAM16UCS(0.69, 20, 64/numpy.pi/5)
     # test_hdr_gamut(colorspace_, n=10)
-    test_xyz_gamut(colorspace_, n=10)
+    test_visible_gamut(colorspace_, n=10)

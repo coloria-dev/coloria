@@ -43,38 +43,39 @@ def pade(x, *p):
 
 def cv():
     lmbda, data = colorio.observers.cie_1931_2()
+    data = data[1]
 
     # You have to scale the x-data; see
     # <https://github.com/scipy/scipy/issues/8369>.
     lmbda *= 1.0e5
 
     popt1, _ = scipy.optimize.curve_fit(
-            f, lmbda, data[1], p0=[1, 0, 1],
+            f, lmbda, data, p0=[1, 0, 1],
             )
     print(popt1)
 
     popt2, _ = scipy.optimize.curve_fit(
-            g, lmbda, data[1], p0=[1, 0, 1, 0],
+            g, lmbda, data, p0=[1, 0, 1, 0],
             maxfev=10000
             )
     print(popt2)
 
     popt3, _ = scipy.optimize.curve_fit(
-            pade, lmbda, data[1], p0=[1, 0, 0, 0, 1, 0, 0, 0],
+            pade, lmbda, data, p0=[1, 0, 0, 0, 1, 0, 0, 0],
             maxfev=10000
             )
     print(popt3)
 
     popt4, _ = scipy.optimize.curve_fit(
-            f3, lmbda, data[1], p0=[1, 0, 1, 1, 0, 1, 1, 0, 1],
+            f3, lmbda, data, p0=[1, 0, 1, 1, 0, 1, 1, 0, 1],
             maxfev=10000
             )
     print(popt4)
 
-    plt.plot(lmbda, data[1], '.')
+    plt.plot(lmbda, data, '.')
     plt.plot(lmbda, f(lmbda, *popt1), ':')
-    # plt.plot(lmbda, g(lmbda, *popt2), ':')
-    # plt.plot(lmbda, pade(lmbda, *popt3), ':')
+    plt.plot(lmbda, g(lmbda, *popt2), ':')
+    plt.plot(lmbda, pade(lmbda, *popt3), ':')
     plt.plot(lmbda, f3(lmbda, *popt4), ':')
     plt.show()
     return

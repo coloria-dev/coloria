@@ -27,7 +27,8 @@ from .srgb import SrgbLinear
 from .xyy import XYY
 from .xyz import XYZ
 from .tools import (
-    show_srgb_gamut, show_hdr_gamut, show_xyz_gamut, show_gamut_diagram, delta
+    show_srgb_gamut, show_hdr_gamut, show_visible_gamut, show_gamut_diagram,
+    delta
     )
 
 try:

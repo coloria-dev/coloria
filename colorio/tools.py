@@ -21,29 +21,26 @@ def delta(a, b):
     return numpy.einsum('i...,i...->...', diff, diff)
 
 
-def show_xyz_gamut(colorspace, filename, n=50):
+def show_visible_gamut(colorspace, illuminant, filename, n=50):
     import meshio
 
     # The XYZ gamut is actually defined by an arbitrarily chosen maximum
     # intensity (here: 1). Then, all block spectra with this intensity are
     # mapped into XYZ space; they form the outer hull.
-    min_wl = 380.0e-9
-    max_wl = 700.0e-9
-    lmbda = numpy.linspace(min_wl, max_wl, 65)
+    lmbda, illu = illuminant
     values = []
     for width in range(len(lmbda)+1):
         data = numpy.zeros(len(lmbda))
         data[:width] = 1.0
         for k, _ in enumerate(lmbda):
-            values.append(spectrum_to_xyz100((lmbda, data)))
+            values.append(spectrum_to_xyz100((lmbda, illu*data)))
             data = numpy.roll(data, shift=1)
 
     values = numpy.array(values)
-    print(values)
 
-    # Scale such that the full spectrum maps to [100, 100, 100]
-    alpha = 100.0 / values[-1]
-    values = alpha * values
+    # scale the values such that the Y-coordinate of the white point has value
+    # 100.
+    values *= 100 / values[-1][1]
 
     hull = ConvexHull(values)
 
