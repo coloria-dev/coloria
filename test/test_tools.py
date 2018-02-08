@@ -59,8 +59,8 @@ def test_conversion_variants(a):
 if __name__ == '__main__':
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.Rec2020()
-    # colorspace_ = colorio.XYZ()
-    colorspace_ = colorio.XYY()
+    colorspace_ = colorio.XYZ()
+    # colorspace_ = colorio.XYY()
     # colorspace_ = colorio.JzAzBz()
     # colorspace_ = colorio.CIELUV()
     # colorspace_ = colorio.CIELAB()

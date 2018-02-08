@@ -235,6 +235,9 @@ class CIECAM02(object):
         self.h = numpy.array([20.14, 90.00, 164.25, 237.53, 380.14])
         self.e = numpy.array([0.8, 0.7, 1.0, 1.2, 0.8])
         self.H = numpy.array([0.0, 100.0, 200.0, 300.0, 400.0])
+
+        self.M_hpe_inv_M_cat02 = \
+            numpy.linalg.solve(self.M_cat02.T, self.M_hpe.T).T
         return
 
     def from_xyz100(self, xyz):
@@ -248,7 +251,7 @@ class CIECAM02(object):
         rgb_c = (rgb.T * self.D_RGB).T
 
         # Step 3: Calculate the Hunt-Pointer-Estevez response
-        rgb_ = dot(self.M_hpe, solve(self.M_cat02, rgb_c))
+        rgb_ = dot(self.M_hpe_inv_M_cat02, rgb_c)
 
         # Steps 4-10
         return compute_from(rgb_, self)
