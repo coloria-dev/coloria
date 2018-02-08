@@ -228,30 +228,30 @@ class CIECAM02(object):
             )
 
         alpha = (self.F_L*RGB_w_/100)**0.42
-        RGB_aw_ = 400 * alpha / (alpha + 27.13) + 0.1
-
-        self.A_w = (numpy.dot([2, 1, 1/20], RGB_aw_) - 0.305) * self.N_bb
+        RGB_aw_ = 400 * alpha / (alpha + 27.13)
+        self.A_w = numpy.dot([2, 1, 1/20], RGB_aw_) * self.N_bb
 
         self.h = numpy.array([20.14, 90.00, 164.25, 237.53, 380.14])
         self.e = numpy.array([0.8, 0.7, 1.0, 1.2, 0.8])
         self.H = numpy.array([0.0, 100.0, 200.0, 300.0, 400.0])
 
-        self.M_hpe_inv_M_cat02 = \
-            numpy.linalg.solve(self.M_cat02.T, self.M_hpe.T).T
+        # Merge a bunch of matrices together here.
+        D = numpy.diag(self.D_RGB)
+        self.M_hpe_invMcat02_D_Mcat02 = numpy.dot(numpy.dot(
+            numpy.linalg.solve(self.M_cat02.T, self.M_hpe.T).T, D
+            ), self.M_cat02)
         return
 
     def from_xyz100(self, xyz):
         # Step 1: Calculate (sharpened) cone responses (transfer
         #         colour-matching functions to sharper sensors)
-        rgb = dot(self.M_cat02, xyz)
-
+        #
         # Step 2: Calculate the corresponding (sharpened) cone response
         #         (considering various luminance level and surround conditions
         #         included in D; hence, in DR, DG and DB)
-        rgb_c = (rgb.T * self.D_RGB).T
-
+        #
         # Step 3: Calculate the Hunt-Pointer-Estevez response
-        rgb_ = dot(self.M_hpe_inv_M_cat02, rgb_c)
+        rgb_ = dot(self.M_hpe_invMcat02_D_Mcat02, xyz)
 
         # Steps 4-10
         return compute_from(rgb_, self)
