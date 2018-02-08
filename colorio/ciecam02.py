@@ -5,7 +5,7 @@ from __future__ import division
 import numpy
 
 from .illuminants import whitepoints_cie1931
-from .linalg import dot, solve
+from .linalg import dot
 
 
 def compute_from(rgb_, cs):
@@ -22,12 +22,12 @@ def compute_from(rgb_, cs):
     a = (11*rgb_a_[0] - 12*rgb_a_[1] + rgb_a_[2]) / 11
     b = (rgb_a_[0] + rgb_a_[1] - 2*rgb_a_[2]) / 9
     # Make sure that h is in [0, 360]
-    h = numpy.mod(numpy.arctan2(b, a) / numpy.pi * 180, 360)
+    h = numpy.rad2deg(numpy.arctan2(b, a)) % 360
 
     # Step 6: Calculate eccentricity (e_t) and hue composition (H), using
     #         the unique hue data given in Table 2.4.
-    h_ = numpy.mod(h - cs.h[0], 360) + cs.h[0]
-    e_t = 1/4 * (numpy.cos(h_*numpy.pi/180 + 2) + 3.8)
+    h_ = numpy.where(h < cs.h[0], h + 360, h)
+    e_t = (numpy.cos(numpy.deg2rad(h_) + 2) + 3.8) / 4
     i = numpy.searchsorted(cs.h, h_) - 1
     beta = (h_ - cs.h[i]) * cs.e[i+1]
     H = cs.H[i] + 100 * beta / (beta + cs.e[i]*(cs.h[i+1] - h_))
