@@ -8,14 +8,6 @@ from .illuminants import whitepoints_cie1931
 from .linalg import dot, solve
 
 
-def find_first(a, alpha):
-    '''Given an array `a` and a value `alpha`, this method returns the first
-    index i where a[i] > alpha. Vectorized in alpha.
-    '''
-    # https://stackoverflow.com/a/48367770/353337
-    return numpy.argmax(numpy.add.outer(alpha, -a) < 0, axis=-1)
-
-
 def compute_from(rgb_, cs):
     # Step 4: Calculate the post-adaptation cone response (resulting in
     #         dynamic range compression)
@@ -38,7 +30,7 @@ def compute_from(rgb_, cs):
     h_ = numpy.mod(h - cs.h[0], 360) + cs.h[0]
     assert numpy.all(cs.h[0] <= h_) and numpy.all(h_ < cs.h[-1])
     e_t = 1/4 * (numpy.cos(h_*numpy.pi/180 + 2) + 3.8)
-    i = find_first(cs.h, h_) - 1
+    i = numpy.searchsorted(cs.h, h_) - 1
     assert numpy.all(cs.h[i] <= h_) and numpy.all(h_ <= cs.h[i+1])
     beta = (h_ - cs.h[i]) * cs.e[i+1]
     H = cs.H[i] + 100 * beta / (beta + cs.e[i]*(cs.h[i+1] - h_))
@@ -112,7 +104,7 @@ def compute_to(data, description, cs):
         assert description[2] == 'H'
         # Step 1–3: Calculate h from H (if start from H)
         H = data[2]
-        i = find_first(cs.H, H) - 1
+        i = numpy.searchsorted(cs.H, H) - 1
         assert numpy.all(cs.H[i] <= H) and numpy.all(H < cs.H[i+1])
         Hi = cs.H[i]
         hi, hi1 = cs.h[i], cs.h[i+1]
