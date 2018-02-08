@@ -15,6 +15,7 @@ jobs:
       - run: pip3 install -U pytest pytest-cov pylint bandit
       - checkout
       - run: pip3 install .
+      - run: pip3 install -r test_requirements.txt
       # lint, bandit
       - run: pylint colorio/
       - run: pylint test/*.py
