@@ -232,6 +232,12 @@ class CIECAM02(object):
         self.M_hpe_invMcat02_D_Mcat02 = numpy.dot(numpy.dot(
             numpy.linalg.solve(self.M_cat02.T, self.M_hpe.T).T, D
             ), self.M_cat02)
+
+        D = numpy.diag(1/self.D_RGB)
+        self.invMcat02_invD_Mcat02_invMhpe = numpy.linalg.solve(
+            self.M_cat02, numpy.dot(
+                D, numpy.dot(self.M_cat02, numpy.linalg.inv(self.M_hpe))
+                ))
         return
 
     def from_xyz100(self, xyz):
@@ -255,13 +261,14 @@ class CIECAM02(object):
         rgb_ = compute_to(data, description, self)
 
         # Step 6: Calculate RC, GC and BC
-        rgb_c = dot(self.M_cat02, solve(self.M_hpe, rgb_))
-
+        # rgb_c = dot(self.M_cat02, solve(self.M_hpe, rgb_))
+        #
         # Step 7: Calculate R, G and B
-        rgb = (rgb_c.T / self.D_RGB).T
-
+        # rgb = (rgb_c.T / self.D_RGB).T
+        #
         # Step 8: Calculate X, Y and Z
-        xyz = solve(self.M_cat02, rgb)
+        # xyz = solve(self.M_cat02, rgb)
+        xyz = dot(self.invMcat02_invD_Mcat02_invMhpe, rgb_)
         return xyz
 
 
