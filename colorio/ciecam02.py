@@ -17,10 +17,20 @@ def compute_from(rgb_, cs):
     # (except the computation of `t`).
     rgb_a_ = numpy.sign(rgb_) * 400 * alpha / (alpha+27.13)  # + 0.1
 
+    # Mix steps 5, 7, and part of step 10 here in one big dot-product.
     # Step 5: Calculate Redness–Greenness (a) , Yellowness–Blueness (b)
     #         components and hue angle (h)
-    a = (11*rgb_a_[0] - 12*rgb_a_[1] + rgb_a_[2]) / 11
-    b = (rgb_a_[0] + rgb_a_[1] - 2*rgb_a_[2]) / 9
+    # Step 7: Calculate achromatic response A
+    a, b, A, u = dot(numpy.array([
+        [1, -12/11, 1/11],
+        [1/9, 1/9, -2/9],
+        [2*cs.N_bb, cs.N_bb, cs.N_bb/20],
+        [1, 1, 21/20],
+        ]), rgb_a_)
+
+    if numpy.any(A < 0):
+        raise NegativeAError('CIECAM02 breakdown')
+
     # Make sure that h is in [0, 360]
     h = numpy.rad2deg(numpy.arctan2(b, a)) % 360
 
@@ -32,27 +42,22 @@ def compute_from(rgb_, cs):
     beta = (h_ - cs.h[i]) * cs.e[i+1]
     H = cs.H[i] + 100 * beta / (beta + cs.e[i]*(cs.h[i+1] - h_))
 
-    # Step 7: Calculate achromatic response A
-    A = (2*rgb_a_[0] + rgb_a_[1] + rgb_a_[2]/20) * cs.N_bb
-    if numpy.any(A < 0):
-        raise NegativeAError('CIECAM02 breakdown')
-
     # Step 8: Calculate the correlate of lightness
     J = 100 * (A/cs.A_w)**(cs.c*cs.z)
 
     # Step 9: Calculate the correlate of brightness
-    Q = (4/cs.c) * numpy.sqrt(J/100) * (cs.A_w + 4) * cs.F_L**0.25
+    sqrt_J_100 = numpy.sqrt(J/100)
+    Q = (4/cs.c) * sqrt_J_100 * (cs.A_w + 4) * cs.F_L**0.25
 
     # Step 10: Calculate the correlates of chroma (C), colourfulness (M)
     #          and saturation (s)
     #
     # Note the extra 0.305 here from the adaptation in rgb_a_ above.
     p1_ = 50000/13 * e_t * cs.N_c * cs.N_cb
-    t = p1_ * numpy.sqrt(a**2 + b**2) \
-        / (rgb_a_[0] + rgb_a_[1] + 21/20*rgb_a_[2] + 0.305)
+    t = p1_ * numpy.sqrt(a**2 + b**2) / (u + 0.305)
 
     alpha = t**0.9 * (1.64 - 0.29**cs.n)**0.73
-    C = alpha * numpy.sqrt(J/100)
+    C = alpha * sqrt_J_100
     M = C * cs.F_L**0.25
 
     # ENH avoid division by Q=0 here.
