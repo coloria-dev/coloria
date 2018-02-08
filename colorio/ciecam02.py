@@ -12,7 +12,6 @@ def compute_from(rgb_, cs):
     # Step 4: Calculate the post-adaptation cone response (resulting in
     #         dynamic range compression)
     alpha = (cs.F_L*abs(rgb_)/100)**0.42
-
     # Omit the 0.1 here; that's canceled out in almost all cases below anyways
     # (except the computation of `t`).
     rgb_a_ = numpy.sign(rgb_) * 400 * alpha / (alpha+27.13)  # + 0.1
@@ -21,13 +20,14 @@ def compute_from(rgb_, cs):
     # Step 5: Calculate Redness–Greenness (a) , Yellowness–Blueness (b)
     #         components and hue angle (h)
     # Step 7: Calculate achromatic response A
-    a, b, A, u = dot(numpy.array([
+    a, b, p2_, u = dot(numpy.array([
         [1, -12/11, 1/11],
         [1/9, 1/9, -2/9],
-        [2*cs.N_bb, cs.N_bb, cs.N_bb/20],
+        [2, 1, 1/20],
         [1, 1, 21/20],
         ]), rgb_a_)
 
+    A = p2_ * cs.N_bb
     if numpy.any(A < 0):
         raise NegativeAError('CIECAM02 breakdown')
 
@@ -36,7 +36,7 @@ def compute_from(rgb_, cs):
 
     # Step 6: Calculate eccentricity (e_t) and hue composition (H), using
     #         the unique hue data given in Table 2.4.
-    h_ = numpy.where(h < cs.h[0], h + 360, h)
+    h_ = (h - cs.h[0]) % 360 + cs.h[0]
     e_t = (numpy.cos(numpy.deg2rad(h_) + 2) + 3.8) / 4
     i = numpy.searchsorted(cs.h, h_) - 1
     beta = (h_ - cs.h[i]) * cs.e[i+1]
