@@ -23,15 +23,12 @@ def compute_from(rgb_, cs):
     b = (rgb_a_[0] + rgb_a_[1] - 2*rgb_a_[2]) / 9
     # Make sure that h is in [0, 360]
     h = numpy.mod(numpy.arctan2(b, a) / numpy.pi * 180, 360)
-    assert numpy.all(h >= 0) and numpy.all(h < 360)
 
     # Step 6: Calculate eccentricity (e_t) and hue composition (H), using
     #         the unique hue data given in Table 2.4.
     h_ = numpy.mod(h - cs.h[0], 360) + cs.h[0]
-    assert numpy.all(cs.h[0] <= h_) and numpy.all(h_ < cs.h[-1])
     e_t = 1/4 * (numpy.cos(h_*numpy.pi/180 + 2) + 3.8)
     i = numpy.searchsorted(cs.h, h_) - 1
-    assert numpy.all(cs.h[i] <= h_) and numpy.all(h_ <= cs.h[i+1])
     beta = (h_ - cs.h[i]) * cs.e[i+1]
     H = cs.H[i] + 100 * beta / (beta + cs.e[i]*(cs.h[i+1] - h_))
 
@@ -105,7 +102,6 @@ def compute_to(data, description, cs):
         # Step 1–3: Calculate h from H (if start from H)
         H = data[2]
         i = numpy.searchsorted(cs.H, H) - 1
-        assert numpy.all(cs.H[i] <= H) and numpy.all(H < cs.H[i+1])
         Hi = cs.H[i]
         hi, hi1 = cs.h[i], cs.h[i+1]
         ei, ei1 = cs.e[i], cs.e[i+1]
