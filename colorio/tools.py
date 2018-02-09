@@ -21,9 +21,8 @@ def delta(a, b):
     return numpy.einsum('i...,i...->...', diff, diff)
 
 
-def show_visible_gamut(
-        colorspace, observer, illuminant, filename, cut_000=False
-        ):
+def show_visible_gamut(colorspace, observer, illuminant, filename,
+                       cut_000=False):
     import meshio
 
     # The XYZ gamut is actually defined by an arbitrarily chosen maximum
@@ -39,7 +38,7 @@ def show_visible_gamut(
     for width in range(1, len(lmbda)):
         data = numpy.zeros(len(lmbda))
         data[:width] = 1.0
-        for k, _ in enumerate(lmbda):
+        for _, _ in enumerate(lmbda):
             values.append(
                 spectrum_to_xyz100((lmbda, illu*data), observer=observer)
                 )

@@ -2,9 +2,9 @@
 #
 import numpy
 
+import colorspacious
 import colour
 import colorio
-import colorspacious
 
 numpy.random.seed(0)
 
@@ -127,14 +127,6 @@ def performance_comparison_to():
     whitepoint = colorio.illuminants.whitepoints_cie1931['D65']
     L_A = 64 / numpy.pi / 5
 
-    c = 0.69  # average
-    cs2 = colorio.CIECAM02(c, Y_b, L_A)
-
-    cs1 = colorspacious.ciecam02.CIECAM02Space(
-        whitepoint, Y_b, L_A,
-        surround=colorspacious.CIECAM02Surround.AVERAGE
-        )
-
     def setup(n):
         rgb = numpy.random.rand(3)
         out = numpy.empty((3, n))
@@ -142,8 +134,15 @@ def performance_comparison_to():
             out[k] = rgb[k]
         return out
 
-    def csp(x):
-        return cs1.CIECAM02_to_XYZ100(J=x[0], C=x[1], h=x[2])
+    # cs1 = colorspacious.ciecam02.CIECAM02Space(
+    #     whitepoint, Y_b, L_A,
+    #     surround=colorspacious.CIECAM02Surround.AVERAGE
+    #     )
+    # def csp(x):
+    #     return cs1.CIECAM02_to_XYZ100(J=x[0], C=x[1], h=x[2])
+
+    c = 0.69  # average
+    cs2 = colorio.CIECAM02(c, Y_b, L_A)
 
     def cio(x):
         return cs2.to_xyz100(x, 'JCh')
@@ -152,8 +151,8 @@ def performance_comparison_to():
         J, C, h = x
         spec = colour.appearance.ciecam02.CIECAM02_Specification(J=J, C=C, h=h)
         return colour.appearance.ciecam02.CIECAM02_to_XYZ(
-                spec, whitepoint, L_A, Y_b
-                )
+            spec, whitepoint, L_A, Y_b
+            )
 
     perfplot.show(
         setup=setup,

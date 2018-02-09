@@ -30,7 +30,7 @@ def test_hdr_gamut(colorspace, n=10):
     (colorio.XYY(), True),
     (colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5), False),
     ])
-def test_visible_gamut(colorspace, cut_000, n=10):
+def test_visible_gamut(colorspace, cut_000):
     illuminant = colorio.illuminants.d65()
     observer = colorio.observers.cie_1931_2()
     colorio.show_visible_gamut(
@@ -67,4 +67,4 @@ if __name__ == '__main__':
     # colorspace_ = colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5)
     # colorspace_ = colorio.CAM16UCS(0.69, 20, 64/numpy.pi/5)
     # test_hdr_gamut(colorspace_, n=10)
-    test_visible_gamut(colorspace_, cut_000=True, n=10)
+    test_visible_gamut(colorspace_, cut_000=True)
