@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-import os
 import codecs
+import os
 
 from setuptools import setup, find_packages
 
@@ -9,16 +9,16 @@ from setuptools import setup, find_packages
 base_dir = os.path.abspath(os.path.dirname(__file__))
 about = {}
 with open(os.path.join(base_dir, 'colorio', '__about__.py'), 'rb') as f:
+    # pylint: disable=exec-used
     exec(f.read(), about)
 
 
 def read(fname):
     try:
         content = codecs.open(
-            os.path.join(os.path.dirname(__file__), fname),
-            encoding='utf-8'
+            os.path.join(base_dir, fname), encoding='utf-8'
             ).read()
-    except Exception:
+    except FileNotFoundError:
         content = ''
     return content
 
