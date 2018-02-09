@@ -13,10 +13,14 @@ with open(os.path.join(base_dir, 'colorio', '__about__.py'), 'rb') as f:
 
 
 def read(fname):
-    return codecs.open(
-        os.path.join(base_dir, fname),
-        encoding='utf-8'
-        ).read()
+    try:
+        content = codecs.open(
+            os.path.join(os.path.dirname(__file__), fname),
+            encoding='utf-8'
+            ).read()
+    except Exception:
+        content = ''
+    return content
 
 
 setup(
