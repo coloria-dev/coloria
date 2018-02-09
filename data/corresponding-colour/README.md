@@ -97,7 +97,7 @@ Experimental conditions
 | CSAJ-Stevens | 4 | 19 | D65 | D65 | 10-3000 | 20 | S | Refl. | Haploscopic |
 | Helson       | 1 | 59 | D65 | A   | 1000    | 20 | S | Refl. | Memory      |
 | Lam & Rigg   | 1 | 58 | D65 | A   | 1000    | 20 | L | Refl. | Memory      |
-Lutchi (A)	1	43	D65	A	1000	20	S	Refl.	Magnitude
+| Lutchi (A)   | 1	43	D65	A	1000	20	S	Refl.	Magnitude
 Lutchi (D50)	1	44	D65	D50	1000	20	S	Refl.	Magnitude
 Lutchi (WF)	1	41	D65	WF	1000	20	S	Refl.	Magnitude
 Kuo & Luo (A)	1	40	D65	A	1000	20	L	Refl.	Magnitude

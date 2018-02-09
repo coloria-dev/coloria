@@ -93,7 +93,7 @@ results.
 
 #### Table IIa: Summary of the data files and viewing conditions used in each phase.
 
-| Group | Phase | Fn. Visual | F. Colorimetric | #Samples | Neutrals Start | N. End | Scaling Y of Factor | S. Background | Luminance |
+| Group | Phase | Filename Visual | Filename Colorimetric | No. of Samples | Neutrals Start | Neutrals End | Scaling Y of Factor | Scaling Y of Background | Luminance |
 | ------| ----- | ---------- | --------------- | -------- | -------------- | ------ | ------------------- | ------------- | --------- |
 | R-HL  | 1     | nlmean.wh  | cold50wnl       | 105      | 41             | 46     | 0.88                | 100.0         | 264.0     |
 |       | 2     | nlmean.bh  | cold50gb        | 105      | 41             | 46     | 0.84                | 6.2           | 252.0     |
