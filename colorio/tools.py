@@ -5,6 +5,7 @@ from __future__ import division
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy
+from scipy.spatial import ConvexHull
 
 from .illuminants import spectrum_to_xyz100, planckian_radiator
 from .rec2020 import Rec2020
@@ -18,6 +19,51 @@ def delta(a, b):
     '''
     diff = a - b
     return numpy.einsum('i...,i...->...', diff, diff)
+
+
+def show_visible_gamut(colorspace, observer, illuminant, filename,
+                       cut_000=False):
+    import meshio
+
+    # The XYZ gamut is actually defined by an arbitrarily chosen maximum
+    # intensity (here: 1). Then, all block spectra with this intensity are
+    # mapped into XYZ space; they form the outer hull.
+    lmbda, illu = illuminant
+    values = []
+
+    data = numpy.zeros(len(lmbda))
+    values.append(
+        spectrum_to_xyz100((lmbda, illu*data), observer=observer)
+        )
+    for width in range(1, len(lmbda)):
+        data = numpy.zeros(len(lmbda))
+        data[:width] = 1.0
+        for _, _ in enumerate(lmbda):
+            values.append(
+                spectrum_to_xyz100((lmbda, illu*data), observer=observer)
+                )
+            data = numpy.roll(data, shift=1)
+    data = numpy.ones(len(lmbda))
+    values.append(
+        spectrum_to_xyz100((lmbda, illu*data), observer=observer)
+        )
+
+    # scale the values such that the Y-coordinate of the white point has value
+    # 100.
+    values = numpy.array(values)
+    values *= 100 / values[-1][1]
+
+    cells = ConvexHull(values).simplices
+
+    if cut_000:
+        values = values[1:]
+        cells = cells[~numpy.any(cells == 0, axis=1)]
+        cells -= 1
+
+    pts = colorspace.from_xyz100(values.T).T
+
+    meshio.write(filename, pts, cells={'triangle': cells})
+    return
 
 
 def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):

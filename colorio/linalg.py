@@ -3,11 +3,14 @@
 import numpy
 
 
-def dot(A, x):
-    '''Performs a dot product between an array of shape (m, n) and and array of
-    shape (m, ...). The output has the same shape as the second argument.
+def dot(a, b):
+    '''Take arrays `a` and `b` and form the dot product between the last axis
+    of `a` and the first of `b`.
     '''
-    return numpy.einsum('ij,j...->i...', A, x)
+    b = numpy.asarray(b)
+    return numpy.dot(
+        a, b.reshape(b.shape[0], -1)
+        ).reshape(a.shape[:-1] + b.shape[1:])
 
 
 def solve(A, x):

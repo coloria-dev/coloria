@@ -5,65 +5,59 @@ from __future__ import division
 import numpy
 
 from .illuminants import whitepoints_cie1931
-from .linalg import dot, solve
-
-
-def find_first(a, alpha):
-    '''Given an array `a` and a value `alpha`, this method returns the first
-    index i where a[i] > alpha. Vectorized in alpha.
-    '''
-    # https://stackoverflow.com/a/48367770/353337
-    return numpy.argmax(numpy.add.outer(alpha, -a) < 0, axis=-1)
+from .linalg import dot
 
 
 def compute_from(rgb_, cs):
     # Step 4: Calculate the post-adaptation cone response (resulting in
     #         dynamic range compression)
     alpha = (cs.F_L*abs(rgb_)/100)**0.42
-
     # Omit the 0.1 here; that's canceled out in almost all cases below anyways
     # (except the computation of `t`).
     rgb_a_ = numpy.sign(rgb_) * 400 * alpha / (alpha+27.13)  # + 0.1
 
+    # Mix steps 5, 7, and part of step 10 here in one big dot-product.
     # Step 5: Calculate Redness–Greenness (a) , Yellowness–Blueness (b)
     #         components and hue angle (h)
-    a = (11*rgb_a_[0] - 12*rgb_a_[1] + rgb_a_[2]) / 11
-    b = (rgb_a_[0] + rgb_a_[1] - 2*rgb_a_[2]) / 9
+    # Step 7: Calculate achromatic response A
+    a, b, p2_, u = dot(numpy.array([
+        [1, -12/11, 1/11],
+        [1/9, 1/9, -2/9],
+        [2, 1, 1/20],
+        [1, 1, 21/20],
+        ]), rgb_a_)
+
+    A = p2_ * cs.N_bb
+    if numpy.any(A < 0):
+        raise NegativeAError('CIECAM02 breakdown')
+
     # Make sure that h is in [0, 360]
-    h = numpy.mod(numpy.arctan2(b, a) / numpy.pi * 180, 360)
-    assert numpy.all(h >= 0) and numpy.all(h < 360)
+    h = numpy.rad2deg(numpy.arctan2(b, a)) % 360
 
     # Step 6: Calculate eccentricity (e_t) and hue composition (H), using
     #         the unique hue data given in Table 2.4.
-    h_ = numpy.mod(h - cs.h[0], 360) + cs.h[0]
-    assert numpy.all(cs.h[0] <= h_) and numpy.all(h_ < cs.h[-1])
-    e_t = 1/4 * (numpy.cos(h_*numpy.pi/180 + 2) + 3.8)
-    i = find_first(cs.h, h_) - 1
-    assert numpy.all(cs.h[i] <= h_) and numpy.all(h_ <= cs.h[i+1])
+    h_ = (h - cs.h[0]) % 360 + cs.h[0]
+    e_t = (numpy.cos(numpy.deg2rad(h_) + 2) + 3.8) / 4
+    i = numpy.searchsorted(cs.h, h_) - 1
     beta = (h_ - cs.h[i]) * cs.e[i+1]
     H = cs.H[i] + 100 * beta / (beta + cs.e[i]*(cs.h[i+1] - h_))
-
-    # Step 7: Calculate achromatic response A
-    A = (2*rgb_a_[0] + rgb_a_[1] + rgb_a_[2]/20) * cs.N_bb
-    if numpy.any(A < 0):
-        raise NegativeAError('CIECAM02 breakdown')
 
     # Step 8: Calculate the correlate of lightness
     J = 100 * (A/cs.A_w)**(cs.c*cs.z)
 
     # Step 9: Calculate the correlate of brightness
-    Q = (4/cs.c) * numpy.sqrt(J/100) * (cs.A_w + 4) * cs.F_L**0.25
+    sqrt_J_100 = numpy.sqrt(J/100)
+    Q = (4/cs.c) * sqrt_J_100 * (cs.A_w + 4) * cs.F_L**0.25
 
     # Step 10: Calculate the correlates of chroma (C), colourfulness (M)
     #          and saturation (s)
     #
     # Note the extra 0.305 here from the adaptation in rgb_a_ above.
     p1_ = 50000/13 * e_t * cs.N_c * cs.N_cb
-    t = p1_ * numpy.sqrt(a**2 + b**2) \
-        / (rgb_a_[0] + rgb_a_[1] + 21/20*rgb_a_[2] + 0.305)
+    t = p1_ * numpy.sqrt(a**2 + b**2) / (u + 0.305)
 
     alpha = t**0.9 * (1.64 - 0.29**cs.n)**0.73
-    C = alpha * numpy.sqrt(J/100)
+    C = alpha * sqrt_J_100
     M = C * cs.F_L**0.25
 
     # ENH avoid division by Q=0 here.
@@ -112,8 +106,7 @@ def compute_to(data, description, cs):
         assert description[2] == 'H'
         # Step 1–3: Calculate h from H (if start from H)
         H = data[2]
-        i = find_first(cs.H, H) - 1
-        assert numpy.all(cs.H[i] <= H) and numpy.all(H < cs.H[i+1])
+        i = numpy.searchsorted(cs.H, H) - 1
         Hi = cs.H[i]
         hi, hi1 = cs.h[i], cs.h[i+1]
         ei, ei1 = cs.e[i], cs.e[i+1]
@@ -228,27 +221,36 @@ class CIECAM02(object):
             )
 
         alpha = (self.F_L*RGB_w_/100)**0.42
-        RGB_aw_ = 400 * alpha / (alpha + 27.13) + 0.1
-
-        self.A_w = (numpy.dot([2, 1, 1/20], RGB_aw_) - 0.305) * self.N_bb
+        RGB_aw_ = 400 * alpha / (alpha + 27.13)
+        self.A_w = numpy.dot([2, 1, 1/20], RGB_aw_) * self.N_bb
 
         self.h = numpy.array([20.14, 90.00, 164.25, 237.53, 380.14])
         self.e = numpy.array([0.8, 0.7, 1.0, 1.2, 0.8])
         self.H = numpy.array([0.0, 100.0, 200.0, 300.0, 400.0])
+
+        # Merge a bunch of matrices together here.
+        D = numpy.diag(self.D_RGB)
+        self.M_hpe_invMcat02_D_Mcat02 = numpy.dot(numpy.dot(
+            numpy.linalg.solve(self.M_cat02.T, self.M_hpe.T).T, D
+            ), self.M_cat02)
+
+        D = numpy.diag(1/self.D_RGB)
+        self.invMcat02_invD_Mcat02_invMhpe = numpy.linalg.solve(
+            self.M_cat02, numpy.dot(
+                D, numpy.dot(self.M_cat02, numpy.linalg.inv(self.M_hpe))
+                ))
         return
 
     def from_xyz100(self, xyz):
         # Step 1: Calculate (sharpened) cone responses (transfer
         #         colour-matching functions to sharper sensors)
-        rgb = dot(self.M_cat02, xyz)
-
+        #
         # Step 2: Calculate the corresponding (sharpened) cone response
         #         (considering various luminance level and surround conditions
         #         included in D; hence, in DR, DG and DB)
-        rgb_c = (rgb.T * self.D_RGB).T
-
+        #
         # Step 3: Calculate the Hunt-Pointer-Estevez response
-        rgb_ = dot(self.M_hpe, solve(self.M_cat02, rgb_c))
+        rgb_ = dot(self.M_hpe_invMcat02_D_Mcat02, xyz)
 
         # Steps 4-10
         return compute_from(rgb_, self)
@@ -260,13 +262,14 @@ class CIECAM02(object):
         rgb_ = compute_to(data, description, self)
 
         # Step 6: Calculate RC, GC and BC
-        rgb_c = dot(self.M_cat02, solve(self.M_hpe, rgb_))
-
+        # rgb_c = dot(self.M_cat02, solve(self.M_hpe, rgb_))
+        #
         # Step 7: Calculate R, G and B
-        rgb = (rgb_c.T / self.D_RGB).T
-
+        # rgb = (rgb_c.T / self.D_RGB).T
+        #
         # Step 8: Calculate X, Y and Z
-        xyz = solve(self.M_cat02, rgb)
+        # xyz = solve(self.M_cat02, rgb)
+        xyz = dot(self.invMcat02_invD_Mcat02_invMhpe, rgb_)
         return xyz
 
 

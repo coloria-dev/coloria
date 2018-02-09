@@ -5,4 +5,6 @@ disable=
     fixme,
     invalid-name,
     missing-docstring,
+    no-member,
+    no-name-in-module,
     too-many-locals,
