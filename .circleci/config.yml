@@ -17,8 +17,7 @@ jobs:
       - run: pip3 install .
       - run: pip3 install -r test_requirements.txt
       # lint, bandit
-      - run: pylint colorio/
-      - run: pylint test/*.py
+      - run: pylint setup.py colorio/ test/*.py
       - run: bandit -r .
       # make sure that rst converts correctly
       - run: cat README.md | sed 's_<img src="\([^"]*\)" width="\([^"]*\)">_![](\1){width="\2"}_g' > /tmp/README.md
