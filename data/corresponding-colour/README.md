@@ -92,20 +92,21 @@ for each sample.
 Experimental conditions
 
 | Data Set | No. of Phases | No. of Samples | Illuminant Test | I. Ref | Illuminance (lux) | Background (Y%) | Sample Size | Medium | Experimental Method |
-| CSAJ-C       | 1 | 87 | D65 | A   | 1000    | 20 | S | Refl. | Haploscopic |
-| CSAJ-Hunt    | 4 | 20 | D65 | D65 | 10-3000 | 20 | S | Refl. | Haploscopic |
-| CSAJ-Stevens | 4 | 19 | D65 | D65 | 10-3000 | 20 | S | Refl. | Haploscopic |
-| Helson       | 1 | 59 | D65 | A   | 1000    | 20 | S | Refl. | Memory      |
-| Lam & Rigg   | 1 | 58 | D65 | A   | 1000    | 20 | L | Refl. | Memory      |
-| Lutchi (A)   | 1	43	D65	A	1000	20	S	Refl.	Magnitude
-Lutchi (D50)	1	44	D65	D50	1000	20	S	Refl.	Magnitude
-Lutchi (WF)	1	41	D65	WF	1000	20	S	Refl.	Magnitude
-Kuo & Luo (A)	1	40	D65	A	1000	20	L	Refl.	Magnitude
-Kuo & Luo (TL84)	1	41	D65	TL84	1000	20	S	Refl.	Magnitude
-Breneman-C	9	107	D65, D55	A, P, G	50-3870	30	S	Trans.	Magnitude
-Breneman-L	3	36	D55	D55	50-3870	30	S	Trans.	Haploscopic
-Braun & Fairchild	4	66	D65	D30, D65, D95	129	20	S	Mon., Refl.	Matching
-McCann	5	85	D65	R, Y, G, B	14-40	30	S	Refl.	Haploscopic
+| ----------------- | - | --- | -------- | ------------- | ------- | -- | - | ----------- | ----------- |
+| CSAJ-C            | 1 | 87  | D65      | A             | 1000    | 20 | S | Refl.       | Haploscopic |
+| CSAJ-Hunt         | 4 | 20  | D65      | D65           | 10-3000 | 20 | S | Refl.       | Haploscopic |
+| CSAJ-Stevens      | 4 | 19  | D65      | D65           | 10-3000 | 20 | S | Refl.       | Haploscopic |
+| Helson            | 1 | 59  | D65      | A             | 1000    | 20 | S | Refl.       | Memory      |
+| Lam & Rigg        | 1 | 58  | D65      | A             | 1000    | 20 | L | Refl.       | Memory      |
+| Lutchi (A)        | 1 | 43  | D65      | A             | 1000    | 20 | S | Refl.       | Magnitude   |
+| Lutchi (D50)      | 1 | 44  | D65      | D50           | 1000    | 20 | S | Refl.       | Magnitude   |
+| Lutchi (WF)       | 1 | 41  | D65      | WF            | 1000    | 20 | S | Refl.       | Magnitude   |
+| Kuo & Luo (A)     | 1 | 0   | D65      | A             | 1000    | 20 | L | Refl.       | Magnitude   |
+| Kuo & Luo (TL84)  | 1 | 1   | D65      | TL84          | 1000    | 20 | S | Refl.       | Magnitude   |
+| Breneman-C        | 9 | 107 | D65, D55 | A, P, G       | 50-3870 | 30 | S | Trans.      | Magnitude   |
+| Breneman-L        | 3 | 36  | D55      | D55           | 50-3870 | 30 | S | Trans.      | Haploscopic |
+| Braun & Fairchild | 4 | 66  | D65      | D30, D65, D95 | 129     | 20 | S | Mon., Refl. | Matching    |
+| McCann            | 5 | 85  | D65      | R, Y, G, B    | 14-40   | 30 | S | Refl.       | Haploscopic |
 
 #### Table II: The data file names and number of samples in each experimental data set
 
@@ -158,15 +159,34 @@ colour appearance and chromatic adaptation. Users are encouraged to report new
 findings to the Chairman of CIE TC 1-52.
 
 ### REFERENCES
-1. LUO M.R. and HUNT R.W.G, Testing colour appearance models using corresponding-colour and magnitude-estimation data sets, Color Res. Appl. 23 147-153 (1998).
-2. LUO M.R. and HUNT R.W.G, The structure of the CIE 1997 colour appearance model (CIECAM97), Color Res. Appl. 23 138-146 (1998).
-3. LUO M.R. and HUNT R.W.G, A chromatic adaptation transform and a colour inconstancy index, Color Res. Appl. 23 154-158 (1998).
-4. MORI L., SOBAGAKI H., KOMATSUBARA H. and IKEDA K., Field trials on the CIE chromatic adaptation formula, Proceedings of the CIE 22nd Session, 55-58 (1991).
-5. HELSON H., JUDD D. B., and WARREN M. H., Object-color changes from daylight to incandescent filament illumination, Illum. Eng. 47, 221-233 (1952).
-6. LAM K. M., Metamerism and colour constancy, Ph.D. Thesis, University of Bradford, 1985.
-7. LUO M. R., CLARKE A. A., RHODES P. A., SCRIVENER, S. A. R., SCHAPPO A. and TAIT C.J., Quantifying Colour Appearance. Part I. LUTCHI Colour Appearance Data, Color Res. Appl., 16 166-180 (1991).
-8. KUO W.G., LUO M.R., BEZ H. E., Various chromatic-adaptation transforms tested using new colour appearance data in textiles, Color Res. Appl., 21 313-327 (1995).
-9. BRENEMAN E. J., Corresponding chromaticities for different states of adaptation to complex visual fields, J. Opt. Soc. Am. 4:6 1115-1129 (1987).
-10. MCCANN J.J., MCKEE S. P. and TAYLOR T. H., Quantitative studies in retinex theory, Vision Res. 16 445-458 (1976).
-11. BRAUN K.M. and FAIRCHILD M.D., Psychophysical generation of matching images for cross-media color reproduction, in IS&T and SID's 4th Color Imaging Conference: Color Science, Systems and Applications, 214-220, IS&T, Springfield, Va., (1996).
-12. NAYATANI Y., TAKAHAMA K. and SOBAGAKI H., Prediction of color appearance of object colors in a complex visual field, J. Light & Vis. Env. 19 5-14 (1995).
+1. LUO M.R. and HUNT R.W.G, Testing colour appearance models using
+   corresponding-colour and magnitude-estimation data sets, Color Res. Appl. 23
+   147-153 (1998).
+2. LUO M.R. and HUNT R.W.G, The structure of the CIE 1997 colour appearance
+   model (CIECAM97), Color Res. Appl. 23 138-146 (1998).
+3. LUO M.R. and HUNT R.W.G, A chromatic adaptation transform and a colour
+   inconstancy index, Color Res. Appl. 23 154-158 (1998).
+4. MORI L., SOBAGAKI H., KOMATSUBARA H. and IKEDA K., Field trials on the CIE
+   chromatic adaptation formula, Proceedings of the CIE 22nd Session, 55-58
+   (1991).
+5. HELSON H., JUDD D. B., and WARREN M. H., Object-color changes from daylight
+   to incandescent filament illumination, Illum. Eng. 47, 221-233 (1952).
+6. LAM K. M., Metamerism and colour constancy, Ph.D. Thesis, University of
+   Bradford, 1985.
+7. LUO M. R., CLARKE A. A., RHODES P. A., SCRIVENER, S. A. R., SCHAPPO A. and
+   TAIT C.J., Quantifying Colour Appearance. Part I. LUTCHI Colour Appearance
+   Data, Color Res. Appl., 16 166-180 (1991).
+8. KUO W.G., LUO M.R., BEZ H. E., Various chromatic-adaptation transforms
+   tested using new colour appearance data in textiles, Color Res. Appl., 21
+   313-327 (1995).
+9. BRENEMAN E. J., Corresponding chromaticities for different states of
+   adaptation to complex visual fields, J. Opt. Soc. Am. 4:6 1115-1129 (1987).
+10. MCCANN J.J., MCKEE S. P. and TAYLOR T. H., Quantitative studies in retinex
+    theory, Vision Res. 16 445-458 (1976).
+11. BRAUN K.M. and FAIRCHILD M.D., Psychophysical generation of matching images
+    for cross-media color reproduction, in IS&T and SID's 4th Color Imaging
+    Conference: Color Science, Systems and Applications, 214-220, IS&T,
+    Springfield, Va., (1996).
+12. NAYATANI Y., TAKAHAMA K. and SOBAGAKI H., Prediction of color appearance of
+    object colors in a complex visual field, J. Light & Vis. Env. 19 5-14
+    (1995).

@@ -245,48 +245,51 @@ derived or refined with the availability of this data set.
 
 ### REFERENCES
 
-1. M.R. Luo, A.A. Clarke, P.A.Rhodes, S.A.R. Scrivener, A. Schappo and C.J. Tait, 
-Quantifying Colour Appearance. Part I. LUTCHI Colour Appearance Data', Color Res. 
-Appl., 16 166-180 (1991).
+1. M.R. Luo, A.A. Clarke, P.A.Rhodes, S.A.R. Scrivener, A. Schappo and C.J.
+   Tait, Quantifying Colour Appearance. Part I. LUTCHI Colour Appearance Data',
+   Color Res.  Appl., 16 166-180 (1991).
 
-2. M.R. Luo, A.A. Clarke, P.A.Rhodes, S.A.R. Scrivener, A. Schappo and C.J. Tait, 
-Quantifying Colour Appearance. Part II. Testing Colour Models Performance Using 
-LUTCHI  Colour Appearance Data, Color Res. Appl., 16 181-197 (1991).
+2. M.R. Luo, A.A. Clarke, P.A.Rhodes, S.A.R. Scrivener, A. Schappo and C.J.
+   Tait, Quantifying Colour Appearance. Part II. Testing Colour Models
+   Performance Using LUTCHI  Colour Appearance Data, Color Res. Appl., 16
+   181-197 (1991).
 
-3. M.R. Luo, X.W. Gao, P.A. Rhodes, J.H. Xin, A.A. Clarke and S.A.R. Scrivener,  
-Quantifying Colour Appearance. Part III. Supplementary LUTCHI Colour Appearance 
-Data, Color Res. Appl., 18 98-113 (1993).
+3. M.R. Luo, X.W. Gao, P.A. Rhodes, J.H. Xin, A.A. Clarke and S.A.R. Scrivener,
+   Quantifying Colour Appearance. Part III. Supplementary LUTCHI Colour
+   Appearance Data, Color Res. Appl., 18 98-113 (1993).
 
-4. M. R. Luo, X. W. Gao, P. A. Rhodes, H. J. Xin, A. A. Clarke, and S. A. R. Scrivener, 
-Quantifying colour appearance: Part IV- Transmissive Media, Color Res. Appl., 18 191-
-209 (1993).
+4. M. R. Luo, X. W. Gao, P. A. Rhodes, H. J. Xin, A. A. Clarke, and S. A. R.
+   Scrivener, Quantifying colour appearance: Part IV- Transmissive Media, Color
+   Res. Appl., 18 191- 209 (1993).
 
-5. W. G. Kuo, M.R. Luo and H. Bez, Various chromatic-adaptation transforms tested 
-using new colour appearance data in textile, Color Res. Appl. 20 313-327 (1995).
+5. W. G. Kuo, M.R. Luo and H. Bez, Various chromatic-adaptation transforms
+   tested using new colour appearance data in textile, Color Res. Appl. 20
+   313-327 (1995).
 
-6. M. R. Luo, H. Xu, S-Q. Tang and F-K Zhou, Testing colour models performance using 
-mesopic colour appearance data, Proceedings of the AIC '97 Kyoto, 000-000 (1997).
+6. M. R. Luo, H. Xu, S-Q. Tang and F-K Zhou, Testing colour models performance
+   using mesopic colour appearance data, Proceedings of the AIC '97 Kyoto,
+   000-000 (1997).
 
-7. R. W. G. Hunt, Revised Colour-Appearance Model for Related and Unrelated Colours, 
-Color Res. Appl. 16,  146-165 (1991).
+7. R. W. G. Hunt, Revised Colour-Appearance Model for Related and Unrelated
+   Colours, Color Res. Appl. 16,  146-165 (1991).
 
-8. R.W.G. Hunt, An improved predictor of colourfulness in a model of colour vision, 
-Color Res. Appl. 19 23-33 (1994).
+8. R.W.G. Hunt, An improved predictor of colourfulness in a model of colour
+   vision, Color Res. Appl. 19 23-33 (1994).
 
-9. M.R.Luo, M.C. Lo and W.G. Kuo, The LLAB(l:c) colour model, Color Res. Appl., 21 
-412-429 (1996).
+9. M.R.Luo, M.C. Lo and W.G. Kuo, The LLAB(l:c) colour model, Color Res. Appl.,
+   21 412-429 (1996).
 
-10. J. Morovic and M.R. Luo, Two unsolved issues in colour management � colour 
-appearance and gamut mapping, The 5th International Conference on High Technology 
-on Imaging Science and Technology � Evolution and Promise, Chiba, Japan, 11-14 
-September, (1996). 
+10. J. Morovic and M.R. Luo, Two unsolved issues in colour management - colour
+    appearance and gamut mapping, The 5th International Conference on High
+    Technology on Imaging Science and Technology - Evolution and Promise,
+    Chiba, Japan, 11-14 September, (1996).
 
-11. M.R. Luo and R.W.G. Hunt, Testing colour appearance models using corresponding 
-colour and magnitude estimation data sets, Proceedings of the CIE Expert Symposium '97 
-Colour Standards for Image Technology, CIE Publ. No. x000, Central Bureau of the CIE, 
-Vienna, 000-000 (1997).
+11. M.R. Luo and R.W.G. Hunt, Testing colour appearance models using
+    corresponding colour and magnitude estimation data sets, Proceedings of the
+    CIE Expert Symposium '97 Colour Standards for Image Technology, CIE Publ.
+    No. x000, Central Bureau of the CIE, Vienna, 000-000 (1997).
 
-12. R.W.G. Hunt and M.R. Luo, The structure of the CIE 1997 Colour Appearance 
-Model (CIECAM97S),   Proceedings of the CIE Expert Symposium '97 Colour Standards 
-for Image Technology, CIE Publ. No. x000, Central Bureau of the CIE, Vienna, 000-000 
-(1997).
+12. R.W.G. Hunt and M.R. Luo, The structure of the CIE 1997 Colour Appearance
+    Model (CIECAM97S),   Proceedings of the CIE Expert Symposium '97 Colour
+    Standards for Image Technology, CIE Publ. No. x000, Central Bureau of the
+    CIE, Vienna, 000-000 (1997).
