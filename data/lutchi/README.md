@@ -157,76 +157,67 @@ results.
 
 #### Table IIb Normalised tristimulus values (Xo Yo Zo) for each phase
 
-Group		Phase	File Name	File Name	No. of 	
-			Visual		Colorimetric	Samples	Xo	Yo	Zo
-
-R-HL		1	nlmean.wh	cold50wnl	105	97.13  	100.00	76.62
-		2	nlmean.bh	cold50gb	105	97.09  	100.00	83.10
-		3	nlmean.gh	cold50gb	105	97.09  	100.00	83.10	
-		4	nld65.gh	cold65		105	94.52  	100.00	114.98
-		5	nlwf.gh		colwf		105	102.50 	100.00	47.93
-		6	nla.gh		colah		105	112.92 	100.00	28.62
-
-R-LL		1	nlmean.wl	cold50wnl	105	97.13  	100.00	76.62
-		2	nlmean.bl	cold50gb	105	97.09  	100.00	83.10
-		3	nlmean.gl	cold50gb	105	97.09  	100.00	83.10	
-		4	nld65.gl	cold65		105	94.52  	100.00	114.98
-		5	nlwf.gl		colwf		105	102.50 	100.00	47.93
-		6	nla.gl		colal		105	117.26 	100.00	22.44
-
-R-VL		1	mean4.p1	col.rf.p1	40	94.04  	100.00 	76.29
-		2	mean4.p2	col.rf.p2	40	93.04   100.00 	72.24
-		3	mean4.p3	col.rf.p3	40	93.94   100.00 	73.51
-		4	mean4.p4	col.rf.p4	40	93.44   100.00 	72.49
-		5	mean4.p5	col.rf.p5	40	92.22   100.00 	70.12
-		6	mean4.p6	col.rf.p6	40	90.56  	100.00 	58.59
-		7	mean4.p7	col.rf.p1	40	94.04  	100.00 	76.29
-		8	mean4.p8	col.rf.p2	40	93.04  	100.00 	72.24
-		9	mean4.p9	col.rf.p3	40	93.94  	100.00 	73.51
-		10	mean4.p10	col.rf.p4	40	93.44  	100.00 	72.49
-		11	mean4.p11	col.rf.p5	40	92.22  	100.00 	70.12
-		12	mean4.p12	col.rf.p6	40	90.56  	100.00 	58.59
-	
-R-textile	1	kuo.d65.vis	kuo.d65.col	240	96.46  	100.00 	108.62
-		2	kuo.tl84.vis	kuo.tl84.col	239	103.07 	100.00	64.29
-		3	kuo.a.vis	kuo.a.col	239	115.19 	100.00	23.75
-
-
-CRT		1	lmean.ww	cold50wl	94	97.13	100.00	76.62
-		2	lmean.bb	cold50gbl	100	97.13	100.00	76.62
-		3	lmean.gg	cold50gbl	100	97.13	100.00	76.62
-		4	lmean.gw	cold50gbl	100	97.13	100.00	76.62
-		5	lmean.gb	cold50gbl	100	97.13	100.00	76.62
-		6	ld65.gg		cold65.l	103	94.52  	100.00	114.98
-		7	ld65.gw		cold65.l	103	94.52  	100.00	114.98
-		8	lwf.gg		colwf.l		103	102.50 	100.00	47.93
-		9	lwf.gw		colwf.l		103	102.50 	100.00	47.93
-		10	la.gg		cola.l		61	117.26 	100.00	22.44
-		11	la.gw		cola.l		61	117.26 	100.00	22.44
-
-35mm		1	mean.35.p1	col.35.p1	99	92.90  	100.00	46.10
-		2	mean.35.p2	col.35.p2	99	86.71  	100.00  75.49
-		3	mean.35.p3	col.35.p3	99	92.57  	100.00  45.47
-		4	mean.35.p4	col.35.p1	99	92.90  	100.00  46.10
-		5	mean.35.p5	col.35.p5	95	93.80  	100.00 	52.39
-		6	mean.35.p6	col.35.p6	36	95.32  	100.00  53.37
-
-LT		1	mean.p1		col.p1		98	93.09  	100.00  62.02
-		2	mean.p2		col.p2		98	93.23  	100.00  61.15
-		3	mean.p3		col.p3		98	92.36  	100.00  59.91
-		4	mean.p4		col.p4		98	93.05  	100.00  58.58
-		5	mean.p5t	col.p5t		97	93.30  	100.00 	59.54
-		6	mean.p6t	col.p6t		94	93.20  	100.00  60.48
-		7	mean.p7t	col.p7t		93	92.43  	100.00  59.21
-		8	mean.p8		col.p8		98	93.34  	100.00  57.98 
-		9	mean.p10	col.p10		98	93.34  	100.00  57.98 	
-		10	mean.p1t	col.p1t		94	93.34  	100.00  57.98 	
-
-BIT		1	BIT.p1.vis	BIT.p1.col	120	100.60	100.00	113.20	
-		2	BIT.p2.vis	BIT.p2.col	120	100.60	100.00	113.20		
-		3	BIT.p3.vis	BIT.p3.col	120	100.60	100.00	113.20	
-		4	BIT.p4.vis	BIT.p4.col	90	100.60	100.00	113.20	
-		5	BIT.p5.vis	BIT.p5.col	90	100.60	100.00	113.20	
+| Group     | Phase | File Name | File Name    | No. of Visual Colorimetric  Samples | Xo | Yo | Zo |
+| --------- | -- | ------------ | ------------ | --- | ------ | ------ | ----- |
+| R-HL      | 1  | nlmean.wh    | cold50wnl    | 105 | 97.13  | 100.00 | 76.62 |
+|           | 2  | nlmean.bh    | cold50gb     | 105 | 97.09  | 100.00 | 83.10 |
+|           | 3  | nlmean.gh    | cold50gb     | 105 | 97.09  | 100.00 | 83.10 |
+|           | 4  | nld65.gh     | cold65       | 105 | 94.52  | 100.00 | 114.98 |
+|           | 5  | nlwf.gh      | colwf        | 105 | 102.50 | 100.00 | 47.93 |
+|           | 6  | nla.gh       | colah        | 105 | 112.92 | 100.00 | 28.62 |
+| R-LL      | 1  | nlmean.wl    | cold50wnl    | 105 | 97.13  | 100.00 | 76.62 |
+|           | 2  | nlmean.bl    | cold50gb     | 105 | 97.09  | 100.00 | 83.10 |
+|           | 3  | nlmean.gl    | cold50gb     | 105 | 97.09  | 100.00 | 83.10 |
+|           | 4  | nld65.gl     | cold65       | 105 | 94.52  | 100.00 | 114.98 |
+|           | 5  | nlwf.gl      | colwf        | 105 | 102.50 | 100.00 | 47.93 |
+|           | 6  | nla.gl       | colal        | 105 | 117.26 | 100.00 | 22.44 |
+| R-VL      | 1  | mean4.p1     | col.rf.p1    | 40  | 94.04  | 100.00 | 76.29 |
+|           | 2  | mean4.p2     | col.rf.p2    | 40  | 93.04  | 100.00 | 72.24 |
+|           | 3  | mean4.p3     | col.rf.p3    | 40  | 93.94  | 100.00 | 73.51 |
+|           | 4  | mean4.p4     | col.rf.p4    | 40  | 93.44  | 100.00 | 72.49 |
+|           | 5  | mean4.p5     | col.rf.p5    | 40  | 92.22  | 100.00 | 70.12 |
+|           | 6  | mean4.p6     | col.rf.p6    | 40  | 90.56  | 100.00 | 58.59 |
+|           | 7  | mean4.p7     | col.rf.p1    | 40  | 94.04  | 100.00 | 76.29 |
+|           | 8  | mean4.p8     | col.rf.p2    | 40  | 93.04  | 100.00 | 72.24 |
+|           | 9  | mean4.p9     | col.rf.p3    | 40  | 93.94  | 100.00 | 73.51 |
+|           | 10 | mean4.p10    | col.rf.p4    | 40  | 93.44  | 100.00 | 72.49 |
+|           | 11 | mean4.p11    | col.rf.p5    | 40  | 92.22  | 100.00 | 70.12 |
+|           | 12 | mean4.p12    | col.rf.p6    | 40  | 90.56  | 100.00 | 58.59 |
+| R-textile | 1  | kuo.d65.vis  | kuo.d65.col  | 240 | 96.46  | 100.00 | 108.62 |
+|           | 2  | kuo.tl84.vis | kuo.tl84.col | 239 | 103.07 | 100.00 | 64.29 |
+|           | 3  | kuo.a.vis    | kuo.a.col    | 239 | 115.19 | 100.00 | 23.75 |
+| CRT       | 1  | lmean.ww     | cold50wl     | 94  | 97.13  | 100.00 | 76.62 |
+|           | 2  | lmean.bb     | cold50gbl    | 100 | 97.13  | 100.00 | 76.62 |
+|           | 3  | lmean.gg     | cold50gbl    | 100 | 97.13  | 100.00 | 76.62 |
+|           | 4  | lmean.gw     | cold50gbl    | 100 | 97.13  | 100.00 | 76.62 |
+|           | 5  | lmean.gb     | cold50gbl    | 100 | 97.13  | 100.00 | 76.62 |
+|           | 6  | ld65.gg      | cold65.l     | 103 | 94.52  | 100.00 | 114.98 |
+|           | 7  | ld65.gw      | cold65.l     | 103 | 94.52  | 100.00 | 114.98 |
+|           | 8  | lwf.gg       | colwf.l      | 103 | 102.50 | 100.00 | 47.93 |
+|           | 9  | lwf.gw       | colwf.l      | 103 | 102.50 | 100.00 | 47.93 |
+|           | 10 | la.gg        | cola.l       | 61  | 117.26 | 100.00 | 22.44 |
+|           | 11 | la.gw        | cola.l       | 61  | 117.26 | 100.00 | 22.44 |
+| 35mm      | 1  | mean.35.p1   | col.35.p1    | 99  | 92.90  | 100.00 | 46.10 |
+|           | 2  | mean.35.p2   | col.35.p2    | 99  | 86.71  | 100.00 | 75.49 |
+|           | 3  | mean.35.p3   | col.35.p3    | 99  | 92.57  | 100.00 | 45.47 |
+|           | 4  | mean.35.p4   | col.35.p1    | 99  | 92.90  | 100.00 | 46.10 |
+|           | 5  | mean.35.p5   | col.35.p5    | 95  | 93.80  | 100.00 | 52.39 |
+|           | 6  | mean.35.p6   | col.35.p6    | 36  | 95.32  | 100.00 | 53.37 |
+| LT        | 1  | mean.p1      | col.p1       | 98  | 93.09  | 100.00 | 62.02 |
+|           | 2  | mean.p2      | col.p2       | 98  | 93.23  | 100.00 | 61.15 |
+|           | 3  | mean.p3      | col.p3       | 98  | 92.36  | 100.00 | 59.91 |
+|           | 4  | mean.p4      | col.p4       | 98  | 93.05  | 100.00 | 58.58 |
+|           | 5  | mean.p5t     | col.p5t      | 97  | 93.30  | 100.00 | 59.54 |
+|           | 6  | mean.p6t     | col.p6t      | 94  | 93.20  | 100.00 | 60.48 |
+|           | 7  | mean.p7t     | col.p7t      | 93  | 92.43  | 100.00 | 59.21 |
+|           | 8  | mean.p8      | col.p8       | 98  | 93.34  | 100.00 | 57.98 |
+|           | 9  | mean.p10     | col.p10      | 98  | 93.34  | 100.00 | 57.98 |
+|           | 10 | mean.p1t     | col.p1t      | 94  | 93.34  | 100.00 | 57.98 |
+| BIT       | 1  | BIT.p1.vis   | BIT.p1.col   | 120 | 100.60 | 100.00 | 113.20 |
+|           | 2  | BIT.p2.vis   | BIT.p2.col   | 120 | 100.60 | 100.00 | 113.20 |
+|           | 3  | BIT.p3.vis   | BIT.p3.col   | 120 | 100.60 | 100.00 | 113.20 |
+|           | 4  | BIT.p4.vis   | BIT.p4.col   | 90  | 100.60 | 100.00 | 113.20 |
+|           | 5  | BIT.p5.vis   | BIT.p5.col   | 90  | 100.60 | 100.00 | 113.20 |
 
 An agreement was reached between members of the consortium to make the data
 available in May 1997.  The data can be publicly accessed from the Internet web
