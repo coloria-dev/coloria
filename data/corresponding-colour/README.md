@@ -91,7 +91,7 @@ for each sample.
 #### Table I: Summary of the corresponding-colour data sets
 Experimental conditions
 
-| Data Set | No. of Phases | No. of Samples | Illuminant Test | I. Ref | Illuminance (lux) | Background (Y%) | Sample Size | Medium | Experimental Method |
+| Data Set | No. of Phases | No. of Samples | Illuminant Test | Illuminant Ref | Illuminance (lux) | Background (Y%) | Sample Size | Medium | Experimental Method |
 | ----------------- | - | --- | -------- | ------------- | ------- | -- | - | ----------- | ----------- |
 | CSAJ-C            | 1 | 87  | D65      | A             | 1000    | 20 | S | Refl.       | Haploscopic |
 | CSAJ-Hunt         | 4 | 20  | D65      | D65           | 10-3000 | 20 | S | Refl.       | Haploscopic |
