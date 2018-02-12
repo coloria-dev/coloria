@@ -3,3 +3,7 @@
 * Ebner F, Fairchild MD. Finding constant hue surfaces in color space,
   Proceedings of SPIE 3300, 1998;3300:107-117, <https://doi.org/10.1117/12.298269>.
   Emailed <ebner@ocnmc.xerox.com>, <mdf@cis.rit.edu> (2018-02-12).
+
+* Yue Qiao, Roy S. Berns, Lisa Reniff, Ethan Montag,
+  Visual determination of hue suprathreshold color-difference tolerances.
+  Emailed <berns@cis.rit.edu> (2018-02-12).
