@@ -1,3 +1,23 @@
+# Data from
+#
+# David L. MacAdam,
+# Visual Sensitivities to Color Differences in Daylight,
+# Journal of the Optional Society of America,
+# Volume 32, May, 1942, Number 5,
+# <https://doi.org/10.1364/JOSA.32.000247>.
+#
+# TABLE II. Standard deviations of color matching.
+#
+# 0 degree filter number;
+# 90 degree filter number;
+# theta degree average setting;
+# delta theta degree standard deviation;
+# average chromaticity x;
+# average chromaticity y;
+# Distance from 0 degree point = s;
+# delta s standard deviation;
+# delta y / delta x;
+#
 4 23 83.8 0.239 0.286 0.286 0.294 0.00271 1.94
 4 23 79.1 0.256 0.259 0.233 0.232 0.00370 1.94
 4 23 79.1 0.230 0.259 0.233 0.232 0.00332 1.94

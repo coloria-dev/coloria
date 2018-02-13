@@ -1,4 +1,13 @@
-# Reference colors
+# Data from
+#
+# Po-Chieh Hung, Roy S. Berns,
+# Determination of Constant Hue Loci for a CRT Gamut and Their Predictions Using
+# Color Appearance Spaces,
+# Color Research and Application, Volume 20, Issue 5 October 1995, Pages
+# 285–295,
+# <https://doi.org/10.1002/col.5080200506>.
+#
+# TABLE I. Reference colors.
 # Name       x      y       Y     huv   C*uv  L*     u*     v*
 Red          0.6195 0.3516  30.90 17.7  181.9  62.4  173.3   55.3
 Red-yellow   0.4961 0.4464  61.38 50.9  116.9  82.6   73.7   90.7

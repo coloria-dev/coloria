@@ -1,3 +1,13 @@
+# Data from
+#
+# David L. MacAdam,
+# Visual Sensitivities to Color Differences in Daylight,
+# Journal of the Optional Society of America,
+# Volume 32, May, 1942, Number 5,
+# <https://doi.org/10.1364/JOSA.32.000247>.
+#
+# TABLE I. Filters for chromaticity instrument (in Illuminant A).
+#
 # i   X       Y       Z
 4   0.00280 0.08855 0.10775
 6   0.00265 0.00066 0.00390

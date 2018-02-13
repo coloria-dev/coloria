@@ -1,4 +1,20 @@
-i  {Yellow, Grey, Green, Red, Blue}{x10 y10 Y10}
+# Data from
+#
+# Klaus Witt,
+# Geometric relations between scales of small colour differences,
+# Color Research and Application, Volume 24, Issue 2, April 1999, Pages 78–92,
+# <https://doi.org/10.1002/(SICI)1520-6378(199904)24:2<78::AID-COL3>3.0.CO;2-M>.
+#
+# TABLE A-I. Colorimetric data for measuring geometry 45/0, supplementary
+# standard colorimetric observer CIE 1964, standard illuminant D65.
+#
+# No.;
+# Yellow: x10, y10, Y10;
+# Grey: x10, y10, Y10;
+# Green: x10, y10, Y10;
+# Red: x10, y10, Y10;
+# Blue: x10, y10, Y10;
+#
 0  .3867 .4275 69.53 .3142 .3310 31.17 .2510 .3629 24.06 .4832 .3426 14.24 .2177 .2144 8.77
 1  .3879 .4294 69.51 .3152 .3321 31.14 .2502 .3639 24.19 .4859 .3425 14.23 .2169 .2129 8.77
 2  .3898 .4313 69.62 .3159 .3339 31.14 .2494 .3654 24.22 .4887 .3432 14.23 .2161 .2111 8.79

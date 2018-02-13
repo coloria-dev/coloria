@@ -1,4 +1,20 @@
-i  j   {Yellow, Grey, Green, Red, Blue}{Mean Sigma}
+# Data from
+#
+# Klaus Witt,
+# Geometric relations between scales of small colour differences,
+# Color Research and Application, Volume 24, Issue 2, April 1999, Pages 78–92,
+# <https://doi.org/10.1002/(SICI)1520-6378(199904)24:2<78::AID-COL3>3.0.CO;2-M>.
+#
+# TABLE A-II. Visual scales on sample pairs: scale value 2=0.88\delta{L*} of
+# grey scale. mean = average for all observers; sigma = standard deviation.
+#
+# Pair: No., No.;
+# Yellow: mean, sigma;
+# Grey: mean, sigma;
+# Green: mean, sigma;
+# Red: mean, sigma;
+# Blue: mean, sigma;
+#
 0  1   1.33 0.504  1.81 0.487  0.69 0.375  0.57 0.468  0.58 0.383
 0  2   2.01 0.544  2.27 0.544  0.97 0.414  1.13 0.496  0.77 0.408
 0  3   2.63 0.745  3.38 0.727  1.13 0.507  1.90 0.621  0.84 0.353
