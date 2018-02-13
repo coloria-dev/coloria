@@ -111,13 +111,6 @@ def performance_comparison_to():
     Y_b = 20
     L_A = 64 / numpy.pi / 5
 
-    def setup(n):
-        rgb = numpy.random.rand(3)
-        out = numpy.empty((3, n))
-        for k in range(3):
-            out[k] = rgb[k]
-        return out
-
     c = 0.69  # average
     cam16 = colorio.CAM16(c, Y_b, L_A)
 
@@ -130,12 +123,11 @@ def performance_comparison_to():
         return cam16_legacy.to_xyz100(x, 'JCh')
 
     perfplot.show(
-        setup=setup,
+        setup=lambda n: numpy.random.rand(3, n),
         kernels=[
             cio, cio_legacy
             ],
         n_range=10000 * numpy.arange(11),
-        equality_check=False,
         xlabel='Number of input samples'
         )
 
