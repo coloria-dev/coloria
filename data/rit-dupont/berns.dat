@@ -1,4 +1,9 @@
-# Data from <https://doi.org/10.1002/col.5080160505> (Table 4).
+# Data from Table 4 in
+#
+# Berns et al.,
+# Visual determination of suprathreshold color-difference tolerances using
+# probit analysis,
+# <https://doi.org/10.1002/col.5080160505>.
 #
 # Color center (first two columns);
 # Tolerance estimates (T50, LFL, UFL, S, P:CHISQ);
