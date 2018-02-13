@@ -7,3 +7,7 @@
 * Yue Qiao, Roy S. Berns, Lisa Reniff, Ethan Montag,
   Visual determination of hue suprathreshold color-difference tolerances.
   Emailed <berns@cis.rit.edu> (2018-02-12).
+
+* Dong-Ho Kim, Eun Kyoung Cho, Jae Pil Kim,
+  Evaluation of CIELAB-based colour-difference formulae using a new dataset.
+  Emailed <donghokim@korea.com> (2018-02-13).
