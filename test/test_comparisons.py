@@ -134,7 +134,7 @@ def performance_comparison_to():
         kernels=[
             cio, cio_legacy
             ],
-        n_range=1000 * numpy.arange(11),
+        n_range=10000 * numpy.arange(11),
         equality_check=False,
         xlabel='Number of input samples'
         )
@@ -145,5 +145,5 @@ def performance_comparison_to():
 
 
 if __name__ == '__main__':
-    performance_comparison_from()
+    performance_comparison_to()
     # test_0()

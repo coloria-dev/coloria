@@ -10,10 +10,7 @@ from colorio.linalg import dot, solve
 
 class CAM16Legacy(object):
     '''
-    Li C, Li Z, Wang Z, et al.,
-    Comprehensive color solutions: CAM16, CAT16, and CAM16-UCS.
-    Color Res Appl. 2017;00:1–12.
-    <https://doi.org/10.1002/col.22131>.
+    Legacy CAM16 implementation for comparison purposes.
     '''
     # pylint: disable=too-many-instance-attributes, too-many-arguments
     def __init__(self, c, Y_b, L_A, exact_inversion=True,
@@ -133,28 +130,16 @@ class CAM16Legacy(object):
             Q = data[0]
             J = 6.25 * (self.c*Q / (self.A_w+4) / self.F_L**0.25)**2
 
-        # Step 1–2: Calculate t from C, M, or s
-        if description[1] in ['C', 'M']:
-            if description[1] == 'M':
-                M = data[1]
-                C = M / self.F_L**0.25
-            else:
-                C = data[1]
-
-            # If C or M is given and equal 0, the value of `t` cannot
-            # algebraically deduced just by C or M. However, from other
-            # considerations we know that it must be 0. Hence, allow division
-            # by 0 and set nans to 0 afterwards.
-            with numpy.errstate(invalid='ignore'):
-                alpha = C / numpy.sqrt(J/100)
-            alpha = numpy.nan_to_num(alpha)
+        # Step 1–2: Calculate C from M or s
+        if description[1] == 'C':
+            C = data[1]
+        elif description[1] == 'M':
+            M = data[1]
+            C = M / self.F_L**0.25
         else:
             assert description[1] == 's'
             s = data[1]
             C = (s/100)**2 * Q / self.F_L**0.25
-            alpha = (s/50)**2 * (self.A_w+4) / self.c
-
-        t = (alpha / (1.64 - 0.29**self.n)**0.73)**(1/0.9)
 
         if description[2] == 'h':
             h = data[2]
@@ -170,20 +155,49 @@ class CAM16Legacy(object):
                 / ((H - Hi) * (ei1 - ei) - 100*ei1)
             h = numpy.mod(h_, 360)
 
+        h = numpy.deg2rad(h)
+
         # Step 2: Calculate t, et , p1, p2 and p3
-        e_t = 0.25 * (numpy.cos(h*numpy.pi/180 + 2) + 3.8)
         A = self.A_w * (J/100)**(1/self.c/self.z)
 
-        p2 = A / self.N_bb + 0.305
-
         # Step 3: Calculate a and b
-        # ENH Much more straightforward computation of a, b
-        p1_ = e_t * 50000/13 * self.N_c * self.N_cb
-        sinh = numpy.sin(h * numpy.pi / 180)
-        cosh = numpy.cos(h * numpy.pi / 180)
-        a, b = numpy.array([cosh, sinh]) * (
-            23 * p2 * t / (23*p1_ + 11*t*cosh + 108*t*sinh)
+        t = (C / numpy.sqrt(J/100) / (1.64 - 0.29**self.n)**0.73)**(1/0.9)
+        e_t = 0.25 * (numpy.cos(h + 2) + 3.8)
+
+        one_over_t = 1 / t
+        one_over_t = numpy.select(
+            [numpy.isnan(one_over_t), True], [numpy.inf, one_over_t]
             )
+
+        p1 = (50000. / 13) * self.N_c * self.N_cb * e_t * one_over_t
+        p2 = A / self.N_bb + 0.305
+        p3 = 21 / 20
+
+        sin_h = numpy.sin(h)
+        cos_h = numpy.cos(h)
+
+        num = p2 * (2 + p3) * (460. / 1403)
+        denom_part2 = (2 + p3) * (220. / 1403)
+        denom_part3 = (-27. / 1403) + p3 * (6300. / 1403)
+
+        a = numpy.empty_like(h)
+        b = numpy.empty_like(h)
+
+        small_cos = (numpy.abs(sin_h) >= numpy.abs(cos_h))
+        b[small_cos] = (
+            num[small_cos] / (
+                p1[small_cos] / sin_h[small_cos]
+                + (denom_part2 * cos_h[small_cos] / sin_h[small_cos])
+                + denom_part3
+            ))
+        a[small_cos] = b[small_cos] * cos_h[small_cos] / sin_h[small_cos]
+        a[~small_cos] = (
+                num[~small_cos] / (
+                    p1[~small_cos] / cos_h[~small_cos]
+                    + denom_part2
+                    + (denom_part3 * sin_h[~small_cos] / cos_h[~small_cos])
+                    ))
+        b[~small_cos] = a[~small_cos] * sin_h[~small_cos] / cos_h[~small_cos]
 
         # Step 4: Calculate RGB_a_
         rgb_a_ = dot(numpy.array([
