@@ -80,23 +80,18 @@ class CAM16Legacy(object):
         #         the corresponding cone response space
         rgb_c = (rgb.T * self.D_RGB).T
 
-        rgb_ = rgb_c
-
-        # Step 4: Calculate the post-adaptation cone response (resulting in
+        # Step 3: Calculate the post-adaptation cone response (resulting in
         #         dynamic range compression)
-        alpha = (self.F_L*abs(rgb_)/100)**0.42
-        rgb_a_ = numpy.sign(rgb_) * 400 * alpha / (alpha+27.13) + 0.1
+        alpha = (self.F_L*abs(rgb_c)/100)**0.42
+        rgb_a = numpy.sign(rgb_c) * 400 * alpha / (alpha+27.13) + 0.1
 
-        a = dot(numpy.array([1, -12/11, 1/11]), rgb_a_)
-        b = dot(numpy.array([1/9, 1/9, -2/9]), rgb_a_)
-
-        A = (dot(numpy.array([2, 1, 1/20]), rgb_a_) - 0.305) * self.N_bb
-        assert numpy.all(A >= 0)
-
+        # Step 4
+        a = dot(numpy.array([1, -12/11, 1/11]), rgb_a)
+        b = dot(numpy.array([1/9, 1/9, -2/9]), rgb_a)
         # Make sure that h is in [0, 360]
         h = numpy.rad2deg(numpy.arctan2(b, a)) % 360
 
-        # Step 6: Calculate eccentricity (e_t) and hue composition (H), using
+        # Step 5: Calculate eccentricity (e_t) and hue composition (H), using
         #         the unique hue data given in Table 2.4.
         h_ = (h - self.h[0]) % 360 + self.h[0]
         e_t = (numpy.cos(numpy.deg2rad(h_) + 2) + 3.8) / 4
@@ -104,22 +99,22 @@ class CAM16Legacy(object):
         beta = (h_ - self.h[i]) * self.e[i+1]
         H = self.H[i] + 100 * beta / (beta + self.e[i]*(self.h[i+1] - h_))
 
-        # Step 8: Calculate the correlate of lightness
+        # Step 6
+        A = (dot(numpy.array([2, 1, 1/20]), rgb_a) - 0.305) * self.N_bb
+
+        # Step 7: Calculate the correlate of lightness
         J = 100 * (A/self.A_w)**(self.c*self.z)
 
-        # Step 9: Calculate the correlate of brightness
+        # Step 8: Calculate the correlate of brightness
         sqrt_J_100 = numpy.sqrt(J/100)
         Q = (4/self.c) * sqrt_J_100 * (self.A_w + 4) * self.F_L**0.25
 
-        # Step 10: Calculate the correlates of chroma (C), colourfulness (M)
+        # Step 9: Calculate the correlates of chroma (C), colourfulness (M)
         #          and saturation (s)
         #
-        p1_ = 50000/13 * e_t * self.N_c * self.N_cb
-        t = p1_ * numpy.sqrt(a**2 + b**2) \
-            / dot(numpy.array([1, 1, 21/20]), rgb_a_)
-
+        t = 50000/13 * e_t * self.N_c * self.N_cb * numpy.sqrt(a**2 + b**2) \
+            / dot(numpy.array([1, 1, 21/20]), rgb_a)
         C = t**0.9 * (1.64 - 0.29**self.n)**0.73 * sqrt_J_100
-
         M = C * self.F_L**0.25
         s = 100 * numpy.sqrt(M/Q)
 
@@ -179,8 +174,7 @@ class CAM16Legacy(object):
         e_t = 0.25 * (numpy.cos(h*numpy.pi/180 + 2) + 3.8)
         A = self.A_w * (J/100)**(1/self.c/self.z)
 
-        # no 0.305
-        p2_ = A / self.N_bb
+        p2 = A / self.N_bb + 0.305
 
         # Step 3: Calculate a and b
         # ENH Much more straightforward computation of a, b
@@ -188,7 +182,7 @@ class CAM16Legacy(object):
         sinh = numpy.sin(h * numpy.pi / 180)
         cosh = numpy.cos(h * numpy.pi / 180)
         a, b = numpy.array([cosh, sinh]) * (
-            23 * (p2_+0.305) * t / (23*p1_ + 11*t*cosh + 108*t*sinh)
+            23 * p2 * t / (23*p1_ + 11*t*cosh + 108*t*sinh)
             )
 
         # Step 4: Calculate RGB_a_
@@ -196,11 +190,11 @@ class CAM16Legacy(object):
             [460, 451, 288],
             [460, -891, -261],
             [460, -220, -6300]
-            ]), numpy.array([p2_, a, b])) / 1403
+            ]), numpy.array([p2, a, b])) / 1403
 
         # Step 5: Calculate RGB_
-        rgb_ = numpy.sign(rgb_a_) * 100/self.F_L * (
-            (27.13 * abs(rgb_a_)) / (400 - abs(rgb_a_))
+        rgb_ = numpy.sign(rgb_a_ - 0.1) * 100/self.F_L * (
+            (27.13 * abs(rgb_a_ - 0.1)) / (400 - abs(rgb_a_ - 0.1))
             )**(1/0.42)
 
         rgb_c = rgb_

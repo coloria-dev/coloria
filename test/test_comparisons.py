@@ -86,27 +86,20 @@ def performance_comparison_from():
         return out
 
     Y_b = 20
-    whitepoint = colorio.illuminants.whitepoints_cie1931['D65']
     L_A = 64 / numpy.pi / 5
-    cs1 = colorspacious.ciecam02.CIECAM02Space(
-        whitepoint, Y_b, L_A,
-        surround=colorspacious.CIECAM02Surround.AVERAGE
-        )
-
     c = 0.69  # average
-    cs2 = colorio.CIECAM02(c, Y_b, L_A)
+    cam16 = colorio.CAM16(c, Y_b, L_A)
+
+    cam16_legacy = CAM16Legacy(c, Y_b, L_A)
 
     perfplot.show(
         setup=setup,
         kernels=[
-            lambda x: cs1.XYZ100_to_CIECAM02(x.T),
-            cs2.from_xyz100,
-            lambda x: colour.appearance.ciecam02.XYZ_to_CIECAM02(
-                x.T, whitepoint, L_A, Y_b
-                )
+            cam16.from_xyz100,
+            cam16_legacy.from_xyz100,
             ],
-        labels=['colorspacious', 'colorio', 'colour'],
-        n_range=10000 * numpy.arange(6),
+        labels=['new', 'legacy'],
+        n_range=1000 * numpy.arange(6),
         equality_check=False
         )
     return
@@ -152,5 +145,5 @@ def performance_comparison_to():
 
 
 if __name__ == '__main__':
-    # performance_comparison_to()
-    test_0()
+    performance_comparison_from()
+    # test_0()
