@@ -230,8 +230,8 @@ class CIECAM02(object):
 
         # Merge a bunch of matrices together here.
         self.M_ = numpy.dot(self.M_hpe, numpy.linalg.solve(
-                self.M_cat02, (self.M_cat02.T * self.D_RGB).T
-                ))
+            self.M_cat02, (self.M_cat02.T * self.D_RGB).T
+            ))
         # Alternative: LU decomposition. That introduces a scipy dependency
         # though and lusolve is slower than dot() as well.
         self.invM_ = numpy.linalg.inv(self.M_)

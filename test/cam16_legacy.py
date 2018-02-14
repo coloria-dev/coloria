@@ -117,6 +117,7 @@ class CAM16Legacy(object):
 
         return numpy.array([J, C, H, h, M, s, Q])
 
+    # pylint: disable=too-many-statements
     def to_xyz100(self, data, description):
         '''Input: J or Q; C, M or s; H or h
         '''
@@ -192,11 +193,11 @@ class CAM16Legacy(object):
             ))
         a[small_cos] = b[small_cos] * cos_h[small_cos] / sin_h[small_cos]
         a[~small_cos] = (
-                num[~small_cos] / (
-                    p1[~small_cos] / cos_h[~small_cos]
-                    + denom_part2
-                    + (denom_part3 * sin_h[~small_cos] / cos_h[~small_cos])
-                    ))
+            num[~small_cos] / (
+                p1[~small_cos] / cos_h[~small_cos]
+                + denom_part2
+                + (denom_part3 * sin_h[~small_cos] / cos_h[~small_cos])
+                ))
         b[~small_cos] = a[~small_cos] * sin_h[~small_cos] / cos_h[~small_cos]
 
         # Step 4: Calculate RGB_a_
