@@ -229,16 +229,11 @@ class CIECAM02(object):
         self.H = numpy.array([0.0, 100.0, 200.0, 300.0, 400.0])
 
         # Merge a bunch of matrices together here.
-        D = numpy.diag(self.D_RGB)
-        self.M_hpe_invMcat02_D_Mcat02 = numpy.dot(numpy.dot(
-            numpy.linalg.solve(self.M_cat02.T, self.M_hpe.T).T, D
-            ), self.M_cat02)
-
-        D = numpy.diag(1/self.D_RGB)
-        self.invMcat02_invD_Mcat02_invMhpe = numpy.linalg.solve(
-            self.M_cat02, numpy.dot(
-                D, numpy.dot(self.M_cat02, numpy.linalg.inv(self.M_hpe))
-                ))
+        DM_ = numpy.diag(self.D_RGB) @ self.M_cat02
+        self.M_ = self.M_hpe @ numpy.linalg.solve(self.M_cat02, DM_)
+        # Alternative: LU decomposition. That introduces a scipy dependency
+        # though.
+        self.invM_ = numpy.linalg.inv(self.M_)
         return
 
     def from_xyz100(self, xyz):
@@ -250,7 +245,7 @@ class CIECAM02(object):
         #         included in D; hence, in DR, DG and DB)
         #
         # Step 3: Calculate the Hunt-Pointer-Estevez response
-        rgb_ = dot(self.M_hpe_invMcat02_D_Mcat02, xyz)
+        rgb_ = dot(self.M_, xyz)
 
         # Steps 4-10
         return compute_from(rgb_, self)
@@ -269,7 +264,7 @@ class CIECAM02(object):
         #
         # Step 8: Calculate X, Y and Z
         # xyz = solve(self.M_cat02, rgb)
-        xyz = dot(self.invMcat02_invD_Mcat02_invMhpe, rgb_)
+        xyz = dot(self.invM_, rgb_)
         return xyz
 
 

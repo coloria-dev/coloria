@@ -207,11 +207,9 @@ class CAM16Legacy(object):
             ]), numpy.array([p2, a, b])) / 1403
 
         # Step 5: Calculate RGB_
-        rgb_ = numpy.sign(rgb_a_ - 0.1) * 100/self.F_L * (
+        rgb_c = numpy.sign(rgb_a_ - 0.1) * 100/self.F_L * (
             (27.13 * abs(rgb_a_ - 0.1)) / (400 - abs(rgb_a_ - 0.1))
             )**(1/0.42)
-
-        rgb_c = rgb_
 
         # Step 6: Calculate R, G and B
         rgb = (rgb_c.T / self.D_RGB).T

@@ -122,17 +122,17 @@ def performance_comparison_to():
     def cio_legacy(x):
         return cam16_legacy.to_xyz100(x, 'JCh')
 
-    perfplot.show(
+    perfplot.plot(
         setup=lambda n: numpy.random.rand(3, n),
         kernels=[
             cio, cio_legacy
             ],
-        n_range=10000 * numpy.arange(11),
+        n_range=100000 * numpy.arange(11),
         xlabel='Number of input samples'
         )
 
-    # import matplotlib2tikz
-    # matplotlib2tikz.save('fig.tikz')
+    import matplotlib2tikz
+    matplotlib2tikz.save('fig.tikz')
     return
 
 
