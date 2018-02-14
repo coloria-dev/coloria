@@ -229,10 +229,11 @@ class CIECAM02(object):
         self.H = numpy.array([0.0, 100.0, 200.0, 300.0, 400.0])
 
         # Merge a bunch of matrices together here.
-        DM_ = numpy.diag(self.D_RGB) @ self.M_cat02
-        self.M_ = self.M_hpe @ numpy.linalg.solve(self.M_cat02, DM_)
+        self.M_ = numpy.dot(self.M_hpe, numpy.linalg.solve(
+                self.M_cat02, (self.M_cat02.T * self.D_RGB).T
+                ))
         # Alternative: LU decomposition. That introduces a scipy dependency
-        # though.
+        # though and lusolve is slower than dot() as well.
         self.invM_ = numpy.linalg.inv(self.M_)
         return
 
@@ -264,8 +265,7 @@ class CIECAM02(object):
         #
         # Step 8: Calculate X, Y and Z
         # xyz = solve(self.M_cat02, rgb)
-        xyz = dot(self.invM_, rgb_)
-        return xyz
+        return dot(self.invM_, rgb_)
 
 
 class CAM02(object):
