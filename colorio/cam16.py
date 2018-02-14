@@ -6,7 +6,7 @@ import numpy
 
 from .ciecam02 import compute_from, compute_to
 from .illuminants import whitepoints_cie1931
-from .linalg import dot, solve
+from .linalg import dot
 
 
 class CAM16(object):
@@ -37,17 +37,6 @@ class CAM16(object):
             [-0.250268, +1.204414, +0.045854],
             [-0.002079, +0.048952, +0.953127],
             ])
-        # The standard acutally recommends using this approximation as
-        # inversion operation.
-        approx_inv_M16 = numpy.array([
-            [+1.86206786, -1.01125463, +0.14918677],
-            [+0.38752654, +0.62144744, -0.00897398],
-            [-0.01584150, -0.03412294, +1.04996444],
-            ])
-        self.solve_M16 = (
-            (lambda x: solve(self.M16, x)) if exact_inversion else
-            (lambda x: dot(approx_inv_M16, x))
-            )
         RGB_w = numpy.dot(self.M16, whitepoint)
 
         D = F * (1 - 1/3.6 * numpy.exp((-L_A-42)/92))
@@ -72,27 +61,39 @@ class CAM16(object):
         self.h = numpy.array([20.14, 90.00, 164.25, 237.53, 380.14])
         self.e = numpy.array([0.8, 0.7, 1.0, 1.2, 0.8])
         self.H = numpy.array([0.0, 100.0, 200.0, 300.0, 400.0])
+
+        self.M_ = (self.M16.T * self.D_RGB).T
+        # The standard acutally recommends using this approximation as
+        # inversion operation.
+        approx_inv_M16 = numpy.array([
+            [+1.86206786, -1.01125463, +0.14918677],
+            [+0.38752654, +0.62144744, -0.00897398],
+            [-0.01584150, -0.03412294, +1.04996444],
+            ])
+        self.invM_ = (
+            numpy.linalg.inv(self.M_) if exact_inversion else
+            approx_inv_M16 / self.D_RGB
+            )
         return
 
     def from_xyz100(self, xyz):
         # Step 1: Calculate 'cone' responses
-        rgb = dot(self.M16, xyz)
+        # rgb = dot(self.M16, xyz)
         # Step 2: Complete the color adaptation of the illuminant in
         #         the corresponding cone response space
-        rgb_c = (rgb.T * self.D_RGB).T
+        # rgb_c = (rgb.T * self.D_RGB).T
+        rgb_c = dot(self.M_, xyz)
         return compute_from(rgb_c, self)
 
     def to_xyz100(self, data, description):
         '''Input: J or Q; C, M or s; H or h
         '''
         rgb_c = compute_to(data, description, self)
-
         # Step 6: Calculate R, G and B
-        rgb = (rgb_c.T / self.D_RGB).T
-
+        # rgb = (rgb_c.T / self.D_RGB).T
         # Step 7: Calculate X, Y and Z
-        xyz = self.solve_M16(rgb)
-        return xyz
+        # xyz = self.solve_M16(rgb)
+        return dot(self.invM_, rgb_c)
 
 
 class CAM16UCS(object):
