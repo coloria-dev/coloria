@@ -5,7 +5,7 @@ from __future__ import division
 import numpy
 
 from colorio.illuminants import whitepoints_cie1931
-from colorio.linalg import dot, solve
+from colorio.linalg import dot
 
 
 class CAM16Legacy(object):
@@ -40,9 +40,9 @@ class CAM16Legacy(object):
             [+0.38752654, +0.62144744, -0.00897398],
             [-0.01584150, -0.03412294, +1.04996444],
             ])
-        self.solve_M16 = (
-            (lambda x: solve(self.M16, x)) if exact_inversion else
-            (lambda x: dot(approx_inv_M16, x))
+        self.invM16 = (
+            numpy.linalg.inv(self.M16) if exact_inversion else
+            approx_inv_M16
             )
         RGB_w = numpy.dot(self.M16, whitepoint)
 
@@ -215,5 +215,5 @@ class CAM16Legacy(object):
         rgb = (rgb_c.T / self.D_RGB).T
 
         # Step 7: Calculate X, Y and Z
-        xyz = self.solve_M16(rgb)
+        xyz = dot(self.invM16, rgb)
         return xyz
