@@ -3,7 +3,6 @@
 from __future__ import division
 
 import numpy
-import scipy
 
 from .illuminants import whitepoints_cie1931
 from .linalg import dot
@@ -230,10 +229,11 @@ class CIECAM02(object):
         self.H = numpy.array([0.0, 100.0, 200.0, 300.0, 400.0])
 
         # Merge a bunch of matrices together here.
-        self.M_ = numpy.dot(self.M_hpe, numpy.linalg.solve(
-                self.M_cat02, (self.M_cat02.T * self.D_RGB).T
-                ))
-        self.PLU = scipy.linalg.lu_factor(self.M_)
+        DM_ = numpy.diag(self.D_RGB) @ self.M_cat02
+        self.M_ = self.M_hpe @ numpy.linalg.solve(self.M_cat02, DM_)
+        # Alternative: LU decomposition. That introduces a scipy dependency
+        # though.
+        self.invM_ = numpy.linalg.inv(self.M_)
         return
 
     def from_xyz100(self, xyz):
@@ -264,7 +264,7 @@ class CIECAM02(object):
         #
         # Step 8: Calculate X, Y and Z
         # xyz = solve(self.M_cat02, rgb)
-        xyz = scipy.linalg.lu_solve(self.PLU, rgb_)
+        xyz = dot(self.invM_, rgb_)
         return xyz
 
 

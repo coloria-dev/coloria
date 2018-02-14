@@ -36,7 +36,6 @@ setup(
         'meshio',
         'meshzoo',
         'numpy',
-        'scipy',
         ],
     description='tools for color models',
     long_description=read('README.rst'),
