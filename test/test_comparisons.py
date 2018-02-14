@@ -131,8 +131,8 @@ def performance_comparison_to():
         xlabel='Number of input samples'
         )
 
-    import matplotlib2tikz
-    matplotlib2tikz.save('fig.tikz')
+    # import matplotlib2tikz
+    # matplotlib2tikz.save('fig.tikz')
     return
 
 
