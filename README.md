@@ -7,6 +7,7 @@ Tools for color models.
 [![Codacy grade](https://img.shields.io/codacy/grade/b23fbc2af9884315bd7d6275aa2629b6.svg)](https://app.codacy.com/app/nschloe/colorio/dashboard)
 [![awesome](https://img.shields.io/badge/awesome-yes-brightgreen.svg)](https://github.com/nschloe/colorio)
 [![PyPi Version](https://img.shields.io/pypi/v/colorio.svg)](https://pypi.python.org/pypi/colorio)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1172995.svg)](https://doi.org/10.5281/zenodo.1172995)
 [![GitHub stars](https://img.shields.io/github/stars/nschloe/colorio.svg?style=social&label=Stars)](https://github.com/nschloe/colorio)
 
 All methods in colorio are fully vectorized.
