@@ -237,7 +237,6 @@ def show_ebner_fairchild(colorspace):
 
 def show_hung_berns(colorspace):
     dir_path = os.path.dirname(os.path.realpath(__file__))
-
     with open(os.path.join(dir_path, 'data/hung-berns/table3.yaml')) as f:
         data = yaml.safe_load(f)
 
@@ -245,13 +244,19 @@ def show_hung_berns(colorspace):
     d = colorspace.from_xyz100(numpy.array(whitepoints_cie1931['C']))
     plt.plot(d[1], d[2], '.k')
 
+    srgb = SrgbLinear()
     for color_name in data.keys():
         dat = data[color_name]
         xyz = numpy.array(list(dat.values())).T
         d = colorspace.from_xyz100(xyz)
+
         # Deliberatly only handle the two last components, e.g., a* b* from
         # L*a*b*. They typically indicate the chroma.
-        plt.plot(d[1], d[2], 'o-', color='k')
+        # Plot the lines in black first, then the individual points.
+        plt.plot(d[1], d[2], '-', color='k')
+        for dd, rgb in zip(d.T, srgb.from_xyz100(xyz).T):
+            col = rgb if numpy.all(rgb >= 0) and numpy.all(rgb <= 1) else 'k'
+            plt.plot(dd[1], dd[2], 'o', color=col)
 
     plt.axis('equal')
     plt.show()

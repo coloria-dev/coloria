@@ -17,7 +17,7 @@ class SrgbLinear(object):
             [0.30, 0.60, 0.7152],
             [0.15, 0.06, 0.0722],
             ])
-        self.invM = XYY().to_xyz100(primaries_xyy.T) / 100
+        self.invM = XYY().to_xyz100(primaries_xyy.T)
         # numpy.linalg.inv(self.invM) is the matrix in the spec:
         # self.M = numpy.array([
         #     [+3.2406255, -1.537208, -0.4986286],
