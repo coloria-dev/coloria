@@ -6,6 +6,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy
 from scipy.spatial import ConvexHull
+import yaml
 
 from .illuminants import spectrum_to_xyz100, planckian_radiator
 from .rec2020 import Rec2020
@@ -204,4 +205,27 @@ def plot_gamut_diagram():
     plt.legend()
     plt.xlabel('x')
     plt.ylabel('y')
+    return
+
+
+def show_ebner_fairchild(colorspace):
+    with open('data/ebner_fairchild.yaml') as f:
+        data = yaml.safe_load(f)
+
+    srgb = SrgbLinear()
+
+    # show white point
+    d = colorspace.from_xyz100(data['white point'])
+    plt.plot(d[1], d[2], '.k')
+
+    for item in data['data']:
+        rgb = srgb.to_srgb1(srgb.from_xyz100(item['reference xyz']))
+        xyz = numpy.array(item['same']).T
+        d = colorspace.from_xyz100(xyz)
+        # Deliberatly only handle the two last components, e.g., a* b* from
+        # L*a*b*. They typically indicate the chroma.
+        plt.plot(d[1], d[2], 'o-', color=rgb)
+
+    plt.axis('equal')
+    plt.show()
     return

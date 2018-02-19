@@ -8,7 +8,7 @@
 #
 # Retrieved from <http://www.rit-mcsl.org/fairchild/CAM.html>.
 #
-white Point: [95.01, 100.00, 108.81]
+white point: [95.01, 100.00, 108.81]
 
 data:
   - reference hue angle: 0
