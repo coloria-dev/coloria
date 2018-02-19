@@ -17,7 +17,7 @@ def compute_from(rgb_, cs):
     rgb_a_ = numpy.sign(rgb_) * 400 * alpha / (alpha+27.13)  # + 0.1
 
     # Mix steps 5, 7, and part of step 10 here in one big dot-product.
-    # Step 5: Calculate Redness–Greenness (a) , Yellowness–Blueness (b)
+    # Step 5: Calculate Redness-Greenness (a) , Yellowness-Blueness (b)
     #         components and hue angle (h)
     # Step 7: Calculate achromatic response A
     a, b, p2_, u = dot(numpy.array([
@@ -72,12 +72,12 @@ def compute_to(data, description, cs):
         # Q perhaps needed for C
         Q = (4/cs.c) * numpy.sqrt(J/100) * (cs.A_w+4) * cs.F_L**0.25
     else:
-        # Step 1–1: Compute J from Q (if start from Q)
+        # Step 1-1: Compute J from Q (if start from Q)
         assert description[0] == 'Q'
         Q = data[0]
         J = 6.25 * (cs.c*Q / (cs.A_w+4) / cs.F_L**0.25)**2
 
-    # Step 1–2: Calculate t from C, M, or s
+    # Step 1-2: Calculate t from C, M, or s
     if description[1] in ['C', 'M']:
         if description[1] == 'M':
             M = data[1]
@@ -104,7 +104,7 @@ def compute_to(data, description, cs):
         h = data[2]
     else:
         assert description[2] == 'H'
-        # Step 1–3: Calculate h from H (if start from H)
+        # Step 1-3: Calculate h from H (if start from H)
         H = data[2]
         i = numpy.searchsorted(cs.H, H) - 1
         Hi = cs.H[i]

@@ -10,7 +10,7 @@
 
 * D.H. Kim, J.H. Nobbs,
   New weighting functions for the weighted CIELAB colour-difference formulae.
-  Proc 8th Cong AIC Colour 97, Kyoto 1997;I:446–449.
+  Proc 8th Cong AIC Colour 97, Kyoto 1997;I:446-449.
   "Leeds dataset".
 
 * Kaida Xiao, Sophie Wuerger, Chenyang Fu, Dimosthenis Karatzas,
@@ -34,22 +34,22 @@
      Balonon-Rosen,
      Visual determination of suprathreshold color-difference tolerances using
      probit analysis,
-     Color Res. Appl. 16(5), 297–316 (1991).
+     Color Res. Appl. 16(5), 297-316 (1991).
 
   * Witt [30] (418 pairs of samples)
 
      K. Witt,
      Geometric relations between scales of small colour differences,
-     Color Res. Appl. 24(2), 78–92 (1999).
+     Color Res. Appl. 24(2), 78-92 (1999).
 
   * Leeds [31] (307 pairs of samples)
 
      D.H. Kim and J.H. Nobbs,
      New weighting functions for the weighted CIELAB colour difference formula,
-     in Proceedings of the AIC Colour, (AIC, 1997), pp. 446–449.
+     in Proceedings of the AIC Colour, (AIC, 1997), pp. 446-449.
 
   * BFD [32] (2776 pairs of samples)
 
      M.R. Luo and B. Rigg,
      Chromaticity-discrimination ellipses for surface colours,
-     Color Res. Appl. 11(1), 25–42 (1986).
+     Color Res. Appl. 11(1), 25-42 (1986).

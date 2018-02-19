@@ -13,7 +13,7 @@ class CAM16(object):
     '''
     Li C, Li Z, Wang Z, et al.,
     Comprehensive color solutions: CAM16, CAT16, and CAM16-UCS.
-    Color Res Appl. 2017;00:1–12.
+    Color Res Appl. 2017;00:1-12.
     <https://doi.org/10.1002/col.22131>.
     '''
     # pylint: disable=too-many-instance-attributes, too-many-arguments
