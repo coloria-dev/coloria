@@ -2,6 +2,8 @@
 #
 from __future__ import division
 
+import os
+
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy
@@ -209,15 +211,15 @@ def plot_gamut_diagram():
 
 
 def show_ebner_fairchild(colorspace):
-    with open('data/ebner_fairchild.yaml') as f:
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(dir_path, 'data/ebner_fairchild.yaml')) as f:
         data = yaml.safe_load(f)
-
-    srgb = SrgbLinear()
 
     # show white point
     d = colorspace.from_xyz100(data['white point'])
     plt.plot(d[1], d[2], '.k')
 
+    srgb = SrgbLinear()
     for item in data['data']:
         rgb = srgb.to_srgb1(srgb.from_xyz100(item['reference xyz']))
         xyz = numpy.array(item['same']).T

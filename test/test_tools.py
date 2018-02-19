@@ -62,7 +62,7 @@ def test_conversion_variants(a):
     colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5),
     ])
 def test_ebner_fairchild(colorspace):
-    colorio.plot_ebner_fairchild(colorspace)
+    colorio.show_ebner_fairchild(colorspace)
     return
 
 

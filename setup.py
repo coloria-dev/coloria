@@ -27,6 +27,7 @@ setup(
     name='colorio',
     version=about['__version__'],
     packages=find_packages(),
+    package_data={'colorio': ['data/ebner_fairchild.yaml']},
     url='https://github.com/nschloe/colorio',
     download_url='https://pypi.python.org/pypi/colorio',
     author=about['__author__'],
