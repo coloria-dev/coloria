@@ -2,7 +2,7 @@
 #
 # M. R. Luo, B. Rigg,
 # Chromaticity Discrimination Ellipses for Surface Colours,
-# Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25–42,
+# Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25-42,
 # <https://doi.org/10.1002/col.5080110107>.
 #
 # Set; x; y; Y; a * 10^4; a/b; theta [deg]; overline{R}; SF
