@@ -8,7 +8,12 @@
   Evaluation of CIELAB-based colour-difference formulae using a new dataset.
   Emailed <donghokim@korea.com> (2018-02-13).
 
-* Kim DH, Nobbs JH.,
+* D.H. Kim., J.H. Nobbs,
   New weighting functions for the weighted CIELAB colour-difference formulae.
   Proc 8th Cong AIC Colour 97, Kyoto 1997;I:446–449.
   "Leeds dataset".
+
+* Kaida Xiao, Sophie Wuerger, Chenyang Fu, Dimosthenis Karatzas,
+  Unique Hue Data for Colour Appearance Models. Part I: Loci of Unique Hues and
+  Hue Uniformity.
+  Emailed <kaidaxiao@yahoo.co.uk> (2018-02-19).
