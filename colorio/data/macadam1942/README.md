@@ -1,4 +1,4 @@
-# MacAdams (ellipses) data
+# MacAdam (ellipses) data
 
 Extracted from
 
