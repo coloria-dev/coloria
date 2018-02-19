@@ -2,8 +2,9 @@ Data from
 
 David L. MacAdam,
 Uniform color scales,
-Research Laboratories, Eastman Kodak Company, Rochester, New York 14650
-(Received 13 September 1974)
+Journal of the Optical Society of America, Vol. 64, Issue 12, pp. 1691-1702,
+(1974),
+<https://doi.org/10.1364/JOSA.64.001691>.
 
 #### Abstract
 Judgments of relative magnitudes of color differences exhibited by 128 selected
