@@ -216,7 +216,7 @@ def show_ebner_fairchild(colorspace):
         data = yaml.safe_load(f)
 
     # show white point
-    d = colorspace.from_xyz100(data['white point'])
+    d = colorspace.from_xyz100(numpy.array(data['white point']))
     plt.plot(d[1], d[2], '.k')
 
     srgb = SrgbLinear()
