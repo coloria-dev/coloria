@@ -1,15 +1,17 @@
 # Data from
 #
 # F. Ebner and M.D. Fairchild,
-# "Finding Constant Hue Surfaces in Color Space",
+# Finding Constant Hue Surfaces in Color Space,
 # SPIE/IS&T Electronic Imaging, (1998),
 # <https://doi.org/10.1117/12.298269>.
-# (Last Updated: Oct. 27, 1997),
+# (Last Updated: Oct. 27, 1997)
 #
 # Retrieved from <http://www.rit-mcsl.org/fairchild/CAM.html>.
 #
 # White Point: 95.01 100.00  108.81
-# Format:reference hue <CIELAB hue angle> XYZ reference color
+# Format:
+# reference hue <CIELAB hue angle>
+# XYZ reference color
 # XYZ colors same hue as reference color
 
 # reference hue 0
