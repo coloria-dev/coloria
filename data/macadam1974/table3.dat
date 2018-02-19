@@ -1,0 +1,19 @@
+# David L. MacAdam,
+# Uniform color scales,
+# Journal of the Optical Society of America, Volume 64, Number 12,
+# December 1974.
+#
+# TABLE III. Observed and computed lightness differences.
+#
+# Pair; Computed lightness difference;
+# Number of observers who picked the lightness in accord with computation
+ 27 1.0   8
+ 67 0.04  4
+ 68 1.0   8
+ 70 1.0   6
+ 73 1.0   8
+ 88 0.4   5
+ 90 1.1   8
+ 95 0.1   8
+ 99 1.1  10
+117 0.8   6
