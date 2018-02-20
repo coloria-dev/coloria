@@ -312,3 +312,32 @@ def show_munsell(colorspace, V):
     plt.axis('equal')
     plt.show()
     return
+
+
+def show_macadam():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
+        filters_xyz = yaml.safe_load(f)
+    filters_xyz = {
+        key: numpy.array(value) for key, value in filters_xyz.items()
+        }
+
+    with open(os.path.join(dir_path, 'data/macadam1942/table3.yaml')) as f:
+        data = yaml.safe_load(f)
+
+    plot_gamut_diagram()
+
+    # for dat in data:
+    #     plt.plot(dat['x'], dat['y'], 'xk')
+
+    plt.plot(data[0]['x'], data[0]['y'], 'xk')
+    xyy = XYY()
+    for dat in data[0]['data']:
+        print(dat[0], dat[1])
+        xyy0 = xyy.from_xyz100(100 * filters_xyz[dat[0]])
+        xyy1 = xyy.from_xyz100(100 * filters_xyz[dat[1]])
+        plt.plot([xyy0[0], xyy1[0]], [xyy0[1], xyy1[1]], '-')
+    # plt.plot(data[0]['x'], data[0]['y'], 'xk')
+
+    plt.show()
+    return
