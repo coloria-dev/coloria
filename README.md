@@ -41,6 +41,7 @@ The following color spaces are implemented:
  * [CIECAM02 / CAM02-UCS](https://en.wikipedia.org/wiki/CIECAM02)
    ```python
    import colorio
+
    L_A = 64 / numpy.pi / 5
    ciecam02 = colorio.CIECAM02(0.69, 20, L_A)
    cam02 = colorio.CAM02('UCS', 0.69, 20, L_A)
@@ -49,7 +50,6 @@ The following color spaces are implemented:
    specification (see [here](https://arxiv.org/abs/1802.06067)).
  * [CAM16 / CAM16-UCS](https://doi.org/10.1002/col.22131)
    ```python
-   import colorio
    L_A = 64 / numpy.pi / 5
    cam16 = colorio.CAM16(0.69, 20, L_A)
    cam16ucs = colorio.CAM16UCS(0.69, 20, L_A)
@@ -73,8 +73,6 @@ The SRGB gamut is a perfect cube in SRGB space, and takes curious shapes when
 translated into other color spaces. The above image shows the SRGB gamut in XYZ
 space. The image data was created with
 ```python
-import colorio
-
 colorspace = colorio.CIELAB()
 colorio.show_srgb_gamut(colorspace, 'out.vtu', n=50, cut_000=False)
 ```
@@ -94,8 +92,6 @@ The data can be written in all formats supported by
 
 Same as above, but with the gamut visible under a given illuminant.
 ```python
-import colorio
-
 colorspace = colorio.XYZ()
 illuminant = colorio.illuminants.d65()
 observer = colorio.observers.cie_1931_2()
@@ -113,41 +109,40 @@ locus](https://en.wikipedia.org/wiki/Planckian_locus) and the SRGB colors (at
 maximum luminosity).
 
 ```python
-import colorio
-
 colorio.show_gamut_diagram()
 ```
 
 
 #### Show experimental data
 
-<img src="https://nschloe.github.io/colorio/ebner_fairchild_jzazbz.png" width="40%">
-
 colorio contains lots of experimental data sets some of which can be used to
 assess certain properties of color spaces.
 
-For example
-```python
-import colorio
+* For example
+  <img src="https://nschloe.github.io/colorio/ebner_fairchild_jzazbz.png" width="40%">
+  ```python
+  colorspace = colorio.JzAzBz()
+  colorio.show_ebner_fairchild(colorspace)
+  ```
+  shows constant-hue data from [the Ebner-Fairchild
+  experiments](https://doi.org/10.1117/12.298269) in the
+  a<sub>z</sub>b<sub>z</sub>-plane of the
+  J<sub>z</sub>a<sub>z</sub>b<sub>z</sub> color space. (Ideally, all colors in
+  one set sit on a line.)
 
-colorspace = colorio.JzAzBz()
-colorio.show_ebner_fairchild(colorspace)
-```
-shows constant-hue data from [the Ebner-Fairchild
-experiments](https://doi.org/10.1117/12.298269) in the
-a<sub>z</sub>b<sub>z</sub>-plane of the J<sub>z</sub>a<sub>z</sub>b<sub>z</sub>
-color space. (Ideally, all colors in one set sit on a line.)
+* Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
+  <img src="https://nschloe.github.io/colorio/hung_berns_jzazbz.png" width="40%">
+  ```python
+  colorspace = colorio.JzAzBz()
+  colorio.show_hung_berns(colorspace)
+  ```
 
-Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
-
-<img src="https://nschloe.github.io/colorio/hung_berns_jzazbz.png" width="40%">
-
-```python
-import colorio
-
-colorspace = colorio.JzAzBz()
-colorio.show_hung_berns(colorspace)
-```
+* [Munsell color data](https://www.rit.edu/cos/colorscience/rc_munsell_renotation.php) is visualized with
+  <img src="https://nschloe.github.io/colorio/munsell_cieluv.png" width="40%">
+  ```python
+  colorspace = colorio.CIELUV()
+  colorio.show_munsell(colorspace, V=5)
+  ```
 
 #### Color differences
 

@@ -272,3 +272,43 @@ def show_hung_berns(colorspace):
     plt.axis('equal')
     plt.show()
     return
+
+
+def show_munsell(colorspace, V):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(dir_path, 'data/munsell/real.yaml')) as f:
+        data = yaml.safe_load(f)
+
+    # https://stackoverflow.com/a/6473724/353337
+    v = data['V']
+    x = data['x']
+    y = data['y']
+    Y = data['Y']
+
+    idx = numpy.array(v) == V
+    x = numpy.array(x)
+    y = numpy.array(y)
+    Y = numpy.array(Y)
+    xyy = numpy.array([x[idx], y[idx], Y[idx]])
+
+    xyz = XYY().to_xyz100(xyy)
+    vals = colorspace.from_xyz100(xyz)
+
+    srgb = SrgbLinear()
+    rgb = srgb.from_xyz100(xyz)
+    is_legal_srgb = numpy.logical_and(
+        numpy.all(rgb >= 0, axis=0), numpy.all(rgb <= 1, axis=0)
+        )
+
+    # plot the ones that cannot be represented in SRGB
+    plt.plot(
+        vals[1, ~is_legal_srgb], vals[2, ~is_legal_srgb],
+        'o', color='white', markeredgecolor='black'
+        )
+    # plot the srgb dots
+    for val, rgb_ in zip(vals[:, is_legal_srgb].T, rgb[:, is_legal_srgb].T):
+        plt.plot(val[1], val[2], 'o', color=srgb.to_srgb1(rgb_))
+
+    plt.axis('equal')
+    plt.show()
+    return
