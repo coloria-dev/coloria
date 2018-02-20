@@ -280,7 +280,11 @@ def show_munsell(colorspace, V):
         data = yaml.safe_load(f)
 
     # https://stackoverflow.com/a/6473724/353337
-    _, v, _, x, y, Y = list(map(list, zip(*data)))
+    v = data['V']
+    x = data['x']
+    y = data['y']
+    Y = data['Y']
+
     idx = numpy.array(v) == V
     x = numpy.array(x)
     y = numpy.array(y)
