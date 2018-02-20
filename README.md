@@ -120,6 +120,16 @@ experiments](https://doi.org/10.1117/12.298269) in the
 a<sub>z</sub>b<sub>z</sub>-plane of the J<sub>z</sub>a<sub>z</sub>b<sub>z</sub>
 color space. (Ideally, all colors in one set sit on a line.)
 
+Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
+
+<img src="https://nschloe.github.io/colorio/hung_berns_jzazbz.png" width="40%">
+
+```python
+import colorio
+
+colorspace = colorio.JzAzBz()
+colorio.show_hung_berns(colorspace)
+```
 
 #### Color differences
 
