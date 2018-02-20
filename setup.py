@@ -30,6 +30,7 @@ setup(
     package_data={'colorio': [
         'data/ebner_fairchild.yaml',
         'data/hung-berns/*.yaml',
+        'data/munsell/real.yaml',
         ]},
     url='https://github.com/nschloe/colorio',
     download_url='https://pypi.python.org/pypi/colorio',
