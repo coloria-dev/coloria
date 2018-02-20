@@ -101,6 +101,21 @@ colorio.show_visible_gamut(colorspace, observer, illuminant, 'visible.vtu')
 The gamut is shown in grey since SRGB screens are not able to display the
 colors.
 
+#### The xy-gamut
+
+<img src="https://nschloe.github.io/colorio/xy-gamut.png" width="40%">
+
+Show the classical visible gamut in xy with [Planckian
+locus](https://en.wikipedia.org/wiki/Planckian_locus) and the SRGB colors (at
+maximum luminosity).
+
+```python
+import colorio
+
+colorio.show_gamut_diagram()
+```
+
+
 #### Show experimental data
 
 <img src="https://nschloe.github.io/colorio/ebner_fairchild_jzazbz.png" width="40%">
