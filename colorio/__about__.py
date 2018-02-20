@@ -8,4 +8,4 @@ __credits__ = []
 __license__ = 'License :: OSI Approved :: MIT License'
 __version__ = '0.2.0'
 __maintainer__ = 'Nico Schlömer'
-__status__ = 'Development Status :: 2 - Beta'
+__status__ = 'Development Status :: 4 - Beta'
