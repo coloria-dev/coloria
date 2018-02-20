@@ -228,7 +228,13 @@ def show_ebner_fairchild(colorspace):
         d = colorspace.from_xyz100(xyz)
         # Deliberatly only handle the two last components, e.g., a* b* from
         # L*a*b*. They typically indicate the chroma.
-        plt.plot(d[1], d[2], 'o-', color=rgb)
+        plt.plot(d[1], d[2], '-', color='0.5')
+        for dd, xyz_ in zip(d.T, xyz.T):
+            rgb = srgb.from_xyz100(xyz_)
+            is_legal_srgb = numpy.all(rgb >= 0) and numpy.all(rgb <= 1)
+            col = srgb.to_srgb1(rgb) if is_legal_srgb else 'white'
+            ecol = srgb.to_srgb1(rgb) if is_legal_srgb else 'k'
+            plt.plot(dd[1], dd[2], 'o', color=col, markeredgecolor=ecol)
 
     plt.axis('equal')
     plt.show()
@@ -255,8 +261,10 @@ def show_hung_berns(colorspace):
         # Plot the lines in black first, then the individual points.
         plt.plot(d[1], d[2], '-', color='k')
         for dd, rgb in zip(d.T, srgb.from_xyz100(xyz).T):
-            col = rgb if numpy.all(rgb >= 0) and numpy.all(rgb <= 1) else 'k'
-            plt.plot(dd[1], dd[2], 'o', color=col)
+            is_legal_srgb = numpy.all(rgb >= 0) and numpy.all(rgb <= 1)
+            col = srgb.to_srgb1(rgb) if is_legal_srgb else 'white'
+            ecol = srgb.to_srgb1(rgb) if is_legal_srgb else 'black'
+            plt.plot(dd[1], dd[2], 'o', color=col, markeredgecolor=ecol)
 
     plt.axis('equal')
     plt.show()

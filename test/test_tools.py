@@ -90,4 +90,5 @@ if __name__ == '__main__':
     # test_hdr_gamut(colorspace_, n=10)
     # test_visible_gamut(colorspace_, cut_000=True)
     # test_srgb_gamut(colorspace_, cut_000=False)
+    # test_ebner_fairchild(colorspace_)
     test_hung_berns(colorspace_)
