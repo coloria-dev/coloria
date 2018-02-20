@@ -20,6 +20,7 @@ from .cielab import CIELAB
 from .cielch import CIELCH
 from .cieluv import CIELUV
 from . import illuminants
+from .ictcp import ICtCp
 from .jzazbz import JzAzBz
 from . import observers
 from .rec2020 import Rec2020
