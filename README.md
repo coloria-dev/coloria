@@ -67,7 +67,7 @@ spaces.
 
 #### Visualizing the SRGB gamut
 
-<img src="https://nschloe.github.io/colorio/xyz.png" width="40%">
+<img src="https://nschloe.github.io/colorio/cielab.png" width="40%">
 
 The SRGB gamut is a perfect cube in SRGB space, and takes curious shapes when
 translated into other color spaces. The above image shows the SRGB gamut in XYZ
@@ -75,7 +75,7 @@ space. The image data was created with
 ```python
 import colorio
 
-colorspace = colorio.XYZ()
+colorspace = colorio.CIELAB()
 colorio.show_srgb_gamut(colorspace, 'out.vtu', n=50, cut_000=False)
 ```
 The [VTU](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
@@ -87,6 +87,8 @@ The data can be written in all formats supported by
 
 #### Visualizing the visible gamut
 
+<img src="https://nschloe.github.io/colorio/xyz-visible-d65.png" width="40%">
+
 Same as above, but with the gamut visible under a given illuminant.
 ```python
 import colorio
@@ -96,6 +98,28 @@ illuminant = colorio.illuminants.d65()
 observer = colorio.observers.cie_1931_2()
 colorio.show_visible_gamut(colorspace, observer, illuminant, 'visible.vtu')
 ```
+The gamut is shown in grey since SRGB screens are not able to display the
+colors.
+
+#### Show experimental data
+
+<img src="https://nschloe.github.io/colorio/ebner_fairchild_jzazbz.png" width="40%">
+
+colorio contains lots of experimental data sets some of which can be used to
+assess certain properties of color spaces.
+
+For example
+```python
+import colorio
+
+colorspace = colorio.JzAzBz()
+colorio.show_ebner_fairchild(colorspace)
+```
+shows constant-hue data from [the Ebner-Fairchild
+experiments](https://doi.org/10.1117/12.298269) in the
+a<sub>z</sub>b<sub>z</sub>-plane of the J<sub>z</sub>a<sub>z</sub>b<sub>z</sub>
+color space. (Ideally, all colors in one set sit on a line.)
+
 
 #### Color differences
 
