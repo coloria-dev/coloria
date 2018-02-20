@@ -44,7 +44,8 @@ class JzAzBz(object):
         return
 
     def from_xyz100(self, xyz):
-        x, y, z = (xyz.T / self.whitepoint).T
+        # x, y, z = (xyz.T / self.whitepoint).T
+        x, y, z = xyz
         x_ = self.b*x - (self.b-1)*z
         y_ = self.g*y - (self.g-1)*x
         lms = dot(self.M1, [x_, y_, z])
@@ -67,4 +68,5 @@ class JzAzBz(object):
         x_, y_, z_ = solve(self.M1, lms)
         x = (x_ + (self.b-1)*z_) / self.b
         y = (y_ + (self.g-1)*x) / self.g
-        return (numpy.array([x, y, z_]).T * self.whitepoint).T
+        # return (numpy.array([x, y, z_]).T * self.whitepoint).T
+        return numpy.array([x, y, z_])
