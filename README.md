@@ -67,7 +67,7 @@ spaces.
 
 #### Visualizing the SRGB gamut
 
-<img src="https://nschloe.github.io/colorio/cielab.png" width="40%">
+<img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="40%">
 
 The SRGB gamut is a perfect cube in SRGB space, and takes curious shapes when
 translated into other color spaces. The above image shows the SRGB gamut in XYZ
@@ -82,12 +82,15 @@ The [VTU](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
 in, e.g., ParaView. To see the coloring, select the `srgb` data and disable
 `Map Scalars`. You might also want to disable the Light Kit.
 
+More images are [in the gh-pages
+branch](https://github.com/nschloe/colorio/tree/gh-pages).
+
 The data can be written in all formats supported by
 [meshio](https://github.com/nschloe/meshio).
 
 #### Visualizing the visible gamut
 
-<img src="https://nschloe.github.io/colorio/xyz-visible-d65.png" width="40%">
+<img src="https://nschloe.github.io/colorio/visible-d65-xyz.png" width="40%">
 
 Same as above, but with the gamut visible under a given illuminant.
 ```python
