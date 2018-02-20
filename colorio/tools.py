@@ -218,14 +218,17 @@ def show_ebner_fairchild(colorspace):
         data = yaml.safe_load(f)
 
     # show white point
-    d = colorspace.from_xyz100(numpy.array(data['white point']))
-    plt.plot(d[1], d[2], '.k')
+    wp = colorspace.from_xyz100(numpy.array(data['white point']))
+    plt.plot(wp[1], wp[2], '.k')
 
     srgb = SrgbLinear()
     for item in data['data']:
         rgb = srgb.to_srgb1(srgb.from_xyz100(item['reference xyz']))
         xyz = numpy.array(item['same']).T
+        # The points are sorted by the first components d[0] (typically
+        # luminance).
         d = colorspace.from_xyz100(xyz)
+
         # Deliberatly only handle the two last components, e.g., a* b* from
         # L*a*b*. They typically indicate the chroma.
         plt.plot(d[1], d[2], '-', color='0.5')
