@@ -19,148 +19,90 @@ All color spaces implement the two methods
 vals = colorspace.from_xyz100(xyz)
 xyz = colorspace.to_xyz100(vals)
 ```
-for conversion from and to XYZ100. Adding new color maps is as easy as that.
+for conversion from and to XYZ100. Adding new color spaces is as easy as
+writing a class that provides those two methods.
+
+The following color spaces are implemented:
+
+ * [XYZ](https://en.wikipedia.org/wiki/CIE_1931_color_space) (`colorio.XYZ()`)
+ * [xyY](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space) (`colorio.XYY()`)
+ * [Linear SRGB](https://en.wikipedia.org/wiki/SRGB)  (`colorio.SrgbLinear()`)
+   This class has the two additional methods
+   ```
+   from_srgb1()
+   to_srgb1()
+   ```
+   for conversion from and to standard RGB.
+ * [CIELAB](https://en.wikipedia.org/wiki/Lab_color_space) (`colorio.CIELAB()`)
+ * [CIELUV](https://en.wikipedia.org/wiki/CIELUV) (`colorio.CIELUV()`)
+ * [ICtCp](https://en.wikipedia.org/wiki/ICtCp) (`colorio.ICtCp()`)
+ * [IPT](http://www.ingentaconnect.com/content/ist/cic/1998/00001998/00000001/art00003)
+   (`colorio.IPT()`)
+ * [CIECAM02 / CAM02-UCS](https://en.wikipedia.org/wiki/CIECAM02)
+   ```python
+   import colorio
+   L_A = 64 / numpy.pi / 5
+   ciecam02 = colorio.CIECAM02(0.69, 20, L_A)
+   cam02 = colorio.CAM02('UCS', 0.69, 20, L_A)
+   ```
+   The implementation contains a few improvements over the CIECAM02
+   specification (see [here](https://arxiv.org/abs/1802.06067)).
+ * [CAM16 / CAM16-UCS](https://doi.org/10.1002/col.22131)
+   ```python
+   import colorio
+   L_A = 64 / numpy.pi / 5
+   cam16 = colorio.CAM16(0.69, 20, L_A)
+   cam16ucs = colorio.CAM16UCS(0.69, 20, L_A)
+   ```
+   The implementation contains a few improvements over the CAM16
+   specification (see [here](https://arxiv.org/abs/1802.06067)).
+ * [J<sub>z</sub>a<sub>z</sub>b<sub>z</sub>](https://doi.org/10.1364/OE.25.015131)
+   (`colorio.JzAzBz()`)
+
+
+### Tools
+
+colorio provides a number of useful tools for analyzing and visualizing color
+spaces.
+
+#### Visualizing the SRGB gamut
+
+<img src="https://nschloe.github.io/colorio/xyz.png" width="40%">
+
+The SRGB gamut is a perfect cube in SRGB space, and takes curious shapes when
+translated into other color spaces. The above image shows the SRGB gamut in XYZ
+space. The image data was created with
+```python
+import colorio
+
+colorspace = colorio.XYZ()
+colorio.show_srgb_gamut(colorspace, 'out.vtu', n=50, cut_000=False)
+```
+The [VTU](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
+in, e.g., ParaView. To see the coloring, select the `srgb` data and disable
+`Map Scalars`. You might also want to disable the Light Kit.
+
+The data can be written in all formats supported by
+[meshio](https://github.com/nschloe/meshio).
+
+#### Visualizing the visible gamut
+
+Same as above, but with the gamut visible under a given illuminant.
+```python
+import colorio
+
+colorspace = colorio.XYZ()
+illuminant = colorio.illuminants.d65()
+observer = colorio.observers.cie_1931_2()
+colorio.show_visible_gamut(colorspace, observer, illuminant, 'visible.vtu')
+```
+
+#### Color differences
+
+Color differences in any space can be computed with `colorio.delta(a, b)`.
 
 The images below all show the SRGB gamut in the respective color space.
 
-#### SRGB
-
-<img src="https://nschloe.github.io/colorio/srgb.png" width="40%">
-
-Linear SRGB space.
-
-This class has the two additional methods
-```
-from_srgb1()
-to_srgb1()
-```
-for conversion from and to standard RGB.
-
-#### CIE XYZ
-<img src="https://nschloe.github.io/colorio/xyz.png" width="40%">
-
-```python
-import colorio
-import numpy
-
-colorspace = colorio.XYZ()
-xyz100 = numpy.random.rand(3)
-vals = colorspace.from_xyz100(xyz100)
-xyz100 = colorspace.to_xyz100(vals)
-```
-
-#### CIE XYY
-<img src="https://nschloe.github.io/colorio/xyy.png" width="40%">
-
-```python
-import colorio
-import numpy
-
-colorspace = colorio.XYY()
-xyz100 = numpy.random.rand(3)
-vals = colorspace.from_xyz100(xyz100)
-xyz100 = colorspace.to_xyz100(vals)
-```
-
-#### CIELAB
-<img src="https://nschloe.github.io/colorio/cielab.png" width="40%">
-
-```python
-import colorio
-import numpy
-
-colorspace = colorio.CIELAB()
-xyz100 = numpy.random.rand(3)
-vals = colorspace.from_xyz100(xyz100)
-xyz100 = colorspace.to_xyz100(vals)
-```
-
-#### CIELUV
-<img src="https://nschloe.github.io/colorio/cieluv.png" width="40%">
-
-```python
-import colorio
-import numpy
-
-colorspace = colorio.CIELUV()
-xyz100 = numpy.random.rand(3)
-vals = colorspace.from_xyz100(xyz100)
-xyz100 = colorspace.to_xyz100(vals)
-```
-
-#### CIECAM / CAM02-UCS
-<img src="https://nschloe.github.io/colorio/cam02ucs.png" width="40%">
-
-```python
-import colorio
-import numpy
-
-L_A = 64 / numpy.pi / 5
-ciecam02 = colorio.CIECAM02(0.69, 20, L_A)
-
-xyz100 = numpy.random.rand(3)
-J, C, H, h, M, s, Q = ciecam02.from_xyz100(xyz100)
-xyz100 = ciecam02.to_xyz100(numpy.array([J, C, H]), 'JCH')
-
-cam02 = colorio.CAM02('UCS', 0.69, 20, L_A)
-vals = cam02.from_xyz100(xyz100)
-xyz100 = cam02.to_xyz100(vals)
-```
-
-The implementation contains a few improvements over the CIECAM02 specification.
-
-#### CAM16 / CAM16-UCS
-<img src="https://nschloe.github.io/colorio/cam16ucs.png" width="40%">
-
-From the article [Comprehensive color solutions: CAM16, CAT16, and
-CAM16-UCS](https://doi.org/10.1002/col.22131) by Li et al.
-
-```python
-import colorio
-import numpy
-
-L_A = 64 / numpy.pi / 5
-cs = colorio.CAM16(0.69, 20, L_A)
-
-xyz100 = numpy.random.rand(3)
-J, C, H, h, M, s, Q = cs.from_xyz100(xyz100)
-xyz100 = ciecam02.to_xyz100(numpy.array([J, C, H]), 'JCH')
-
-cs = colorio.CAM16UCS(0.69, 20, L_A)
-vals = cs.from_xyz100(xyz100)
-xyz100 = cs.to_xyz100(vals)
-```
-
-The implementation contains a few improvements over the CAM16 specification.
-
-#### J<sub>z</sub>a<sub>z</sub>b<sub>z</sub>
-<img src="https://nschloe.github.io/colorio/jzazbz.png" width="40%">
-
-From the article [Perceptually uniform color space for image signals including
-high dynamic range and wide gamut](https://doi.org/10.1364/OE.25.015131) by
-Safdar et al.
-
-```python
-import colorio
-import numpy
-
-colorspace = colorio.JzAzBz()
-xyz100 = numpy.random.rand(3)
-vals = colorspace.from_xyz100(xyz100)
-xyz100 = colorspace.to_xyz100(vals)
-```
-
-### Other tools
-
-* To create the above gamut plots, write the corresponding mesh out to a file with`
-  ```python
-  colorio.show_srgb_gamut(colorspace, 'srgb.vtu', n=20)
-  ```
-  and open it with any program that knows how to handle VTU (e.g.,
-  [ParaView](https://www.paraview.org/)). The `srgb` data set is defined in all
-  points of the mesh.
-
-* Color differences in any space can be computed with `colorio.delta(a, b)`.
 
 ### Installation
 
