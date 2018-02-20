@@ -121,33 +121,40 @@ colorio.show_gamut_diagram()
 
 #### Show experimental data
 
-<img src="https://nschloe.github.io/colorio/ebner_fairchild_jzazbz.png" width="40%">
-
 colorio contains lots of experimental data sets some of which can be used to
 assess certain properties of color spaces.
 
-For example
-```python
-import colorio
+* For example
+  <img src="https://nschloe.github.io/colorio/ebner_fairchild_jzazbz.png" width="40%">
+  ```python
+  import colorio
 
-colorspace = colorio.JzAzBz()
-colorio.show_ebner_fairchild(colorspace)
-```
-shows constant-hue data from [the Ebner-Fairchild
-experiments](https://doi.org/10.1117/12.298269) in the
-a<sub>z</sub>b<sub>z</sub>-plane of the J<sub>z</sub>a<sub>z</sub>b<sub>z</sub>
-color space. (Ideally, all colors in one set sit on a line.)
+  colorspace = colorio.JzAzBz()
+  colorio.show_ebner_fairchild(colorspace)
+  ```
+  shows constant-hue data from [the Ebner-Fairchild
+  experiments](https://doi.org/10.1117/12.298269) in the
+  a<sub>z</sub>b<sub>z</sub>-plane of the
+  J<sub>z</sub>a<sub>z</sub>b<sub>z</sub> color space. (Ideally, all colors in
+  one set sit on a line.)
 
-Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
+* Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
+  <img src="https://nschloe.github.io/colorio/hung_berns_jzazbz.png" width="40%">
+  ```python
+  import colorio
 
-<img src="https://nschloe.github.io/colorio/hung_berns_jzazbz.png" width="40%">
+  colorspace = colorio.JzAzBz()
+  colorio.show_hung_berns(colorspace)
+  ```
 
-```python
-import colorio
+* [Munsell color data](https://www.rit.edu/cos/colorscience/rc_munsell_renotation.php) is visualized with
+  <img src="https://nschloe.github.io/colorio/munsell_cieluv.png" width="40%">
+  ```python
+  import colorio
 
-colorspace = colorio.JzAzBz()
-colorio.show_hung_berns(colorspace)
-```
+  colorspace = colorio.CIELUV()
+  colorio.show_munsell(colorspace, V=5)
+  ```
 
 #### Color differences
 
