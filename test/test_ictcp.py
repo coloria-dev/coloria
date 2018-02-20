@@ -14,7 +14,5 @@ import colorio
 def test_conversion(rgb):
     cs = colorio.ICtCp()
     out = cs.to_rec2100(cs.from_rec2100(rgb))
-    print(out)
-    print(rgb)
     assert numpy.all(abs(rgb - out) < 1.0e-8 * rgb)
     return
