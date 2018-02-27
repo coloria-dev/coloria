@@ -197,16 +197,21 @@ def _plot_planckian_locus():
     return
 
 
-def plot_gamut_diagram():
+def plot_gamut_diagram(
+        plot_rgb_triangle=True,
+        plot_planckian_locus=True,
+        ):
     _plot_monochromatic()
-    _plot_rgb_triangle()
-    _plot_planckian_locus()
+    if plot_rgb_triangle:
+        _plot_rgb_triangle()
+    if plot_planckian_locus:
+        _plot_planckian_locus()
 
     plt.xlim(xmin=0)
     plt.ylim(ymin=0)
 
     plt.gca().set_aspect('equal')
-    plt.legend()
+    # plt.legend()
     plt.xlabel('x')
     plt.ylabel('y')
     return
@@ -319,25 +324,50 @@ def show_macadam():
     with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
         filters_xyz = yaml.safe_load(f)
     filters_xyz = {
-        key: numpy.array(value) for key, value in filters_xyz.items()
+        key: 100 * numpy.array(value) for key, value in filters_xyz.items()
         }
 
     with open(os.path.join(dir_path, 'data/macadam1942/table3.yaml')) as f:
         data = yaml.safe_load(f)
 
-    plot_gamut_diagram()
+    plot_gamut_diagram(plot_planckian_locus=False)
 
     # for dat in data:
     #     plt.plot(dat['x'], dat['y'], 'xk')
 
-    plt.plot(data[0]['x'], data[0]['y'], 'xk')
     xyy = XYY()
-    for dat in data[0]['data']:
+    k = 1
+    for i in range(len(data[k]['data'])):
+        # plot line between filters
+        dat = data[k]['data'][i]
         print(dat[0], dat[1])
-        xyy0 = xyy.from_xyz100(100 * filters_xyz[dat[0]])
-        xyy1 = xyy.from_xyz100(100 * filters_xyz[dat[1]])
-        plt.plot([xyy0[0], xyy1[0]], [xyy0[1], xyy1[1]], '-')
+        xyz0 = filters_xyz[dat[0]]
+        xyz1 = filters_xyz[dat[1]]
+        xyy0 = xyy.from_xyz100(xyz0)
+        xyy1 = xyy.from_xyz100(xyz1)
+        plt.plot([xyy0[0], xyy1[0]], [xyy0[1], xyy1[1]], '-k')
+        # plot average setting
+        theta_av = dat[2]
+        s = numpy.sin(theta_av / 180 * numpy.pi)
+        c = numpy.cos(theta_av / 180 * numpy.pi)
+        xyz_av = xyz1 * s**2 + xyz0 * c**2
+        xyy_av = xyy.from_xyz100(xyz_av)
+        print(xyy_av[0], xyy_av[1])
+        plt.plot(xyy_av[0], xyy_av[1], 'go')
+        # plot standard deviation from average
+        for pm in [+1, -1]:
+            theta_sd = theta_av + pm * dat[3]
+            s = numpy.sin(theta_sd / 180 * numpy.pi)
+            c = numpy.cos(theta_sd / 180 * numpy.pi)
+            xyz_sd = xyz1 * s**2 + xyz0 * c**2
+            xyy_sd = xyy.from_xyz100(xyz_sd)
+            plt.plot(xyy_sd[0], xyy_sd[1], 'bx')
+
+        # if i > 1:
+        #     break
+
     # plt.plot(data[0]['x'], data[0]['y'], 'xk')
+    plt.plot(data[k]['x'], data[k]['y'], 'ro')
 
     plt.show()
     return

@@ -44,6 +44,6 @@ def test_observers(observer):
 
 if __name__ == '__main__':
     test_observers(
-        colorio.observers.cie_1931_2()
-        # colorio.observers.cie_1964_10()
+        # colorio.observers.cie_1931_2()
+        colorio.observers.cie_1964_10()
         )
