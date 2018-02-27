@@ -332,10 +332,17 @@ def show_macadam():
 
     plot_gamut_diagram(plot_planckian_locus=False)
 
+    xyy = XYY()
+
+    ax = plt.gca()
+    for key, xyz in filters_xyz.items():
+        x, y = xyy.from_xyz100(xyz)[:2]
+        plt.plot(x, y, 'xk')
+        ax.annotate(key, (x, y))
+
     # for dat in data:
     #     plt.plot(dat['x'], dat['y'], 'xk')
 
-    xyy = XYY()
     k = 1
     for i in range(len(data[k]['data'])):
         # plot line between filters
