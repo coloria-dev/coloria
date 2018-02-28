@@ -348,10 +348,11 @@ def show_macadam(
 
     for datak in data:
         # collect ellipse points
-        X = numpy.array([
-           numpy.array([1.0, dat[4]]) / numpy.sqrt(1 + dat[4]**2) * dat[5]
-           for dat in datak['data']
-           ]).T
+        dat = numpy.array(datak['data']).T
+        X = (
+           numpy.array([numpy.ones(dat[4].shape[0]), dat[4]])
+           / numpy.sqrt(1 + dat[4]**2) * dat[5]
+           )
 
         if X.shape[1] < 2:
             continue
