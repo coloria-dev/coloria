@@ -33,6 +33,7 @@ setup(
         'data/munsell/real.yaml',
         'data/macadam1942/*.yaml',
         'data/observers/*.yaml',
+        'data/illuminants/*.yaml',
         ]},
     url='https://github.com/nschloe/colorio',
     download_url='https://pypi.python.org/pypi/colorio',
