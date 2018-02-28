@@ -5,8 +5,10 @@ from __future__ import division
 import os
 
 import matplotlib
+from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 import numpy
+from scipy.optimize import curve_fit
 from scipy.spatial import ConvexHull
 import yaml
 
@@ -197,16 +199,20 @@ def _plot_planckian_locus():
     return
 
 
-def plot_gamut_diagram():
-    _plot_monochromatic()
-    _plot_rgb_triangle()
-    _plot_planckian_locus()
+def plot_gamut_diagram(plot_rgb_triangle=True, plot_planckian_locus=True):
+    plt.plot([0.0, 1.0], [1.0, 0.0], color='0.8')
 
-    plt.xlim(xmin=0)
-    plt.ylim(ymin=0)
+    _plot_monochromatic()
+    if plot_rgb_triangle:
+        _plot_rgb_triangle()
+    if plot_planckian_locus:
+        _plot_planckian_locus()
+
+    plt.xlim(xmin=0, xmax=0.8)
+    plt.ylim(ymin=0, ymax=0.9)
 
     plt.gca().set_aspect('equal')
-    plt.legend()
+    # plt.legend()
     plt.xlabel('x')
     plt.ylabel('y')
     return
@@ -310,5 +316,74 @@ def show_munsell(colorspace, V):
         plt.plot(val[1], val[2], 'o', color=srgb.to_srgb1(rgb_))
 
     plt.axis('equal')
+    plt.show()
+    return
+
+
+def show_macadam(scaling=1,
+                 plot_filter_positions=False,
+                 plot_standard_deviations=False):
+    '''See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
+    <https://doi.org/10.1364%2FJOSA.32.000247>.
+    '''
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(dir_path, 'data/macadam1942/table3.yaml')) as f:
+        data = yaml.safe_load(f)
+
+    plot_gamut_diagram(plot_planckian_locus=False)
+    ax = plt.gca()
+
+    xyy = XYY()
+
+    if plot_filter_positions:
+        with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
+            filters_xyz = yaml.safe_load(f)
+        filters_xyz = {
+            key: 100 * numpy.array(value) for key, value in filters_xyz.items()
+            }
+        for key, xyz in filters_xyz.items():
+            x, y = xyy.from_xyz100(xyz)[:2]
+            plt.plot(x, y, 'xk')
+            ax.annotate(key, (x, y))
+
+    for datak in data:
+        # collect ellipse points
+        dat = numpy.array(datak['data']).T
+        X = (
+            numpy.array([numpy.ones(dat[4].shape[0]), dat[4]])
+            / numpy.sqrt(1 + dat[4]**2) * dat[5]
+            )
+
+        if X.shape[1] < 2:
+            continue
+
+        # Curve fit an ellipse with the data
+        (a, b, theta), _ = curve_fit(
+            # dont' divide by a**2, b**2 here to avoid numerical difficulties
+            # when optimizing
+            lambda X, a, b, theta: (
+                + a**2 * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))**2
+                + b**2 * (X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))**2
+                ),
+            X, numpy.ones(X.shape[1])
+            )
+
+        # plot the ellipse
+        e = Ellipse(
+            xy=[datak['x'], datak['y']],
+            width=scaling * 2/a, height=scaling * 2/b,
+            angle=theta / numpy.pi * 180
+            )
+        ax.add_artist(e)
+        e.set_alpha(0.5)
+        e.set_facecolor('k')
+
+        if plot_standard_deviations:
+            plt.plot(
+                [datak['x'] - scaling*X[0], datak['x'] + scaling*X[0]],
+                [datak['y'] - scaling*X[1], datak['y'] + scaling*X[1]],
+                'kx'
+                )
+
     plt.show()
     return

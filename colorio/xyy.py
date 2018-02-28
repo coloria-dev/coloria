@@ -12,7 +12,8 @@ class XYY(object):
 
     def from_xyz100(self, xyz):
         sum_xyz = numpy.sum(xyz, axis=0)
-        x, y, _ = xyz
+        x = xyz[0]
+        y = xyz[1]
         return numpy.array([x/sum_xyz, y/sum_xyz, y])
 
     def to_xyz100(self, xyy):

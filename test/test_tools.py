@@ -84,7 +84,14 @@ def test_munsell(colorspace):
     return
 
 
+def test_macadam():
+    colorio.show_macadam(scaling=10)
+    return
+
+
 if __name__ == '__main__':
+    test_macadam()
+    exit(1)
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.Rec2020()
     # colorspace_ = colorio.XYZ()
