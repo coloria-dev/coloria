@@ -321,7 +321,9 @@ def show_munsell(colorspace, V):
     return
 
 
-def show_macadam(scaling=1, plot_filter_positions=False):
+def show_macadam(
+        scaling=1, plot_filter_positions=False, plot_standard_deviations=False
+        ):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
         filters_xyz = yaml.safe_load(f)
@@ -343,7 +345,7 @@ def show_macadam(scaling=1, plot_filter_positions=False):
             plt.plot(x, y, 'xk')
             ax.annotate(key, (x, y))
 
-    for datak in data:
+    for k, datak in enumerate(data):
         # collect ellipse points
         X = []
         for i in range(len(datak['data'])):
@@ -379,18 +381,22 @@ def show_macadam(scaling=1, plot_filter_positions=False):
         e .set_facecolor('k')
         # plt.show()
 
-        for i in range(len(datak['data'])):
-            # plot ellipse diameter
-            dat = datak['data'][i]
-            dy_dx = dat[4]
-            ds = dat[5]
-            d = scaling * numpy.array([1.0, dy_dx]) / numpy.sqrt(1 + dy_dx**2) * ds
-            # xy = numpy.array([dat['x'], dat['y']])
-            plt.plot(
-                [datak['x'] - d[0], datak['x'] + d[0]],
-                [datak['y'] - d[1], datak['y'] + d[1]],
-                'kx'
-                )
+        if plot_standard_deviations:
+            for i in range(len(datak['data'])):
+                # plot ellipse diameter
+                dat = datak['data'][i]
+                dy_dx = dat[4]
+                ds = dat[5]
+                d = (
+                    scaling *
+                    numpy.array([1.0, dy_dx]) / numpy.sqrt(1 + dy_dx**2) * ds
+                    )
+                # xy = numpy.array([dat['x'], dat['y']])
+                plt.plot(
+                    [datak['x'] - d[0], datak['x'] + d[0]],
+                    [datak['y'] - d[1], datak['y'] + d[1]],
+                    'kx'
+                    )
 
     # k = 3
     # for i in range(len(data[k]['data'])):
