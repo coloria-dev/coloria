@@ -199,10 +199,7 @@ def _plot_planckian_locus():
     return
 
 
-def plot_gamut_diagram(
-        plot_rgb_triangle=True,
-        plot_planckian_locus=True,
-        ):
+def plot_gamut_diagram(plot_rgb_triangle=True, plot_planckian_locus=True):
     plt.plot([0.0, 1.0], [1.0, 0.0], color='0.8')
 
     _plot_monochromatic()
@@ -323,9 +320,9 @@ def show_munsell(colorspace, V):
     return
 
 
-def show_macadam(
-        scaling=1, plot_filter_positions=False, plot_standard_deviations=True
-        ):
+def show_macadam(scaling=1,
+                 plot_filter_positions=False,
+                 plot_standard_deviations=True):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(dir_path, 'data/macadam1942/table3.yaml')) as f:
         data = yaml.safe_load(f)
@@ -350,9 +347,9 @@ def show_macadam(
         # collect ellipse points
         dat = numpy.array(datak['data']).T
         X = (
-           numpy.array([numpy.ones(dat[4].shape[0]), dat[4]])
-           / numpy.sqrt(1 + dat[4]**2) * dat[5]
-           )
+            numpy.array([numpy.ones(dat[4].shape[0]), dat[4]])
+            / numpy.sqrt(1 + dat[4]**2) * dat[5]
+            )
 
         if X.shape[1] < 2:
             continue
