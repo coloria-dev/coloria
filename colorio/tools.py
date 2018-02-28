@@ -5,8 +5,10 @@ from __future__ import division
 import os
 
 import matplotlib
+from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 import numpy
+from scipy.optimize import curve_fit
 from scipy.spatial import ConvexHull
 import yaml
 
@@ -319,7 +321,7 @@ def show_munsell(colorspace, V):
     return
 
 
-def show_macadam():
+def show_macadam(scaling=1, plot_filter_positions=False):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
         filters_xyz = yaml.safe_load(f)
@@ -334,47 +336,88 @@ def show_macadam():
 
     xyy = XYY()
 
-    ax = plt.gca()
-    for key, xyz in filters_xyz.items():
-        x, y = xyy.from_xyz100(xyz)[:2]
-        plt.plot(x, y, 'xk')
-        ax.annotate(key, (x, y))
+    if plot_filter_positions:
+        ax = plt.gca()
+        for key, xyz in filters_xyz.items():
+            x, y = xyy.from_xyz100(xyz)[:2]
+            plt.plot(x, y, 'xk')
+            ax.annotate(key, (x, y))
 
-    # for dat in data:
-    #     plt.plot(dat['x'], dat['y'], 'xk')
+    for datak in data:
+        # collect ellipse points
+        X = []
+        for i in range(len(datak['data'])):
+            # plot ellipse diameter
+            dat = datak['data'][i]
+            dy_dx = dat[4]
+            ds = dat[5]
+            d = numpy.array([1.0, dy_dx]) / numpy.sqrt(1 + dy_dx**2) * ds
+            X.append(d)
 
-    k = 1
-    for i in range(len(data[k]['data'])):
-        # plot line between filters
-        dat = data[k]['data'][i]
-        print(dat[0], dat[1])
-        xyz0 = filters_xyz[dat[0]]
-        xyz1 = filters_xyz[dat[1]]
-        xyy0 = xyy.from_xyz100(xyz0)
-        xyy1 = xyy.from_xyz100(xyz1)
-        plt.plot([xyy0[0], xyy1[0]], [xyy0[1], xyy1[1]], '-k')
-        # plot average setting
-        theta_av = dat[2]
-        s = numpy.sin(theta_av / 180 * numpy.pi)
-        c = numpy.cos(theta_av / 180 * numpy.pi)
-        xyz_av = xyz1 * s**2 + xyz0 * c**2
-        xyy_av = xyy.from_xyz100(xyz_av)
-        print(xyy_av[0], xyy_av[1])
-        plt.plot(xyy_av[0], xyy_av[1], 'go')
-        # plot standard deviation from average
-        for pm in [+1, -1]:
-            theta_sd = theta_av + pm * dat[3]
-            s = numpy.sin(theta_sd / 180 * numpy.pi)
-            c = numpy.cos(theta_sd / 180 * numpy.pi)
-            xyz_sd = xyz1 * s**2 + xyz0 * c**2
-            xyy_sd = xyy.from_xyz100(xyz_sd)
-            plt.plot(xyy_sd[0], xyy_sd[1], 'bx')
+        X = numpy.array(X).T
 
-        # if i > 1:
-        #     break
+        if X.shape[1] < 2:
+            continue
 
-    # plt.plot(data[0]['x'], data[0]['y'], 'xk')
-    plt.plot(data[k]['x'], data[k]['y'], 'ro')
+        (a, b, theta), _ = curve_fit(
+            lambda X, a, b, theta: (
+                + a**2 * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))**2
+                + b**2 * (X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))**2
+                ),
+            X, numpy.ones(X.shape[1])
+            )
+
+        e = Ellipse(
+            xy=[datak['x'], datak['y']],
+            width=scaling * 2/a, height=scaling * 2/b,
+            angle=theta / numpy.pi * 180
+            )
+        ax = plt.gca()
+        ax.add_artist(e)
+        e.set_clip_box(ax.bbox)
+        e.set_alpha(0.5)
+        e .set_facecolor('k')
+        # plt.show()
+
+        for i in range(len(datak['data'])):
+            # plot ellipse diameter
+            dat = datak['data'][i]
+            dy_dx = dat[4]
+            ds = dat[5]
+            d = scaling * numpy.array([1.0, dy_dx]) / numpy.sqrt(1 + dy_dx**2) * ds
+            # xy = numpy.array([dat['x'], dat['y']])
+            plt.plot(
+                [datak['x'] - d[0], datak['x'] + d[0]],
+                [datak['y'] - d[1], datak['y'] + d[1]],
+                'kx'
+                )
+
+    # k = 3
+    # for i in range(len(data[k]['data'])):
+    #     # plot line between filters
+    #     dat = data[k]['data'][i]
+    #     print(dat[0], dat[1])
+    #     xyz0 = filters_xyz[dat[0]]
+    #     xyz1 = filters_xyz[dat[1]]
+    #     xyy0 = xyy.from_xyz100(xyz0)
+    #     xyy1 = xyy.from_xyz100(xyz1)
+    #     plt.plot([xyy0[0], xyy1[0]], [xyy0[1], xyy1[1]], '-k')
+    #     # plot average setting
+    #     theta_av = dat[2]
+    #     s = numpy.sin(theta_av / 180 * numpy.pi)
+    #     c = numpy.cos(theta_av / 180 * numpy.pi)
+    #     xyz_av = xyz1 * s**2 + xyz0 * c**2
+    #     xyy_av = xyy.from_xyz100(xyz_av)
+    #     print(xyy_av[0], xyy_av[1])
+    #     plt.plot(xyy_av[0], xyy_av[1], 'go')
+    #     # plot standard deviation from average
+    #     for pm in [+1, -1]:
+    #         theta_sd = theta_av + pm * dat[3]
+    #         s = numpy.sin(theta_sd / 180 * numpy.pi)
+    #         c = numpy.cos(theta_sd / 180 * numpy.pi)
+    #         xyz_sd = xyz1 * s**2 + xyz0 * c**2
+    #         xyy_sd = xyy.from_xyz100(xyz_sd)
+    #         plt.plot(xyy_sd[0], xyy_sd[1], 'bx')
 
     plt.show()
     return

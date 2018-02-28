@@ -85,7 +85,7 @@ def test_munsell(colorspace):
 
 
 def test_macadam():
-    colorio.show_macadam()
+    colorio.show_macadam(scaling=10)
     return
 
 
