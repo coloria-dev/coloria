@@ -91,6 +91,7 @@ def test_macadam():
 
 if __name__ == '__main__':
     test_macadam()
+    exit(1)
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.Rec2020()
     # colorspace_ = colorio.XYZ()

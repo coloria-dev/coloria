@@ -322,7 +322,10 @@ def show_munsell(colorspace, V):
 
 def show_macadam(scaling=1,
                  plot_filter_positions=False,
-                 plot_standard_deviations=True):
+                 plot_standard_deviations=False):
+    '''See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
+    <https://doi.org/10.1364%2FJOSA.32.000247>.
+    '''
     dir_path = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(dir_path, 'data/macadam1942/table3.yaml')) as f:
         data = yaml.safe_load(f)

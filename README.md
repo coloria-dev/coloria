@@ -133,6 +133,22 @@ a<sub>z</sub>b<sub>z</sub>-plane of the
 J<sub>z</sub>a<sub>z</sub>b<sub>z</sub> color space. (Ideally, all colors in
 one set sit on a line.)
 
+
+###### MacAdam
+
+<img src="https://nschloe.github.io/colorio/macadam.png" width="30%">
+
+The famous MacAdam ellipses (from [this
+article](https://doi.org/10.1364%2FJOSA.32.000247)) can be plotted with
+```python
+colorio.show_macadam(
+    scaling=10,
+    plot_filter_positions=False,
+    plot_standard_deviations=False
+    )
+```
+
+
 ###### Hung-Berns
 Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
 
