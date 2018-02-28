@@ -324,46 +324,42 @@ def show_munsell(colorspace, V):
 
 
 def show_macadam(
-        scaling=1, plot_filter_positions=False, plot_standard_deviations=False
+        scaling=1, plot_filter_positions=False, plot_standard_deviations=True
         ):
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
-        filters_xyz = yaml.safe_load(f)
-    filters_xyz = {
-        key: 100 * numpy.array(value) for key, value in filters_xyz.items()
-        }
-
     with open(os.path.join(dir_path, 'data/macadam1942/table3.yaml')) as f:
         data = yaml.safe_load(f)
 
     plot_gamut_diagram(plot_planckian_locus=False)
+    ax = plt.gca()
 
     xyy = XYY()
 
     if plot_filter_positions:
-        ax = plt.gca()
+        with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
+            filters_xyz = yaml.safe_load(f)
+        filters_xyz = {
+            key: 100 * numpy.array(value) for key, value in filters_xyz.items()
+            }
         for key, xyz in filters_xyz.items():
             x, y = xyy.from_xyz100(xyz)[:2]
             plt.plot(x, y, 'xk')
             ax.annotate(key, (x, y))
 
-    for k, datak in enumerate(data):
+    for datak in data:
         # collect ellipse points
-        X = []
-        for i in range(len(datak['data'])):
-            # plot ellipse diameter
-            dat = datak['data'][i]
-            dy_dx = dat[4]
-            ds = dat[5]
-            d = numpy.array([1.0, dy_dx]) / numpy.sqrt(1 + dy_dx**2) * ds
-            X.append(d)
-
-        X = numpy.array(X).T
+        X = numpy.array([
+           numpy.array([1.0, dat[4]]) / numpy.sqrt(1 + dat[4]**2) * dat[5]
+           for dat in datak['data']
+           ]).T
 
         if X.shape[1] < 2:
             continue
 
+        # Curve fit an ellipse with the data
         (a, b, theta), _ = curve_fit(
+            # dont' divide by a**2, b**2 here to avoid numerical difficulties
+            # when optimizing
             lambda X, a, b, theta: (
                 + a**2 * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))**2
                 + b**2 * (X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))**2
@@ -371,34 +367,22 @@ def show_macadam(
             X, numpy.ones(X.shape[1])
             )
 
+        # plot the ellipse
         e = Ellipse(
             xy=[datak['x'], datak['y']],
             width=scaling * 2/a, height=scaling * 2/b,
             angle=theta / numpy.pi * 180
             )
-        ax = plt.gca()
         ax.add_artist(e)
-        e.set_clip_box(ax.bbox)
         e.set_alpha(0.5)
-        e .set_facecolor('k')
-        # plt.show()
+        e.set_facecolor('k')
 
         if plot_standard_deviations:
-            for i in range(len(datak['data'])):
-                # plot ellipse diameter
-                dat = datak['data'][i]
-                dy_dx = dat[4]
-                ds = dat[5]
-                d = (
-                    scaling *
-                    numpy.array([1.0, dy_dx]) / numpy.sqrt(1 + dy_dx**2) * ds
-                    )
-                # xy = numpy.array([dat['x'], dat['y']])
-                plt.plot(
-                    [datak['x'] - d[0], datak['x'] + d[0]],
-                    [datak['y'] - d[1], datak['y'] + d[1]],
-                    'kx'
-                    )
+            plt.plot(
+                [datak['x'] - scaling*X[0], datak['x'] + scaling*X[0]],
+                [datak['y'] - scaling*X[1], datak['y'] + scaling*X[1]],
+                'kx'
+                )
 
     plt.show()
     return
