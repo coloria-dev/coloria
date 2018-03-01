@@ -33,7 +33,7 @@ whitepoints_cie1964 = {
     }
 
 
-def spectrum_to_xyz100(spectrum, observer=observers.cie_1931_2()):
+def spectrum_to_xyz100(spectrum, observer):
     '''Computes the tristimulus values XYZ from a given spectrum for a given
     observer via
 

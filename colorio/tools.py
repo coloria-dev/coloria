@@ -15,6 +15,7 @@ import yaml
 from .illuminants import (
     spectrum_to_xyz100, planckian_radiator, whitepoints_cie1931
     )
+from . import observers
 from .rec2020 import Rec2020
 from .srgb import SrgbLinear
 from .xyy import XYY
@@ -136,7 +137,7 @@ def partition(boxes, balls):
     return list(rec(boxes, balls))
 
 
-def _plot_monochromatic():
+def _plot_monochromatic(observer):
     # draw outline of monochromatic spectra
     lmbda = 1.0e-9 * numpy.arange(380, 701)
     values = []
@@ -144,7 +145,9 @@ def _plot_monochromatic():
     for k, _ in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
-        values.append(XYY().from_xyz100(spectrum_to_xyz100((lmbda, data)))[:2])
+        values.append(XYY().from_xyz100(
+            spectrum_to_xyz100((lmbda, data), observer)
+            )[:2])
     values = numpy.array(values)
     # fill horseshoe area
     plt.fill(values[:, 0], values[:, 1], color=[0.8, 0.8, 0.8], zorder=0)
@@ -186,12 +189,12 @@ def _plot_rgb_triangle():
     return
 
 
-def _plot_planckian_locus():
+def _plot_planckian_locus(observer):
     # plot planckian locus
     values = []
     for temp in numpy.arange(1000, 20001, 100):
         xyy_vals = XYY().from_xyz100(
-            spectrum_to_xyz100(planckian_radiator(temp))
+            spectrum_to_xyz100(planckian_radiator(temp), observer)
             )
         values.append(xyy_vals[:2])
     values = numpy.array(values)
@@ -202,11 +205,14 @@ def _plot_planckian_locus():
 def plot_gamut_diagram(plot_rgb_triangle=True, plot_planckian_locus=True):
     plt.plot([0.0, 1.0], [1.0, 0.0], color='0.8')
 
-    _plot_monochromatic()
+    observer = observers.cie_1931_2()
+    # observer = observers.cie_1964_10()
+
+    _plot_monochromatic(observer)
     if plot_rgb_triangle:
         _plot_rgb_triangle()
     if plot_planckian_locus:
-        _plot_planckian_locus()
+        _plot_planckian_locus(observer)
 
     plt.xlim(xmin=0, xmax=0.8)
     plt.ylim(ymin=0, ymax=0.9)
@@ -384,6 +390,40 @@ def show_macadam(scaling=1,
                 [datak['y'] - scaling*X[1], datak['y'] + scaling*X[1]],
                 'kx'
                 )
+
+    plt.show()
+    return
+
+
+def show_luo_rigg(scaling=1):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(dir_path, 'data/luo-rigg/luo-rigg.yaml')) as f:
+        data = yaml.safe_load(f)
+
+    plot_gamut_diagram(plot_planckian_locus=False, plot_rgb_triangle=False)
+    ax = plt.gca()
+
+    for _, data_set in data.items():
+        # The set factor is the mean of the R values
+        # set_factor = (
+        #     numpy.sum(numpy.array(list(data_set.values()))[:, -1])
+        #     / len(data_set)
+        #     )
+        for _, dat in data_set.items():
+            x, y, Y, a, ab, theta, _ = dat
+            a /= 1.0e4
+            a *= (Y/30)**0.2
+
+            b = a / ab
+
+            a *= scaling  # * R / set_factor
+            b *= scaling  # * R / set_factor
+
+            # plot the ellipse
+            e = Ellipse(xy=[x, y], width=2*a, height=2*b, angle=theta)
+            ax.add_artist(e)
+            e.set_alpha(0.5)
+            e.set_facecolor('black')
 
     plt.show()
     return

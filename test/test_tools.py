@@ -89,8 +89,13 @@ def test_macadam():
     return
 
 
+def test_luo_rigg():
+    colorio.show_luo_rigg(scaling=1.5)
+    return
+
+
 if __name__ == '__main__':
-    test_macadam()
+    test_luo_rigg()
     exit(1)
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.Rec2020()
