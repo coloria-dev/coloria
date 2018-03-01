@@ -387,3 +387,31 @@ def show_macadam(scaling=1,
 
     plt.show()
     return
+
+
+def show_luo_rigg(scaling=1):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(dir_path, 'data/luo-rigg/luo-rigg.yaml')) as f:
+        data = yaml.safe_load(f)
+
+    plot_gamut_diagram(plot_planckian_locus=False)
+    ax = plt.gca()
+
+    for set_name, data_set in data.items():
+        for color_name, dat in data_set.items():
+            x, y, Y, a, ab, theta, R = dat
+            a /= 1.0e4
+            b = a / ab
+
+            # plot the ellipse
+            e = Ellipse(
+                xy=[x, y],
+                width=scaling * 2*a, height=scaling * 2*b,
+                angle=theta
+                )
+            ax.add_artist(e)
+            e.set_alpha(0.5)
+            e.set_facecolor('k')
+
+    plt.show()
+    return
