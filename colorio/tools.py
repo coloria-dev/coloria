@@ -403,14 +403,14 @@ def show_luo_rigg(scaling=1):
     plot_gamut_diagram(plot_planckian_locus=False, plot_rgb_triangle=False)
     ax = plt.gca()
 
-    for set_name, data_set in data.items():
+    for _, data_set in data.items():
         # The set factor is the mean of the R values
         # set_factor = (
         #     numpy.sum(numpy.array(list(data_set.values()))[:, -1])
         #     / len(data_set)
         #     )
-        for color_name, dat in data_set.items():
-            x, y, Y, a, ab, theta, R = dat
+        for _, dat in data_set.items():
+            x, y, Y, a, ab, theta, _ = dat
             a /= 1.0e4
             a *= (Y/30)**0.2
 
