@@ -49,7 +49,9 @@ def test_show():
 
 
 def test_spectrum_to_xyz100():
-    colorio.illuminants.spectrum_to_xyz100(colorio.illuminants.d65())
+    spectrum = colorio.illuminants.d65()
+    observer = colorio.observers.cie_1931_2()
+    colorio.illuminants.spectrum_to_xyz100(spectrum, observer)
     return
 
 

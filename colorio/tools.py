@@ -15,6 +15,7 @@ import yaml
 from .illuminants import (
     spectrum_to_xyz100, planckian_radiator, whitepoints_cie1931
     )
+from . import observers
 from .rec2020 import Rec2020
 from .srgb import SrgbLinear
 from .xyy import XYY
@@ -141,10 +142,13 @@ def _plot_monochromatic():
     lmbda = 1.0e-9 * numpy.arange(380, 701)
     values = []
     # TODO vectorize (see <https://github.com/numpy/numpy/issues/10439>)
+    observer = observers.cie_1931_2()
     for k, _ in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
-        values.append(XYY().from_xyz100(spectrum_to_xyz100((lmbda, data)))[:2])
+        values.append(XYY().from_xyz100(
+            spectrum_to_xyz100((lmbda, data), observer)
+            )[:2])
     values = numpy.array(values)
     # fill horseshoe area
     plt.fill(values[:, 0], values[:, 1], color=[0.8, 0.8, 0.8], zorder=0)
@@ -188,10 +192,11 @@ def _plot_rgb_triangle():
 
 def _plot_planckian_locus():
     # plot planckian locus
+    observer = observers.cie_1931_2()
     values = []
     for temp in numpy.arange(1000, 20001, 100):
         xyy_vals = XYY().from_xyz100(
-            spectrum_to_xyz100(planckian_radiator(temp))
+            spectrum_to_xyz100(planckian_radiator(temp), observer)
             )
         values.append(xyy_vals[:2])
     values = numpy.array(values)
@@ -394,24 +399,30 @@ def show_luo_rigg(scaling=1):
     with open(os.path.join(dir_path, 'data/luo-rigg/luo-rigg.yaml')) as f:
         data = yaml.safe_load(f)
 
-    plot_gamut_diagram(plot_planckian_locus=False)
+    plot_gamut_diagram(plot_planckian_locus=False, plot_rgb_triangle=False)
     ax = plt.gca()
 
     for set_name, data_set in data.items():
+        # The set factor is the mean of the R values
+        # set_factor = (
+        #     numpy.sum(numpy.array(list(data_set.values()))[:, -1])
+        #     / len(data_set)
+        #     )
         for color_name, dat in data_set.items():
             x, y, Y, a, ab, theta, R = dat
             a /= 1.0e4
+            a *= (Y/30)**0.2
+
             b = a / ab
 
+            a *= scaling  # * R / set_factor
+            b *= scaling  # * R / set_factor
+
             # plot the ellipse
-            e = Ellipse(
-                xy=[x, y],
-                width=scaling * 2*a, height=scaling * 2*b,
-                angle=theta
-                )
+            e = Ellipse(xy=[x, y], width=2*a, height=2*b, angle=theta)
             ax.add_artist(e)
             e.set_alpha(0.5)
-            e.set_facecolor('k')
+            e.set_facecolor('black')
 
     plt.show()
     return
