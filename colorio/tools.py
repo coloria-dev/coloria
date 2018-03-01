@@ -137,12 +137,11 @@ def partition(boxes, balls):
     return list(rec(boxes, balls))
 
 
-def _plot_monochromatic():
+def _plot_monochromatic(observer):
     # draw outline of monochromatic spectra
     lmbda = 1.0e-9 * numpy.arange(380, 701)
     values = []
     # TODO vectorize (see <https://github.com/numpy/numpy/issues/10439>)
-    observer = observers.cie_1931_2()
     for k, _ in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
@@ -190,9 +189,8 @@ def _plot_rgb_triangle():
     return
 
 
-def _plot_planckian_locus():
+def _plot_planckian_locus(observer):
     # plot planckian locus
-    observer = observers.cie_1931_2()
     values = []
     for temp in numpy.arange(1000, 20001, 100):
         xyy_vals = XYY().from_xyz100(
@@ -207,11 +205,14 @@ def _plot_planckian_locus():
 def plot_gamut_diagram(plot_rgb_triangle=True, plot_planckian_locus=True):
     plt.plot([0.0, 1.0], [1.0, 0.0], color='0.8')
 
-    _plot_monochromatic()
+    observer = observers.cie_1931_2()
+    # observer = observers.cie_1964_10()
+
+    _plot_monochromatic(observer)
     if plot_rgb_triangle:
         _plot_rgb_triangle()
     if plot_planckian_locus:
-        _plot_planckian_locus()
+        _plot_planckian_locus(observer)
 
     plt.xlim(xmin=0, xmax=0.8)
     plt.ylim(ymin=0, ymax=0.9)
