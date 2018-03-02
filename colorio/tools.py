@@ -229,9 +229,9 @@ def show_ebner_fairchild(colorspace):
     with open(os.path.join(dir_path, 'data/ebner_fairchild.yaml')) as f:
         data = yaml.safe_load(f)
 
-    # show white point
-    wp = colorspace.from_xyz100(numpy.array(data['white point']))
-    plt.plot(wp[1], wp[2], '.k')
+    # white point
+    wp = colorspace.from_xyz100(numpy.array(data['white point']))[1:]
+    plt.plot(wp[0], wp[1], 'x')
 
     srgb = SrgbLinear()
     for item in data['data']:
@@ -239,17 +239,43 @@ def show_ebner_fairchild(colorspace):
         xyz = numpy.array(item['same']).T
         # The points are sorted by the first components d[0] (typically
         # luminance).
-        d = colorspace.from_xyz100(xyz)
-
         # Deliberatly only handle the two last components, e.g., a* b* from
         # L*a*b*. They typically indicate the chroma.
-        plt.plot(d[1], d[2], '-', color='0.5')
+        d = colorspace.from_xyz100(xyz)[1:]
+
+        # Connect the dots
+        # plt.plot(d[1], d[2], '-', color='0.5')
+
+        # Find best fit line through all points
+        def ff(X, theta):
+            return (
+                + numpy.sin(theta) * (X[0] - wp[0])
+                + numpy.cos(theta) * (X[1] - wp[1])
+                )
+        (theta,), _ = curve_fit(ff, d, numpy.zeros(d.shape[1]))
+        # Plot it from wp to the outmost point
+        # sign = numpy.sign((d[-1][0] - wp[0]))
+        length = numpy.sqrt(numpy.max(
+            numpy.einsum('ij,ij->i', (d.T-wp), (d.T-wp))
+            ))
+        ex = length * numpy.array([numpy.cos(theta), -numpy.sin(theta)])
+        end_point = wp + ex
+        if numpy.linalg.norm(end_point - d[:, -1]) > numpy.linalg.norm(end_point - wp):
+            end_point = wp - ex
+        plt.plot(
+            [wp[0], end_point[0]], [wp[1], end_point[1]], '-', color='0.5'
+            )
+
+        # plot the color points
         for dd, xyz_ in zip(d.T, xyz.T):
             rgb = srgb.from_xyz100(xyz_)
             is_legal_srgb = numpy.all(rgb >= 0) and numpy.all(rgb <= 1)
             col = srgb.to_srgb1(rgb) if is_legal_srgb else 'white'
             ecol = srgb.to_srgb1(rgb) if is_legal_srgb else 'k'
-            plt.plot(dd[1], dd[2], 'o', color=col, markeredgecolor=ecol)
+            plt.plot(dd[0], dd[1], 'o', color=col, markeredgecolor=ecol)
+
+        # plt.show()
+        # exit(1)
 
     plt.axis('equal')
     plt.show()
