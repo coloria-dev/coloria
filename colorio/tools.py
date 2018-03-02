@@ -234,8 +234,10 @@ def show_ebner_fairchild(colorspace):
 
     srgb = SrgbLinear()
     for item in data['data']:
-        rgb = srgb.to_srgb1(srgb.from_xyz100(item['reference xyz']))
-        xyz = numpy.array(item['same']).T
+        xyz = numpy.column_stack([
+            item['reference xyz'],
+            numpy.array(item['same']).T
+            ])
         # The points are sorted by the first components d[0] (typically
         # luminance).
         # Deliberatly only handle the two last components, e.g., a* b* from
