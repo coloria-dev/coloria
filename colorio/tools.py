@@ -8,7 +8,7 @@ import matplotlib
 from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 import numpy
-from scipy.optimize import curve_fit
+from scipy.optimize import curve_fit, least_squares
 from scipy.spatial import ConvexHull
 import yaml
 
@@ -231,7 +231,6 @@ def show_ebner_fairchild(colorspace):
 
     # white point
     wp = colorspace.from_xyz100(numpy.array(data['white point']))[1:]
-    plt.plot(wp[0], wp[1], 'x')
 
     srgb = SrgbLinear()
     for item in data['data']:
@@ -247,20 +246,26 @@ def show_ebner_fairchild(colorspace):
         # plt.plot(d[1], d[2], '-', color='0.5')
 
         # Find best fit line through all points
-        def ff(X, theta):
+        def ff2(theta):
             return (
-                + numpy.sin(theta) * (X[0] - wp[0])
-                + numpy.cos(theta) * (X[1] - wp[1])
+                + numpy.sin(theta) * (d[0] - wp[0])
+                + numpy.cos(theta) * (d[1] - wp[1])
                 )
-        (theta,), _ = curve_fit(ff, d, numpy.zeros(d.shape[1]))
+        out = least_squares(ff2, 0.0)
+        theta = out.x[0]
+
         # Plot it from wp to the outmost point
-        # sign = numpy.sign((d[-1][0] - wp[0]))
         length = numpy.sqrt(numpy.max(
             numpy.einsum('ij,ij->i', (d.T-wp), (d.T-wp))
             ))
+        # The solution theta can be rotated by pi and still give the same
+        # result. Find out on which side all the points are sitting and plot
+        # the line accordingly.
         ex = length * numpy.array([numpy.cos(theta), -numpy.sin(theta)])
         end_point = wp + ex
-        if numpy.linalg.norm(end_point - d[:, -1]) > numpy.linalg.norm(end_point - wp):
+        ep_d = numpy.linalg.norm(end_point - d[:, -1])
+        ep_wp = numpy.linalg.norm(end_point - wp)
+        if ep_d > ep_wp:
             end_point = wp - ex
         plt.plot(
             [wp[0], end_point[0]], [wp[1], end_point[1]], '-', color='0.5'
