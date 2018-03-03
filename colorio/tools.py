@@ -248,12 +248,13 @@ def show_ebner_fairchild(colorspace):
         # plt.plot(d[1], d[2], '-', color='0.5')
 
         # Find best fit line through all points
-        def ff2(theta):
+        def ff(theta):
             return (
                 + numpy.sin(theta) * (d[0] - wp[0])
                 + numpy.cos(theta) * (d[1] - wp[1])
                 )
-        out = least_squares(ff2, 0.0)
+        out = least_squares(ff, 0.0)
+        # print(out.cost)
         theta = out.x[0]
 
         # Plot it from wp to the outmost point
@@ -281,9 +282,6 @@ def show_ebner_fairchild(colorspace):
             ecol = srgb.to_srgb1(rgb) if is_legal_srgb else 'k'
             plt.plot(dd[0], dd[1], 'o', color=col, markeredgecolor=ecol)
 
-        # plt.show()
-        # exit(1)
-
     plt.axis('equal')
     plt.show()
     return
@@ -295,24 +293,50 @@ def show_hung_berns(colorspace):
         data = yaml.safe_load(f)
 
     # show white point
-    d = colorspace.from_xyz100(numpy.array(whitepoints_cie1931['C']))
-    plt.plot(d[1], d[2], '.k')
+    wp = colorspace.from_xyz100(numpy.array(whitepoints_cie1931['C']))[1:]
+    # plt.plot(d[1], d[2], '.k')
 
     srgb = SrgbLinear()
     for color_name in data.keys():
         dat = data[color_name]
         xyz = numpy.array(list(dat.values())).T
-        d = colorspace.from_xyz100(xyz)
+        d = colorspace.from_xyz100(xyz)[1:]
+
+        # Find best fit line through all points
+        def ff(theta):
+            return (
+                + numpy.sin(theta) * (d[0] - wp[0])
+                + numpy.cos(theta) * (d[1] - wp[1])
+                )
+        out = least_squares(ff, 0.0)
+        # print(out.cost)
+        theta = out.x[0]
+
+        # Plot it from wp to the outmost point
+        length = numpy.sqrt(numpy.max(
+            numpy.einsum('ij,ij->i', (d.T-wp), (d.T-wp))
+            ))
+        # The solution theta can be rotated by pi and still give the same
+        # result. Find out on which side all the points are sitting and plot
+        # the line accordingly.
+        ex = length * numpy.array([numpy.cos(theta), -numpy.sin(theta)])
+
+        end_point = wp + ex
+        ep_d = numpy.linalg.norm(end_point - d[:, -1])
+        ep_wp = numpy.linalg.norm(end_point - wp)
+        if ep_d > ep_wp:
+            end_point = wp - ex
+        plt.plot(
+            [wp[0], end_point[0]], [wp[1], end_point[1]], '-', color='0.5'
+            )
 
         # Deliberatly only handle the two last components, e.g., a* b* from
         # L*a*b*. They typically indicate the chroma.
-        # Plot the lines in black first, then the individual points.
-        plt.plot(d[1], d[2], '-', color='k')
         for dd, rgb in zip(d.T, srgb.from_xyz100(xyz).T):
             is_legal_srgb = numpy.all(rgb >= 0) and numpy.all(rgb <= 1)
             col = srgb.to_srgb1(rgb) if is_legal_srgb else 'white'
             ecol = srgb.to_srgb1(rgb) if is_legal_srgb else 'black'
-            plt.plot(dd[1], dd[2], 'o', color=col, markeredgecolor=ecol)
+            plt.plot(dd[0], dd[1], 'o', color=col, markeredgecolor=ecol)
 
     plt.axis('equal')
     plt.show()
