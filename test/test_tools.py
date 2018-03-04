@@ -96,8 +96,8 @@ def test_luo_rigg():
 
 if __name__ == '__main__':
     # test_luo_rigg()
-    test_macadam()
-    exit(1)
+    # test_macadam()
+    # exit(1)
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.Rec2020()
     # colorspace_ = colorio.XYZ()

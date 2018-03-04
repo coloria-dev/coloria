@@ -229,61 +229,14 @@ def show_ebner_fairchild(colorspace):
     with open(os.path.join(dir_path, 'data/ebner_fairchild.yaml')) as f:
         data = yaml.safe_load(f)
 
-    # white point
     wp = colorspace.from_xyz100(numpy.array(data['white point']))[1:]
 
-    srgb = SrgbLinear()
-    for item in data['data']:
-        xyz = numpy.column_stack([
-            item['reference xyz'],
-            numpy.array(item['same']).T
-            ])
-        # The points are sorted by the first components d[0] (typically
-        # luminance).
-        # Deliberatly only handle the two last components, e.g., a* b* from
-        # L*a*b*. They typically indicate the chroma.
-        d = colorspace.from_xyz100(xyz)[1:]
+    d = [
+        numpy.column_stack([dat['reference xyz'], numpy.array(dat['same']).T])
+        for dat in data['data']
+        ]
 
-        # Connect the dots
-        # plt.plot(d[1], d[2], '-', color='0.5')
-
-        # Find best fit line through all points
-        def ff(theta):
-            return (
-                + numpy.sin(theta) * (d[0] - wp[0])
-                + numpy.cos(theta) * (d[1] - wp[1])
-                )
-        out = least_squares(ff, 0.0)
-        # print(out.cost)
-        theta = out.x[0]
-
-        # Plot it from wp to the outmost point
-        length = numpy.sqrt(numpy.max(
-            numpy.einsum('ij,ij->i', (d.T-wp), (d.T-wp))
-            ))
-        # The solution theta can be rotated by pi and still give the same
-        # result. Find out on which side all the points are sitting and plot
-        # the line accordingly.
-        ex = length * numpy.array([numpy.cos(theta), -numpy.sin(theta)])
-        end_point = wp + ex
-        ep_d = numpy.linalg.norm(end_point - d[:, -1])
-        ep_wp = numpy.linalg.norm(end_point - wp)
-        if ep_d > ep_wp:
-            end_point = wp - ex
-        plt.plot(
-            [wp[0], end_point[0]], [wp[1], end_point[1]], '-', color='0.5'
-            )
-
-        # plot the color points
-        for dd, xyz_ in zip(d.T, xyz.T):
-            rgb = srgb.from_xyz100(xyz_)
-            is_legal_srgb = numpy.all(rgb >= 0) and numpy.all(rgb <= 1)
-            col = srgb.to_srgb1(rgb) if is_legal_srgb else 'white'
-            ecol = srgb.to_srgb1(rgb) if is_legal_srgb else 'k'
-            plt.plot(dd[0], dd[1], 'o', color=col, markeredgecolor=ecol)
-
-    plt.axis('equal')
-    plt.show()
+    _show_color_constancy_data(d, wp, colorspace)
     return
 
 
@@ -292,25 +245,37 @@ def show_hung_berns(colorspace):
     with open(os.path.join(dir_path, 'data/hung-berns/table3.yaml')) as f:
         data = yaml.safe_load(f)
 
-    # show white point
     wp = colorspace.from_xyz100(numpy.array(whitepoints_cie1931['C']))[1:]
-    # plt.plot(d[1], d[2], '.k')
 
+    d = [numpy.array(list(color.values())).T for color in data.values()]
+
+    _show_color_constancy_data(d, wp, colorspace)
+    return
+
+
+def _show_color_constancy_data(data, wp, colorspace):
     srgb = SrgbLinear()
-    for color_name in data.keys():
-        dat = data[color_name]
-        xyz = numpy.array(list(dat.values())).T
+    for xyz in data:
         d = colorspace.from_xyz100(xyz)[1:]
 
         # Find best fit line through all points
-        def ff(theta):
+        def f(theta):
             return (
                 + numpy.sin(theta) * (d[0] - wp[0])
                 + numpy.cos(theta) * (d[1] - wp[1])
                 )
-        out = least_squares(ff, 0.0)
-        # print(out.cost)
-        theta = out.x[0]
+
+        def jac(theta):
+            return (
+                + numpy.cos(theta) * (d[0] - wp[0])
+                - numpy.sin(theta) * (d[1] - wp[1])
+                )
+
+        # out = least_squares(f, 0.0)
+        # out = leastsq(f, 0.0, full_output=True)
+
+        out, _ = leastsq(f, 0.0, Dfun=jac)
+        theta = out[0]
 
         # Plot it from wp to the outmost point
         length = numpy.sqrt(numpy.max(
@@ -433,24 +398,22 @@ def show_macadam(scaling=1,
 
         def f(data):
             a, b, theta = data
-            out = (
+            return (
                 + a**2 * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))**2
                 + b**2 * (X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))**2
                 - 1.0
                 )
-            return out
 
         def jac(data):
             a, b, theta = data
-            out = numpy.array([
+            return numpy.array([
                 + 2*a * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))**2,
                 + 2*b * (X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))**2,
                 + a**2 * 2*(X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))
                 * (-X[0] * numpy.sin(theta) + X[1] * numpy.cos(theta))
                 + b**2 * 2*(X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))
                 * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta)),
-                ])
-            return out.T
+                ]).T
 
         (a, b, theta), _ = leastsq(f, [1.0, 1.0, 0.0], Dfun=jac)
         # (a, b, theta), _, infodict, msg, ierr = \
