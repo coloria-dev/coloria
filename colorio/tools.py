@@ -8,7 +8,7 @@ import matplotlib
 from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 import numpy
-from scipy.optimize import curve_fit, least_squares
+from scipy.optimize import least_squares, leastsq
 from scipy.spatial import ConvexHull
 import yaml
 
@@ -420,21 +420,47 @@ def show_macadam(scaling=1,
         if X.shape[1] < 2:
             continue
 
-        # Curve fit an ellipse with the data
-        (a, b, theta), _ = curve_fit(
-            # dont' divide by a**2, b**2 here to avoid numerical difficulties
-            # when optimizing
-            lambda X, a, b, theta: (
+        # # Curve fit an ellipse with the data
+        # (a, b, theta), _ = curve_fit(
+        #     # dont' divide by a**2, b**2 here to avoid numerical difficulties
+        #     # when optimizing
+        #     lambda X, a, b, theta: (
+        #         + a**2 * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))**2
+        #         + b**2 * (X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))**2
+        #         ),
+        #     X, numpy.ones(X.shape[1])
+        #     )
+
+        def f(data):
+            a, b, theta = data
+            out = (
                 + a**2 * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))**2
                 + b**2 * (X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))**2
-                ),
-            X, numpy.ones(X.shape[1])
-            )
+                - 1.0
+                )
+            return out
+
+        def jac(data):
+            a, b, theta = data
+            out = numpy.array([
+                + 2*a * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))**2,
+                + 2*b * (X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))**2,
+                + a**2 * 2*(X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))
+                * (-X[0] * numpy.sin(theta) + X[1] * numpy.cos(theta))
+                + b**2 * 2*(X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))
+                * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta)),
+                ])
+            return out.T
+
+        (a, b, theta), _ = leastsq(f, [1.0, 1.0, 0.0], Dfun=jac)
+        # (a, b, theta), _, infodict, msg, ierr = \
+        #     leastsq(f, [1.0, 1.0, 0.0], full_output=True, Dfun=jac)
+        # print(infodict['nfev'])
 
         # plot the ellipse
         e = Ellipse(
             xy=[datak['x'], datak['y']],
-            width=scaling * 2/a, height=scaling * 2/b,
+            width=scaling*2/a, height=scaling*2/b,
             angle=theta / numpy.pi * 180
             )
         ax.add_artist(e)
