@@ -307,6 +307,8 @@ def _show_color_constancy_data(data, wp, colorspace):
         # out = leastsq(f, 0.0, full_output=True)
 
         out, _ = leastsq(f, 0.0, Dfun=jac)
+        # We have to take the first element here, see
+        # <https://github.com/scipy/scipy/issues/8532>.
         theta = out[0]
 
         # Plot it from wp to the outmost point
