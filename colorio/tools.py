@@ -253,6 +253,38 @@ def show_hung_berns(colorspace):
     return
 
 
+def show_xiao(colorspace):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+
+    filenames = [
+        'unique_blue.yaml', 'unique_green.yaml', 'unique_red.yaml',
+        'unique_yellow.yaml'
+        ]
+
+    data = []
+    for filename in filenames:
+        with open(os.path.join(dir_path, 'data', 'xiao', filename)) as f:
+            dat = numpy.array(yaml.safe_load(f))
+        # average over all observers and sessions
+        data.append(
+            numpy.sum(dat, axis=(0, 1)) / numpy.prod(dat.shape[:2])
+            )
+
+    data = numpy.array(data)
+
+    # Use Xiao's 'neutral gray' as white point.
+    with open(os.path.join(dir_path, 'data/xiao/neutral_gray.yaml')) as f:
+        ng_data = numpy.array(yaml.safe_load(f))
+
+    ng = numpy.sum(ng_data, axis=0) / numpy.prod(ng_data.shape[:1])
+    ng_cs = colorspace.from_xyz100(ng)[1:]
+
+    data = numpy.moveaxis(data, 1, 2)
+
+    _show_color_constancy_data(data, ng_cs, colorspace)
+    return
+
+
 def _show_color_constancy_data(data, wp, colorspace):
     srgb = SrgbLinear()
     for xyz in data:

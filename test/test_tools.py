@@ -79,6 +79,14 @@ def test_hung_berns(colorspace):
 @pytest.mark.parametrize('colorspace', [
     colorio.CIELAB(),
     ])
+def test_xiao(colorspace):
+    colorio.show_xiao(colorspace)
+    return
+
+
+@pytest.mark.parametrize('colorspace', [
+    colorio.CIELAB(),
+    ])
 def test_munsell(colorspace):
     colorio.show_munsell(colorspace, V=5)
     return
@@ -112,5 +120,6 @@ if __name__ == '__main__':
     # test_visible_gamut(colorspace_, cut_000=False)
     # test_srgb_gamut(colorspace_, cut_000=False)
     # test_ebner_fairchild(colorspace_)
-    test_hung_berns(colorspace_)
+    # test_hung_berns(colorspace_)
+    test_xiao(colorspace_)
     # test_munsell(colorspace_)
