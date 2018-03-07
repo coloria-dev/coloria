@@ -17,6 +17,9 @@
 # 3. the measurement index
 # 4. the xyz values.
 #
+# Dark Room
+# luminance: 114.6
+# background xy: [0.2897, 0.2977]
 - - - [51.58, 35.97, 28.05]
     - [46.78, 35.96, 34.37]
     - [64.77, 56.9, 68.18]

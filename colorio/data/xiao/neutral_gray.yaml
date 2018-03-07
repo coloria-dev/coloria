@@ -12,6 +12,8 @@
 # The data represent the neutral gray measurements for every individual
 # observer.
 #
+# luminance: 0.2
+#
 - [57.65, 59.86, 79.01]
 - [57.87, 59.86, 77.04]
 - [57.10, 59.86, 82.54]
