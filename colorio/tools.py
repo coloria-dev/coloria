@@ -8,7 +8,7 @@ import matplotlib
 from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 import numpy
-from scipy.optimize import least_squares, leastsq
+from scipy.optimize import leastsq
 from scipy.spatial import ConvexHull
 import yaml
 
@@ -291,16 +291,16 @@ def _show_color_constancy_data(data, wp, colorspace):
         d = colorspace.from_xyz100(xyz)[1:]
 
         # Find best fit line through all points
-        def f(theta):
+        def f(theta, D=d):
             return (
-                + numpy.sin(theta) * (d[0] - wp[0])
-                + numpy.cos(theta) * (d[1] - wp[1])
+                + numpy.sin(theta) * (D[0] - wp[0])
+                + numpy.cos(theta) * (D[1] - wp[1])
                 )
 
-        def jac(theta):
+        def jac(theta, D=d):
             return (
-                + numpy.cos(theta) * (d[0] - wp[0])
-                - numpy.sin(theta) * (d[1] - wp[1])
+                + numpy.cos(theta) * (D[0] - wp[0])
+                - numpy.sin(theta) * (D[1] - wp[1])
                 )
 
         # out = least_squares(f, 0.0)
@@ -430,26 +430,26 @@ def show_macadam(scaling=1,
         #     X, numpy.ones(X.shape[1])
         #     )
 
-        def f(data):
+        def f_ellipse(data, x=X):
             a, b, theta = data
             return (
-                + a**2 * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))**2
-                + b**2 * (X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))**2
+                + a**2 * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))**2
+                + b**2 * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))**2
                 - 1.0
                 )
 
-        def jac(data):
+        def jac(data, x=X):
             a, b, theta = data
             return numpy.array([
-                + 2*a * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))**2,
-                + 2*b * (X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))**2,
-                + a**2 * 2*(X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))
-                * (-X[0] * numpy.sin(theta) + X[1] * numpy.cos(theta))
-                + b**2 * 2*(X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))
-                * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta)),
+                + 2*a * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))**2,
+                + 2*b * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))**2,
+                + a**2 * 2*(x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))
+                * (-x[0] * numpy.sin(theta) + x[1] * numpy.cos(theta))
+                + b**2 * 2*(x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))
+                * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)),
                 ]).T
 
-        (a, b, theta), _ = leastsq(f, [1.0, 1.0, 0.0], Dfun=jac)
+        (a, b, theta), _ = leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac)
         # (a, b, theta), _, infodict, msg, ierr = \
         #     leastsq(f, [1.0, 1.0, 0.0], full_output=True, Dfun=jac)
         # print(infodict['nfev'])
