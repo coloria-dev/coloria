@@ -118,6 +118,21 @@ colorio.show_gamut_diagram()
 colorio contains lots of experimental data sets some of which can be used to
 assess certain properties of color spaces.
 
+
+###### MacAdam
+
+<img src="https://nschloe.github.io/colorio/macadam.png" width="30%">
+
+The famous MacAdam ellipses (from [this
+article](https://doi.org/10.1364%2FJOSA.32.000247)) can be plotted with
+```python
+colorio.show_macadam(
+    scaling=10,
+    plot_filter_positions=False,
+    plot_standard_deviations=False
+    )
+```
+
 ###### Ebner-Fairchild
 
 <img src="https://nschloe.github.io/colorio/ebner_fairchild_jzazbz.png" width="40%">
@@ -134,21 +149,6 @@ J<sub>z</sub>a<sub>z</sub>b<sub>z</sub> color space. (Ideally, all colors in
 one set sit on a line.)
 
 
-###### MacAdam
-
-<img src="https://nschloe.github.io/colorio/macadam.png" width="30%">
-
-The famous MacAdam ellipses (from [this
-article](https://doi.org/10.1364%2FJOSA.32.000247)) can be plotted with
-```python
-colorio.show_macadam(
-    scaling=10,
-    plot_filter_positions=False,
-    plot_standard_deviations=False
-    )
-```
-
-
 ###### Hung-Berns
 Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
 
@@ -157,6 +157,16 @@ Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
 ```python
 colorspace = colorio.JzAzBz()
 colorio.show_hung_berns(colorspace)
+```
+
+###### Xiao et al.
+Likewise for [Xiao et al.](https://doi.org/10.1002/col.20637):
+
+<img src="https://nschloe.github.io/colorio/xiao.png" width="40%">
+
+```python
+colorspace = colorio.CIELAB()
+colorio.show_xiao(colorspace)
 ```
 
 ##### Munsell
