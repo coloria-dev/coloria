@@ -5,7 +5,7 @@ Data from
 _Unique Hue Data for Colour Appearance Models. Part I: Loci of Unique Hues and
 Hue Uniformity,_
 Color Reseach and Application, Volume 36, Issue 5, October 2011, Pages
-316–323.](https://doi.org/10.1002/col.20637)
+316-323.](https://doi.org/10.1002/col.20637)
 
 Data retrieved by e-mail from Kaida Xiao.
 
