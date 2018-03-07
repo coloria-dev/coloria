@@ -35,6 +35,7 @@ setup(
         'data/observers/*.yaml',
         'data/illuminants/*.yaml',
         'data/luo-rigg/*.yaml',
+        'data/xiao/*.yaml',
         ]},
     url='https://github.com/nschloe/colorio',
     download_url='https://pypi.python.org/pypi/colorio',

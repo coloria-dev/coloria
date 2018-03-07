@@ -8,7 +8,7 @@ import matplotlib
 from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 import numpy
-from scipy.optimize import curve_fit
+from scipy.optimize import leastsq
 from scipy.spatial import ConvexHull
 import yaml
 
@@ -229,30 +229,14 @@ def show_ebner_fairchild(colorspace):
     with open(os.path.join(dir_path, 'data/ebner_fairchild.yaml')) as f:
         data = yaml.safe_load(f)
 
-    # show white point
-    wp = colorspace.from_xyz100(numpy.array(data['white point']))
-    plt.plot(wp[1], wp[2], '.k')
+    wp = colorspace.from_xyz100(numpy.array(data['white point']))[1:]
 
-    srgb = SrgbLinear()
-    for item in data['data']:
-        rgb = srgb.to_srgb1(srgb.from_xyz100(item['reference xyz']))
-        xyz = numpy.array(item['same']).T
-        # The points are sorted by the first components d[0] (typically
-        # luminance).
-        d = colorspace.from_xyz100(xyz)
+    d = [
+        numpy.column_stack([dat['reference xyz'], numpy.array(dat['same']).T])
+        for dat in data['data']
+        ]
 
-        # Deliberatly only handle the two last components, e.g., a* b* from
-        # L*a*b*. They typically indicate the chroma.
-        plt.plot(d[1], d[2], '-', color='0.5')
-        for dd, xyz_ in zip(d.T, xyz.T):
-            rgb = srgb.from_xyz100(xyz_)
-            is_legal_srgb = numpy.all(rgb >= 0) and numpy.all(rgb <= 1)
-            col = srgb.to_srgb1(rgb) if is_legal_srgb else 'white'
-            ecol = srgb.to_srgb1(rgb) if is_legal_srgb else 'k'
-            plt.plot(dd[1], dd[2], 'o', color=col, markeredgecolor=ecol)
-
-    plt.axis('equal')
-    plt.show()
+    _show_color_constancy_data(d, wp, colorspace)
     return
 
 
@@ -261,25 +245,97 @@ def show_hung_berns(colorspace):
     with open(os.path.join(dir_path, 'data/hung-berns/table3.yaml')) as f:
         data = yaml.safe_load(f)
 
-    # show white point
-    d = colorspace.from_xyz100(numpy.array(whitepoints_cie1931['C']))
-    plt.plot(d[1], d[2], '.k')
+    wp = colorspace.from_xyz100(numpy.array(whitepoints_cie1931['C']))[1:]
 
+    d = [numpy.array(list(color.values())).T for color in data.values()]
+
+    _show_color_constancy_data(d, wp, colorspace)
+    return
+
+
+def show_xiao(colorspace):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+
+    filenames = [
+        'unique_blue.yaml', 'unique_green.yaml', 'unique_red.yaml',
+        'unique_yellow.yaml'
+        ]
+
+    data = []
+    for filename in filenames:
+        with open(os.path.join(dir_path, 'data', 'xiao', filename)) as f:
+            dat = numpy.array(yaml.safe_load(f))
+        # average over all observers and sessions
+        data.append(
+            numpy.sum(dat, axis=(0, 1)) / numpy.prod(dat.shape[:2])
+            )
+
+    data = numpy.array(data)
+
+    # Use Xiao's 'neutral gray' as white point.
+    with open(os.path.join(dir_path, 'data/xiao/neutral_gray.yaml')) as f:
+        ng_data = numpy.array(yaml.safe_load(f))
+
+    ng = numpy.sum(ng_data, axis=0) / numpy.prod(ng_data.shape[:1])
+    ng_cs = colorspace.from_xyz100(ng)[1:]
+
+    data = numpy.moveaxis(data, 1, 2)
+
+    _show_color_constancy_data(data, ng_cs, colorspace)
+    return
+
+
+def _show_color_constancy_data(data, wp, colorspace):
     srgb = SrgbLinear()
-    for color_name in data.keys():
-        dat = data[color_name]
-        xyz = numpy.array(list(dat.values())).T
-        d = colorspace.from_xyz100(xyz)
+    for xyz in data:
+        d = colorspace.from_xyz100(xyz)[1:]
+
+        # Find best fit line through all points
+        def f(theta, D=d):
+            return (
+                + numpy.sin(theta) * (D[0] - wp[0])
+                + numpy.cos(theta) * (D[1] - wp[1])
+                )
+
+        def jac(theta, D=d):
+            return (
+                + numpy.cos(theta) * (D[0] - wp[0])
+                - numpy.sin(theta) * (D[1] - wp[1])
+                )
+
+        # out = least_squares(f, 0.0)
+        # out = leastsq(f, 0.0, full_output=True)
+
+        out, _ = leastsq(f, 0.0, Dfun=jac)
+        # We have to take the first element here, see
+        # <https://github.com/scipy/scipy/issues/8532>.
+        theta = out[0]
+
+        # Plot it from wp to the outmost point
+        length = numpy.sqrt(numpy.max(
+            numpy.einsum('ij,ij->i', (d.T-wp), (d.T-wp))
+            ))
+        # The solution theta can be rotated by pi and still give the same
+        # result. Find out on which side all the points are sitting and plot
+        # the line accordingly.
+        ex = length * numpy.array([numpy.cos(theta), -numpy.sin(theta)])
+
+        end_point = wp + ex
+        ep_d = numpy.linalg.norm(end_point - d[:, -1])
+        ep_wp = numpy.linalg.norm(end_point - wp)
+        if ep_d > ep_wp:
+            end_point = wp - ex
+        plt.plot(
+            [wp[0], end_point[0]], [wp[1], end_point[1]], '-', color='0.5'
+            )
 
         # Deliberatly only handle the two last components, e.g., a* b* from
         # L*a*b*. They typically indicate the chroma.
-        # Plot the lines in black first, then the individual points.
-        plt.plot(d[1], d[2], '-', color='k')
         for dd, rgb in zip(d.T, srgb.from_xyz100(xyz).T):
             is_legal_srgb = numpy.all(rgb >= 0) and numpy.all(rgb <= 1)
             col = srgb.to_srgb1(rgb) if is_legal_srgb else 'white'
             ecol = srgb.to_srgb1(rgb) if is_legal_srgb else 'black'
-            plt.plot(dd[1], dd[2], 'o', color=col, markeredgecolor=ecol)
+            plt.plot(dd[0], dd[1], 'o', color=col, markeredgecolor=ecol)
 
     plt.axis('equal')
     plt.show()
@@ -363,21 +419,45 @@ def show_macadam(scaling=1,
         if X.shape[1] < 2:
             continue
 
-        # Curve fit an ellipse with the data
-        (a, b, theta), _ = curve_fit(
-            # dont' divide by a**2, b**2 here to avoid numerical difficulties
-            # when optimizing
-            lambda X, a, b, theta: (
-                + a**2 * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))**2
-                + b**2 * (X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))**2
-                ),
-            X, numpy.ones(X.shape[1])
-            )
+        # # Curve fit an ellipse with the data
+        # (a, b, theta), _ = curve_fit(
+        #     # dont' divide by a**2, b**2 here to avoid numerical difficulties
+        #     # when optimizing
+        #     lambda X, a, b, theta: (
+        #         + a**2 * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))**2
+        #         + b**2 * (X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))**2
+        #         ),
+        #     X, numpy.ones(X.shape[1])
+        #     )
+
+        def f_ellipse(data, x=X):
+            a, b, theta = data
+            return (
+                + a**2 * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))**2
+                + b**2 * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))**2
+                - 1.0
+                )
+
+        def jac(data, x=X):
+            a, b, theta = data
+            return numpy.array([
+                + 2*a * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))**2,
+                + 2*b * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))**2,
+                + a**2 * 2*(x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))
+                * (-x[0] * numpy.sin(theta) + x[1] * numpy.cos(theta))
+                + b**2 * 2*(x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))
+                * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)),
+                ]).T
+
+        (a, b, theta), _ = leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac)
+        # (a, b, theta), _, infodict, msg, ierr = \
+        #     leastsq(f, [1.0, 1.0, 0.0], full_output=True, Dfun=jac)
+        # print(infodict['nfev'])
 
         # plot the ellipse
         e = Ellipse(
             xy=[datak['x'], datak['y']],
-            width=scaling * 2/a, height=scaling * 2/b,
+            width=scaling*2/a, height=scaling*2/b,
             angle=theta / numpy.pi * 180
             )
         ax.add_artist(e)

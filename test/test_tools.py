@@ -79,6 +79,14 @@ def test_hung_berns(colorspace):
 @pytest.mark.parametrize('colorspace', [
     colorio.CIELAB(),
     ])
+def test_xiao(colorspace):
+    colorio.show_xiao(colorspace)
+    return
+
+
+@pytest.mark.parametrize('colorspace', [
+    colorio.CIELAB(),
+    ])
 def test_munsell(colorspace):
     colorio.show_munsell(colorspace, V=5)
     return
@@ -95,16 +103,17 @@ def test_luo_rigg():
 
 
 if __name__ == '__main__':
-    test_luo_rigg()
-    exit(1)
+    # test_luo_rigg()
+    # test_macadam()
+    # exit(1)
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.Rec2020()
     # colorspace_ = colorio.XYZ()
     # colorspace_ = colorio.XYY()
     # colorspace_ = colorio.IPT()
     # colorspace_ = colorio.JzAzBz()
-    colorspace_ = colorio.CIELUV()
-    # colorspace_ = colorio.CIELAB()
+    # colorspace_ = colorio.CIELUV()
+    colorspace_ = colorio.CIELAB()
     # colorspace_ = colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5)
     # colorspace_ = colorio.CAM16UCS(0.69, 20, 64/numpy.pi/5)
     # test_hdr_gamut(colorspace_, n=10)
@@ -112,4 +121,5 @@ if __name__ == '__main__':
     # test_srgb_gamut(colorspace_, cut_000=False)
     # test_ebner_fairchild(colorspace_)
     # test_hung_berns(colorspace_)
-    test_munsell(colorspace_)
+    test_xiao(colorspace_)
+    # test_munsell(colorspace_)

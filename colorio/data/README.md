@@ -10,12 +10,6 @@
   Emailed <donghokim@korea.com> (2018-02-13).
   Emailed <donghokim@korea.com> (2018-02-28).
 
-* Kaida Xiao, Sophie Wuerger, Chenyang Fu, Dimosthenis Karatzas,
-  Unique Hue Data for Colour Appearance Models. Part I: Loci of Unique Hues and
-  Hue Uniformity.
-  Emailed <kaidaxiao@yahoo.co.uk> (2018-02-19).
-  Emailed <K.Xiao1@leeds.ac.uk> (2018-02-28).
-
 * The article
 
     Muhammad Safdar, Guihua Cui, Youn Jin Kim, Ming Ronnier Luo,
