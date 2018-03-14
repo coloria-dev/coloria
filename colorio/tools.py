@@ -513,17 +513,24 @@ def show_straights(cs):
     from mpl_toolkits.mplot3d import Axes3D
     # Some straight lines in XYZ
     t = numpy.linspace(0.0, 1.0, 101)
-    n = 100
+    n = 10
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     # ax.set_aspect('equal')
 
     for k in range(n):
-        s1 = 100 * numpy.random.rand(3)
+        s1 = numpy.random.rand(3)
         s1 /= numpy.linalg.norm(s1)
+        s1 *= 100
         line = numpy.outer(s1, t)
         cs_line = cs.from_xyz100(line)
+        # ax.plot(
+        #     [cs_line[0][0], cs_line[0][-1]],
+        #     [cs_line[1][0], cs_line[1][-1]],
+        #     [cs_line[2][0], cs_line[2][-1]],
+        #     color='0.5'
+        #     )
         ax.plot(*cs_line)
 
     ax.set_xlabel(cs.labels[0])

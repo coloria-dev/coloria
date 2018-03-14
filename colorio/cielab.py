@@ -15,18 +15,18 @@ class CIELAB(object):
 
     def from_xyz100(self, xyz):
         def f(t):
-            delta = 6.0/29.0
+            delta = 6 / 29
             out = numpy.array(t, dtype=float)
             is_greater = out > delta**3
-            out[is_greater] = numpy.cbrt(out[is_greater]) - 4.0/29.0
-            out[~is_greater] = out[~is_greater]/3/delta**2
+            out[is_greater] = 116 * numpy.cbrt(out[is_greater]) - 16
+            out[~is_greater] = out[~is_greater]/(delta/2)**3
             return out
 
         fx, fy, fz = f((xyz.T / self.whitepoint).T)
         return numpy.array([
-            116 * fy,
-            500 * (fx - fy),
-            200 * (fy - fz),
+            fy,
+            125/29 * (fx - fy),
+            50/29 * (fy - fz),
             ])
 
     def to_xyz100(self, lab):
