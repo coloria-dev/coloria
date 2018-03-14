@@ -22,6 +22,7 @@ class IPT(object):
             [4.4550, -4.8510, 0.3960],
             [0.8056, 0.3572, -1.1628],
             ])
+        self.labels = ['I', 'P', 'T']
         return
 
     def from_xyz100(self, xyz):

@@ -104,6 +104,7 @@ class CAM16UCS(object):
         self.c1 = 0.007
         self.c2 = 0.0228
         self.cam16 = CAM16(c, Y_b, L_A, exact_inversion, whitepoint)
+        self.labels = ['J\'', 'a\'', 'b\'']
         return
 
     def from_xyz100(self, xyz):

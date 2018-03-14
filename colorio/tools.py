@@ -507,3 +507,27 @@ def show_luo_rigg(scaling=1):
 
     plt.show()
     return
+
+
+def show_straights(cs):
+    from mpl_toolkits.mplot3d import Axes3D
+    # Some straight lines in XYZ
+    t = numpy.linspace(0.0, 1.0, 101)
+    n = 10
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    for k in range(n):
+        s1 = 100 * numpy.random.rand(3)
+        s1 /= numpy.linalg.norm(s1)
+        line = numpy.outer(s1, t)
+        cs_line = cs.from_xyz100(line)
+        ax.plot(*cs_line)
+
+    ax.set_xlabel(cs.labels[0])
+    ax.set_ylabel(cs.labels[1])
+    ax.set_zlabel(cs.labels[2])
+
+    plt.show()
+    return

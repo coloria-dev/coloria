@@ -9,6 +9,7 @@ from .illuminants import whitepoints_cie1931
 class CIELCH(object):
     def __init__(self, whitepoint=whitepoints_cie1931['D65']):
         self.cielab = cielab.CIELAB(whitepoint=whitepoint)
+        self.labels = ['L', 'C', 'h']
         return
 
     def from_xyz100(self, xyz):

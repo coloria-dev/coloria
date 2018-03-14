@@ -41,6 +41,8 @@ class JzAzBz(object):
             [3.524000, -4.066708, +0.542708],
             [0.199076, +1.096799, -1.295875],
             ])
+
+        self.labels = ['J_z', 'a_z', 'b_z']
         return
 
     def from_xyz100(self, xyz):
