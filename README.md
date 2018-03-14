@@ -109,7 +109,7 @@ locus](https://en.wikipedia.org/wiki/Planckian_locus) and the SRGB colors (at
 maximum luminosity).
 
 ```python
-colorio.show_gamut_diagram()
+colorio.show_xy_gamut()
 ```
 
 

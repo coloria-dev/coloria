@@ -39,8 +39,13 @@ def test_visible_gamut(colorspace, cut_000):
     return
 
 
-def test_gamut_diagram():
-    colorio.show_gamut_diagram()
+def test_xy_gamut():
+    colorio.show_xy_gamut()
+    return
+
+
+def test_uv_gamut():
+    colorio.show_uv_gamut()
     return
 
 
@@ -108,9 +113,10 @@ def test_show_straights(cs=colorio.CIELAB()):
 
 
 if __name__ == '__main__':
+    test_uv_gamut()
     # test_luo_rigg()
     # test_macadam()
-    # exit(1)
+    exit(1)
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.Rec2020()
     # colorspace_ = colorio.XYZ()
@@ -118,9 +124,9 @@ if __name__ == '__main__':
     # colorspace_ = colorio.IPT()
     # colorspace_ = colorio.JzAzBz()
     # colorspace_ = colorio.CIELUV()
-    # colorspace_ = colorio.CIELAB()
+    colorspace_ = colorio.CIELAB()
     # colorspace_ = colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5)
-    colorspace_ = colorio.CAM16UCS(0.69, 20, 64/numpy.pi/5)
+    # colorspace_ = colorio.CAM16UCS(0.69, 20, 64/numpy.pi/5)
     # test_hdr_gamut(colorspace_, n=10)
     # test_visible_gamut(colorspace_, cut_000=False)
     # test_srgb_gamut(colorspace_, cut_000=False)

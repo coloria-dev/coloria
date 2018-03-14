@@ -29,9 +29,9 @@ from .srgb import SrgbLinear
 from .xyy import XYY
 from .xyz import XYZ
 from .tools import (
-    show_srgb_gamut, show_hdr_gamut, show_visible_gamut, show_gamut_diagram,
-    delta, show_ebner_fairchild, show_hung_berns, show_munsell, show_macadam,
-    show_luo_rigg, show_xiao, show_straights
+    show_srgb_gamut, show_hdr_gamut, show_visible_gamut, show_xy_gamut,
+    show_uv_gamut, delta, show_ebner_fairchild, show_hung_berns, show_munsell,
+    show_macadam, show_luo_rigg, show_xiao, show_straights
     )
 
 try:

@@ -118,12 +118,6 @@ def show_hdr_gamut(colorspace, filename, n=50, cut_000=False):
     return
 
 
-def show_gamut_diagram(*args, **kwargs):
-    plot_gamut_diagram(*args, **kwargs)
-    plt.show()
-    return
-
-
 def partition(boxes, balls):
     # <https://stackoverflow.com/a/36748940/353337>
     def rec(boxes, balls, parent=tuple()):
@@ -137,7 +131,7 @@ def partition(boxes, balls):
     return list(rec(boxes, balls))
 
 
-def _plot_monochromatic(observer):
+def _plot_monochromatic(observer, xyz100_to_2d):
     # draw outline of monochromatic spectra
     lmbda = 1.0e-9 * numpy.arange(380, 701)
     values = []
@@ -145,9 +139,7 @@ def _plot_monochromatic(observer):
     for k, _ in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
-        values.append(XYY().from_xyz100(
-            spectrum_to_xyz100((lmbda, data), observer)
-            )[:2])
+        values.append(xyz100_to_2d(spectrum_to_xyz100((lmbda, data), observer)))
     values = numpy.array(values)
     # fill horseshoe area
     plt.fill(values[:, 0], values[:, 1], color=[0.8, 0.8, 0.8], zorder=0)
@@ -156,23 +148,24 @@ def _plot_monochromatic(observer):
     return
 
 
-def _plot_rgb_triangle():
+def _plot_rgb_triangle(xyz100_to_2d, bright=True):
     # plot sRGB triangle
     # discretization points
     n = 50
 
     # Get all RGB values that sum up to 1.
     rgb_linear = numpy.array(partition(3, n)).T / n
-    # For the x-y-diagram, it doesn't matter if the values are scaled in any
-    # way. After all, the tranlation to XYZ is linear, and then to xyY it's
-    # (X/(X+Y+Z), Y/(X+Y+Z), Y), so the factor will only be present in the last
-    # component which is discarded. To make the plot a bit brighter, scale the
-    # colors up as much as possible.
-    rgb_linear /= numpy.max(rgb_linear, axis=0)
+    if bright:
+        # For the x-y-diagram, it doesn't matter if the values are scaled in
+        # any way. After all, the tranlation to XYZ is linear, and then to xyY
+        # it's (X/(X+Y+Z), Y/(X+Y+Z), Y), so the factor will only be present in
+        # the last component which is discarded. To make the plot a bit
+        # brighter, scale the colors up as much as possible.
+        rgb_linear /= numpy.max(rgb_linear, axis=0)
 
     srgb_linear = SrgbLinear()
     xyz = srgb_linear.to_xyz100(rgb_linear)
-    xyy_vals = XYY().from_xyz100(xyz)
+    xyy_vals = xyz100_to_2d(xyz)
 
     # Unfortunately, one cannot use tripcolors with explicit RGB specification
     # (see <https://github.com/matplotlib/matplotlib/issues/10265>). As a
@@ -189,28 +182,31 @@ def _plot_rgb_triangle():
     return
 
 
-def _plot_planckian_locus(observer):
+def _plot_planckian_locus(observer, xyz100_to_2d):
     # plot planckian locus
     values = []
     for temp in numpy.arange(1000, 20001, 100):
-        xyy_vals = XYY().from_xyz100(
+        xyy_vals = xyz100_to_2d(
             spectrum_to_xyz100(planckian_radiator(temp), observer)
             )
-        values.append(xyy_vals[:2])
+        values.append(xyy_vals)
     values = numpy.array(values)
     plt.plot(values[:, 0], values[:, 1], ':k', label='Planckian locus')
     return
 
 
-def plot_gamut_diagram(plot_rgb_triangle=True, plot_planckian_locus=True):
+def plot_xy_gamut(plot_rgb_triangle=True, plot_planckian_locus=True):
     plt.plot([0.0, 1.0], [1.0, 0.0], color='0.8')
 
     observer = observers.cie_1931_2()
     # observer = observers.cie_1964_10()
 
-    _plot_monochromatic(observer)
+    def xyz100_to_xy(xyz):
+        return XYY().from_xyz100(xyz)[:2]
+
+    _plot_monochromatic(observer, xyz100_to_xy)
     if plot_rgb_triangle:
-        _plot_rgb_triangle()
+        _plot_rgb_triangle(xyz100_to_xy)
     if plot_planckian_locus:
         _plot_planckian_locus(observer)
 
@@ -221,6 +217,51 @@ def plot_gamut_diagram(plot_rgb_triangle=True, plot_planckian_locus=True):
     # plt.legend()
     plt.xlabel('x')
     plt.ylabel('y')
+    return
+
+
+def show_xy_gamut(*args, **kwargs):
+    plot_xy_gamut(*args, **kwargs)
+    plt.show()
+    return
+
+
+def plot_uv_gamut(plot_rgb_triangle=True, plot_planckian_locus=True):
+    '''Show the (u', v') gamut from CIELUV. There exists a chroma gamut for
+    this color model as lines in XYZ are transformed to lines in CIELUV, hence
+    CIELUV has a natural decomposition into lightness and chroma components.
+    Also, the flat gamut is the same for every lightness value; this is _not_
+    the case for most other color spaces (e.g., CIELAB).
+    '''
+    # plt.plot([0.0, 1.0], [1.0, 0.0], color='0.8')
+
+    observer = observers.cie_1931_2()
+    # observer = observers.cie_1964_10()
+
+    def xyz100_to_uv(xyz):
+        x, y, z = xyz
+        return numpy.array([4*x, 9*y]) / (x + 15*y + 3*z)
+
+    _plot_monochromatic(observer, xyz100_to_uv)
+    # plt.grid()
+
+    if plot_rgb_triangle:
+        _plot_rgb_triangle(xyz100_to_uv)
+    if plot_planckian_locus:
+        _plot_planckian_locus(observer, xyz100_to_uv)
+
+    plt.gca().set_aspect('equal')
+    # plt.legend()
+    plt.xlabel('u\'')
+    plt.ylabel('v\'')
+
+    plt.legend()
+    return
+
+
+def show_uv_gamut(*args, **kwargs):
+    plot_uv_gamut(*args, **kwargs)
+    plt.show()
     return
 
 
@@ -392,7 +433,7 @@ def show_macadam(scaling=1,
     with open(os.path.join(dir_path, 'data/macadam1942/table3.yaml')) as f:
         data = yaml.safe_load(f)
 
-    plot_gamut_diagram(plot_planckian_locus=False)
+    plot_xy_gamut(plot_planckian_locus=False)
     ax = plt.gca()
 
     xyy = XYY()
@@ -480,7 +521,7 @@ def show_luo_rigg(scaling=1):
     with open(os.path.join(dir_path, 'data/luo-rigg/luo-rigg.yaml')) as f:
         data = yaml.safe_load(f)
 
-    plot_gamut_diagram(plot_planckian_locus=False, plot_rgb_triangle=False)
+    plot_xy_gamut(plot_planckian_locus=False, plot_rgb_triangle=False)
     ax = plt.gca()
 
     for _, data_set in data.items():
