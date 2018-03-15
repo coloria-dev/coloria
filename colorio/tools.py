@@ -131,15 +131,18 @@ def partition(boxes, balls):
     return list(rec(boxes, balls))
 
 
-def _plot_monochromatic(observer, xyz100_to_2d):
+def _plot_monochromatic(observer, xy_to_2d):
     # draw outline of monochromatic spectra
     lmbda = 1.0e-9 * numpy.arange(380, 701)
     values = []
     # TODO vectorize (see <https://github.com/numpy/numpy/issues/10439>)
+    xyy = XYY()
     for k, _ in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
-        values.append(xyz100_to_2d(spectrum_to_xyz100((lmbda, data), observer)))
+        values.append(xy_to_2d(
+            xyy.from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[:2]
+            ))
     values = numpy.array(values)
     # fill horseshoe area
     plt.fill(values[:, 0], values[:, 1], color=[0.8, 0.8, 0.8], zorder=0)
@@ -148,7 +151,7 @@ def _plot_monochromatic(observer, xyz100_to_2d):
     return
 
 
-def _plot_rgb_triangle(xyz100_to_2d, bright=True):
+def _plot_rgb_triangle(xy_to_2d, bright=True):
     # plot sRGB triangle
     # discretization points
     n = 50
@@ -163,9 +166,11 @@ def _plot_rgb_triangle(xyz100_to_2d, bright=True):
         # brighter, scale the colors up as much as possible.
         rgb_linear /= numpy.max(rgb_linear, axis=0)
 
+    xyy = XYY()
+
     srgb_linear = SrgbLinear()
     xyz = srgb_linear.to_xyz100(rgb_linear)
-    xyy_vals = xyz100_to_2d(xyz)
+    xyy_vals = xy_to_2d(xyy.from_xyz100(xyz)[:2])
 
     # Unfortunately, one cannot use tripcolors with explicit RGB specification
     # (see <https://github.com/matplotlib/matplotlib/issues/10265>). As a
@@ -182,51 +187,25 @@ def _plot_rgb_triangle(xyz100_to_2d, bright=True):
     return
 
 
-def _plot_planckian_locus(observer, xyz100_to_2d):
+def _plot_planckian_locus(observer, xy_to_2d):
     # plot planckian locus
+    xyy = XYY()
     values = []
     for temp in numpy.arange(1000, 20001, 100):
-        xyy_vals = xyz100_to_2d(
+        xyy_vals = xy_to_2d(xyy.from_xyz100(
             spectrum_to_xyz100(planckian_radiator(temp), observer)
-            )
+            ))
         values.append(xyy_vals)
     values = numpy.array(values)
     plt.plot(values[:, 0], values[:, 1], ':k', label='Planckian locus')
     return
 
 
-def plot_xy_gamut(plot_rgb_triangle=True, plot_planckian_locus=True):
-    plt.plot([0.0, 1.0], [1.0, 0.0], color='0.8')
-
-    observer = observers.cie_1931_2()
-    # observer = observers.cie_1964_10()
-
-    def xyz100_to_xy(xyz):
-        return XYY().from_xyz100(xyz)[:2]
-
-    _plot_monochromatic(observer, xyz100_to_xy)
-    if plot_rgb_triangle:
-        _plot_rgb_triangle(xyz100_to_xy)
-    if plot_planckian_locus:
-        _plot_planckian_locus(observer)
-
-    plt.xlim(xmin=0, xmax=0.8)
-    plt.ylim(ymin=0, ymax=0.9)
-
-    plt.gca().set_aspect('equal')
-    # plt.legend()
-    plt.xlabel('x')
-    plt.ylabel('y')
-    return
-
-
-def show_xy_gamut(*args, **kwargs):
-    plot_xy_gamut(*args, **kwargs)
-    plt.show()
-    return
-
-
-def plot_uv_gamut(plot_rgb_triangle=True, plot_planckian_locus=True):
+def plot_flat_gamut(
+        xy_to_2d=lambda xy: xy,
+        axes_labels=['x', 'y'],
+        plot_rgb_triangle=True, plot_planckian_locus=True,
+        ):
     '''Show the (u', v') gamut from CIELUV. There exists a chroma gamut for
     this color model as lines in XYZ are transformed to lines in CIELUV, hence
     CIELUV has a natural decomposition into lightness and chroma components.
@@ -236,17 +215,13 @@ def plot_uv_gamut(plot_rgb_triangle=True, plot_planckian_locus=True):
     observer = observers.cie_1931_2()
     # observer = observers.cie_1964_10()
 
-    def xyz100_to_uv(xyz):
-        x, y, z = xyz
-        return numpy.array([4*x, 9*y]) / (x + 15*y + 3*z)
-
-    _plot_monochromatic(observer, xyz100_to_uv)
+    _plot_monochromatic(observer, xy_to_2d)
     # plt.grid()
 
     if plot_rgb_triangle:
-        _plot_rgb_triangle(xyz100_to_uv)
+        _plot_rgb_triangle(xy_to_2d)
     if plot_planckian_locus:
-        _plot_planckian_locus(observer, xyz100_to_uv)
+        _plot_planckian_locus(observer, xy_to_2d)
 
     plt.gca().set_aspect('equal')
     # plt.legend()
@@ -255,8 +230,8 @@ def plot_uv_gamut(plot_rgb_triangle=True, plot_planckian_locus=True):
     return
 
 
-def show_uv_gamut(*args, **kwargs):
-    plot_uv_gamut(*args, **kwargs)
+def show_flat_gamut(*args, **kwargs):
+    plot_flat_gamut(*args, **kwargs)
     plt.show()
     return
 
@@ -422,7 +397,6 @@ def show_munsell(colorspace, V):
 def show_macadam(scaling=1,
                  plot_filter_positions=False,
                  plot_standard_deviations=False,
-                 xyz100_to_2d=lambda xyz: XYY().from_xyz100(xyz)[:2],
                  xy_to_2d=lambda xy: xy
                  ):
     '''See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
@@ -432,7 +406,7 @@ def show_macadam(scaling=1,
     with open(os.path.join(dir_path, 'data/macadam1942/table3.yaml')) as f:
         data = yaml.safe_load(f)
 
-    plot_uv_gamut(plot_planckian_locus=False)
+    plot_flat_gamut(plot_planckian_locus=False, xy_to_2d=xy_to_2d)
     # plt.grid(zorder=0)
     ax = plt.gca()
 
@@ -499,20 +473,20 @@ def show_macadam(scaling=1,
         #     leastsq(f, [1.0, 1.0, 0.0], full_output=True, Dfun=jac)
         # print(infodict['nfev'])
 
-        # Original unscaled ellipses with data points:
-        # plt.plot(*(X.T + center).T, '.', color='k')
-        # plt.plot(*center, 'x', color='k')
-        # e = Ellipse(
-        #     xy=center,
-        #     width=2/a, height=2/b,
-        #     # width=0.05, height=0.05,
-        #     angle=theta / numpy.pi * 180
-        #     )
-        # ax.add_artist(e)
-        # e.set_alpha(0.5)
-        # e.set_facecolor('k')
+        if plot_standard_deviations:
+            # Original unscaled ellipses with data points
+            plt.plot(*(X.T + center).T, '.', color='k')
+            plt.plot(*center, 'x', color='k')
+            e = Ellipse(
+                xy=center,
+                width=2/a, height=2/b,
+                angle=theta / numpy.pi * 180
+                )
+            ax.add_artist(e)
+            e.set_alpha(0.5)
+            e.set_facecolor('k')
 
-        # plot the ellipse
+        # plot the scaled ellipse
         e = Ellipse(
             xy=center,
             width=scaling*2/a, height=scaling*2/b,
@@ -521,13 +495,6 @@ def show_macadam(scaling=1,
         ax.add_artist(e)
         e.set_alpha(0.5)
         e.set_facecolor('k')
-
-        if plot_standard_deviations:
-            plt.plot(
-                [datak['x'] - scaling*X[0], datak['x'] + scaling*X[0]],
-                [datak['y'] - scaling*X[1], datak['y'] + scaling*X[1]],
-                'kx'
-                )
 
     plt.show()
     return

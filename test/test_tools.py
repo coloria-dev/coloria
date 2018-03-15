@@ -39,13 +39,8 @@ def test_visible_gamut(colorspace, cut_000):
     return
 
 
-def test_xy_gamut():
-    colorio.show_xy_gamut()
-    return
-
-
-def test_uv_gamut():
-    colorio.show_uv_gamut()
+def test_flat_gamut(xy_to_2d=lambda xy: xy):
+    colorio.show_flat_gamut()
     return
 
 
@@ -102,7 +97,13 @@ def test_macadam():
         x, y = xy
         return numpy.array([4*x, 9*y]) / (-2*x + 12*y + 3)
 
-    colorio.show_macadam(scaling=10, xy_to_2d=xy_to_2d)
+    # def xy_to_2d(xy):
+    #     return xy
+
+    colorio.show_macadam(
+        scaling=10, xy_to_2d=xy_to_2d,
+        # plot_standard_deviations=True
+        )
     return
 
 
