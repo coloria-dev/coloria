@@ -401,7 +401,13 @@ def show_munsell(colorspace, V):
     return
 
 
-def show_macadam(scaling=1,
+def show_macadam(*args, **kwargs):
+    plot_macadam(*args, **kwargs)
+    plt.show()
+    return
+
+
+def plot_macadam(scaling=1,
                  plot_filter_positions=False,
                  plot_standard_deviations=False,
                  xy_to_2d=lambda xy: xy,
@@ -434,14 +440,14 @@ def show_macadam(scaling=1,
         # collect ellipse points
         _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak['data']).T
 
-        center = xy_to_2d([datak['x'], datak['y']])
+        center = [datak['x'], datak['y']]
+        tcenter = xy_to_2d(center)
 
-        X = (xy_to_2d(
-            (center + (
-                numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
-                / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
-            ).T).T
-            ).T - xy_to_2d(center)).T
+        ecc = (
+            numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
+            / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
+            )
+        X = (xy_to_2d((center + ecc.T).T).T - tcenter).T
 
         if X.shape[1] < 2:
             continue
@@ -479,16 +485,17 @@ def show_macadam(scaling=1,
         # out = leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac, full_output=True)
         # print(out)
         (a, b, theta), _ = leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac)
+
         # (a, b, theta), _, infodict, msg, ierr = \
         #     leastsq(f, [1.0, 1.0, 0.0], full_output=True, Dfun=jac)
         # print(infodict['nfev'])
 
         if plot_standard_deviations:
             # Original unscaled ellipses with data points
-            plt.plot(*(X.T + center).T, '.', color='k')
-            plt.plot(*center, 'x', color='k')
+            plt.plot(*(X.T + tcenter).T, '.', color='k')
+            plt.plot(*tcenter, 'x', color='k')
             e = Ellipse(
-                xy=center,
+                xy=tcenter,
                 width=2/a, height=2/b,
                 angle=theta / numpy.pi * 180
                 )
@@ -498,15 +505,13 @@ def show_macadam(scaling=1,
 
         # plot the scaled ellipse
         e = Ellipse(
-            xy=center,
+            xy=tcenter,
             width=scaling*2/a, height=scaling*2/b,
             angle=theta / numpy.pi * 180
             )
         ax.add_artist(e)
         e.set_alpha(0.5)
         e.set_facecolor('k')
-
-    plt.show()
     return
 
 

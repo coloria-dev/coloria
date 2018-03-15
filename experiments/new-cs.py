@@ -67,19 +67,23 @@ def _main():
         x, y = xy
         return numpy.array([
             alpha[0]*x + alpha[2]*y
-            + alpha[4]*x**2 + alpha[6]*x*y + alpha[8]*y**2,
-            # + alpha[10]*x**3 + alpha[12]*x**2*y + alpha[14]*x*y**2 + alpha[16]*y**3,
+            + alpha[4]*x**2 + alpha[6]*x*y + alpha[8]*y**2
+            + alpha[10]*x**3 + alpha[12]*x**2*y + alpha[14]*x*y**2 + alpha[16]*y**3
+            + alpha[18]*x**4 + alpha[20]*x**3*y + alpha[22]*x**2*y**2 + alpha[24]*x*y**3 + alpha[26]*y**4
+            + alpha[28]*x**5 + alpha[30]*x**4*y + alpha[32]*x**3*y**2 + alpha[34]*x**2*y**3 + alpha[36]*x*y**4 + alpha[38]*y**5,
             alpha[1]*x + alpha[3]*y
-            + alpha[5]*x**2 + alpha[7]*x*y + alpha[9]*y**2,
-            # + alpha[11]*x**3 + alpha[13]*x**2*y + alpha[15]*x*y**2 + alpha[17]*y**3,
+            + alpha[5]*x**2 + alpha[7]*x*y + alpha[9]*y**2
+            + alpha[11]*x**3 + alpha[13]*x**2*y + alpha[15]*x*y**2 + alpha[17]*y**3
+            + alpha[19]*x**4 + alpha[21]*x**3*y + alpha[23]*x**2*y**2 + alpha[25]*x*y**3 + alpha[27]*y**4
+            + alpha[29]*x**5 + alpha[31]*x**4*y + alpha[33]*x**3*y**2 + alpha[35]*x**2*y**3 + alpha[37]*x*y**4 + alpha[39]*y**5,
             ])
 
     def f1(alpha):
         '''Function that returns the difference between target_radius and the
         distances of the ellipse points to the centers. Minimizing this
         function should make the MacAdams ellipses circles. However, what may
-        also happen is that the ellipse points are lined up at target_radius away
-        from the centers, leading to very sharp ellipses instead.
+        also happen is that the ellipse points are lined up at target_radius
+        away from the centers, leading to very sharp ellipses instead.
         '''
         dist = []
         for center, pts in zip(centers, points):
@@ -96,7 +100,7 @@ def _main():
         # plt.show()
         return abs(dist - target_radius)
 
-    def f2(alpha):
+    def get_radii(alpha):
         A = []
         B = []
         for center, pts in zip(centers, points):
@@ -140,11 +144,14 @@ def _main():
             # e.set_facecolor('k')
             # plt.show()
 
-        ab = numpy.concatenate([A, B])
-        return abs(ab - target_radius)
+        return numpy.concatenate([A, B])
+        # return numpy.log(ab / target_radius)
+
+    def f2(alpha):
+        return get_radii(alpha) - target_radius
 
 
-    coeff0 = numpy.zeros(10)
+    coeff0 = numpy.zeros(40)
     coeff0[0] = 1.0
     coeff0[3] = 1.0
     print(coeff0)
@@ -154,18 +161,25 @@ def _main():
     coeff1, _ = leastsq(f2, coeff0, maxfev=10000)
     print(coeff1)
 
-    vals0 = f2(coeff0)
-    vals1 = f2(coeff1)
-    plt.plot(numpy.arange(len(vals0)), vals0, label='vals0')
-    plt.plot(numpy.arange(len(vals1)), vals1, label='vals1')
+    radii0 = get_radii(coeff0)
+    radii1 = get_radii(coeff1)
+    plt.plot(numpy.arange(len(radii0)), radii0, label='radii0')
+    plt.plot(numpy.arange(len(radii1)), radii1, label='radii1')
     plt.legend()
     plt.show()
 
-    colorio.show_macadam(
+    plt.figure()
+    colorio.plot_macadam(
+        scaling=10,
+        plot_standard_deviations=True
+        )
+    plt.figure()
+    colorio.plot_macadam(
         scaling=10,
         xy_to_2d=lambda xy: transform(xy, coeff1),
         plot_standard_deviations=True
         )
+    plt.show()
     return
 
 
