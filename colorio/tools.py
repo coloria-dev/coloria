@@ -233,8 +233,6 @@ def plot_uv_gamut(plot_rgb_triangle=True, plot_planckian_locus=True):
     Also, the flat gamut is the same for every lightness value; this is _not_
     the case for most other color spaces (e.g., CIELAB).
     '''
-    # plt.plot([0.0, 1.0], [1.0, 0.0], color='0.8')
-
     observer = observers.cie_1931_2()
     # observer = observers.cie_1964_10()
 
@@ -254,8 +252,6 @@ def plot_uv_gamut(plot_rgb_triangle=True, plot_planckian_locus=True):
     # plt.legend()
     plt.xlabel('u\'')
     plt.ylabel('v\'')
-
-    plt.legend()
     return
 
 
@@ -425,7 +421,10 @@ def show_munsell(colorspace, V):
 
 def show_macadam(scaling=1,
                  plot_filter_positions=False,
-                 plot_standard_deviations=False):
+                 plot_standard_deviations=False,
+                 xyz100_to_2d=lambda xyz: XYY().from_xyz100(xyz)[:2],
+                 xy_to_2d=lambda xy: xy
+                 ):
     '''See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
     <https://doi.org/10.1364%2FJOSA.32.000247>.
     '''
@@ -433,29 +432,32 @@ def show_macadam(scaling=1,
     with open(os.path.join(dir_path, 'data/macadam1942/table3.yaml')) as f:
         data = yaml.safe_load(f)
 
-    plot_xy_gamut(plot_planckian_locus=False)
+    plot_uv_gamut(plot_planckian_locus=False)
+    # plt.grid(zorder=0)
     ax = plt.gca()
 
-    xyy = XYY()
-
-    if plot_filter_positions:
-        with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
-            filters_xyz = yaml.safe_load(f)
-        filters_xyz = {
-            key: 100 * numpy.array(value) for key, value in filters_xyz.items()
-            }
-        for key, xyz in filters_xyz.items():
-            x, y = xyy.from_xyz100(xyz)[:2]
-            plt.plot(x, y, 'xk')
-            ax.annotate(key, (x, y))
+    # if plot_filter_positions:
+    #     with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
+    #         filters_xyz = yaml.safe_load(f)
+    #     filters_xyz = {
+    #         key: 100 * numpy.array(value) for key, value in filters_xyz.items()
+    #         }
+    #     for key, xyz in filters_xyz.items():
+    #         x, y = xyz100_to_2d(xyz)
+    #         plt.plot(x, y, 'xk')
+    #         ax.annotate(key, (x, y))
 
     for datak in data:
         # collect ellipse points
-        dat = numpy.array(datak['data']).T
-        X = (
-            numpy.array([numpy.ones(dat[4].shape[0]), dat[4]])
-            / numpy.sqrt(1 + dat[4]**2) * dat[5]
-            )
+        _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak['data']).T
+
+        center = xy_to_2d([datak['x'], datak['y']])
+
+        X = (xy_to_2d(
+            (center +
+            (numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
+            / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s).T).T
+            ).T - xy_to_2d(center)).T
 
         if X.shape[1] < 2:
             continue
@@ -471,16 +473,16 @@ def show_macadam(scaling=1,
         #     X, numpy.ones(X.shape[1])
         #     )
 
-        def f_ellipse(data, x=X):
-            a, b, theta = data
+        def f_ellipse(a_b_theta, x=X):
+            a, b, theta = a_b_theta
             return (
                 + a**2 * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))**2
                 + b**2 * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))**2
                 - 1.0
                 )
 
-        def jac(data, x=X):
-            a, b, theta = data
+        def jac(a_b_theta, x=X):
+            a, b, theta = a_b_theta
             return numpy.array([
                 + 2*a * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))**2,
                 + 2*b * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))**2,
@@ -490,14 +492,29 @@ def show_macadam(scaling=1,
                 * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)),
                 ]).T
 
+        # out = leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac, full_output=True)
+        # print(out)
         (a, b, theta), _ = leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac)
         # (a, b, theta), _, infodict, msg, ierr = \
         #     leastsq(f, [1.0, 1.0, 0.0], full_output=True, Dfun=jac)
         # print(infodict['nfev'])
 
+        # Original unscaled ellipses with data points:
+        # plt.plot(*(X.T + center).T, '.', color='k')
+        # plt.plot(*center, 'x', color='k')
+        # e = Ellipse(
+        #     xy=center,
+        #     width=2/a, height=2/b,
+        #     # width=0.05, height=0.05,
+        #     angle=theta / numpy.pi * 180
+        #     )
+        # ax.add_artist(e)
+        # e.set_alpha(0.5)
+        # e.set_facecolor('k')
+
         # plot the ellipse
         e = Ellipse(
-            xy=[datak['x'], datak['y']],
+            xy=center,
             width=scaling*2/a, height=scaling*2/b,
             angle=theta / numpy.pi * 180
             )

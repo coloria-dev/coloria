@@ -98,7 +98,11 @@ def test_munsell(colorspace):
 
 
 def test_macadam():
-    colorio.show_macadam(scaling=10)
+    def xy_to_2d(xy):
+        x, y = xy
+        return numpy.array([4*x, 9*y]) / (-2*x + 12*y + 3)
+
+    colorio.show_macadam(scaling=10, xy_to_2d=xy_to_2d)
     return
 
 
@@ -113,9 +117,9 @@ def test_show_straights(cs=colorio.CIELAB()):
 
 
 if __name__ == '__main__':
-    test_uv_gamut()
+    # test_uv_gamut()
     # test_luo_rigg()
-    # test_macadam()
+    test_macadam()
     exit(1)
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.Rec2020()
