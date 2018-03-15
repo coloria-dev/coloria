@@ -140,14 +140,22 @@ def _plot_monochromatic(observer, xy_to_2d):
     for k, _ in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
-        values.append(xy_to_2d(
+        values.append(
             xyy.from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[:2]
-            ))
+            )
     values = numpy.array(values)
+
+    # Add the values between the first and the last point of the horseshoe
+    t = numpy.linspace(0.0, 1.0, 101)
+    connect = xy_to_2d(numpy.outer(values[0], t) + numpy.outer(values[-1], 1-t))
+    values = xy_to_2d(values.T).T
+    full = numpy.concatenate([values, connect.T])
+
     # fill horseshoe area
-    plt.fill(values[:, 0], values[:, 1], color=[0.8, 0.8, 0.8], zorder=0)
+    plt.fill(*full.T, color=[0.8, 0.8, 0.8], zorder=0)
     # plot horseshoe outline
-    plt.plot(values[:, 0], values[:, 1], '-k', label='monochromatic light')
+    plt.plot(*values.T, '-k', label='monochromatic light')
+    plt.plot(*connect, '--k', label='connect')
     return
 
 

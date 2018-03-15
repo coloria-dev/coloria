@@ -61,13 +61,17 @@ def _main():
 
     centers = numpy.array(centers)
 
-    target_dist = 1.0e-3
+    target_dist = 2.0e-3
 
     def transform(xy, alpha):
         x, y = xy
         return numpy.array([
-            alpha[0]*x + alpha[1]*y,
-            alpha[2]*x + alpha[3]*y,
+            alpha[0]*x + alpha[2]*y
+            + alpha[4]*x**2 + alpha[6]*x*y + alpha[8]*y**2,
+            # + alpha[10]*x**3 + alpha[12]*x**2*y + alpha[14]*x*y**2 + alpha[16]*y**3,
+            alpha[1]*x + alpha[3]*y
+            + alpha[5]*x**2 + alpha[7]*x*y + alpha[9]*y**2,
+            # + alpha[11]*x**3 + alpha[13]*x**2*y + alpha[15]*x*y**2 + alpha[17]*y**3,
             ])
 
     def f(alpha):
@@ -81,22 +85,28 @@ def _main():
                 dist.append(numpy.sqrt(numpy.dot(diff, diff)))
 
         dist = numpy.array(dist)
+        # plt.plot([0, len(dist)], [target_dist, target_dist])
         # plt.plot(numpy.arange(len(dist)), dist)
         # plt.show()
-        return (dist - target_dist)**2
+        return abs(dist - target_dist)
 
 
-    coeff0 = [1.0, 0.0, 0.0, 1.0]
+    coeff0 = numpy.zeros(10)
+    coeff0[0] = 1.0
+    coeff0[3] = 1.0
     print(coeff0)
-    coeff1, _ = leastsq(f, coeff0)
+    # out = leastsq(f, coeff0, full_output=True)
+    # print(out)
+    # exit(1)
+    coeff1, _ = leastsq(f, coeff0, maxfev=10000)
     print(coeff1)
 
-    # # plot the points
-    # for center, pts in zip(centers, points):
-    #     center = transform(center, coeff0)
-    #     pts = transform(pts, coeff1)
-    #     plt.plot(*center, 'x', color='k')
-    #     plt.plot(*pts, '.', color='k')
+    vals0 = f(coeff0)
+    vals1 = f(coeff1)
+    plt.plot(numpy.arange(len(vals0)), vals0, label='vals0')
+    plt.plot(numpy.arange(len(vals1)), vals1, label='vals1')
+    plt.legend()
+    plt.show()
 
     colorio.show_macadam(
         scaling=10,
