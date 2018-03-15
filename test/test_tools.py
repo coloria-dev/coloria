@@ -93,17 +93,17 @@ def test_munsell(colorspace):
 
 
 def test_macadam():
-    def xy_to_2d(xy):
-        x, y = xy
-        return numpy.array([4*x, 9*y]) / (-2*x + 12*y + 3)
-
     # def xy_to_2d(xy):
-    #     return xy
+    #     x, y = xy
+    #     return numpy.array([4*x, 9*y]) / (-2*x + 12*y + 3)
+
+    def xy_to_2d(xy):
+        return xy
 
     colorio.show_macadam(
         scaling=10, xy_to_2d=xy_to_2d,
         # plot_standard_deviations=True,
-        axes_labels=['u\'', 'v\'']
+        # axes_labels=['u\'', 'v\'']
         )
     return
 
