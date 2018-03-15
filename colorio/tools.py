@@ -206,11 +206,12 @@ def plot_flat_gamut(
         axes_labels=['x', 'y'],
         plot_rgb_triangle=True, plot_planckian_locus=True,
         ):
-    '''Show the (u', v') gamut from CIELUV. There exists a chroma gamut for
-    this color model as lines in XYZ are transformed to lines in CIELUV, hence
-    CIELUV has a natural decomposition into lightness and chroma components.
-    Also, the flat gamut is the same for every lightness value; this is _not_
-    the case for most other color spaces (e.g., CIELAB).
+    '''Show a flat color gamut, by default xy.  There exists a chroma gamut for
+    all color models which transform lines in XYZ to lines, and hence have a
+    natural decomposition into lightness and chroma components.  Also, the flat
+    gamut is the same for every lightness value. Examples for color models with
+    this property are CIELUV and IPT, examples for color models without are
+    CIELAB and CIECAM02.
     '''
     observer = observers.cie_1931_2()
     # observer = observers.cie_1964_10()
@@ -225,8 +226,8 @@ def plot_flat_gamut(
 
     plt.gca().set_aspect('equal')
     # plt.legend()
-    plt.xlabel('u\'')
-    plt.ylabel('v\'')
+    plt.xlabel(axes_labels[0])
+    plt.ylabel(axes_labels[1])
     return
 
 
@@ -397,7 +398,8 @@ def show_munsell(colorspace, V):
 def show_macadam(scaling=1,
                  plot_filter_positions=False,
                  plot_standard_deviations=False,
-                 xy_to_2d=lambda xy: xy
+                 xy_to_2d=lambda xy: xy,
+                 axes_labels=['x', 'y'],
                  ):
     '''See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
     <https://doi.org/10.1364%2FJOSA.32.000247>.
@@ -406,7 +408,9 @@ def show_macadam(scaling=1,
     with open(os.path.join(dir_path, 'data/macadam1942/table3.yaml')) as f:
         data = yaml.safe_load(f)
 
-    plot_flat_gamut(plot_planckian_locus=False, xy_to_2d=xy_to_2d)
+    plot_flat_gamut(
+        plot_planckian_locus=False, xy_to_2d=xy_to_2d, axes_labels=axes_labels
+        )
     # plt.grid(zorder=0)
     ax = plt.gca()
 
