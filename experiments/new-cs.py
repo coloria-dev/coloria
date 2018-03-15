@@ -61,7 +61,7 @@ def _main():
 
     centers = numpy.array(centers)
 
-    target_dist = 2.0e-3
+    target_radius = 2.0e-3
 
     def transform(xy, alpha):
         x, y = xy
@@ -74,7 +74,13 @@ def _main():
             # + alpha[11]*x**3 + alpha[13]*x**2*y + alpha[15]*x*y**2 + alpha[17]*y**3,
             ])
 
-    def f(alpha):
+    def f1(alpha):
+        '''Function that returns the difference between target_radius and the
+        distances of the ellipse points to the centers. Minimizing this
+        function should make the MacAdams ellipses circles. However, what may
+        also happen is that the ellipse points are lined up at target_radius away
+        from the centers, leading to very sharp ellipses instead.
+        '''
         dist = []
         for center, pts in zip(centers, points):
             tcenter = transform(center, alpha)
@@ -85,10 +91,57 @@ def _main():
                 dist.append(numpy.sqrt(numpy.dot(diff, diff)))
 
         dist = numpy.array(dist)
-        # plt.plot([0, len(dist)], [target_dist, target_dist])
+        # plt.plot([0, len(dist)], [target_radius, target_radius])
         # plt.plot(numpy.arange(len(dist)), dist)
         # plt.show()
-        return abs(dist - target_dist)
+        return abs(dist - target_radius)
+
+    def f2(alpha):
+        A = []
+        B = []
+        for center, pts in zip(centers, points):
+            tcenter = transform(center, alpha)
+            X = (transform(pts, alpha).T - tcenter).T
+
+            def f_ellipse(a_b_theta, x=X):
+                a, b, theta = a_b_theta
+                return (
+                    + a**2 * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))**2
+                    + b**2 * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))**2
+                    - 1.0
+                    )
+
+            def jac_ellipse(a_b_theta, x=X):
+                a, b, theta = a_b_theta
+                return numpy.array([
+                    + 2*a * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))**2,
+                    + 2*b * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))**2,
+                    + a**2 * 2*(x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))
+                    * (-x[0] * numpy.sin(theta) + x[1] * numpy.cos(theta))
+                    + b**2 * 2*(x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))
+                    * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)),
+                    ]).T
+
+            (a, b, theta), _ = \
+                leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac_ellipse)
+
+            A.append(1/a)
+            B.append(1/b)
+
+            # plt.plot(*X, 'x')
+            # ax = plt.gca()
+            # e = Ellipse(
+            #     xy=[0.0, 0.0],
+            #     width=2/a, height=2/b,
+            #     angle=theta / numpy.pi * 180
+            #     )
+            # ax.add_artist(e)
+            # e.set_alpha(0.5)
+            # e.set_facecolor('k')
+            # plt.show()
+
+        ab = numpy.concatenate([A, B])
+        return abs(ab - target_radius)
 
 
     coeff0 = numpy.zeros(10)
@@ -98,11 +151,11 @@ def _main():
     # out = leastsq(f, coeff0, full_output=True)
     # print(out)
     # exit(1)
-    coeff1, _ = leastsq(f, coeff0, maxfev=10000)
+    coeff1, _ = leastsq(f2, coeff0, maxfev=10000)
     print(coeff1)
 
-    vals0 = f(coeff0)
-    vals1 = f(coeff1)
+    vals0 = f2(coeff0)
+    vals1 = f2(coeff1)
     plt.plot(numpy.arange(len(vals0)), vals0, label='vals0')
     plt.plot(numpy.arange(len(vals1)), vals1, label='vals1')
     plt.legend()

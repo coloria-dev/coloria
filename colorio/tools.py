@@ -209,11 +209,9 @@ def _plot_planckian_locus(observer, xy_to_2d):
     return
 
 
-def plot_flat_gamut(
-        xy_to_2d=lambda xy: xy,
-        axes_labels=['x', 'y'],
-        plot_rgb_triangle=True, plot_planckian_locus=True,
-        ):
+def plot_flat_gamut(xy_to_2d=lambda xy: xy,
+                    axes_labels=('x', 'y'),
+                    plot_rgb_triangle=True, plot_planckian_locus=True):
     '''Show a flat color gamut, by default xy.  There exists a chroma gamut for
     all color models which transform lines in XYZ to lines, and hence have a
     natural decomposition into lightness and chroma components.  Also, the flat
@@ -407,8 +405,7 @@ def show_macadam(scaling=1,
                  plot_filter_positions=False,
                  plot_standard_deviations=False,
                  xy_to_2d=lambda xy: xy,
-                 axes_labels=['x', 'y'],
-                 ):
+                 axes_labels=('x', 'y')):
     '''See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
     <https://doi.org/10.1364%2FJOSA.32.000247>.
     '''
@@ -440,9 +437,10 @@ def show_macadam(scaling=1,
         center = xy_to_2d([datak['x'], datak['y']])
 
         X = (xy_to_2d(
-            (center +
-            (numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
-            / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s).T).T
+            (center + (
+                numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
+                / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
+            ).T).T
             ).T - xy_to_2d(center)).T
 
         if X.shape[1] < 2:
@@ -517,7 +515,7 @@ def show_luo_rigg(scaling=1):
     with open(os.path.join(dir_path, 'data/luo-rigg/luo-rigg.yaml')) as f:
         data = yaml.safe_load(f)
 
-    plot_xy_gamut(plot_planckian_locus=False, plot_rgb_triangle=False)
+    plot_flat_gamut(plot_planckian_locus=False, plot_rgb_triangle=False)
     ax = plt.gca()
 
     for _, data_set in data.items():
@@ -547,6 +545,7 @@ def show_luo_rigg(scaling=1):
 
 
 def show_straights(cs):
+    # pylint: disable=unused-variable
     from mpl_toolkits.mplot3d import Axes3D
     # Some straight lines in XYZ
     t = numpy.linspace(0.0, 1.0, 101)
@@ -556,7 +555,7 @@ def show_straights(cs):
     ax = fig.gca(projection='3d')
     # ax.set_aspect('equal')
 
-    for k in range(n):
+    for _ in range(n):
         s1 = numpy.random.rand(3)
         s1 /= numpy.linalg.norm(s1)
         s1 *= 100
