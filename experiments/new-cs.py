@@ -104,6 +104,38 @@ def get_radii(alpha, num_coefficients, poly_degrees, centers, points):
     # return numpy.log(ab / target_radius)
 
 
+def print_triangle(alpha, degree):
+    for d in range(degree+1):
+        n = d*(d+1)//2
+        print(alpha[n:n+d+1])
+    return
+
+
+def print_parameters(alpha, num_coefficients, poly_degrees):
+    n = 0
+
+    alpha1 = numpy.concatenate([[0.0], alpha[n:n+num_coefficients[0]]])
+    print_triangle(alpha1, poly_degrees[0])
+    print()
+    n += num_coefficients[0]
+
+    alpha2 = numpy.concatenate([[1.0], alpha[n:n+num_coefficients[1]]])
+    print_triangle(alpha2, poly_degrees[1])
+    print()
+    n += num_coefficients[1]
+
+    beta1 = numpy.concatenate([[0.0], alpha[n:n+num_coefficients[2]]])
+    print_triangle(beta1, poly_degrees[2])
+    print()
+    n += num_coefficients[2]
+
+    beta2 = numpy.concatenate([[1.0], alpha[n:n+num_coefficients[3]]])
+    print_triangle(beta2, poly_degrees[3])
+    print()
+    n += num_coefficients[3]
+    return
+
+
 def _main():
     dir_path = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(dir_path, '../colorio/data/macadam1942/table3.yaml')) as f:
@@ -176,8 +208,8 @@ def _main():
     coeff0[i0] = 1.0
     j0 = num_coefficients[0] + num_coefficients[1] + 1
     coeff0[j0] = 1.0
-    print('initial parameters:')
-    print(coeff0)
+    print('\ninitial parameters:')
+    print_parameters(coeff0, num_coefficients, poly_degrees)
     # out = leastsq(f, coeff0, full_output=True)
     # print(out)
     # exit(1)
@@ -187,9 +219,8 @@ def _main():
     # problems, but it needs more conditions than parameters.
     out = least_squares(f2, coeff0, method='trf')
     coeff1 = out.x
-    print()
-    print('optimal parameters:')
-    print(coeff1)
+    print('\noptimal parameters:')
+    print_parameters(coeff1, num_coefficients, poly_degrees)
 
     radii0 = get_radii(coeff0, num_coefficients, poly_degrees, centers, points)
     radii1 = get_radii(coeff1, num_coefficients, poly_degrees, centers, points)
