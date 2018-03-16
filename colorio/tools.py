@@ -440,7 +440,7 @@ def plot_macadam(scaling=1,
         # collect ellipse points
         _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak['data']).T
 
-        center = [datak['x'], datak['y']]
+        center = numpy.array([datak['x'], datak['y']])
         tcenter = xy_to_2d(center)
 
         ecc = (

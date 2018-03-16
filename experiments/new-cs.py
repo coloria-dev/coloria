@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-from __future__ import print_function
+from __future__ import print_function, division
 
 import os
 
@@ -29,8 +29,10 @@ def create_triangle(alpha, degree):
         ]
 
 
-def transform(xy, alpha, num_coefficients, poly_degrees):
+def transform(xy, shift, alpha, num_coefficients, poly_degrees):
     n = 0
+
+    xy = (xy.T - shift).T
 
     alpha1 = numpy.concatenate([[0.0], alpha[n:n+num_coefficients[0]]])
     a1 = create_triangle(alpha1, poly_degrees[0])
@@ -54,13 +56,14 @@ def transform(xy, alpha, num_coefficients, poly_degrees):
         ])
 
 
-def get_radii(alpha, num_coefficients, poly_degrees, centers, points):
+def get_radii(alpha, num_coefficients, poly_degrees, centers, points, shift):
     A = []
     B = []
     for center, pts in zip(centers, points):
-        tcenter = transform(center, alpha, num_coefficients, poly_degrees)
+        tcenter = transform(center, shift, alpha, num_coefficients, poly_degrees)
         X = (
-            transform(pts, alpha, num_coefficients, poly_degrees).T - tcenter
+            transform(pts, shift, alpha, num_coefficients, poly_degrees).T
+            - tcenter
             ).T
 
         def f_ellipse(a_b_theta, x=X):
@@ -163,6 +166,9 @@ def _main():
 
     centers = numpy.array(centers)
 
+    # shift white point to center (0.0, 0.0)
+    whitepoint = [1/3, 1/3]
+
     target_radius = 2.0e-3
 
     poly_degrees = [2, 2, 2, 2]
@@ -195,7 +201,7 @@ def _main():
 
     def f2(alpha):
         return (
-            get_radii(alpha, num_coefficients, poly_degrees, centers, points)
+            get_radii(alpha, num_coefficients, poly_degrees, centers, points, whitepoint)
             - target_radius
             )
 
@@ -222,24 +228,28 @@ def _main():
     print('\noptimal parameters:')
     print_parameters(coeff1, num_coefficients, poly_degrees)
 
-    radii0 = get_radii(coeff0, num_coefficients, poly_degrees, centers, points)
-    radii1 = get_radii(coeff1, num_coefficients, poly_degrees, centers, points)
-    plt.plot(numpy.arange(len(radii0)), radii0, label='radii0')
-    plt.plot(numpy.arange(len(radii1)), radii1, label='radii1')
+    # plot statistics
+    radii0 = get_radii(coeff0, num_coefficients, poly_degrees, centers, points, whitepoint)
+    radii1 = get_radii(coeff1, num_coefficients, poly_degrees, centers, points, whitepoint)
+    plt.plot(numpy.arange(len(radii0)), radii0, label='ecc before')
+    plt.plot(numpy.arange(len(radii1)), radii1, label='ecc opt')
     plt.legend()
-    plt.show()
 
+    # Plot unperturbed MacAdam
     plt.figure()
     colorio.plot_macadam(
         scaling=10,
         plot_standard_deviations=True
         )
+
+    # Plot perturbed MacAdam
     plt.figure()
     colorio.plot_macadam(
         scaling=10,
-        xy_to_2d=lambda xy: transform(xy, coeff1, num_coefficients, poly_degrees),
+        xy_to_2d=lambda xy: transform(xy, whitepoint, coeff1, num_coefficients, poly_degrees),
         plot_standard_deviations=True
         )
+
     plt.show()
     return
 
