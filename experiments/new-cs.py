@@ -182,11 +182,8 @@ def _main():
             alpha, num_coefficients, poly_degrees, centers, points, whitepoint
             )
         # compute standard deviation of ecc
-        # n = len(ecc)
-        # average = numpy.sum(ecc) / n
-        # return numpy.sqrt(numpy.sum((ecc - average)**2) / n) / average
-        target_ecc = 2.0e-3
-        return ecc - target_ecc
+        average = numpy.sum(ecc) / len(ecc)
+        return (ecc - average) / average
 
 
     # Create the identity function as initial guess
