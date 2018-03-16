@@ -73,61 +73,31 @@ def _main():
                 out += a[i] * x**(d-i) * y**i
         return out
 
+    def create_triangle(alpha, degree):
+        return [
+            [alpha[d*(d+1)//2 + i] for i in range(d+1)]
+            for d in range(degree+1)
+            ]
+
 
     def transform(xy, alpha):
-        # alpha1 = alpha[0:
-        # a1 = [[0.0]] + [
-        #     [alpha1[d*(d-1)//2 + i] for i in range(d+1)]
-        #     for d in range(6)
-        #     ]
+        alpha1 = numpy.concatenate([[0.0], alpha[:27]])
+        a1 = create_triangle(alpha1, 6)
 
-        alpha1 = alpha[:27]
-        a1 = [
-            [0.0],
-            [alpha1[0],  alpha1[1]],
-            [alpha1[2],  alpha1[3],  alpha1[4]],
-            [alpha1[5],  alpha1[6],  alpha1[7],  alpha1[8]],
-            [alpha1[9],  alpha1[10], alpha1[11], alpha1[12], alpha1[13]],
-            [alpha1[14], alpha1[15], alpha1[16], alpha1[17], alpha1[18], alpha1[19]],
-            [alpha1[20], alpha1[21], alpha1[22], alpha1[23], alpha1[24], alpha1[25], alpha1[26]],
-            ]
+        alpha2 = numpy.concatenate([[1.0], alpha[27:54]])
+        a2 = create_triangle(alpha2, 6)
 
-        alpha2 = alpha[27:54]
-        a2 = [
-            [1.0],
-            [alpha2[0],  alpha2[1]],
-            [alpha2[2],  alpha2[3],  alpha2[4]],
-            [alpha2[5],  alpha2[6],  alpha2[7],  alpha2[8]],
-            [alpha2[9],  alpha2[10], alpha2[11], alpha2[12], alpha2[13]],
-            [alpha2[14], alpha2[15], alpha2[16], alpha2[17], alpha2[18], alpha2[19]],
-            [alpha2[20], alpha2[21], alpha2[22], alpha2[23], alpha2[24], alpha2[25], alpha2[26]],
-            ]
+        beta1 = numpy.concatenate([[0.0], alpha[54:81]])
+        b1 = create_triangle(beta1, 6)
 
-        beta1 = alpha[54:81]
-        b1 = [
-            [0.0],
-            [beta1[0],  beta1[1]],
-            [beta1[2],  beta1[3],  beta1[4]],
-            [beta1[5],  beta1[6],  beta1[7],  beta1[8]],
-            [beta1[9],  beta1[10], beta1[11], beta1[12], beta1[13]],
-            [beta1[14], beta1[15], beta1[16], beta1[17], beta1[18], beta1[19]],
-            [beta1[20], beta1[21], beta1[22], beta1[23], beta1[24], beta1[25], beta1[26]],
-            ]
+        beta2 = numpy.concatenate([[1.0], alpha[81:]])
+        b2 = create_triangle(beta2, 6)
 
-        beta2 = alpha[81:]
-        b2 = [
-            [1.0],
-            [beta2[0],  beta2[1]],
-            [beta2[2],  beta2[3],  beta2[4]],
-            [beta2[5],  beta2[6],  beta2[7],  beta2[8]],
-            [beta2[9],  beta2[10], beta2[11], beta2[12], beta2[13]],
-            [beta2[14], beta2[15], beta2[16], beta2[17], beta2[18], beta2[19]],
-            [beta2[20], beta2[21], beta2[22], beta2[23], beta2[24], beta2[25], beta2[26]],
-            ]
         return numpy.array([
             evaluate_2d_polynomial(xy, a1) / evaluate_2d_polynomial(xy, a2),
             evaluate_2d_polynomial(xy, b1) / evaluate_2d_polynomial(xy, b2),
             ])
+
 
     def f1(alpha):
         '''Function that returns the difference between target_radius and the
