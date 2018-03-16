@@ -63,6 +63,11 @@ def _main():
 
     target_radius = 2.0e-3
 
+    poly_degrees = [10, 10, 10, 10]
+
+    # Subtract 1 for each polynomial since the constant coefficient is fixed.
+    num_coefficients = [(d+1)*(d+2)//2 - 1 for d in poly_degrees]
+
 
     def evaluate_2d_polynomial(xy, alpha):
         x, y = xy
@@ -73,6 +78,7 @@ def _main():
                 out += a[i] * x**(d-i) * y**i
         return out
 
+
     def create_triangle(alpha, degree):
         return [
             [alpha[d*(d+1)//2 + i] for i in range(d+1)]
@@ -81,17 +87,23 @@ def _main():
 
 
     def transform(xy, alpha):
-        alpha1 = numpy.concatenate([[0.0], alpha[:27]])
-        a1 = create_triangle(alpha1, 6)
+        n = 0
 
-        alpha2 = numpy.concatenate([[1.0], alpha[27:54]])
-        a2 = create_triangle(alpha2, 6)
+        alpha1 = numpy.concatenate([[0.0], alpha[n:n+num_coefficients[0]]])
+        a1 = create_triangle(alpha1, poly_degrees[0])
+        n += num_coefficients[0]
 
-        beta1 = numpy.concatenate([[0.0], alpha[54:81]])
-        b1 = create_triangle(beta1, 6)
+        alpha2 = numpy.concatenate([[1.0], alpha[n:n+num_coefficients[1]]])
+        a2 = create_triangle(alpha2, poly_degrees[1])
+        n += num_coefficients[1]
 
-        beta2 = numpy.concatenate([[1.0], alpha[81:]])
-        b2 = create_triangle(beta2, 6)
+        beta1 = numpy.concatenate([[0.0], alpha[n:n+num_coefficients[2]]])
+        b1 = create_triangle(beta1, poly_degrees[2])
+        n += num_coefficients[2]
+
+        beta2 = numpy.concatenate([[1.0], alpha[n:n+num_coefficients[3]]])
+        b2 = create_triangle(beta2, poly_degrees[3])
+        n += num_coefficients[3]
 
         return numpy.array([
             evaluate_2d_polynomial(xy, a1) / evaluate_2d_polynomial(xy, a2),
@@ -172,9 +184,13 @@ def _main():
         return get_radii(alpha) - target_radius
 
 
-    coeff0 = numpy.zeros(108)
-    coeff0[0] = 1.0
-    coeff0[55] = 1.0
+    # Create the identity function as initial guess
+    total_num_parameters = numpy.sum(num_coefficients)
+    coeff0 = numpy.zeros(total_num_parameters)
+    i0 = 0
+    coeff0[i0] = 1.0
+    j0 = num_coefficients[0] + num_coefficients[1] + 1
+    coeff0[j0] = 1.0
     print(coeff0)
     # out = leastsq(f, coeff0, full_output=True)
     # print(out)
