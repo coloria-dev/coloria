@@ -56,7 +56,9 @@ def transform(xy, shift, alpha, num_coefficients, poly_degrees):
         ])
 
 
-def get_radii(alpha, num_coefficients, poly_degrees, centers, points, shift):
+def get_ecc(alpha, num_coefficients, poly_degrees, centers, points, shift):
+    '''Get eccentricities of ellipses.
+    '''
     A = []
     B = []
     for center, pts in zip(centers, points):
@@ -169,41 +171,22 @@ def _main():
     # shift white point to center (0.0, 0.0)
     whitepoint = [1/3, 1/3]
 
-    target_radius = 2.0e-3
-
     poly_degrees = [2, 2, 2, 2]
 
     # Subtract 1 for each polynomial since the constant coefficient is fixed.
     num_coefficients = [(d+1)*(d+2)//2 - 1 for d in poly_degrees]
 
 
-    def f1(alpha):
-        '''Function that returns the difference between target_radius and the
-        distances of the ellipse points to the centers. Minimizing this
-        function should make the MacAdams ellipses circles. However, what may
-        also happen is that the ellipse points are lined up at target_radius
-        away from the centers, leading to very sharp ellipses instead.
-        '''
-        dist = []
-        for center, pts in zip(centers, points):
-            tcenter = transform(center, alpha)
-            tpts = transform(pts, alpha)
-
-            for pt in tpts.T:
-                diff = tcenter - pt
-                dist.append(numpy.sqrt(numpy.dot(diff, diff)))
-
-        dist = numpy.array(dist)
-        # plt.plot([0, len(dist)], [target_radius, target_radius])
-        # plt.plot(numpy.arange(len(dist)), dist)
-        # plt.show()
-        return abs(dist - target_radius)
-
     def f2(alpha):
-        return (
-            get_radii(alpha, num_coefficients, poly_degrees, centers, points, whitepoint)
-            - target_radius
+        ecc = get_ecc(
+            alpha, num_coefficients, poly_degrees, centers, points, whitepoint
             )
+        # compute standard deviation of ecc
+        # n = len(ecc)
+        # average = numpy.sum(ecc) / n
+        # return numpy.sqrt(numpy.sum((ecc - average)**2) / n) / average
+        target_ecc = 2.0e-3
+        return ecc - target_ecc
 
 
     # Create the identity function as initial guess
@@ -229,10 +212,10 @@ def _main():
     print_parameters(coeff1, num_coefficients, poly_degrees)
 
     # plot statistics
-    radii0 = get_radii(coeff0, num_coefficients, poly_degrees, centers, points, whitepoint)
-    radii1 = get_radii(coeff1, num_coefficients, poly_degrees, centers, points, whitepoint)
-    plt.plot(numpy.arange(len(radii0)), radii0, label='ecc before')
-    plt.plot(numpy.arange(len(radii1)), radii1, label='ecc opt')
+    ecc0 = get_ecc(coeff0, num_coefficients, poly_degrees, centers, points, whitepoint)
+    ecc1 = get_ecc(coeff1, num_coefficients, poly_degrees, centers, points, whitepoint)
+    plt.plot(ecc0, label='ecc before')
+    plt.plot(ecc1, label='ecc opt')
     plt.legend()
 
     # Plot unperturbed MacAdam
