@@ -4,12 +4,12 @@ from __future__ import print_function, division
 
 import os
 
-import colorio
 import matplotlib.pyplot as plt
-from matplotlib.patches import Ellipse
 import numpy
 from scipy.optimize import leastsq, least_squares
 import yaml
+
+import colorio
 
 
 def evaluate_2d_polynomial(xy, alpha):
@@ -56,6 +56,7 @@ def transform(xy, shift, alpha, num_coefficients, poly_degrees):
         ])
 
 
+# pylint: disable=too-many-arguments
 def get_ecc(alpha, num_coefficients, poly_degrees, centers, points, shift):
     '''Get eccentricities of ellipses.
     '''
@@ -87,12 +88,13 @@ def get_ecc(alpha, num_coefficients, poly_degrees, centers, points, shift):
                 * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)),
                 ]).T
 
-        (a, b, theta), _ = \
+        (a, b, _), _ = \
             leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac_ellipse)
 
         A.append(1/a)
         B.append(1/b)
 
+        # from matplotlib.patches import Ellipse
         # plt.plot(*X, 'x')
         # ax = plt.gca()
         # e = Ellipse(
@@ -146,10 +148,6 @@ def _main():
     with open(os.path.join(dir_path, '../colorio/data/macadam1942/table3.yaml')) as f:
         data = yaml.safe_load(f)
 
-    ax = plt.gca()
-
-    scaling = 10
-
     centers = []
     points = []
     for datak in data:
@@ -171,11 +169,10 @@ def _main():
     # shift white point to center (0.0, 0.0)
     whitepoint = [1/3, 1/3]
 
-    poly_degrees = [2, 2, 2, 2]
+    poly_degrees = [6, 6, 6, 6]
 
     # Subtract 1 for each polynomial since the constant coefficient is fixed.
     num_coefficients = [(d+1)*(d+2)//2 - 1 for d in poly_degrees]
-
 
     def f2(alpha):
         ecc = get_ecc(
@@ -184,7 +181,6 @@ def _main():
         # compute standard deviation of ecc
         average = numpy.sum(ecc) / len(ecc)
         return (ecc - average) / average
-
 
     # Create the identity function as initial guess
     total_num_parameters = numpy.sum(num_coefficients)
