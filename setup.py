@@ -18,7 +18,7 @@ def read(fname):
         content = codecs.open(
             os.path.join(base_dir, fname), encoding='utf-8'
             ).read()
-    except FileNotFoundError:
+    except IOError:
         content = ''
     return content
 

@@ -29,33 +29,6 @@ def create_triangle(alpha, degree):
         ]
 
 
-def transform(xy, shift, alpha, num_coefficients, poly_degrees):
-    n = 0
-
-    xy = (xy.T - shift).T
-
-    alpha1 = numpy.concatenate([[0.0], alpha[n:n+num_coefficients[0]]])
-    a1 = create_triangle(alpha1, poly_degrees[0])
-    n += num_coefficients[0]
-
-    alpha2 = numpy.concatenate([[1.0], alpha[n:n+num_coefficients[1]]])
-    a2 = create_triangle(alpha2, poly_degrees[1])
-    n += num_coefficients[1]
-
-    beta1 = numpy.concatenate([[0.0], alpha[n:n+num_coefficients[2]]])
-    b1 = create_triangle(beta1, poly_degrees[2])
-    n += num_coefficients[2]
-
-    beta2 = numpy.concatenate([[1.0], alpha[n:n+num_coefficients[3]]])
-    b2 = create_triangle(beta2, poly_degrees[3])
-    n += num_coefficients[3]
-
-    return numpy.array([
-        evaluate_2d_polynomial(xy, a1) / evaluate_2d_polynomial(xy, a2),
-        evaluate_2d_polynomial(xy, b1) / evaluate_2d_polynomial(xy, b2),
-        ])
-
-
 def f_ellipse(a_b_theta, x):
     a, b, theta = a_b_theta
     cos = numpy.cos(theta)
@@ -82,16 +55,13 @@ def jac_ellipse(a_b_theta, x):
 
 
 # pylint: disable=too-many-arguments
-def get_ecc(alpha, num_coefficients, poly_degrees, centers, points, shift):
+def get_ecc(f, centers, points):
     '''Get eccentricities of ellipses.
     '''
     A = []
     B = []
     for center, pts in zip(centers, points):
-        X = (
-            transform(pts, shift, alpha, num_coefficients, poly_degrees).T
-            - transform(center, shift, alpha, num_coefficients, poly_degrees)
-            ).T
+        X = (f(pts).T - f(center)).T
 
         (a, b, _), _ = leastsq(
             lambda a_b_theta: f_ellipse(a_b_theta, X),
@@ -126,29 +96,92 @@ def print_triangle(alpha, degree):
     return
 
 
-def print_parameters(alpha, num_coefficients, poly_degrees):
-    n = 0
+class Pade2d(object):
+    '''Pad'e polynomial in from R^2 to R^2, i.e., both components are Pad'e
+    functions in x and y. The function is characterized by four sets of
+    coefficients, two for the components and two for numerator and denominator
+    each.
+    '''
+    def __init__(self, degrees, shift):
+        self.degrees = degrees
+        self.shift = shift
 
-    alpha1 = numpy.concatenate([[0.0], alpha[n:n+num_coefficients[0]]])
-    print_triangle(alpha1, poly_degrees[0])
-    print()
-    n += num_coefficients[0]
+        # Subtract 1 for each polynomial since the constant coefficient is fixed.
+        self.num_coefficients = [(d+1)*(d+2)//2 - 1 for d in degrees]
 
-    alpha2 = numpy.concatenate([[1.0], alpha[n:n+num_coefficients[1]]])
-    print_triangle(alpha2, poly_degrees[1])
-    print()
-    n += num_coefficients[1]
+        self.total_num_coefficients = sum(self.num_coefficients)
 
-    beta1 = numpy.concatenate([[0.0], alpha[n:n+num_coefficients[2]]])
-    print_triangle(beta1, poly_degrees[2])
-    print()
-    n += num_coefficients[2]
+        # Choose the coefficiens to create the identity function
+        self.alpha = numpy.zeros(self.total_num_coefficients)
+        i0 = 0
+        self.alpha[i0] = 1.0
+        j0 = self.num_coefficients[0] + self.num_coefficients[1] + 1
+        self.alpha[j0] = 1.0
+        return
 
-    beta2 = numpy.concatenate([[1.0], alpha[n:n+num_coefficients[3]]])
-    print_triangle(beta2, poly_degrees[3])
-    print()
-    n += num_coefficients[3]
-    return
+    def eval(self, xy):
+        n = 0
+
+        xy = (xy.T - self.shift).T
+
+        alpha1 = numpy.concatenate([
+            [0.0], self.alpha[n:n+self.num_coefficients[0]]
+            ])
+        a1 = create_triangle(alpha1, self.degrees[0])
+        n += self.num_coefficients[0]
+
+        alpha2 = numpy.concatenate([
+            [1.0], self.alpha[n:n+self.num_coefficients[1]]
+            ])
+        a2 = create_triangle(alpha2, self.degrees[1])
+        n += self.num_coefficients[1]
+
+        beta1 = numpy.concatenate([
+            [0.0], self.alpha[n:n+self.num_coefficients[2]]
+            ])
+        b1 = create_triangle(beta1, self.degrees[2])
+        n += self.num_coefficients[2]
+
+        beta2 = numpy.concatenate([
+            [1.0], self.alpha[n:n+self.num_coefficients[3]]
+            ])
+        b2 = create_triangle(beta2, self.degrees[3])
+
+        return numpy.array([
+            evaluate_2d_polynomial(xy, a1) / evaluate_2d_polynomial(xy, a2),
+            evaluate_2d_polynomial(xy, b1) / evaluate_2d_polynomial(xy, b2),
+            ])
+
+    def print(self):
+        n = 0
+
+        alpha1 = numpy.concatenate([
+            [0.0], self.alpha[n:n+self.num_coefficients[0]]
+            ])
+        print_triangle(alpha1, self.degrees[0])
+        print()
+        n += self.num_coefficients[0]
+
+        alpha2 = numpy.concatenate([
+            [1.0], self.alpha[n:n+self.num_coefficients[1]]
+            ])
+        print_triangle(alpha2, self.degrees[1])
+        print()
+        n += self.num_coefficients[1]
+
+        beta1 = numpy.concatenate([
+            [0.0], self.alpha[n:n+self.num_coefficients[2]]
+            ])
+        print_triangle(beta1, self.degrees[2])
+        print()
+        n += self.num_coefficients[2]
+
+        beta2 = numpy.concatenate([
+            [1.0], self.alpha[n:n+self.num_coefficients[3]]
+            ])
+        print_triangle(beta2, self.degrees[3])
+        print()
+        return
 
 
 def _main():
@@ -178,31 +211,22 @@ def _main():
     centers = numpy.array(centers)
 
     # shift white point to center (0.0, 0.0)
-    whitepoint = [1/3, 1/3]
+    pade2d = Pade2d([2, 2, 2, 2], [1/3, 1/3])
 
-    poly_degrees = [4, 4, 4, 4]
-
-    # Subtract 1 for each polynomial since the constant coefficient is fixed.
-    num_coefficients = [(d+1)*(d+2)//2 - 1 for d in poly_degrees]
 
     def f2(alpha):
-        ecc = get_ecc(
-            alpha, num_coefficients, poly_degrees, centers, points, whitepoint
-            )
+        pade2d.alpha = alpha
+        ecc = get_ecc(pade2d.eval, centers, points)
         # compute standard deviation of ecc
         average = numpy.sum(ecc) / len(ecc)
-        return (ecc - average) / average
+        out = (ecc - average) / average
+        print(numpy.sum(out**2))
+        return out
 
     # Create the identity function as initial guess
-    total_num_parameters = numpy.sum(num_coefficients)
-    print('num parameters: {}'.format(total_num_parameters))
-    coeff0 = numpy.zeros(total_num_parameters)
-    i0 = 0
-    coeff0[i0] = 1.0
-    j0 = num_coefficients[0] + num_coefficients[1] + 1
-    coeff0[j0] = 1.0
+    print('num parameters: {}'.format(pade2d.total_num_coefficients))
     print('\ninitial parameters:')
-    print_parameters(coeff0, num_coefficients, poly_degrees)
+    pade2d.print()
     # out = leastsq(f, coeff0, full_output=True)
     # print(out)
     # exit(1)
@@ -210,17 +234,18 @@ def _main():
 
     # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
     # problems, but it needs more conditions than parameters.
-    out = least_squares(f2, coeff0, method='trf')
+    out = least_squares(f2, pade2d.alpha, method='trf')
     coeff1 = out.x
     print('\noptimal parameters:')
-    print_parameters(coeff1, num_coefficients, poly_degrees)
+    pade2d.print()
 
     # plot statistics
-    ecc0 = get_ecc(coeff0, num_coefficients, poly_degrees, centers, points, whitepoint)
-    ecc1 = get_ecc(coeff1, num_coefficients, poly_degrees, centers, points, whitepoint)
-    plt.plot(ecc0, label='ecc before')
+    # ecc0 = get_ecc(coeff0, num_coefficients, poly_degrees, centers, points, whitepoint)
+    # plt.plot(ecc0, label='ecc before')
+    ecc1 = get_ecc(pade2d.eval, centers, points)
     plt.plot(ecc1, label='ecc opt')
     plt.legend()
+    plt.grid()
 
     # Plot unperturbed MacAdam
     plt.figure()
@@ -233,7 +258,7 @@ def _main():
     plt.figure()
     colorio.plot_macadam(
         scaling=10,
-        xy_to_2d=lambda xy: transform(xy, whitepoint, coeff1, num_coefficients, poly_degrees),
+        xy_to_2d=pade2d.eval,
         plot_standard_deviations=True
         )
 
