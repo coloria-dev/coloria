@@ -40,37 +40,25 @@ def jac_ellipse(a_b_theta, x):
 
 
 # pylint: disable=too-many-arguments
-def get_ecc(f, centers, points):
+def get_ellipse_axes(f, centers, points):
     '''Get eccentricities of ellipses.
     '''
-    A = []
-    B = []
-    for center, pts in zip(centers, points):
-        X = (f(pts).T - f(center)).T
+    X = [
+        (f(pts).T - f(center)).T
+        for center, pts in zip(centers, points)
+        ]
 
-        (a, b, _), _ = leastsq(
-            lambda a_b_theta: f_ellipse(a_b_theta, X),
+    ab = numpy.array([
+        # Solve least squares problem for [1/a, 1/b, theta] and pick [a, b]
+        1 / leastsq(
+            lambda a_b_theta: f_ellipse(a_b_theta, x),
             [1.0, 1.0, 0.0],
-            Dfun=lambda a_b_theta: jac_ellipse(a_b_theta, X),
-            )
+            Dfun=lambda a_b_theta: jac_ellipse(a_b_theta, x),
+            )[0][:2]
+        for x in X
+        ])
 
-        A.append(1/a)
-        B.append(1/b)
-
-        # from matplotlib.patches import Ellipse
-        # plt.plot(*X, 'x')
-        # ax = plt.gca()
-        # e = Ellipse(
-        #     xy=[0.0, 0.0],
-        #     width=2/a, height=2/b,
-        #     angle=theta / numpy.pi * 180
-        #     )
-        # ax.add_artist(e)
-        # e.set_alpha(0.5)
-        # e.set_facecolor('k')
-        # plt.show()
-
-    return numpy.array([A, B]).reshape(-1)
+    return ab.flatten()
     # return numpy.log(ab / target_radius)
 
 
@@ -106,7 +94,7 @@ def _main():
 
     def f2(alpha):
         pade2d.alpha = alpha
-        ecc = get_ecc(pade2d.eval, centers, points)
+        ecc = get_ellipse_axes(pade2d.eval, centers, points)
         # compute standard deviation of ecc
         average = numpy.sum(ecc) / len(ecc)
         out = (ecc - average) / average
@@ -122,7 +110,7 @@ def _main():
     # exit(1)
     # coeff1, _ = leastsq(f2, coeff0, maxfev=10000)
 
-    ecc0 = get_ecc(pade2d.eval, centers, points)
+    ecc0 = get_ellipse_axes(pade2d.eval, centers, points)
 
     # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
     # problems, but it needs more conditions than parameters.
@@ -133,7 +121,7 @@ def _main():
 
     # plot statistics
     plt.plot(ecc0, label='ecc before')
-    ecc1 = get_ecc(pade2d.eval, centers, points)
+    ecc1 = get_ellipse_axes(pade2d.eval, centers, points)
     plt.plot(ecc1, label='ecc opt')
     plt.legend()
     plt.grid()
