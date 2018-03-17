@@ -443,13 +443,18 @@ def plot_macadam(scaling=1,
         center = numpy.array([datak['x'], datak['y']])
         tcenter = xy_to_2d(center)
 
-        ecc = (
+        offset = (
             numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
             / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
             )
-        X = (xy_to_2d((center + ecc.T).T).T - tcenter).T
+        # If xy_to_2d is linear, we would only need one of center+-offset
+        X = numpy.column_stack([
+            xy_to_2d((center + offset.T).T),
+            xy_to_2d((center - offset.T).T),
+            ])
+        X = (X.T - tcenter).T
 
-        if X.shape[1] < 2:
+        if X.shape[1] < 4:
             continue
 
         # # Curve fit an ellipse with the data

@@ -56,6 +56,31 @@ def transform(xy, shift, alpha, num_coefficients, poly_degrees):
         ])
 
 
+def f_ellipse(a_b_theta, x):
+    a, b, theta = a_b_theta
+    cos = numpy.cos(theta)
+    sin = numpy.sin(theta)
+    return (
+        + a**2 * (x[0]*cos + x[1]*sin)**2
+        + b**2 * (x[0]*sin - x[1]*cos)**2
+        - 1.0
+        )
+
+
+def jac_ellipse(a_b_theta, x):
+    a, b, theta = a_b_theta
+    cos = numpy.cos(theta)
+    sin = numpy.sin(theta)
+    return numpy.array([
+        + 2*a * (x[0]*cos + x[1]*sin)**2,
+        #
+        + 2*b * (x[0]*sin - x[1]*cos)**2,
+        #
+        + a**2 * 2*(x[0]*cos + x[1]*sin) * (-x[0]*sin + x[1]*cos)
+        + b**2 * 2*(x[0]*sin - x[1]*cos) * (+x[0]*cos + x[1]*sin),
+        ]).T
+
+
 # pylint: disable=too-many-arguments
 def get_ecc(alpha, num_coefficients, poly_degrees, centers, points, shift):
     '''Get eccentricities of ellipses.
@@ -63,33 +88,16 @@ def get_ecc(alpha, num_coefficients, poly_degrees, centers, points, shift):
     A = []
     B = []
     for center, pts in zip(centers, points):
-        tcenter = transform(center, shift, alpha, num_coefficients, poly_degrees)
         X = (
             transform(pts, shift, alpha, num_coefficients, poly_degrees).T
-            - tcenter
+            - transform(center, shift, alpha, num_coefficients, poly_degrees)
             ).T
 
-        def f_ellipse(a_b_theta, x=X):
-            a, b, theta = a_b_theta
-            return (
-                + a**2 * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))**2
-                + b**2 * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))**2
-                - 1.0
-                )
-
-        def jac_ellipse(a_b_theta, x=X):
-            a, b, theta = a_b_theta
-            return numpy.array([
-                + 2*a * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))**2,
-                + 2*b * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))**2,
-                + a**2 * 2*(x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))
-                * (-x[0] * numpy.sin(theta) + x[1] * numpy.cos(theta))
-                + b**2 * 2*(x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))
-                * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)),
-                ]).T
-
-        (a, b, _), _ = \
-            leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac_ellipse)
+        (a, b, _), _ = leastsq(
+            lambda a_b_theta: f_ellipse(a_b_theta, X),
+            [1.0, 1.0, 0.0],
+            Dfun=lambda a_b_theta: jac_ellipse(a_b_theta, X),
+            )
 
         A.append(1/a)
         B.append(1/b)
@@ -107,7 +115,7 @@ def get_ecc(alpha, num_coefficients, poly_degrees, centers, points, shift):
         # e.set_facecolor('k')
         # plt.show()
 
-    return numpy.concatenate([A, B])
+    return numpy.array([A, B]).reshape(-1)
     # return numpy.log(ab / target_radius)
 
 
@@ -155,13 +163,16 @@ def _main():
         _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak['data']).T
         if len(delta_s) < 2:
             continue
-        centers.append([datak['x'], datak['y']])
-        points.append((
-            (
-                numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
-                / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
-            ).T + centers[-1]
-            ).T)
+        center = [datak['x'], datak['y']]
+        centers.append(center)
+        offset = (
+            numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
+            / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
+            )
+        points.append(numpy.column_stack([
+            (center + offset.T).T,
+            (center - offset.T).T,
+            ]))
 
 
     centers = numpy.array(centers)
@@ -169,7 +180,7 @@ def _main():
     # shift white point to center (0.0, 0.0)
     whitepoint = [1/3, 1/3]
 
-    poly_degrees = [6, 6, 6, 6]
+    poly_degrees = [4, 4, 4, 4]
 
     # Subtract 1 for each polynomial since the constant coefficient is fixed.
     num_coefficients = [(d+1)*(d+2)//2 - 1 for d in poly_degrees]
