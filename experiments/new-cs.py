@@ -96,7 +96,7 @@ def _main():
     # shift white point to center (0.0, 0.0)
     pade2d = Pade2d([2, 2, 2, 2], [1/3, 1/3])
 
-    def f2(alpha):
+    def f(alpha):
         pade2d.alpha = alpha
         ecc = macadam.get_ellipse_axes(pade2d.eval)
         average = numpy.sum(ecc) / len(ecc)
@@ -108,22 +108,22 @@ def _main():
     print('num parameters: {}'.format(pade2d.total_num_coefficients))
     print('\ninitial parameters:')
     pade2d.print()
-    # out = leastsq(f, coeff0, full_output=True)
-    # print(out)
-    # exit(1)
-    # coeff1, _ = leastsq(f2, coeff0, maxfev=10000)
 
-    ecc0 = macadam.get_ellipse_axes(pade2d.eval)
+    alpha0 = pade2d.alpha.copy()
 
     # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
-    # problems, but it needs more conditions than parameters.
-    out = least_squares(f2, pade2d.alpha, method='trf')
-    coeff1 = out.x
+    # problems, but it needs more conditions than parameters. This is not the
+    # case for larger polynomial degrees.
+    out = least_squares(f, pade2d.alpha, method='trf')
+    pade2d.alpha = out.x
     print('\noptimal parameters:')
     pade2d.print()
 
     # plot statistics
+    pade2d.alpha = alpha0
+    ecc0 = macadam.get_ellipse_axes(pade2d.eval)
     plt.plot(ecc0, label='ecc before')
+    pade2d.alpha = out.x
     ecc1 = macadam.get_ellipse_axes(pade2d.eval)
     plt.plot(ecc1, label='ecc opt')
     plt.legend()
