@@ -89,15 +89,91 @@ class MacAdam(object):
         # return numpy.log(ab / target_radius)
 
 
+class MacAdam2(object):
+    def __init__(self):
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.join(dir_path, '../colorio/data/macadam1942/table3.yaml')) as f:
+            data = yaml.safe_load(f)
+
+        centers = []
+        points = []
+        for datak in data:
+            # collect ellipse points
+            _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak['data']).T
+            if len(delta_s) < 2:
+                continue
+            center = [datak['x'], datak['y']]
+            centers.append(center)
+            offset = (
+                numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
+                / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
+                )
+            points.append(numpy.column_stack([
+                (center + offset.T).T,
+                (center - offset.T).T,
+                ]))
+
+        # Get ellipse parameters
+        X = [
+            (pts.T - center).T
+            for center, pts in zip(centers, points)
+            ]
+        a_b_theta = numpy.array([
+            # Solve least squares problem for [1/a, 1/b, theta]
+            # and pick [a, b, theta]
+            leastsq(
+                lambda a_b_theta: f_ellipse(a_b_theta, x),
+                [1.0, 1.0, 0.0],
+                Dfun=lambda a_b_theta: jac_ellipse(a_b_theta, x),
+                )[0]
+            for x in X
+            ])
+        a_b_theta = numpy.array([
+            1 / a_b_theta[:, 0],
+            1 / a_b_theta[:, 1],
+            a_b_theta[:, 2]
+            ]).T
+
+        # Construct 2x2 matrices that convert the ellipse points approximately
+        # onto a a circle.
+        rad = numpy.sum(a_b_theta[:, :2]) / (2*len(a_b_theta))
+        J = []
+        for abt in a_b_theta:
+            a, b, theta = abt
+            J.append(numpy.linalg.inv(numpy.array([
+                [a * numpy.cos(theta), -b * numpy.sin(theta)],
+                [a * numpy.sin(theta), b * numpy.cos(theta)],
+                ]) / rad))
+        print(numpy.array(J))
+
+        # plot
+        # for center, pts, j in zip(centers, points, J):
+        #     # plot points
+        #     p = (pts.T - center).T
+        #     plt.plot(*p, '.')
+        #     # plot circle
+        #     t = numpy.linspace(0.0, 2.0*numpy.pi, 100)
+        #     xy = rad * numpy.array([numpy.cos(t), numpy.sin(t)])
+        #     plt.plot(*xy, '-k')
+        #     # plot transformation
+        #     xy_new = numpy.dot(j, p)
+        #     plt.plot(*xy_new, 'x')
+        #     plt.axis('equal')
+        #     plt.show()
+        return
+
+
 
 def _main():
+    # macadam = MacAdam2()
+    # exit(1)
+
     macadam = MacAdam()
 
-    # shift white point to center (0.0, 0.0)
-    pade2d = Pade2d([2, 2, 2, 2], [1/3, 1/3])
+    pade2d = Pade2d([2, 2, 2, 2])
 
     def f(alpha):
-        pade2d.alpha = alpha
+        pade2d.set_alpha(alpha)
         ecc = macadam.get_ellipse_axes(pade2d.eval)
         average = numpy.sum(ecc) / len(ecc)
         out = (ecc - average) / average
@@ -115,15 +191,15 @@ def _main():
     # problems, but it needs more conditions than parameters. This is not the
     # case for larger polynomial degrees.
     out = least_squares(f, pade2d.alpha, method='trf')
-    pade2d.alpha = out.x
+    pade2d.set_alpha(out.x)
     print('\noptimal parameters:')
     pade2d.print()
 
     # plot statistics
-    pade2d.alpha = alpha0
+    pade2d.set_alpha(alpha0)
     ecc0 = macadam.get_ellipse_axes(pade2d.eval)
     plt.plot(ecc0, label='ecc before')
-    pade2d.alpha = out.x
+    pade2d.set_alpha(out.x)
     ecc1 = macadam.get_ellipse_axes(pade2d.eval)
     plt.plot(ecc1, label='ecc opt')
     plt.legend()

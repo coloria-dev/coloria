@@ -30,22 +30,26 @@ class Pade2d(object):
     coefficients, two for the components and two for numerator and denominator
     each.
     '''
-    def __init__(self, degrees, shift, alpha=None):
+    def __init__(self, degrees, alpha=None):
         self.degrees = degrees
-        self.shift = shift
 
-        # Subtract 1 for each polynomial since the constant coefficient is
-        # fixed.
-        self.num_coefficients = [(d+1)*(d+2)//2 - 1 for d in degrees]
+        # Subtract 1 for each denominator polynomial since the constant
+        # coefficient is fixed to 1.0.
+        self.num_coefficients = [
+            (degrees[0]+1)*(degrees[0]+2)//2,
+            (degrees[1]+1)*(degrees[1]+2)//2 - 1,
+            (degrees[2]+1)*(degrees[2]+2)//2,
+            (degrees[3]+1)*(degrees[3]+2)//2 - 1,
+            ]
 
         self.total_num_coefficients = sum(self.num_coefficients)
 
         if alpha is None:
             # Choose the coefficiens to create the identity function
             alpha = numpy.zeros(self.total_num_coefficients)
-            i0 = 0
+            i0 = 1
             alpha[i0] = 1.0
-            j0 = self.num_coefficients[0] + self.num_coefficients[1] + 1
+            j0 = self.num_coefficients[0] + self.num_coefficients[1] + 2
             alpha[j0] = 1.0
 
         self.set_alpha(alpha)
@@ -58,9 +62,7 @@ class Pade2d(object):
 
         n = 0
 
-        alpha1 = numpy.concatenate([
-            [0.0], alpha[n:n+self.num_coefficients[0]]
-            ])
+        alpha1 = alpha[n:n+self.num_coefficients[0]]
         self.a1 = _create_triangle(alpha1, self.degrees[0])
         n += self.num_coefficients[0]
 
@@ -70,9 +72,7 @@ class Pade2d(object):
         self.a2 = _create_triangle(alpha2, self.degrees[1])
         n += self.num_coefficients[1]
 
-        beta1 = numpy.concatenate([
-            [0.0], alpha[n:n+self.num_coefficients[2]]
-            ])
+        beta1 = alpha[n:n+self.num_coefficients[2]]
         self.b1 = _create_triangle(beta1, self.degrees[2])
         n += self.num_coefficients[2]
 
@@ -83,8 +83,6 @@ class Pade2d(object):
         return
 
     def eval(self, xy):
-        xy = (xy.T - self.shift).T
-
         p1 = _evaluate_2d_polynomial(xy, self.a1)
         q1 = _evaluate_2d_polynomial(xy, self.a2)
 
