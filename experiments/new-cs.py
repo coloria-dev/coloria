@@ -39,63 +39,66 @@ def jac_ellipse(a_b_theta, x):
         ]).T
 
 
-# pylint: disable=too-many-arguments
-def get_ellipse_axes(f, centers, points):
-    '''Get eccentricities of ellipses.
-    '''
-    X = [
-        (f(pts).T - f(center)).T
-        for center, pts in zip(centers, points)
-        ]
+class MacAdam(object):
+    def __init__(self):
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.join(dir_path, '../colorio/data/macadam1942/table3.yaml')) as f:
+            data = yaml.safe_load(f)
 
-    ab = numpy.array([
-        # Solve least squares problem for [1/a, 1/b, theta] and pick [a, b]
-        1 / leastsq(
-            lambda a_b_theta: f_ellipse(a_b_theta, x),
-            [1.0, 1.0, 0.0],
-            Dfun=lambda a_b_theta: jac_ellipse(a_b_theta, x),
-            )[0][:2]
-        for x in X
-        ])
+        centers = []
+        points = []
+        for datak in data:
+            # collect ellipse points
+            _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak['data']).T
+            if len(delta_s) < 2:
+                continue
+            center = [datak['x'], datak['y']]
+            centers.append(center)
+            offset = (
+                numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
+                / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
+                )
+            points.append(numpy.column_stack([
+                (center + offset.T).T,
+                (center - offset.T).T,
+                ]))
 
-    return ab.flatten()
-    # return numpy.log(ab / target_radius)
+        self.centers = numpy.array(centers)
+        self.points = points
+        return
+
+    def get_ellipse_axes(self, f):
+        '''Get eccentricities of ellipses.
+        '''
+        X = [
+            (f(pts).T - f(center)).T
+            for center, pts in zip(self.centers, self.points)
+            ]
+
+        ab = numpy.array([
+            # Solve least squares problem for [1/a, 1/b, theta] and pick [a, b]
+            1 / leastsq(
+                lambda a_b_theta: f_ellipse(a_b_theta, x),
+                [1.0, 1.0, 0.0],
+                Dfun=lambda a_b_theta: jac_ellipse(a_b_theta, x),
+                )[0][:2]
+            for x in X
+            ])
+
+        return ab.flatten()
+        # return numpy.log(ab / target_radius)
+
 
 
 def _main():
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, '../colorio/data/macadam1942/table3.yaml')) as f:
-        data = yaml.safe_load(f)
-
-    centers = []
-    points = []
-    for datak in data:
-        # collect ellipse points
-        _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak['data']).T
-        if len(delta_s) < 2:
-            continue
-        center = [datak['x'], datak['y']]
-        centers.append(center)
-        offset = (
-            numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
-            / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
-            )
-        points.append(numpy.column_stack([
-            (center + offset.T).T,
-            (center - offset.T).T,
-            ]))
-
-
-    centers = numpy.array(centers)
+    macadam = MacAdam()
 
     # shift white point to center (0.0, 0.0)
     pade2d = Pade2d([2, 2, 2, 2], [1/3, 1/3])
 
-
     def f2(alpha):
         pade2d.alpha = alpha
-        ecc = get_ellipse_axes(pade2d.eval, centers, points)
-        # compute standard deviation of ecc
+        ecc = macadam.get_ellipse_axes(pade2d.eval)
         average = numpy.sum(ecc) / len(ecc)
         out = (ecc - average) / average
         print(numpy.sum(out**2))
@@ -110,7 +113,7 @@ def _main():
     # exit(1)
     # coeff1, _ = leastsq(f2, coeff0, maxfev=10000)
 
-    ecc0 = get_ellipse_axes(pade2d.eval, centers, points)
+    ecc0 = macadam.get_ellipse_axes(pade2d.eval)
 
     # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
     # problems, but it needs more conditions than parameters.
@@ -121,7 +124,7 @@ def _main():
 
     # plot statistics
     plt.plot(ecc0, label='ecc before')
-    ecc1 = get_ellipse_axes(pade2d.eval, centers, points)
+    ecc1 = macadam.get_ellipse_axes(pade2d.eval)
     plt.plot(ecc1, label='ecc opt')
     plt.legend()
     plt.grid()
