@@ -91,8 +91,9 @@ class MacAdam(object):
 
     def cost(self, f):
         ecc = self.get_ellipse_axes(f)
-        average = numpy.sum(ecc) / len(ecc)
-        out = (ecc - average) / average
+        # target = numpy.sum(ecc) / len(ecc)
+        target = 0.002
+        out = (ecc - target) / target
         print(numpy.sum(out**2))
         return out
 
@@ -146,10 +147,20 @@ class MacAdam2(object):
 
     def get_ellipse_axes(self, f):
         jacs = numpy.array([f.jac(center) for center in self.centers])
-        prods = numpy.array([
+        M = numpy.array([
             numpy.dot(jac, j) for jac, j in zip(jacs, self.J)
             ])
-        _, sigma, _ = numpy.linalg.svd(prods)
+
+        # a = (M[:, 0, 0] + M[:, 1, 1]) / 2
+        # b = (M[:, 0, 0] - M[:, 1, 1]) / 2
+        # c = (M[:, 1, 0] + M[:, 0, 1]) / 2
+        # d = (M[:, 1, 0] - M[:, 0, 1]) / 2
+        # q = numpy.sqrt(a**2 + d**2)
+        # r = numpy.sqrt(b**2 + c**2)
+        # sigma = numpy.array([q+r, q-r]).T
+
+        _, sigma, _ = numpy.linalg.svd(M)
+
         # The singular values of (invJ, jacs) are the inverses of the axis
         # lengths of the ellipses after tranformation by f.
         return sigma.flatten()
@@ -230,12 +241,10 @@ class MacAdam2(object):
 
 
 def _main():
-    pade2d = Pade2d([2, 2, 2, 2])
+    pade2d = Pade2d([2, 0, 2, 0])
 
     # macadam = MacAdam()
-
     macadam = MacAdam2()
-    # out = pade2d.jac([0.3, 0.3])
 
 
     def f(alpha):
@@ -252,7 +261,7 @@ def _main():
     # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
     # problems, but it needs more conditions than parameters. This is not the
     # case for larger polynomial degrees.
-    out = least_squares(f, pade2d.alpha, method='trf')
+    out = least_squares(f, pade2d.alpha, method='lm')
     pade2d.set_alpha(out.x)
     print('\noptimal parameters:')
     pade2d.print()

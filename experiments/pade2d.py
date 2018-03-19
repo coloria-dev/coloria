@@ -19,7 +19,7 @@ def _evaluate_2d_polynomial(xy, alpha):
     for a in alpha:
         d = len(a)
         for i in range(d):
-            out += a[i] * x**(d-i) * y**i
+            out += a[i] * x**(d-i-1) * y**i
     return out
 
 
@@ -33,6 +33,8 @@ class Pade2d(object):
     def __init__(self, degrees, alpha=None):
         self.degrees = degrees
 
+        print(degrees)
+
         # Subtract 1 for each denominator polynomial since the constant
         # coefficient is fixed to 1.0.
         self.num_coefficients = [
@@ -43,6 +45,33 @@ class Pade2d(object):
             ]
 
         self.total_num_coefficients = sum(self.num_coefficients)
+
+        # self.num_coefficients = [(d+1)*(d+2)//2 for d in degrees]
+
+        # # self.total_num_coefficients = sum(self.num_coefficients)
+
+        # ax = sympy.MatrixSymbol('ax', self.num_coefficients[0], 1)
+        # bx = sympy.MatrixSymbol('bx', self.num_coefficients[1], 1)
+        # ay = sympy.MatrixSymbol('ay', self.num_coefficients[2], 1)
+        # by = sympy.MatrixSymbol('by', self.num_coefficients[3], 1)
+
+        # self.ax = _create_triangle(ax, self.degrees[0])
+        # self.bx = _create_triangle(bx, self.degrees[1])
+        # self.ay = _create_triangle(ay, self.degrees[2])
+        # self.by = _create_triangle(by, self.degrees[3])
+
+        # x = sympy.Symbol('x')
+        # y = sympy.Symbol('y')
+
+        # out = _evaluate_2d_polynomial((x, y), self.ax)
+        # print(out)
+
+        # alpha = numpy.zeros(6)
+        # alpha[0] = 3.14
+        # print(self.ax)
+        # fax = sympy.lambdify(ax, out)
+        # print(fax(alpha))
+        # exit(1)
 
         if alpha is None:
             # Choose the coefficiens to create the identity function
