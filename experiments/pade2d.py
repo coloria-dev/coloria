@@ -80,6 +80,28 @@ class Pade2d(object):
             [1.0], alpha[n:n+self.num_coefficients[3]]
             ])
         self.b2 = _create_triangle(beta2, self.degrees[3])
+
+        # Build Jacobian
+        x = sympy.Symbol('x')
+        y = sympy.Symbol('y')
+
+        # Build symbolic polynomials
+        p1 = _evaluate_2d_polynomial((x, y), self.a1)
+        q1 = _evaluate_2d_polynomial((x, y), self.a2)
+
+        p2 = _evaluate_2d_polynomial((x, y), self.b1)
+        q2 = _evaluate_2d_polynomial((x, y), self.b2)
+
+        poly_x = p1 / q1
+        poly_y = p2 / q2
+
+        self.jacobian = sympy.lambdify(
+            (x, y),
+            sympy.Matrix([
+                [sympy.diff(poly_x, x), sympy.diff(poly_x, y)],
+                [sympy.diff(poly_y, x), sympy.diff(poly_y, y)],
+                ])
+            )
         return
 
     def eval(self, xy):
@@ -94,10 +116,7 @@ class Pade2d(object):
     def jac(self, xy):
         '''Get the Jacobian at (x, y).
         '''
-        x = sympy.Symbol('x')
-        y = sympy.Symbol('y')
-
-        return
+        return self.jacobian(*xy)
 
     def print(self):
         for vals in [self.a1, self.a2, self.b1, self.b2]:

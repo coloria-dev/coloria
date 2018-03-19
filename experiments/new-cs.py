@@ -39,6 +39,7 @@ def jac_ellipse(a_b_theta, x):
         ]).T
 
 
+
 class MacAdam(object):
     def __init__(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -71,7 +72,7 @@ class MacAdam(object):
         '''Get eccentricities of ellipses.
         '''
         X = [
-            (f(pts).T - f(center)).T
+            (f.eval(pts).T - f.eval(center)).T
             for center, pts in zip(self.centers, self.points)
             ]
 
@@ -87,6 +88,14 @@ class MacAdam(object):
 
         return ab.flatten()
         # return numpy.log(ab / target_radius)
+
+    def cost(self, f):
+        ecc = self.get_ellipse_axes(f)
+        average = numpy.sum(ecc) / len(ecc)
+        out = (ecc - average) / average
+        print(numpy.sum(out**2))
+        return out
+
 
 
 class MacAdam2(object):
@@ -113,6 +122,46 @@ class MacAdam2(object):
                 (center - offset.T).T,
                 ]))
 
+        self.centers = numpy.array(centers)
+
+        self.J = numpy.array(self.get_local_linearizations1(centers, points))
+        # self.J = numpy.array(self.get_local_linearizations2(centers, points))
+
+        # # plot
+        # for center, pts, j in zip(centers, points, self.J):
+        #     # plot points
+        #     p = (pts.T - center).T
+        #     plt.plot(*p, '.')
+        #     # plot circle
+        #     t = numpy.linspace(0.0, 2.0*numpy.pi, 1000)
+        #     xy = numpy.array([numpy.cos(t), numpy.sin(t)])
+        #     plt.plot(*numpy.dot(j, xy), '-', label='ellipse')
+        #     plt.legend()
+        #     # # plot transformation
+        #     # xy_new = numpy.dot(j, p)
+        #     # plt.plot(*xy_new, 'x')
+        #     plt.axis('equal')
+        #     plt.show()
+        return
+
+    def get_ellipse_axes(self, f):
+        jacs = numpy.array([f.jac(self.centers[1]) for center in self.centers])
+        prods = numpy.array([
+            numpy.dot(jac, j) for j, jac in zip(self.J, jacs)
+            ])
+        _, sigma, _ = numpy.linalg.svd(prods)
+        # The singular values of (invJ, jacs) are the inverses of the axis
+        # lengths of the ellipses after tranformation by f.
+        return sigma.flatten()
+
+    def cost(self, f):
+        ax = self.get_ellipse_axes(f)
+        average = numpy.sum(ax) / len(ax)
+        out = (ax - average) / average
+        print(numpy.sum(out**2))
+        return out
+
+    def get_local_linearizations1(self, centers, points):
         # Get ellipse parameters
         X = [
             (pts.T - center).T
@@ -133,52 +182,64 @@ class MacAdam2(object):
             1 / a_b_theta[:, 1],
             a_b_theta[:, 2]
             ]).T
-
-        # Construct 2x2 matrices that convert the ellipse points approximately
-        # onto a a circle.
-        rad = numpy.sum(a_b_theta[:, :2]) / (2*len(a_b_theta))
+        # Construct 2x2 matrices that approximately convert unit circles into
+        # the ellipse defined by the points.
+        # rad = numpy.sum(a_b_theta[:, :2]) / (2*len(a_b_theta))
         J = []
         for abt in a_b_theta:
             a, b, theta = abt
-            J.append(numpy.linalg.inv(numpy.array([
+            J.append(numpy.array([
                 [a * numpy.cos(theta), -b * numpy.sin(theta)],
                 [a * numpy.sin(theta), b * numpy.cos(theta)],
-                ]) / rad))
-        print(numpy.array(J))
+                ]))
 
-        # plot
-        # for center, pts, j in zip(centers, points, J):
-        #     # plot points
-        #     p = (pts.T - center).T
-        #     plt.plot(*p, '.')
-        #     # plot circle
-        #     t = numpy.linspace(0.0, 2.0*numpy.pi, 100)
-        #     xy = rad * numpy.array([numpy.cos(t), numpy.sin(t)])
-        #     plt.plot(*xy, '-k')
-        #     # plot transformation
-        #     xy_new = numpy.dot(j, p)
-        #     plt.plot(*xy_new, 'x')
-        #     plt.axis('equal')
-        #     plt.show()
-        return
+        return J
 
+    def get_local_linearizations2(self, centers, points):
+        X = [
+            (pts.T - center).T
+            for center, pts in zip(centers, points)
+            ]
+
+        def f_linear_function(j, x):
+            Jx = numpy.dot(j.reshape(2, 2), x)
+            out = numpy.einsum('ij,ij->j', Jx, Jx) - 1.0
+            return out
+
+        def jac_linear_function(j, x):
+            J = j.reshape(2, 2)
+            return numpy.array([
+                2*J[0, 0]*x[0]**2 + 2*J[0, 1]*x[0]*x[1],
+                2*J[0, 1]*x[1]**2 + 2*J[0, 0]*x[0]*x[1],
+                2*J[1, 0]*x[0]**2 + 2*J[1, 1]*x[0]*x[1],
+                2*J[1, 1]*x[1]**2 + 2*J[1, 0]*x[0]*x[1],
+                ]).T
+
+        J = []
+        for x in X:
+            j, _ = leastsq(
+                lambda J: f_linear_function(J, x),
+                [1.0, 0.0, 0.0, 1.0],
+                Dfun=lambda J: jac_linear_function(J, x),
+                # full_output=True
+                )
+            J.append(numpy.linalg.inv(j.reshape(2, 2)))
+
+        return J
 
 
 def _main():
-    # macadam = MacAdam2()
-    # exit(1)
-
-    macadam = MacAdam()
-
     pade2d = Pade2d([2, 2, 2, 2])
+
+    # macadam = MacAdam()
+
+    macadam = MacAdam2()
+    # out = pade2d.jac([0.3, 0.3])
+
 
     def f(alpha):
         pade2d.set_alpha(alpha)
-        ecc = macadam.get_ellipse_axes(pade2d.eval)
-        average = numpy.sum(ecc) / len(ecc)
-        out = (ecc - average) / average
-        print(numpy.sum(out**2))
-        return out
+        return macadam.cost(pade2d)
 
     # Create the identity function as initial guess
     print('num parameters: {}'.format(pade2d.total_num_coefficients))
@@ -197,11 +258,11 @@ def _main():
 
     # plot statistics
     pade2d.set_alpha(alpha0)
-    ecc0 = macadam.get_ellipse_axes(pade2d.eval)
-    plt.plot(ecc0, label='ecc before')
+    axes0 = macadam.get_ellipse_axes(pade2d)
+    plt.plot(axes0, label='axes lengths before')
     pade2d.set_alpha(out.x)
-    ecc1 = macadam.get_ellipse_axes(pade2d.eval)
-    plt.plot(ecc1, label='ecc opt')
+    axes1 = macadam.get_ellipse_axes(pade2d)
+    plt.plot(axes1, label='axes lengths opt')
     plt.legend()
     plt.grid()
 
