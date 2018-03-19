@@ -145,9 +145,9 @@ class MacAdam2(object):
         return
 
     def get_ellipse_axes(self, f):
-        jacs = numpy.array([f.jac(self.centers[1]) for center in self.centers])
+        jacs = numpy.array([f.jac(center) for center in self.centers])
         prods = numpy.array([
-            numpy.dot(jac, j) for j, jac in zip(self.J, jacs)
+            numpy.dot(jac, j) for jac, j in zip(jacs, self.J)
             ])
         _, sigma, _ = numpy.linalg.svd(prods)
         # The singular values of (invJ, jacs) are the inverses of the axis
@@ -156,8 +156,9 @@ class MacAdam2(object):
 
     def cost(self, f):
         ax = self.get_ellipse_axes(f)
-        average = numpy.sum(ax) / len(ax)
-        out = (ax - average) / average
+        # target = numpy.sum(ax) / len(ax)
+        target = 0.002
+        out = (ax - target) / target
         print(numpy.sum(out**2))
         return out
 

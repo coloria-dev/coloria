@@ -86,20 +86,20 @@ class Pade2d(object):
         y = sympy.Symbol('y')
 
         # Build symbolic polynomials
-        p1 = _evaluate_2d_polynomial((x, y), self.a1)
-        q1 = _evaluate_2d_polynomial((x, y), self.a2)
+        px = _evaluate_2d_polynomial((x, y), self.a1)
+        qx = _evaluate_2d_polynomial((x, y), self.a2)
 
-        p2 = _evaluate_2d_polynomial((x, y), self.b1)
-        q2 = _evaluate_2d_polynomial((x, y), self.b2)
+        py = _evaluate_2d_polynomial((x, y), self.b1)
+        qy = _evaluate_2d_polynomial((x, y), self.b2)
 
-        poly_x = p1 / q1
-        poly_y = p2 / q2
+        pade_x = px / qx
+        pade_y = py / qy
 
         self.jacobian = sympy.lambdify(
             (x, y),
             sympy.Matrix([
-                [sympy.diff(poly_x, x), sympy.diff(poly_x, y)],
-                [sympy.diff(poly_y, x), sympy.diff(poly_y, y)],
+                [sympy.diff(pade_x, x), sympy.diff(pade_x, y)],
+                [sympy.diff(pade_y, x), sympy.diff(pade_y, y)],
                 ])
             )
         return
