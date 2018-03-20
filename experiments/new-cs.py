@@ -127,6 +127,7 @@ class MacAdam2(object):
 
         self.J = numpy.array(self.get_local_linearizations1(centers, points))
         # self.J = numpy.array(self.get_local_linearizations2(centers, points))
+        self.J = numpy.moveaxis(self.J, 0, -1)
 
         # # plot
         # for center, pts, j in zip(centers, points, self.J):
@@ -150,12 +151,10 @@ class MacAdam2(object):
         # jacs is of shape (2, 2, k); for svd, it needs shape (k, 2, 2)
         # jacs = numpy.moveaxis(jacs, -1, 0)
 
-        J = numpy.moveaxis(self.J, 0, -1)
-
         # jacs and J are of shape (2, 2, k). M must be of the same shape and
         # contain the result of the k 2x2 dot products. Perhaps there's a
         # dot() for this.
-        M = numpy.einsum('ijl,jkl->ikl', jacs, J)
+        M = numpy.einsum('ijl,jkl->ikl', jacs, self.J)
 
         # One could use
         #
