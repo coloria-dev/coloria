@@ -147,9 +147,7 @@ class MacAdam2(object):
         return
 
     def get_ellipse_axes(self, f):
-        jacs = f.jac(self.centers.T)
-        # jacs is of shape (2, 2, k); for svd, it needs shape (k, 2, 2)
-        # jacs = numpy.moveaxis(jacs, -1, 0)
+        jacs = f.jac()
 
         # jacs and J are of shape (2, 2, k). M must be of the same shape and
         # contain the result of the k 2x2 dot products. Perhaps there's a
@@ -249,14 +247,12 @@ class MacAdam2(object):
 
 
 def _main():
-    pade2d = Pade2d([1, 1, 1, 1])
-
-    # xy = numpy.random.rand(2, 5)
-    # print(pade2d.eval(xy).shape)
-    # exit(1)
-
     # macadam = MacAdam()
     macadam = MacAdam2()
+
+    pade2d = Pade2d([1, 1, 1, 1])
+    # For MacAdam2, one only ever needs the values at the ellipse centers
+    pade2d.set_xy(macadam.centers.T)
 
 
     def f(alpha):

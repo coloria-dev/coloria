@@ -142,6 +142,13 @@ class Pade2d(object):
         self.set_alpha(alpha)
         return
 
+    def set_xy(self, xy):
+        self.xy = xy
+        self.xy_tree = _get_xy_tree(xy, max(self.degrees))
+        self.dx_tree = _get_dx_tree(xy, max(self.degrees))
+        self.dy_tree = _get_dy_tree(xy, max(self.degrees))
+        return
+
     def set_alpha(self, alpha):
         assert len(alpha) == self.total_num_coefficients
 
@@ -161,37 +168,37 @@ class Pade2d(object):
         self.tree_by = _create_tree(by, self.degrees[3])
         return
 
-    def eval(self, xy):
-        xy_tree = _get_xy_tree(xy, max(self.degrees))
+    def eval(self, xy=None):
+        if xy is not None:
+            self.set_xy(xy)
 
-        ux = _eval_tree(xy_tree, self.tree_ax)
-        vx = _eval_tree(xy_tree, self.tree_bx)
-        uy = _eval_tree(xy_tree, self.tree_ay)
-        vy = _eval_tree(xy_tree, self.tree_by)
+        ux = _eval_tree(self.xy_tree, self.tree_ax)
+        vx = _eval_tree(self.xy_tree, self.tree_bx)
+        uy = _eval_tree(self.xy_tree, self.tree_ay)
+        vy = _eval_tree(self.xy_tree, self.tree_by)
 
         return numpy.array([ux / vx, uy / vy])
 
-    def jac(self, xy):
+    def jac(self, xy=None):
         '''Get the Jacobian at (x, y).
         '''
-        xy_tree = _get_xy_tree(xy, max(self.degrees))
-        dx_tree = _get_dx_tree(xy, max(self.degrees))
-        dy_tree = _get_dy_tree(xy, max(self.degrees))
+        if xy is not None:
+            self.set_xy(xy)
 
-        ux = _eval_tree(xy_tree, self.tree_ax)
-        vx = _eval_tree(xy_tree, self.tree_bx)
-        uy = _eval_tree(xy_tree, self.tree_ay)
-        vy = _eval_tree(xy_tree, self.tree_by)
+        ux = _eval_tree(self.xy_tree, self.tree_ax)
+        vx = _eval_tree(self.xy_tree, self.tree_bx)
+        uy = _eval_tree(self.xy_tree, self.tree_ay)
+        vy = _eval_tree(self.xy_tree, self.tree_by)
 
-        ux_dx = _eval_tree(dx_tree, self.tree_ax)
-        vx_dx = _eval_tree(dx_tree, self.tree_bx)
-        uy_dx = _eval_tree(dx_tree, self.tree_ay)
-        vy_dx = _eval_tree(dx_tree, self.tree_by)
+        ux_dx = _eval_tree(self.dx_tree, self.tree_ax)
+        vx_dx = _eval_tree(self.dx_tree, self.tree_bx)
+        uy_dx = _eval_tree(self.dx_tree, self.tree_ay)
+        vy_dx = _eval_tree(self.dx_tree, self.tree_by)
 
-        ux_dy = _eval_tree(dy_tree, self.tree_ax)
-        vx_dy = _eval_tree(dy_tree, self.tree_bx)
-        uy_dy = _eval_tree(dy_tree, self.tree_ay)
-        vy_dy = _eval_tree(dy_tree, self.tree_by)
+        ux_dy = _eval_tree(self.dy_tree, self.tree_ax)
+        vx_dy = _eval_tree(self.dy_tree, self.tree_bx)
+        uy_dy = _eval_tree(self.dy_tree, self.tree_ay)
+        vy_dy = _eval_tree(self.dy_tree, self.tree_by)
 
         jac = numpy.array([
             [
