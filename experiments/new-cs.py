@@ -125,6 +125,8 @@ class MacAdam2(object):
 
         self.centers = numpy.array(centers)
 
+        self.k = 0
+
         self.J = numpy.array(self.get_local_linearizations1(centers, points))
         # self.J = numpy.array(self.get_local_linearizations2(centers, points))
         self.J = numpy.moveaxis(self.J, 0, -1)
@@ -176,7 +178,10 @@ class MacAdam2(object):
         # target = numpy.sum(ax) / len(ax)
         target = 0.002
         out = (ax - target) / target
-        print(numpy.sum(out**2))
+
+        if self.k % 10000 == 0:
+            print('step {}: {}'.format(self.k, numpy.sum(out**2)))
+        self.k += 1
         return out
 
     def get_local_linearizations1(self, centers, points):
@@ -250,7 +255,7 @@ def _main():
     # macadam = MacAdam()
     macadam = MacAdam2()
 
-    pade2d = Pade2d([2, 1, 2, 1])
+    pade2d = Pade2d([5, 5, 5, 5])
     # For MacAdam2, one only ever needs the values at the ellipse centers
     pade2d.set_xy(macadam.centers.T)
 
@@ -269,7 +274,7 @@ def _main():
     # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
     # problems, but it needs more conditions than parameters. This is not the
     # case for larger polynomial degrees.
-    out = least_squares(f, pade2d.alpha, method='lm')
+    out = least_squares(f, pade2d.alpha, method='trf')
     pade2d.set_alpha(out.x)
     print('\noptimal parameters:')
     pade2d.print()
