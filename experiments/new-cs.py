@@ -243,6 +243,10 @@ class MacAdam2(object):
 def _main():
     pade2d = Pade2d([1, 1, 1, 1])
 
+    # xy = numpy.random.rand(2, 5)
+    # print(pade2d.eval(xy).shape)
+    # exit(1)
+
     # macadam = MacAdam()
     macadam = MacAdam2()
 

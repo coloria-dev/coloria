@@ -8,13 +8,13 @@ import sympy
 
 def _create_tree(alpha, degree):
     return [
-        [alpha[d*(d+1)//2 + i] for i in range(d+1)]
+        numpy.array([alpha[d*(d+1)//2 + i] for i in range(d+1)])
         for d in range(degree+1)
         ]
     # return numpy.split(alpha, numpy.arange(1, degree+1))
 
 
-def _get_tree(xy, degree):
+def _get_xy_tree(xy, degree):
     '''Evaluates the entire tree of 2d mononomials.
 
     The return value is a list of arrays, where `out[k]` hosts the `2*k+1`
@@ -26,7 +26,9 @@ def _get_tree(xy, degree):
           ...      ...      ...
     '''
     x, y = xy
-    tree = [numpy.array([1])]
+    tree = [
+        numpy.array([numpy.ones(x.shape, dtype=int)])
+        ]
     for d in range(degree):
         tree.append(
             numpy.concatenate([tree[-1] * x, [tree[-1][-1]*y]])
@@ -36,11 +38,11 @@ def _get_tree(xy, degree):
 
 def _get_dx_tree(xy, degree):
     '''
-                                         0
-                              1*(0, 0)   0
-                   2*(1, 0)   1*(0, 1)   0
-        3*(2, 0)   2*(1, 1)   1*(0, 2)   0
-          ...      ...      ...
+                                      0
+                            1*(0, 0)  0
+                  2*(1, 0)  1*(0, 1)  0
+        3*(2, 0)  2*(1, 1)  1*(0, 2)  0
+          ...       ...      ...     ...
     '''
     x, y = xy
 
@@ -64,10 +66,10 @@ def _get_dx_tree(xy, degree):
 def _get_dy_tree(xy, degree):
     '''
         0
-        0   1*(0, 0)
-        0   1*(1, 0)   2*(0, 1)
-        0   1*(2, 0)   2*(1, 1)   3*(0, 2)
-          ...      ...      ...
+        0  1*(0, 0)
+        0  1*(1, 0)  2*(0, 1)
+        0  1*(2, 0)  2*(1, 1)  3*(0, 2)
+       ...   ...       ...       ...
     '''
     x, y = xy
 
@@ -88,7 +90,10 @@ def _get_dy_tree(xy, degree):
 
 
 def _eval_tree(xy_tree, coeff_tree):
-    return sum([sum(xy_tree[k]*coeff_tree[k]) for k in range(len(coeff_tree))])
+    return numpy.sum([
+        numpy.sum((xy_tree[k].T * coeff_tree[k]).T, axis=0)
+        for k in range(len(coeff_tree))
+        ], axis=0)
 
 
 class Pade2d(object):
@@ -152,7 +157,7 @@ class Pade2d(object):
         return
 
     def eval(self, xy):
-        xy_tree = _get_tree(xy, max(self.degrees))
+        xy_tree = _get_xy_tree(xy, max(self.degrees))
 
         ux = _eval_tree(xy_tree, self.tree_ax)
         vx = _eval_tree(xy_tree, self.tree_bx)
@@ -164,7 +169,7 @@ class Pade2d(object):
     def jac(self, xy):
         '''Get the Jacobian at (x, y).
         '''
-        xy_tree = _get_tree(xy, max(self.degrees))
+        xy_tree = _get_xy_tree(xy, max(self.degrees))
         dx_tree = _get_dx_tree(xy, max(self.degrees))
         dy_tree = _get_dy_tree(xy, max(self.degrees))
 
