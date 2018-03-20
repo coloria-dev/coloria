@@ -93,14 +93,6 @@ def _get_dy_tree(xy, degree):
     return tree
 
 
-def _eval_tree(xy_tree, coeff_tree):
-    # print(xy_tree[1].shape, coeff_tree[1].shape)
-    return numpy.sum([
-        numpy.sum((xy_tree[k].T * coeff_tree[k]).T, axis=0)
-        for k in range(len(coeff_tree))
-        ], axis=0)
-
-
 class Pade2d(object):
     '''Pad'e polynomial in from R^2 to R^2, i.e., both components are Pad'e
     functions in x and y. The function is characterized by four sets of
@@ -144,9 +136,18 @@ class Pade2d(object):
 
     def set_xy(self, xy):
         self.xy = xy
-        self.xy_tree = _get_xy_tree(xy, max(self.degrees))
-        self.dx_tree = _get_dx_tree(xy, max(self.degrees))
-        self.dy_tree = _get_dy_tree(xy, max(self.degrees))
+
+        xy_tree = _get_xy_tree(xy, max(self.degrees))
+        self.xy_list = \
+            numpy.array([item for branch in xy_tree for item in branch])
+
+        dx_tree = _get_dx_tree(xy, max(self.degrees))
+        self.dx_list = \
+            numpy.array([item for branch in dx_tree for item in branch])
+
+        dy_tree = _get_dy_tree(xy, max(self.degrees))
+        self.dy_list = \
+            numpy.array([item for branch in dy_tree for item in branch])
         return
 
     def set_alpha(self, alpha):
@@ -158,24 +159,20 @@ class Pade2d(object):
         num_coefficients[1] -= 1
         num_coefficients[3] -= 1
 
-        ax, bx, ay, by = numpy.split(alpha, numpy.cumsum(num_coefficients[:-1]))
-        bx = numpy.concatenate([[1.0], bx])
-        by = numpy.concatenate([[1.0], by])
-
-        self.tree_ax = _create_tree(ax, self.degrees[0])
-        self.tree_ay = _create_tree(ay, self.degrees[1])
-        self.tree_bx = _create_tree(bx, self.degrees[2])
-        self.tree_by = _create_tree(by, self.degrees[3])
+        self.ax, self.bx, self.ay, self.by = \
+            numpy.split(alpha, numpy.cumsum(num_coefficients[:-1]))
+        self.bx = numpy.concatenate([[1.0], self.bx])
+        self.by = numpy.concatenate([[1.0], self.by])
         return
 
     def eval(self, xy=None):
         if xy is not None:
             self.set_xy(xy)
 
-        ux = _eval_tree(self.xy_tree, self.tree_ax)
-        vx = _eval_tree(self.xy_tree, self.tree_bx)
-        uy = _eval_tree(self.xy_tree, self.tree_ay)
-        vy = _eval_tree(self.xy_tree, self.tree_by)
+        ux = numpy.dot(self.ax, self.xy_list)
+        vx = numpy.dot(self.bx, self.xy_list)
+        uy = numpy.dot(self.ay, self.xy_list)
+        vy = numpy.dot(self.by, self.xy_list)
 
         return numpy.array([ux / vx, uy / vy])
 
@@ -185,20 +182,20 @@ class Pade2d(object):
         if xy is not None:
             self.set_xy(xy)
 
-        ux = _eval_tree(self.xy_tree, self.tree_ax)
-        vx = _eval_tree(self.xy_tree, self.tree_bx)
-        uy = _eval_tree(self.xy_tree, self.tree_ay)
-        vy = _eval_tree(self.xy_tree, self.tree_by)
+        ux = numpy.dot(self.ax, self.xy_list)
+        vx = numpy.dot(self.bx, self.xy_list)
+        uy = numpy.dot(self.ay, self.xy_list)
+        vy = numpy.dot(self.by, self.xy_list)
 
-        ux_dx = _eval_tree(self.dx_tree, self.tree_ax)
-        vx_dx = _eval_tree(self.dx_tree, self.tree_bx)
-        uy_dx = _eval_tree(self.dx_tree, self.tree_ay)
-        vy_dx = _eval_tree(self.dx_tree, self.tree_by)
+        ux_dx = numpy.dot(self.ax, self.dx_list)
+        vx_dx = numpy.dot(self.bx, self.dx_list)
+        uy_dx = numpy.dot(self.ay, self.dx_list)
+        vy_dx = numpy.dot(self.by, self.dx_list)
 
-        ux_dy = _eval_tree(self.dy_tree, self.tree_ax)
-        vx_dy = _eval_tree(self.dy_tree, self.tree_bx)
-        uy_dy = _eval_tree(self.dy_tree, self.tree_ay)
-        vy_dy = _eval_tree(self.dy_tree, self.tree_by)
+        ux_dy = numpy.dot(self.ax, self.dy_list)
+        vx_dy = numpy.dot(self.bx, self.dy_list)
+        uy_dy = numpy.dot(self.ay, self.dy_list)
+        vy_dy = numpy.dot(self.by, self.dy_list)
 
         jac = numpy.array([
             [
@@ -213,7 +210,11 @@ class Pade2d(object):
         return jac
 
     def print(self):
-        for k, vals in enumerate([self.tree_ax, self.tree_bx, self.tree_ay, self.tree_by]):
+        tree_ax = _create_tree(self.ax, self.degrees[0])
+        tree_ay = _create_tree(self.ay, self.degrees[1])
+        tree_bx = _create_tree(self.bx, self.degrees[2])
+        tree_by = _create_tree(self.by, self.degrees[3])
+        for k, vals in enumerate([tree_ax, tree_bx, tree_ay, tree_by]):
             for val in vals:
                 print(val)
             print()
