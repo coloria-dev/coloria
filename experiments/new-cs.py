@@ -241,7 +241,7 @@ class MacAdam2(object):
 
 
 def _main():
-    pade2d = Pade2d([2, 0, 2, 0])
+    pade2d = Pade2d([1, 1, 1, 1])
 
     # macadam = MacAdam()
     macadam = MacAdam2()

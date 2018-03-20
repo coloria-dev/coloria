@@ -6,22 +6,89 @@ import numpy
 import sympy
 
 
-def _create_triangle(alpha, degree):
+def _create_tree(alpha, degree):
     return [
         [alpha[d*(d+1)//2 + i] for i in range(d+1)]
         for d in range(degree+1)
         ]
+    # return numpy.split(alpha, numpy.arange(1, degree+1))
 
 
-def _evaluate_2d_polynomial(xy, alpha):
+def _get_tree(xy, degree):
+    '''Evaluates the entire tree of 2d mononomials.
+
+    The return value is a list of arrays, where `out[k]` hosts the `2*k+1`
+    values of the `k`th level of the tree
+
+        (0, 0)
+        (1, 0)   (0, 1)
+        (2, 0)   (1, 1)   (0, 2)
+          ...      ...      ...
+    '''
     x, y = xy
-    out = 0.0
-    for a in alpha:
-        d = len(a)
-        for i in range(d):
-            out += a[i] * x**(d-i-1) * y**i
-    return out
+    tree = [numpy.array([1])]
+    for d in range(degree):
+        tree.append(
+            numpy.concatenate([tree[-1] * x, [tree[-1][-1]*y]])
+            )
+    return tree
 
+
+def _get_dx_tree(xy, degree):
+    '''
+                                         0
+                              1*(0, 0)   0
+                   2*(1, 0)   1*(0, 1)   0
+        3*(2, 0)   2*(1, 1)   1*(0, 2)   0
+          ...      ...      ...
+    '''
+    x, y = xy
+
+    # build smaller tree
+    tree = [numpy.array([1])]
+    for d in range(1, degree):
+        tree.append(
+            numpy.concatenate([
+                # Integer division `//` would be nice here, but
+                # <https://github.com/sympy/sympy/issues/14542>.
+                [tree[-1][0] / d * (d+1) * x],
+                tree[-1] * y,
+                ])
+            )
+
+    # append zeros
+    tree = [numpy.array([0])] + [numpy.concatenate([t, [0]]) for t in tree]
+    return tree
+
+
+def _get_dy_tree(xy, degree):
+    '''
+        0
+        0   1*(0, 0)
+        0   1*(1, 0)   2*(0, 1)
+        0   1*(2, 0)   2*(1, 1)   3*(0, 2)
+          ...      ...      ...
+    '''
+    x, y = xy
+
+    tree = [numpy.array([1])]
+    for d in range(1, degree):
+        tree.append(
+            numpy.concatenate([
+                tree[-1] * x,
+                # Integer division `//` would be nice here, but
+                # <https://github.com/sympy/sympy/issues/14542>.
+                [tree[-1][-1] / d * (d+1) * y]
+                ])
+            )
+
+    # prepend zeros
+    tree = [numpy.array([0])] + [numpy.concatenate([[0], t]) for t in tree]
+    return tree
+
+
+def _eval_tree(xy_tree, coeff_tree):
+    return sum([sum(xy_tree[k]*coeff_tree[k]) for k in range(len(coeff_tree))])
 
 
 class Pade2d(object):
@@ -33,8 +100,6 @@ class Pade2d(object):
     def __init__(self, degrees, alpha=None):
         self.degrees = degrees
 
-        print(degrees)
-
         # Subtract 1 for each denominator polynomial since the constant
         # coefficient is fixed to 1.0.
         self.num_coefficients = [
@@ -44,42 +109,25 @@ class Pade2d(object):
             (degrees[3]+1)*(degrees[3]+2)//2 - 1,
             ]
 
-        self.total_num_coefficients = sum(self.num_coefficients)
+        self.num_coefficients = [(d+1)*(d+2)//2 for d in degrees]
 
-        # self.num_coefficients = [(d+1)*(d+2)//2 for d in degrees]
-
-        # # self.total_num_coefficients = sum(self.num_coefficients)
-
-        # ax = sympy.MatrixSymbol('ax', self.num_coefficients[0], 1)
-        # bx = sympy.MatrixSymbol('bx', self.num_coefficients[1], 1)
-        # ay = sympy.MatrixSymbol('ay', self.num_coefficients[2], 1)
-        # by = sympy.MatrixSymbol('by', self.num_coefficients[3], 1)
-
-        # self.ax = _create_triangle(ax, self.degrees[0])
-        # self.bx = _create_triangle(bx, self.degrees[1])
-        # self.ay = _create_triangle(ay, self.degrees[2])
-        # self.by = _create_triangle(by, self.degrees[3])
-
-        # x = sympy.Symbol('x')
-        # y = sympy.Symbol('y')
-
-        # out = _evaluate_2d_polynomial((x, y), self.ax)
-        # print(out)
-
-        # alpha = numpy.zeros(6)
-        # alpha[0] = 3.14
-        # print(self.ax)
-        # fax = sympy.lambdify(ax, out)
-        # print(fax(alpha))
-        # exit(1)
+        # Subtract 1 for each denominator polynomial since the constant
+        # coefficient is fixed to 1.0.
+        self.total_num_coefficients = sum(self.num_coefficients) - 2
 
         if alpha is None:
             # Choose the coefficiens to create the identity function
-            alpha = numpy.zeros(self.total_num_coefficients)
-            i0 = 1
-            alpha[i0] = 1.0
-            j0 = self.num_coefficients[0] + self.num_coefficients[1] + 2
-            alpha[j0] = 1.0
+            coeffs_ax = numpy.zeros(self.num_coefficients[0])
+            coeffs_ax[1] = 1
+            coeffs_bx = numpy.zeros(self.num_coefficients[1] - 1)
+
+            coeffs_ay = numpy.zeros(self.num_coefficients[2])
+            coeffs_ay[2] = 1
+            coeffs_by = numpy.zeros(self.num_coefficients[3] - 1)
+
+            alpha = numpy.concatenate([
+                coeffs_ax, coeffs_bx, coeffs_ay, coeffs_by
+                ])
 
         self.set_alpha(alpha)
         return
@@ -89,66 +137,66 @@ class Pade2d(object):
 
         self.alpha = alpha
 
-        n = 0
+        num_coefficients = [(d+1)*(d+2)//2 for d in self.degrees]
+        num_coefficients[1] -= 1
+        num_coefficients[3] -= 1
 
-        alpha1 = alpha[n:n+self.num_coefficients[0]]
-        self.a1 = _create_triangle(alpha1, self.degrees[0])
-        n += self.num_coefficients[0]
+        ax, bx, ay, by = numpy.split(alpha, numpy.cumsum(num_coefficients[:-1]))
+        bx = numpy.concatenate([[1.0], bx])
+        by = numpy.concatenate([[1.0], by])
 
-        alpha2 = numpy.concatenate([
-            [1.0], alpha[n:n+self.num_coefficients[1]]
-            ])
-        self.a2 = _create_triangle(alpha2, self.degrees[1])
-        n += self.num_coefficients[1]
-
-        beta1 = alpha[n:n+self.num_coefficients[2]]
-        self.b1 = _create_triangle(beta1, self.degrees[2])
-        n += self.num_coefficients[2]
-
-        beta2 = numpy.concatenate([
-            [1.0], alpha[n:n+self.num_coefficients[3]]
-            ])
-        self.b2 = _create_triangle(beta2, self.degrees[3])
-
-        # Build Jacobian
-        x = sympy.Symbol('x')
-        y = sympy.Symbol('y')
-
-        # Build symbolic polynomials
-        px = _evaluate_2d_polynomial((x, y), self.a1)
-        qx = _evaluate_2d_polynomial((x, y), self.a2)
-
-        py = _evaluate_2d_polynomial((x, y), self.b1)
-        qy = _evaluate_2d_polynomial((x, y), self.b2)
-
-        pade_x = px / qx
-        pade_y = py / qy
-
-        self.jacobian = sympy.lambdify(
-            (x, y),
-            sympy.Matrix([
-                [sympy.diff(pade_x, x), sympy.diff(pade_x, y)],
-                [sympy.diff(pade_y, x), sympy.diff(pade_y, y)],
-                ])
-            )
+        self.tree_ax = _create_tree(ax, self.degrees[0])
+        self.tree_ay = _create_tree(ay, self.degrees[1])
+        self.tree_bx = _create_tree(bx, self.degrees[2])
+        self.tree_by = _create_tree(by, self.degrees[3])
         return
 
     def eval(self, xy):
-        p1 = _evaluate_2d_polynomial(xy, self.a1)
-        q1 = _evaluate_2d_polynomial(xy, self.a2)
+        xy_tree = _get_tree(xy, max(self.degrees))
 
-        p2 = _evaluate_2d_polynomial(xy, self.b1)
-        q2 = _evaluate_2d_polynomial(xy, self.b2)
+        ux = _eval_tree(xy_tree, self.tree_ax)
+        vx = _eval_tree(xy_tree, self.tree_bx)
+        uy = _eval_tree(xy_tree, self.tree_ay)
+        vy = _eval_tree(xy_tree, self.tree_by)
 
-        return numpy.array([p1 / q1, p2 / q2])
+        return numpy.array([ux / vx, uy / vy])
 
     def jac(self, xy):
         '''Get the Jacobian at (x, y).
         '''
-        return self.jacobian(*xy)
+        xy_tree = _get_tree(xy, max(self.degrees))
+        dx_tree = _get_dx_tree(xy, max(self.degrees))
+        dy_tree = _get_dy_tree(xy, max(self.degrees))
+
+        ux = _eval_tree(xy_tree, self.tree_ax)
+        vx = _eval_tree(xy_tree, self.tree_bx)
+        uy = _eval_tree(xy_tree, self.tree_ay)
+        vy = _eval_tree(xy_tree, self.tree_by)
+
+        ux_dx = _eval_tree(dx_tree, self.tree_ax)
+        vx_dx = _eval_tree(dx_tree, self.tree_bx)
+        uy_dx = _eval_tree(dx_tree, self.tree_ay)
+        vy_dx = _eval_tree(dx_tree, self.tree_by)
+
+        ux_dy = _eval_tree(dy_tree, self.tree_ax)
+        vx_dy = _eval_tree(dy_tree, self.tree_bx)
+        uy_dy = _eval_tree(dy_tree, self.tree_ay)
+        vy_dy = _eval_tree(dy_tree, self.tree_by)
+
+        jac = numpy.array([
+            [
+                (ux_dx * vx - vx_dx * ux) / vx**2,
+                (ux_dy * vx - vx_dy * ux) / vx**2,
+            ],
+            [
+                (uy_dx * vy - vy_dx * uy) / vy**2,
+                (uy_dy * vy - vy_dy * uy) / vy**2,
+            ],
+            ])
+        return jac
 
     def print(self):
-        for vals in [self.a1, self.a2, self.b1, self.b2]:
+        for k, vals in enumerate([self.tree_ax, self.tree_bx, self.tree_ay, self.tree_by]):
             for val in vals:
                 print(val)
             print()
