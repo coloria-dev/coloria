@@ -148,24 +148,30 @@ class MacAdam2(object):
     def get_ellipse_axes(self, f):
         jacs = f.jac(self.centers.T)
         # jacs is of shape (2, 2, k); for svd, it needs shape (k, 2, 2)
-        jacs = numpy.moveaxis(jacs, -1, 0)
+        # jacs = numpy.moveaxis(jacs, -1, 0)
 
-        M = numpy.array([
-            numpy.dot(jac, j) for jac, j in zip(jacs, self.J)
-            ])
+        J = numpy.moveaxis(self.J, 0, -1)
 
-        # a = (M[:, 0, 0] + M[:, 1, 1]) / 2
-        # b = (M[:, 0, 0] - M[:, 1, 1]) / 2
-        # c = (M[:, 1, 0] + M[:, 0, 1]) / 2
-        # d = (M[:, 1, 0] - M[:, 0, 1]) / 2
-        # q = numpy.sqrt(a**2 + d**2)
-        # r = numpy.sqrt(b**2 + c**2)
-        # sigma = numpy.array([q+r, q-r]).T
+        # jacs and J are of shape (2, 2, k). M must be of the same shape and
+        # contain the result of the k 2x2 dot products. Perhaps there's a
+        # dot() for this.
+        M = numpy.einsum('ijl,jkl->ikl', jacs, J)
 
-        _, sigma, _ = numpy.linalg.svd(M)
+        # One could use
+        #
+        #     M = numpy.moveaxis(M, -1, 0)
+        #     _, sigma, _ = numpy.linalg.svd(M)
+        #
+        # but computing the singular values explicitly via
+        # <https://scicomp.stackexchange.com/a/14103/3980> is faster.
+        a = (M[0, 0] + M[1, 1]) / 2
+        b = (M[0, 0] - M[1, 1]) / 2
+        c = (M[1, 0] + M[0, 1]) / 2
+        d = (M[1, 0] - M[0, 1]) / 2
+        q = numpy.sqrt(a**2 + d**2)
+        r = numpy.sqrt(b**2 + c**2)
+        sigma = numpy.array([q+r, q-r]).T
 
-        # The singular values of (invJ, jacs) are the inverses of the axis
-        # lengths of the ellipses after tranformation by f.
         return sigma.flatten()
 
     def cost(self, f):
