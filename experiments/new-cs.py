@@ -146,7 +146,10 @@ class MacAdam2(object):
         return
 
     def get_ellipse_axes(self, f):
-        jacs = numpy.array([f.jac(center) for center in self.centers])
+        jacs = f.jac(self.centers.T)
+        # jacs is of shape (2, 2, k); for svd, it needs shape (k, 2, 2)
+        jacs = numpy.moveaxis(jacs, -1, 0)
+
         M = numpy.array([
             numpy.dot(jac, j) for jac, j in zip(jacs, self.J)
             ])

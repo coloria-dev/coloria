@@ -47,7 +47,8 @@ def _get_dx_tree(xy, degree):
     x, y = xy
 
     # build smaller tree
-    tree = [numpy.array([1])]
+    one = numpy.array([numpy.ones(x.shape, dtype=int)])
+    tree = [one]
     for d in range(1, degree):
         tree.append(
             numpy.concatenate([
@@ -59,7 +60,8 @@ def _get_dx_tree(xy, degree):
             )
 
     # append zeros
-    tree = [numpy.array([0])] + [numpy.concatenate([t, [0]]) for t in tree]
+    zero = numpy.array([numpy.zeros(x.shape, dtype=int)])
+    tree = [zero] + [numpy.concatenate([t, zero]) for t in tree]
     return tree
 
 
@@ -73,7 +75,8 @@ def _get_dy_tree(xy, degree):
     '''
     x, y = xy
 
-    tree = [numpy.array([1])]
+    one = numpy.array([numpy.ones(x.shape, dtype=int)])
+    tree = [one]
     for d in range(1, degree):
         tree.append(
             numpy.concatenate([
@@ -85,11 +88,13 @@ def _get_dy_tree(xy, degree):
             )
 
     # prepend zeros
-    tree = [numpy.array([0])] + [numpy.concatenate([[0], t]) for t in tree]
+    zero = numpy.array([numpy.zeros(x.shape, dtype=int)])
+    tree = [zero] + [numpy.concatenate([zero, t]) for t in tree]
     return tree
 
 
 def _eval_tree(xy_tree, coeff_tree):
+    # print(xy_tree[1].shape, coeff_tree[1].shape)
     return numpy.sum([
         numpy.sum((xy_tree[k].T * coeff_tree[k]).T, axis=0)
         for k in range(len(coeff_tree))
