@@ -169,10 +169,10 @@ class Pade2d(object):
         if xy is not None:
             self.set_xy(xy)
 
-        ux = numpy.dot(self.ax, self.xy_list)
-        vx = numpy.dot(self.bx, self.xy_list)
-        uy = numpy.dot(self.ay, self.xy_list)
-        vy = numpy.dot(self.by, self.xy_list)
+        ux = numpy.dot(self.ax, self.xy_list[:len(self.ax)])
+        vx = numpy.dot(self.bx, self.xy_list[:len(self.bx)])
+        uy = numpy.dot(self.ay, self.xy_list[:len(self.ay)])
+        vy = numpy.dot(self.by, self.xy_list[:len(self.by)])
 
         return numpy.array([ux / vx, uy / vy])
 
@@ -182,20 +182,20 @@ class Pade2d(object):
         if xy is not None:
             self.set_xy(xy)
 
-        ux = numpy.dot(self.ax, self.xy_list)
-        vx = numpy.dot(self.bx, self.xy_list)
-        uy = numpy.dot(self.ay, self.xy_list)
-        vy = numpy.dot(self.by, self.xy_list)
+        ux = numpy.dot(self.ax, self.xy_list[:len(self.ax)])
+        vx = numpy.dot(self.bx, self.xy_list[:len(self.bx)])
+        uy = numpy.dot(self.ay, self.xy_list[:len(self.ay)])
+        vy = numpy.dot(self.by, self.xy_list[:len(self.by)])
 
-        ux_dx = numpy.dot(self.ax, self.dx_list)
-        vx_dx = numpy.dot(self.bx, self.dx_list)
-        uy_dx = numpy.dot(self.ay, self.dx_list)
-        vy_dx = numpy.dot(self.by, self.dx_list)
+        ux_dx = numpy.dot(self.ax, self.dx_list[:len(self.ax)])
+        vx_dx = numpy.dot(self.bx, self.dx_list[:len(self.bx)])
+        uy_dx = numpy.dot(self.ay, self.dx_list[:len(self.ay)])
+        vy_dx = numpy.dot(self.by, self.dx_list[:len(self.by)])
 
-        ux_dy = numpy.dot(self.ax, self.dy_list)
-        vx_dy = numpy.dot(self.bx, self.dy_list)
-        uy_dy = numpy.dot(self.ay, self.dy_list)
-        vy_dy = numpy.dot(self.by, self.dy_list)
+        ux_dy = numpy.dot(self.ax, self.dy_list[:len(self.ax)])
+        vx_dy = numpy.dot(self.bx, self.dy_list[:len(self.bx)])
+        uy_dy = numpy.dot(self.ay, self.dy_list[:len(self.ay)])
+        vy_dy = numpy.dot(self.by, self.dy_list[:len(self.by)])
 
         jac = numpy.array([
             [
@@ -211,8 +211,8 @@ class Pade2d(object):
 
     def print(self):
         tree_ax = _create_tree(self.ax, self.degrees[0])
-        tree_ay = _create_tree(self.ay, self.degrees[1])
-        tree_bx = _create_tree(self.bx, self.degrees[2])
+        tree_bx = _create_tree(self.bx, self.degrees[1])
+        tree_ay = _create_tree(self.ay, self.degrees[2])
         tree_by = _create_tree(self.by, self.degrees[3])
         for k, vals in enumerate([tree_ax, tree_bx, tree_ay, tree_by]):
             for val in vals:

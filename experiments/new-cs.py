@@ -250,7 +250,7 @@ def _main():
     # macadam = MacAdam()
     macadam = MacAdam2()
 
-    pade2d = Pade2d([1, 1, 1, 1])
+    pade2d = Pade2d([2, 1, 2, 1])
     # For MacAdam2, one only ever needs the values at the ellipse centers
     pade2d.set_xy(macadam.centers.T)
 
