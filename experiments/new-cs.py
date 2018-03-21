@@ -125,7 +125,7 @@ class MacAdam2(object):
 
         self.centers = numpy.array(centers)
 
-        self.k = 0
+        self.num_f_eval = 0
 
         self.J = numpy.array(self.get_local_linearizations1(centers, points))
         # self.J = numpy.array(self.get_local_linearizations2(centers, points))
@@ -148,13 +148,11 @@ class MacAdam2(object):
         #     plt.show()
         return
 
-    def get_ellipse_axes(self, f):
-        jacs = f.jac()
-
+    def get_q2_r2(self, f):
         # jacs and J are of shape (2, 2, k). M must be of the same shape and
         # contain the result of the k 2x2 dot products. Perhaps there's a
         # dot() for this.
-        M = numpy.einsum('ijl,jkl->ikl', jacs, self.J)
+        M = numpy.einsum('ijl,jkl->ikl', f.jac(), self.J)
 
         # One could use
         #
@@ -167,21 +165,70 @@ class MacAdam2(object):
         b = (M[0, 0] - M[1, 1]) / 2
         c = (M[1, 0] + M[0, 1]) / 2
         d = (M[1, 0] - M[0, 1]) / 2
-        q = numpy.sqrt(a**2 + d**2)
-        r = numpy.sqrt(b**2 + c**2)
-        sigma = numpy.array([q+r, q-r]).T
 
-        return sigma.flatten()
+        # From the square roots of q2 and r2, the ellipse axes can be computed,
+        # namely
+        #
+        #   s1 = q + r
+        #   s2 = q - r
+        #
+        q2 = a**2 + d**2
+        r2 = b**2 + c**2
+        return q2, r2
+
+    def get_ellipse_axes(self, f):
+        q2, r2 = self.get_q2_r2(f)
+        q = numpy.sqrt(q2)
+        r = numpy.sqrt(r2)
+        sigma = numpy.array([q+r, q-r])
+        return sigma
+
 
     def cost(self, f):
-        ax = self.get_ellipse_axes(f)
-        # target = numpy.sum(ax) / len(ax)
-        target = 0.002
-        out = (ax - target) / target
+        q2, r2 = self.get_q2_r2(f)
 
-        if self.k % 10000 == 0:
-            print('step {}: {}'.format(self.k, numpy.sum(out**2)))
-        self.k += 1
+        q = numpy.sqrt(q2)
+        r = numpy.sqrt(r2)
+
+        target = 0.002
+
+        # if self.num_f_eval % 10000 == 0:
+        #     # print((q - target) / target)
+        #     # print(r / target)
+        #     print(q )
+        #     print(r / target)
+
+        # Works:
+        # s1 = q + r
+        # s2 = q - r
+        # out = (numpy.array([s1, s2]) - target) / target
+
+        # Works:
+        # out = numpy.array([q-target, r]) / target
+
+        # Works:
+        # out = numpy.sqrt(numpy.array([
+        #     # (q-target)**2 / target**2,
+        #     (q2 - 2*q*target + target**2) / target**2,
+        #     r2 / target**2
+        #     ]))
+
+        out = numpy.array([
+            # (q-target)**2 / target**2,
+            (q2 - 2*q*target + target**2) / target**2,
+            r2 / target**2
+            ])
+
+        # out = numpy.array([q2-target**2, r2]) / target**2
+
+        #     (q2 - target**2) / target**2,
+        #     r2
+        #     ])
+        out = out.flatten()
+
+        if self.num_f_eval % 10000 == 0:
+            print('{:7d}     {}'.format(self.num_f_eval, numpy.sum(out**2)))
+        self.num_f_eval += 1
         return out
 
     def get_local_linearizations1(self, centers, points):
@@ -255,10 +302,10 @@ def _main():
     # macadam = MacAdam()
     macadam = MacAdam2()
 
-    pade2d = Pade2d([5, 5, 5, 5])
+    pade2d = Pade2d([3, 3, 3, 3])
+
     # For MacAdam2, one only ever needs the values at the ellipse centers
     pade2d.set_xy(macadam.centers.T)
-
 
     def f(alpha):
         pade2d.set_alpha(alpha)
@@ -274,17 +321,20 @@ def _main():
     # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
     # problems, but it needs more conditions than parameters. This is not the
     # case for larger polynomial degrees.
+    print('f evals     cost')
     out = least_squares(f, pade2d.alpha, method='trf')
-    pade2d.set_alpha(out.x)
+    print('{:7d}     {}'.format(macadam.num_f_eval, numpy.sum(macadam.cost(pade2d)**2)))
+
     print('\noptimal parameters:')
+    pade2d.set_alpha(out.x)
     pade2d.print()
 
     # plot statistics
     pade2d.set_alpha(alpha0)
-    axes0 = macadam.get_ellipse_axes(pade2d)
+    axes0 = macadam.get_ellipse_axes(pade2d).T.flatten()
     plt.plot(axes0, label='axes lengths before')
     pade2d.set_alpha(out.x)
-    axes1 = macadam.get_ellipse_axes(pade2d)
+    axes1 = macadam.get_ellipse_axes(pade2d).T.flatten()
     plt.plot(axes1, label='axes lengths opt')
     plt.legend()
     plt.grid()
