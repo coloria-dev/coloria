@@ -174,10 +174,11 @@ class MacAdam2(object):
         #
         q2 = a**2 + d**2
         r2 = b**2 + c**2
-        return q2, r2
+
+        return q2, r2, M, a, b, c, d
 
     def get_ellipse_axes(self, f):
-        q2, r2 = self.get_q2_r2(f)
+        q2, r2, _, _, _ , _, _ = self.get_q2_r2(f)
         q = numpy.sqrt(q2)
         r = numpy.sqrt(r2)
         sigma = numpy.array([q+r, q-r])
@@ -185,7 +186,7 @@ class MacAdam2(object):
 
 
     def cost(self, f):
-        q2, r2 = self.get_q2_r2(f)
+        q2, r2, M, a, b, c, d = self.get_q2_r2(f)
 
         q = numpy.sqrt(q2)
         r = numpy.sqrt(r2)
@@ -208,15 +209,19 @@ class MacAdam2(object):
 
         # Works:
         # out = numpy.sqrt(numpy.array([
-        #     # (q-target)**2 / target**2,
-        #     (q2 - 2*q*target + target**2) / target**2,
+        #     (q-target)**2 / target**2,
         #     r2 / target**2
         #     ]))
 
         out = numpy.array([
-            # (q-target)**2 / target**2,
-            (q2 - 2*q*target + target**2) / target**2,
-            r2 / target**2
+            q2/target**2 - 1.0,
+            # q / target - 1.0,
+            # (M[0][0]**2 + M[1][0]**2) / target**2 - 1.0,
+            # (M[0][1]**2 + M[1][1]**2) / target**2 - 1.0,
+            # r2 / target**2,
+            # (b**2 + c**2) / target**2,
+            b / target,
+            c / target,
             ])
 
         # out = numpy.array([q2-target**2, r2]) / target**2
@@ -228,6 +233,14 @@ class MacAdam2(object):
 
         if self.num_f_eval % 10000 == 0:
             print('{:7d}     {}'.format(self.num_f_eval, numpy.sum(out**2)))
+            # print(q2)
+            # print(r2)
+            # print(a)
+            # print(b)
+            # print(c)
+            # print(d)
+            # print()
+
         self.num_f_eval += 1
         return out
 
@@ -302,7 +315,7 @@ def _main():
     # macadam = MacAdam()
     macadam = MacAdam2()
 
-    pade2d = Pade2d([3, 3, 3, 3])
+    pade2d = Pade2d([2, 2, 2, 2])
 
     # For MacAdam2, one only ever needs the values at the ellipse centers
     pade2d.set_xy(macadam.centers.T)
@@ -318,11 +331,31 @@ def _main():
 
     alpha0 = pade2d.alpha.copy()
 
+    # Create the parameter bounds such that the denominator coefficients are
+    # nonnegative. This avoids division-by-zero in the transformation.
+    bounds = numpy.zeros((2, len(alpha0)))
+    bounds[0] = -numpy.inf
+    bounds[1] = +numpy.inf
+    #
+    num_coefficients = [(d+1)*(d+2)//2 for d in pade2d.degrees]
+    num_coefficients[1] -= 1
+    num_coefficients[3] -= 1
+    b0, b1, b2, b3 = \
+        numpy.split(bounds.T, numpy.cumsum(num_coefficients[:-1]))
+    b1[:, 0] = 0.0
+    b3[:, 0] = 0.0
+    bounds = numpy.concatenate([b0, b1, b2, b3]).T
+
     # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
     # problems, but it needs more conditions than parameters. This is not the
     # case for larger polynomial degrees.
     print('f evals     cost')
-    out = least_squares(f, pade2d.alpha, method='trf')
+    out = least_squares(
+            f,
+            pade2d.alpha,
+            bounds=bounds,
+            method='trf'
+            )
     print('{:7d}     {}'.format(macadam.num_f_eval, numpy.sum(macadam.cost(pade2d)**2)))
 
     print('\noptimal parameters:')
