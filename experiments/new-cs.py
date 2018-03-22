@@ -179,41 +179,21 @@ class MacAdam2(object):
         q2 = a**2 + d**2
         r2 = b**2 + c**2
 
-        return q2, r2, M, a, b, c, d
+        return q2, r2
 
     def get_ellipse_axes(self, f):
-        q2, r2, _, _, _ , _, _ = self.get_q2_r2(f)
-
-        q = numpy.sqrt(q2)
-        r = numpy.sqrt(r2)
-
+        q, r = numpy.sqrt(self.get_q2_r2(f))
         sigma = numpy.array([q+r, q-r]) * self.target
         return sigma
 
     def cost(self, f):
-        q2, r2, M, a, b, c, d = self.get_q2_r2(f)
+        q2, r2 = self.get_q2_r2(f)
 
         # cost = numpy.sum([(numpy.sqrt(q2) - 1.0)**2, r2])
         cost = numpy.sum([(q2 - 1.0)**2, r2])
 
-        # costs = numpy.array([
-        #     # (q - 1.0)**2,
-        #     (q2 - 1.0)**2,
-        #     # (M[0][0]**2 + M[1][0]**2) - 1.0,
-        #     # (M[0][1]**2 + M[1][1]**2) - 1.0,
-        #     # r2,
-        #     b**2 + c**2,
-        #     ])
-
         if self.num_f_eval % 10000 == 0:
             print('{:7d}     {}'.format(self.num_f_eval, cost))
-            # print(q2)
-            # print(r2)
-            # print(a)
-            # print(b)
-            # print(c)
-            # print(d)
-            # print()
 
         self.num_f_eval += 1
         return cost
