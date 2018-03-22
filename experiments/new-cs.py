@@ -6,7 +6,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy
-from scipy.optimize import leastsq, least_squares
+from scipy.optimize import leastsq, least_squares, minimize
 import yaml
 
 import colorio
@@ -131,6 +131,8 @@ class MacAdam2(object):
         # self.J = numpy.array(self.get_local_linearizations2(centers, points))
         self.J = numpy.moveaxis(self.J, 0, -1)
 
+        self.target = 0.002
+
         # # plot
         # for center, pts, j in zip(centers, points, self.J):
         #     # plot points
@@ -184,55 +186,39 @@ class MacAdam2(object):
         sigma = numpy.array([q+r, q-r])
         return sigma
 
-
     def cost(self, f):
         q2, r2, M, a, b, c, d = self.get_q2_r2(f)
 
-        q = numpy.sqrt(q2)
-        r = numpy.sqrt(r2)
+        # Works alright:
+        # costs = numpy.array([
+        #     (q/self.target - 1.0)**2,
+        #     r2 / self.target**2
+        #     ])
 
-        target = 0.002
-
-        # if self.num_f_eval % 10000 == 0:
-        #     # print((q - target) / target)
-        #     # print(r / target)
-        #     print(q )
-        #     print(r / target)
-
-        # Works:
-        # s1 = q + r
-        # s2 = q - r
-        # out = (numpy.array([s1, s2]) - target) / target
-
-        # Works:
-        # out = numpy.array([q-target, r]) / target
-
-        # Works:
-        # out = numpy.sqrt(numpy.array([
-        #     (q-target)**2 / target**2,
-        #     r2 / target**2
-        #     ]))
-
-        out = numpy.array([
-            q2/target**2 - 1.0,
-            # q / target - 1.0,
-            # (M[0][0]**2 + M[1][0]**2) / target**2 - 1.0,
-            # (M[0][1]**2 + M[1][1]**2) / target**2 - 1.0,
-            # r2 / target**2,
-            # (b**2 + c**2) / target**2,
-            b / target,
-            c / target,
+        costs = numpy.array([
+            (q2/self.target**2 - 1.0)**2,
+            r2 / self.target**2
             ])
 
-        # out = numpy.array([q2-target**2, r2]) / target**2
+        # costs = numpy.array([
+        #     # (q/self.target - 1.0)**2,
+        #     (q2/self.target**2 - 1.0)**2,
+        #     # (M[0][0]**2 + M[1][0]**2) / self.target**2 - 1.0,
+        #     # (M[0][1]**2 + M[1][1]**2) / self.target**2 - 1.0,
+        #     # r2 / self.target**2,
+        #     # (b**2 + c**2) / self.target**2,
+        #     b**2/self.target**2 + c**2/self.target**2,
+        #     ])
 
-        #     (q2 - target**2) / target**2,
+        # out = numpy.array([q2-self.target**2, r2]) / self.target**2
+
+        #     (q2 - self.target**2) / self.target**2,
         #     r2
         #     ])
-        out = out.flatten()
+        cost = numpy.sum(costs)
 
         if self.num_f_eval % 10000 == 0:
-            print('{:7d}     {}'.format(self.num_f_eval, numpy.sum(out**2)))
+            print('{:7d}     {}'.format(self.num_f_eval, cost))
             # print(q2)
             # print(r2)
             # print(a)
@@ -242,7 +228,7 @@ class MacAdam2(object):
             # print()
 
         self.num_f_eval += 1
-        return out
+        return cost
 
     def get_local_linearizations1(self, centers, points):
         # Get ellipse parameters
@@ -315,7 +301,7 @@ def _main():
     # macadam = MacAdam()
     macadam = MacAdam2()
 
-    pade2d = Pade2d([2, 2, 2, 2])
+    pade2d = Pade2d([3, 3, 3, 3])
 
     # For MacAdam2, one only ever needs the values at the ellipse centers
     pade2d.set_xy(macadam.centers.T)
@@ -331,32 +317,43 @@ def _main():
 
     alpha0 = pade2d.alpha.copy()
 
-    # Create the parameter bounds such that the denominator coefficients are
-    # nonnegative. This avoids division-by-zero in the transformation.
-    bounds = numpy.zeros((2, len(alpha0)))
-    bounds[0] = -numpy.inf
-    bounds[1] = +numpy.inf
-    #
-    num_coefficients = [(d+1)*(d+2)//2 for d in pade2d.degrees]
-    num_coefficients[1] -= 1
-    num_coefficients[3] -= 1
-    b0, b1, b2, b3 = \
-        numpy.split(bounds.T, numpy.cumsum(num_coefficients[:-1]))
-    b1[:, 0] = 0.0
-    b3[:, 0] = 0.0
-    bounds = numpy.concatenate([b0, b1, b2, b3]).T
-
-    # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
-    # problems, but it needs more conditions than parameters. This is not the
-    # case for larger polynomial degrees.
     print('f evals     cost')
-    out = least_squares(
-            f,
-            pade2d.alpha,
-            bounds=bounds,
-            method='trf'
+    out = minimize(
+            f, pade2d.alpha,
+            # method='Nelder-Mead'
+            # method='Powell'
+            # method='CG'
+            method='BFGS'
             )
-    print('{:7d}     {}'.format(macadam.num_f_eval, numpy.sum(macadam.cost(pade2d)**2)))
+    # print(out)
+    # exit(1)
+
+    # # Create the parameter bounds such that the denominator coefficients are
+    # # nonnegative. This avoids division-by-zero in the transformation.
+    # bounds = numpy.zeros((2, len(alpha0)))
+    # bounds[0] = -numpy.inf
+    # bounds[1] = +numpy.inf
+    # #
+    # num_coefficients = [(d+1)*(d+2)//2 for d in pade2d.degrees]
+    # num_coefficients[1] -= 1
+    # num_coefficients[3] -= 1
+    # b0, b1, b2, b3 = \
+    #     numpy.split(bounds.T, numpy.cumsum(num_coefficients[:-1]))
+    # b1[:, 0] = 0.0
+    # b3[:, 0] = 0.0
+    # bounds = numpy.concatenate([b0, b1, b2, b3]).T
+
+    # # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
+    # # problems, but it needs more conditions than parameters. This is not the
+    # # case for larger polynomial degrees.
+    # out = least_squares(
+    #         f,
+    #         pade2d.alpha,
+    #         bounds=bounds,
+    #         method='trf'
+    #         )
+
+    print('{:7d}     {}'.format(macadam.num_f_eval, macadam.cost(pade2d)))
 
     print('\noptimal parameters:')
     pade2d.set_alpha(out.x)
