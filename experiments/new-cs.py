@@ -128,10 +128,11 @@ class MacAdam2(object):
         self.num_f_eval = 0
 
         self.J = numpy.array(self.get_local_linearizations1(centers, points))
+        self.target = 0.002
+        self.J /= self.target
+
         # self.J = numpy.array(self.get_local_linearizations2(centers, points))
         self.J = numpy.moveaxis(self.J, 0, -1)
-
-        self.target = 0.002
 
         # # plot
         # for center, pts, j in zip(centers, points, self.J):
@@ -148,6 +149,7 @@ class MacAdam2(object):
         #     # plt.plot(*xy_new, 'x')
         #     plt.axis('equal')
         #     plt.show()
+
         return
 
     def get_q2_r2(self, f):
@@ -181,41 +183,27 @@ class MacAdam2(object):
 
     def get_ellipse_axes(self, f):
         q2, r2, _, _, _ , _, _ = self.get_q2_r2(f)
+
         q = numpy.sqrt(q2)
         r = numpy.sqrt(r2)
-        sigma = numpy.array([q+r, q-r])
+
+        sigma = numpy.array([q+r, q-r]) * self.target
         return sigma
 
     def cost(self, f):
         q2, r2, M, a, b, c, d = self.get_q2_r2(f)
 
-        # Works alright:
-        # costs = numpy.array([
-        #     (q/self.target - 1.0)**2,
-        #     r2 / self.target**2
-        #     ])
-
-        costs = numpy.array([
-            (q2/self.target**2 - 1.0)**2,
-            r2 / self.target**2
-            ])
+        # cost = numpy.sum([(numpy.sqrt(q2) - 1.0)**2, r2])
+        cost = numpy.sum([(q2 - 1.0)**2, r2])
 
         # costs = numpy.array([
-        #     # (q/self.target - 1.0)**2,
-        #     (q2/self.target**2 - 1.0)**2,
-        #     # (M[0][0]**2 + M[1][0]**2) / self.target**2 - 1.0,
-        #     # (M[0][1]**2 + M[1][1]**2) / self.target**2 - 1.0,
-        #     # r2 / self.target**2,
-        #     # (b**2 + c**2) / self.target**2,
-        #     b**2/self.target**2 + c**2/self.target**2,
+        #     # (q - 1.0)**2,
+        #     (q2 - 1.0)**2,
+        #     # (M[0][0]**2 + M[1][0]**2) - 1.0,
+        #     # (M[0][1]**2 + M[1][1]**2) - 1.0,
+        #     # r2,
+        #     b**2 + c**2,
         #     ])
-
-        # out = numpy.array([q2-self.target**2, r2]) / self.target**2
-
-        #     (q2 - self.target**2) / self.target**2,
-        #     r2
-        #     ])
-        cost = numpy.sum(costs)
 
         if self.num_f_eval % 10000 == 0:
             print('{:7d}     {}'.format(self.num_f_eval, cost))
@@ -301,7 +289,7 @@ def _main():
     # macadam = MacAdam()
     macadam = MacAdam2()
 
-    pade2d = Pade2d([3, 3, 3, 3])
+    pade2d = Pade2d([3, 0, 3, 0])
 
     # For MacAdam2, one only ever needs the values at the ellipse centers
     pade2d.set_xy(macadam.centers.T)
