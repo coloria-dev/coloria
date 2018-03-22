@@ -269,7 +269,7 @@ def _main():
     # macadam = MacAdam()
     macadam = MacAdam2()
 
-    pade2d = Pade2d([3, 0, 3, 0])
+    pade2d = Pade2d([4, 0, 4, 0])
 
     # For MacAdam2, one only ever needs the values at the ellipse centers
     pade2d.set_xy(macadam.centers.T)
@@ -341,7 +341,8 @@ def _main():
     plt.figure()
     colorio.plot_macadam(
         scaling=10,
-        plot_standard_deviations=True
+        plot_standard_deviations=True,
+        plot_rgb_triangle=False,
         )
 
     # Plot perturbed MacAdam
@@ -349,7 +350,8 @@ def _main():
     colorio.plot_macadam(
         scaling=10,
         xy_to_2d=pade2d.eval,
-        plot_standard_deviations=True
+        plot_standard_deviations=True,
+        plot_rgb_triangle=False,
         )
 
     plt.show()

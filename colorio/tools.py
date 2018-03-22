@@ -410,6 +410,7 @@ def show_macadam(*args, **kwargs):
 def plot_macadam(scaling=1,
                  plot_filter_positions=False,
                  plot_standard_deviations=False,
+                 plot_rgb_triangle=True,
                  xy_to_2d=lambda xy: xy,
                  axes_labels=('x', 'y')):
     '''See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
@@ -420,7 +421,8 @@ def plot_macadam(scaling=1,
         data = yaml.safe_load(f)
 
     plot_flat_gamut(
-        plot_planckian_locus=False, xy_to_2d=xy_to_2d, axes_labels=axes_labels
+        plot_planckian_locus=False, xy_to_2d=xy_to_2d, axes_labels=axes_labels,
+        plot_rgb_triangle=plot_rgb_triangle,
         )
     # plt.grid(zorder=0)
     ax = plt.gca()
