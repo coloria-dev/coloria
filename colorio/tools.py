@@ -12,6 +12,8 @@ from scipy.optimize import leastsq
 from scipy.spatial import ConvexHull
 import yaml
 
+import meshzoo
+
 from .illuminants import (
     spectrum_to_xyz100, planckian_radiator, whitepoints_cie1931
     )
@@ -76,7 +78,6 @@ def show_visible_gamut(colorspace, observer, illuminant, filename,
 
 def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
     import meshio
-    import meshzoo
     points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
 
     if cut_000:
@@ -98,7 +99,6 @@ def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
 
 def show_hdr_gamut(colorspace, filename, n=50, cut_000=False):
     import meshio
-    import meshzoo
     points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
 
     if cut_000:
@@ -152,7 +152,7 @@ def _plot_monochromatic(observer, xy_to_2d):
     full = numpy.concatenate([values, connect.T])
 
     # fill horseshoe area
-    plt.fill(*full.T, color=[0.8, 0.8, 0.8], zorder=0)
+    # plt.fill(*full.T, color=[0.8, 0.8, 0.8], zorder=1)
     # plot horseshoe outline
     plt.plot(*values.T, '-k', label='monochromatic light')
     plt.plot(*connect, '--k', label='connect')
@@ -411,6 +411,7 @@ def plot_macadam(scaling=1,
                  plot_filter_positions=False,
                  plot_standard_deviations=False,
                  plot_rgb_triangle=True,
+                 plot_triangle_grid = True,
                  xy_to_2d=lambda xy: xy,
                  axes_labels=('x', 'y')):
     '''See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
@@ -426,6 +427,19 @@ def plot_macadam(scaling=1,
         )
     # plt.grid(zorder=0)
     ax = plt.gca()
+
+    if plot_triangle_grid:
+        corners = numpy.array([
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            ])
+        points, cells = meshzoo.triangle(ref_steps=4, corners=corners)
+        edges, _ = meshzoo.create_edges(cells)
+
+        pts = xy_to_2d(points[..., :2].T).T
+        lines = pts[edges].T
+        plt.plot(*lines, color='0.8', zorder=0)
 
     # if plot_filter_positions:
     #     with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
