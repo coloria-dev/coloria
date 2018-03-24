@@ -248,7 +248,7 @@ def _main():
 
     ec = EllipseCircle(centers, J)
 
-    pade2d = Pade2d([2, 2, 2, 2])
+    pade2d = Pade2d([10, 0, 10, 0])
 
     # For MacAdam2, one only ever needs the values at the ellipse centers
     pade2d.set_xy(ec.centers.T)
@@ -316,18 +316,20 @@ def _main():
 
     # Plot unperturbed MacAdam
     plt.figure()
-    colorio.plot_macadam(
-        scaling=10,
-        plot_standard_deviations=True,
+    # colorio.plot_macadam(
+    #     ellipse_scaling=10,
+    colorio.plot_luo_rigg(
+        ellipse_scaling=1,
         plot_rgb_triangle=False,
         )
 
     # Plot perturbed MacAdam
     plt.figure()
-    colorio.plot_macadam(
-        scaling=10,
+    # colorio.plot_macadam(
+    #     ellipse_scaling=10,
+    colorio.plot_luo_rigg(
+        ellipse_scaling=1,
         xy_to_2d=pade2d.eval,
-        plot_standard_deviations=True,
         plot_rgb_triangle=False,
         )
 

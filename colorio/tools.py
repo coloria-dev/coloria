@@ -408,11 +408,11 @@ def show_macadam(*args, **kwargs):
     return
 
 
-def plot_macadam(scaling=1,
+def plot_macadam(ellipse_scaling=10,
                  plot_filter_positions=False,
                  plot_standard_deviations=False,
                  plot_rgb_triangle=True,
-                 plot_triangle_grid = True,
+                 plot_triangle_grid=True,
                  xy_to_2d=lambda xy: xy,
                  axes_labels=('x', 'y')):
     '''See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
@@ -421,6 +421,111 @@ def plot_macadam(scaling=1,
     dir_path = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(dir_path, 'data/macadam1942/table3.yaml')) as f:
         data = yaml.safe_load(f)
+
+    # if plot_filter_positions:
+    #     with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
+    #         filters_xyz = yaml.safe_load(f)
+    #     filters_xyz = {
+    #         key: 100 * numpy.array(value) for key, value in filters_xyz.items()
+    #         }
+    #     for key, xyz in filters_xyz.items():
+    #         x, y = xyz100_to_2d(xyz)
+    #         plt.plot(x, y, 'xk')
+    #         ax.annotate(key, (x, y))
+
+    # collect the ellipse centers and offsets
+    centers = []
+    offsets = []
+    for datak in data:
+        # collect ellipse points
+        _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak['data']).T
+
+        offset = (
+            numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
+            / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
+            )
+
+        if offset.shape[1] < 2:
+            continue
+
+        centers.append([datak['x'], datak['y']])
+        offsets.append(numpy.column_stack([+offset, -offset]))
+
+    centers = numpy.array(centers)
+
+    _plot_ellipse_data(
+        centers,
+        offsets,
+        ellipse_scaling=ellipse_scaling,
+        xy_to_2d=xy_to_2d,
+        plot_triangle_grid=plot_triangle_grid,
+        plot_rgb_triangle=plot_rgb_triangle,
+        )
+    return
+
+
+def show_luo_rigg(*args, **kwargs):
+    plot_luo_rigg(*args, **kwargs)
+    plt.show()
+    return
+
+
+def plot_luo_rigg(plot_rgb_triangle=True,
+                  plot_triangle_grid=True,
+                  ellipse_scaling=1,
+                  xy_to_2d=lambda xy: xy):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(dir_path, 'data/luo-rigg/luo-rigg.yaml')) as f:
+        data = yaml.safe_load(f)
+
+    # collect the ellipse centers and offsets
+    centers = []
+    offsets = []
+    # Use four offset points of each ellipse, one could take more
+    alpha = 2*numpy.pi * numpy.linspace(0.0, 1.0, 16, endpoint=False)
+    pts = numpy.array([numpy.cos(alpha), numpy.sin(alpha)])
+    for _, data_set in data.items():
+        # The set factor is the mean of the R values
+        # set_factor = (
+        #     numpy.sum(numpy.array(list(data_set.values()))[:, -1])
+        #     / len(data_set)
+        #     )
+        for _, dat in data_set.items():
+            x, y, Y, a, a_div_b, theta, _ = dat
+            a /= 1.0e4
+            a *= (Y/30)**0.2
+            b = a / a_div_b
+
+            # a *= R / set_factor
+            # b *= R / set_factor
+
+            # plot the ellipse
+            centers.append([x, y])
+            J = numpy.array([
+                [+a*numpy.cos(theta), -b*numpy.sin(theta)],
+                [+a*numpy.sin(theta), +b*numpy.cos(theta)],
+                ])
+            offsets.append(numpy.dot(J, pts))
+
+    centers = numpy.array(centers)
+    _plot_ellipse_data(
+        centers,
+        offsets,
+        ellipse_scaling=ellipse_scaling,
+        xy_to_2d=xy_to_2d,
+        plot_triangle_grid=plot_triangle_grid,
+        plot_rgb_triangle=plot_rgb_triangle,
+        )
+    return
+
+
+def _plot_ellipse_data(centers,
+                       offsets,
+                       xy_to_2d=lambda xy: xy,
+                       axes_labels=('x', 'y'),
+                       plot_rgb_triangle=False,
+                       ellipse_scaling=10,
+                       plot_triangle_grid=True):
 
     plot_flat_gamut(
         plot_planckian_locus=False, xy_to_2d=xy_to_2d, axes_labels=axes_labels,
@@ -442,48 +547,14 @@ def plot_macadam(scaling=1,
         lines = pts[edges].T
         plt.plot(*lines, color='0.8', zorder=0)
 
-    # if plot_filter_positions:
-    #     with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
-    #         filters_xyz = yaml.safe_load(f)
-    #     filters_xyz = {
-    #         key: 100 * numpy.array(value) for key, value in filters_xyz.items()
-    #         }
-    #     for key, xyz in filters_xyz.items():
-    #         x, y = xyz100_to_2d(xyz)
-    #         plt.plot(x, y, 'xk')
-    #         ax.annotate(key, (x, y))
-
-    for datak in data:
-        # collect ellipse points
-        _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak['data']).T
-
-        center = numpy.array([datak['x'], datak['y']])
+    for center, offset in zip(centers, offsets):
+        # If xy_to_2d was linear, we would only need one of center+-offset
         tcenter = xy_to_2d(center)
-
-        offset = (
-            numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
-            / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
-            )
-        # If xy_to_2d is linear, we would only need one of center+-offset
         X = numpy.column_stack([
             xy_to_2d((center + offset.T).T),
             xy_to_2d((center - offset.T).T),
             ])
         X = (X.T - tcenter).T
-
-        if X.shape[1] < 4:
-            continue
-
-        # # Curve fit an ellipse with the data
-        # (a, b, theta), _ = curve_fit(
-        #     # dont' divide by a**2, b**2 here to avoid numerical difficulties
-        #     # when optimizing
-        #     lambda X, a, b, theta: (
-        #         + a**2 * (X[0] * numpy.cos(theta) + X[1] * numpy.sin(theta))**2
-        #         + b**2 * (X[0] * numpy.sin(theta) - X[1] * numpy.cos(theta))**2
-        #         ),
-        #     X, numpy.ones(X.shape[1])
-        #     )
 
         def f_ellipse(a_b_theta, x=X):
             a, b, theta = a_b_theta
@@ -512,62 +583,15 @@ def plot_macadam(scaling=1,
         #     leastsq(f, [1.0, 1.0, 0.0], full_output=True, Dfun=jac)
         # print(infodict['nfev'])
 
-        if plot_standard_deviations:
-            # Original unscaled ellipses with data points
-            plt.plot(*(X.T + tcenter).T, '.', color='k')
-            plt.plot(*tcenter, 'x', color='k')
-            e = Ellipse(
-                xy=tcenter,
-                width=2/a, height=2/b,
-                angle=theta / numpy.pi * 180
-                )
-            ax.add_artist(e)
-            e.set_alpha(0.5)
-            e.set_facecolor('k')
-
         # plot the scaled ellipse
         e = Ellipse(
             xy=tcenter,
-            width=scaling*2/a, height=scaling*2/b,
+            width=ellipse_scaling*2/a, height=ellipse_scaling*2/b,
             angle=theta / numpy.pi * 180
             )
         ax.add_artist(e)
         e.set_alpha(0.5)
         e.set_facecolor('k')
-    return
-
-
-def show_luo_rigg(scaling=1):
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, 'data/luo-rigg/luo-rigg.yaml')) as f:
-        data = yaml.safe_load(f)
-
-    plot_flat_gamut(plot_planckian_locus=False, plot_rgb_triangle=False)
-    ax = plt.gca()
-
-    for _, data_set in data.items():
-        # The set factor is the mean of the R values
-        # set_factor = (
-        #     numpy.sum(numpy.array(list(data_set.values()))[:, -1])
-        #     / len(data_set)
-        #     )
-        for _, dat in data_set.items():
-            x, y, Y, a, ab, theta, _ = dat
-            a /= 1.0e4
-            a *= (Y/30)**0.2
-
-            b = a / ab
-
-            a *= scaling  # * R / set_factor
-            b *= scaling  # * R / set_factor
-
-            # plot the ellipse
-            e = Ellipse(xy=[x, y], width=2*a, height=2*b, angle=theta)
-            ax.add_artist(e)
-            e.set_alpha(0.5)
-            e.set_facecolor('black')
-
-    plt.show()
     return
 
 
