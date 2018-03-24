@@ -120,8 +120,8 @@ def test_show_straights(cs=colorio.CIELAB()):
 
 if __name__ == '__main__':
     # test_uv_gamut()
-    # test_luo_rigg()
-    test_macadam()
+    test_luo_rigg()
+    # test_macadam()
     exit(1)
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.Rec2020()

@@ -161,8 +161,9 @@ class Pade2d(object):
 
         self.ax, self.bx, self.ay, self.by = \
             numpy.split(alpha, numpy.cumsum(num_coefficients[:-1]))
-        self.bx = numpy.concatenate([[1.0], self.bx])
-        self.by = numpy.concatenate([[1.0], self.by])
+
+        self.bx = numpy.concatenate([[1.0], self.bx**2])
+        self.by = numpy.concatenate([[1.0], self.by**2])
         return
 
     def eval(self, xy=None):

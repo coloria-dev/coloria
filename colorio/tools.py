@@ -131,7 +131,7 @@ def partition(boxes, balls):
     return list(rec(boxes, balls))
 
 
-def _plot_monochromatic(observer, xy_to_2d):
+def _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=True):
     # draw outline of monochromatic spectra
     lmbda = 1.0e-9 * numpy.arange(380, 701)
     values = []
@@ -152,7 +152,8 @@ def _plot_monochromatic(observer, xy_to_2d):
     full = numpy.concatenate([values, connect.T])
 
     # fill horseshoe area
-    # plt.fill(*full.T, color=[0.8, 0.8, 0.8], zorder=1)
+    if fill_horseshoe:
+        plt.fill(*full.T, color=[0.8, 0.8, 0.8], zorder=1)
     # plot horseshoe outline
     plt.plot(*values.T, '-k', label='monochromatic light')
     plt.plot(*connect, '--k', label='connect')

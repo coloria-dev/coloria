@@ -39,100 +39,137 @@ def jac_ellipse(a_b_theta, x):
         ]).T
 
 
+def _get_luo_rigg():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(dir_path, '../colorio/data/luo-rigg/luo-rigg.yaml')) as f:
+        data = yaml.safe_load(f)
 
-class MacAdam(object):
-    def __init__(self):
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        with open(os.path.join(dir_path, '../colorio/data/macadam1942/table3.yaml')) as f:
-            data = yaml.safe_load(f)
+    centers = []
+    J = []
+    for _, data_set in data.items():
+        for _, dat in data_set.items():
+            x, y, Y, a, ab, theta, _ = dat
+            a /= 1.0e4
+            a *= (Y/30)**0.2
+            b = a / ab
 
-        centers = []
-        points = []
-        for datak in data:
-            # collect ellipse points
-            _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak['data']).T
-            if len(delta_s) < 2:
-                continue
-            center = [datak['x'], datak['y']]
-            centers.append(center)
-            offset = (
-                numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
-                / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
-                )
-            points.append(numpy.column_stack([
-                (center + offset.T).T,
-                (center - offset.T).T,
+            centers.append([x, y])
+
+            J.append(numpy.array([
+                [a * numpy.cos(theta), -b * numpy.sin(theta)],
+                [a * numpy.sin(theta), b * numpy.cos(theta)],
                 ]))
 
-        self.centers = numpy.array(centers)
-        self.points = points
-        return
+    return numpy.array(centers), numpy.moveaxis(numpy.array(J), 0, -1)
 
-    def get_ellipse_axes(self, f):
-        '''Get eccentricities of ellipses.
-        '''
-        X = [
-            (f.eval(pts).T - f.eval(center)).T
-            for center, pts in zip(self.centers, self.points)
-            ]
 
-        ab = numpy.array([
-            # Solve least squares problem for [1/a, 1/b, theta] and pick [a, b]
-            1 / leastsq(
-                lambda a_b_theta: f_ellipse(a_b_theta, x),
-                [1.0, 1.0, 0.0],
-                Dfun=lambda a_b_theta: jac_ellipse(a_b_theta, x),
-                )[0][:2]
-            for x in X
-            ])
+def _get_macadam():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(dir_path, '../colorio/data/macadam1942/table3.yaml')) as f:
+        data = yaml.safe_load(f)
 
-        return ab.flatten()
-        # return numpy.log(ab / target_radius)
+    centers = []
+    points = []
+    for datak in data:
+        # collect ellipse points
+        _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak['data']).T
+        if len(delta_s) < 2:
+            continue
+        center = [datak['x'], datak['y']]
+        centers.append(center)
+        offset = (
+            numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
+            / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
+            )
+        points.append(numpy.column_stack([
+            (center + offset.T).T,
+            (center - offset.T).T,
+            ]))
 
-    def cost(self, f):
-        ecc = self.get_ellipse_axes(f)
-        # target = numpy.sum(ecc) / len(ecc)
-        target = 0.002
-        out = (ecc - target) / target
-        print(numpy.sum(out**2))
+    centers = numpy.array(centers)
+    J = get_local_linearizations1(centers, points)
+    return centers, numpy.moveaxis(J, 0, -1)
+    # return centers, self.get_local_linearizations2(centers, points)
+
+
+def get_local_linearizations1(centers, points):
+    # Get ellipse parameters
+    X = [
+        (pts.T - center).T
+        for center, pts in zip(centers, points)
+        ]
+    a_b_theta = numpy.array([
+        # Solve least squares problem for [1/a, 1/b, theta]
+        # and pick [a, b, theta]
+        leastsq(
+            lambda a_b_theta: f_ellipse(a_b_theta, x),
+            [1.0, 1.0, 0.0],
+            Dfun=lambda a_b_theta: jac_ellipse(a_b_theta, x),
+            )[0]
+        for x in X
+        ])
+    a_b_theta = numpy.array([
+        1 / a_b_theta[:, 0],
+        1 / a_b_theta[:, 1],
+        a_b_theta[:, 2]
+        ]).T
+    # Construct 2x2 matrices that approximately convert unit circles into
+    # the ellipse defined by the points.
+    J = []
+    for abt in a_b_theta:
+        a, b, theta = abt
+        J.append(numpy.array([
+            [a * numpy.cos(theta), -b * numpy.sin(theta)],
+            [a * numpy.sin(theta), b * numpy.cos(theta)],
+            ]))
+
+    return numpy.array(J)
+
+
+def get_local_linearizations2(centers, points):
+    X = [
+        (pts.T - center).T
+        for center, pts in zip(centers, points)
+        ]
+
+    def f_linear_function(j, x):
+        Jx = numpy.dot(j.reshape(2, 2), x)
+        out = numpy.einsum('ij,ij->j', Jx, Jx) - 1.0
         return out
 
+    def jac_linear_function(j, x):
+        J = j.reshape(2, 2)
+        return numpy.array([
+            2*J[0, 0]*x[0]**2 + 2*J[0, 1]*x[0]*x[1],
+            2*J[0, 1]*x[1]**2 + 2*J[0, 0]*x[0]*x[1],
+            2*J[1, 0]*x[0]**2 + 2*J[1, 1]*x[0]*x[1],
+            2*J[1, 1]*x[1]**2 + 2*J[1, 0]*x[0]*x[1],
+            ]).T
+
+    J = []
+    for x in X:
+        j, _ = leastsq(
+            lambda J: f_linear_function(J, x),
+            [1.0, 0.0, 0.0, 1.0],
+            Dfun=lambda J: jac_linear_function(J, x),
+            # full_output=True
+            )
+        J.append(numpy.linalg.inv(j.reshape(2, 2)))
+
+    return numpy.array(J)
 
 
-class MacAdam2(object):
-    def __init__(self):
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        with open(os.path.join(dir_path, '../colorio/data/macadam1942/table3.yaml')) as f:
-            data = yaml.safe_load(f)
+class EllipseCircle(object):
+    def __init__(self, centers, J):
+        self.centers = centers
+        self.J = J
 
-        centers = []
-        points = []
-        for datak in data:
-            # collect ellipse points
-            _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak['data']).T
-            if len(delta_s) < 2:
-                continue
-            center = [datak['x'], datak['y']]
-            centers.append(center)
-            offset = (
-                numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
-                / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
-                )
-            points.append(numpy.column_stack([
-                (center + offset.T).T,
-                (center - offset.T).T,
-                ]))
-
-        self.centers = numpy.array(centers)
-
-        self.num_f_eval = 0
-
-        self.J = numpy.array(self.get_local_linearizations1(centers, points))
         self.target = 0.002
         self.J /= self.target
 
+        self.num_f_eval = 0
+
         # self.J = numpy.array(self.get_local_linearizations2(centers, points))
-        self.J = numpy.moveaxis(self.J, 0, -1)
 
         # # plot
         # for center, pts, j in zip(centers, points, self.J):
@@ -179,104 +216,46 @@ class MacAdam2(object):
         q2 = a**2 + d**2
         r2 = b**2 + c**2
 
-        return q2, r2
+        return q2, r2, M
 
     def get_ellipse_axes(self, f):
-        q, r = numpy.sqrt(self.get_q2_r2(f))
+        q, r = numpy.sqrt(self.get_q2_r2(f)[:2])
         sigma = numpy.array([q+r, q-r]) * self.target
         return sigma
 
     def cost(self, f):
-        q2, r2 = self.get_q2_r2(f)
+        q2, r2, M = self.get_q2_r2(f)
 
-        # cost = numpy.sum([(numpy.sqrt(q2) - 1.0)**2, r2])
-        cost = numpy.sum([(q2 - 1.0)**2, r2])
+        self.M = M
+
+        # for least squares
+        out = numpy.array([q2 - 1.0, r2]).flatten()
 
         if self.num_f_eval % 10000 == 0:
+            # cost = numpy.sum([(numpy.sqrt(q2) - 1.0)**2, r2])
+            cost = numpy.sum([(q2 - 1.0)**2, r2])
             print('{:7d}     {}'.format(self.num_f_eval, cost))
+            # print(numpy.moveaxis(M, -1, 0))
 
         self.num_f_eval += 1
-        return cost
+        return out
 
-    def get_local_linearizations1(self, centers, points):
-        # Get ellipse parameters
-        X = [
-            (pts.T - center).T
-            for center, pts in zip(centers, points)
-            ]
-        a_b_theta = numpy.array([
-            # Solve least squares problem for [1/a, 1/b, theta]
-            # and pick [a, b, theta]
-            leastsq(
-                lambda a_b_theta: f_ellipse(a_b_theta, x),
-                [1.0, 1.0, 0.0],
-                Dfun=lambda a_b_theta: jac_ellipse(a_b_theta, x),
-                )[0]
-            for x in X
-            ])
-        a_b_theta = numpy.array([
-            1 / a_b_theta[:, 0],
-            1 / a_b_theta[:, 1],
-            a_b_theta[:, 2]
-            ]).T
-        # Construct 2x2 matrices that approximately convert unit circles into
-        # the ellipse defined by the points.
-        # rad = numpy.sum(a_b_theta[:, :2]) / (2*len(a_b_theta))
-        J = []
-        for abt in a_b_theta:
-            a, b, theta = abt
-            J.append(numpy.array([
-                [a * numpy.cos(theta), -b * numpy.sin(theta)],
-                [a * numpy.sin(theta), b * numpy.cos(theta)],
-                ]))
-
-        return J
-
-    def get_local_linearizations2(self, centers, points):
-        X = [
-            (pts.T - center).T
-            for center, pts in zip(centers, points)
-            ]
-
-        def f_linear_function(j, x):
-            Jx = numpy.dot(j.reshape(2, 2), x)
-            out = numpy.einsum('ij,ij->j', Jx, Jx) - 1.0
-            return out
-
-        def jac_linear_function(j, x):
-            J = j.reshape(2, 2)
-            return numpy.array([
-                2*J[0, 0]*x[0]**2 + 2*J[0, 1]*x[0]*x[1],
-                2*J[0, 1]*x[1]**2 + 2*J[0, 0]*x[0]*x[1],
-                2*J[1, 0]*x[0]**2 + 2*J[1, 1]*x[0]*x[1],
-                2*J[1, 1]*x[1]**2 + 2*J[1, 0]*x[0]*x[1],
-                ]).T
-
-        J = []
-        for x in X:
-            j, _ = leastsq(
-                lambda J: f_linear_function(J, x),
-                [1.0, 0.0, 0.0, 1.0],
-                Dfun=lambda J: jac_linear_function(J, x),
-                # full_output=True
-                )
-            J.append(numpy.linalg.inv(j.reshape(2, 2)))
-
-        return J
 
 
 def _main():
-    # macadam = MacAdam()
-    macadam = MacAdam2()
+    # centers, J = _get_macadam()
+    centers, J = _get_luo_rigg()
 
-    pade2d = Pade2d([4, 0, 4, 0])
+    ec = EllipseCircle(centers, J)
+
+    pade2d = Pade2d([2, 2, 2, 2])
 
     # For MacAdam2, one only ever needs the values at the ellipse centers
-    pade2d.set_xy(macadam.centers.T)
+    pade2d.set_xy(ec.centers.T)
 
     def f(alpha):
         pade2d.set_alpha(alpha)
-        return macadam.cost(pade2d)
+        return ec.cost(pade2d)
 
     # Create the identity function as initial guess
     print('num parameters: {}'.format(pade2d.total_num_coefficients))
@@ -286,18 +265,16 @@ def _main():
     alpha0 = pade2d.alpha.copy()
 
     print('f evals     cost')
-    out = minimize(
-            f, pade2d.alpha,
-            # method='Nelder-Mead'
-            # method='Powell'
-            # method='CG'
-            method='BFGS'
-            )
-    # print(out)
-    # exit(1)
+    # out = minimize(
+    #         f, pade2d.alpha,
+    #         method='Nelder-Mead'
+    #         # method='Powell'
+    #         # method='CG'
+    #         # method='BFGS'
+    #         )
 
-    # # Create the parameter bounds such that the denominator coefficients are
-    # # nonnegative. This avoids division-by-zero in the transformation.
+    # Create the parameter bounds such that the denominator coefficients are
+    # nonnegative. This avoids division-by-zero in the transformation.
     # bounds = numpy.zeros((2, len(alpha0)))
     # bounds[0] = -numpy.inf
     # bounds[1] = +numpy.inf
@@ -311,17 +288,17 @@ def _main():
     # b3[:, 0] = 0.0
     # bounds = numpy.concatenate([b0, b1, b2, b3]).T
 
-    # # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
-    # # problems, but it needs more conditions than parameters. This is not the
-    # # case for larger polynomial degrees.
-    # out = least_squares(
-    #         f,
-    #         pade2d.alpha,
-    #         bounds=bounds,
-    #         method='trf'
-    #         )
+    # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
+    # problems, but it needs more conditions than parameters. This is not the
+    # case for larger polynomial degrees.
+    out = least_squares(
+        f,
+        pade2d.alpha,
+        # bounds=bounds,
+        method='trf'
+        )
 
-    print('{:7d}     {}'.format(macadam.num_f_eval, macadam.cost(pade2d)))
+    print('{:7d}     {}'.format(ec.num_f_eval, ec.cost(pade2d)))
 
     print('\noptimal parameters:')
     pade2d.set_alpha(out.x)
@@ -329,10 +306,10 @@ def _main():
 
     # plot statistics
     pade2d.set_alpha(alpha0)
-    axes0 = macadam.get_ellipse_axes(pade2d).T.flatten()
+    axes0 = ec.get_ellipse_axes(pade2d).T.flatten()
     plt.plot(axes0, label='axes lengths before')
     pade2d.set_alpha(out.x)
-    axes1 = macadam.get_ellipse_axes(pade2d).T.flatten()
+    axes1 = ec.get_ellipse_axes(pade2d).T.flatten()
     plt.plot(axes1, label='axes lengths opt')
     plt.legend()
     plt.grid()
@@ -355,6 +332,24 @@ def _main():
         )
 
     plt.show()
+
+    # for M in numpy.moveaxis(macadam.M, -1, 0):
+    #     print()
+    #     print(M)
+    #     # plot ellipse
+    #     angles = numpy.pi * numpy.linspace(-1, +1, 100)
+    #     v = numpy.array([numpy.cos(angles), numpy.sin(angles)])
+
+    #     plt.plot(*numpy.dot(M, v), color='k')
+    #     # plot arrows
+    #     angles = numpy.pi * numpy.linspace(-0.5, 0.5, 6)
+    #     v = numpy.array([numpy.cos(angles), numpy.sin(angles)])
+    #     for vv in v.T:
+    #         Mv = numpy.dot(M, vv)
+    #         plt.plot([0, Mv[0]], [0, Mv[1]])
+
+    #     plt.axis('equal')
+    #     plt.show()
     return
 
 
