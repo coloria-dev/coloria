@@ -2,15 +2,20 @@
 #
 from __future__ import print_function, division
 
+import tempfile
 import os
 
-import dolfin
+from dolfin import (
+    Mesh, FunctionSpace, Function, grad, VectorFunctionSpace, project,
+    TestFunction, dot, dx, assemble
+    )
 import matplotlib.pyplot as plt
 import numpy
 from scipy.optimize import leastsq, least_squares, minimize
 import yaml
 
 import colorio
+import meshio
 
 from pade2d import Pade2d
 
@@ -213,7 +218,7 @@ class PadeEllipse(object):
         #     plt.show()
         return
 
-    def set_alpha(self, alpha):
+    def _set_alpha(self, alpha):
         # Subtract 1 for each denominator polynomial since the constant
         # coefficient is fixed to 1.0.
         assert len(alpha) == len(self.alpha)
@@ -233,7 +238,7 @@ class PadeEllipse(object):
         return
 
     def get_q2_r2(self, alpha):
-        self.set_alpha(alpha)
+        self._set_alpha(alpha)
 
         # jacs and J are of shape (2, 2, k). M must be of the same shape and
         # contain the result of the k 2x2 dot products. Perhaps there's a
@@ -281,11 +286,112 @@ class PadeEllipse(object):
         return out
 
 
+class PiecewiseEllipse(object):
+    def __init__(self, centers, J):
+        self.centers = centers
+        self.J = J
+
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.join(dir_path, '../colorio/data/gamut_triangulation.yaml')) as f:
+            data = yaml.safe_load(f)
+
+        points = numpy.column_stack([
+            data['points'], numpy.zeros(len(data['points']))
+            ])
+        cells = numpy.array(data['cells'])
+
+        # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
+        with tempfile.TemporaryDirectory() as temp_dir:
+            tmp_filename = os.path.join(temp_dir, 'test.xml')
+            meshio.write(
+                tmp_filename, points, {'triangle': cells},
+                file_format='dolfin-xml'
+                )
+            mesh = Mesh(tmp_filename)
+
+        self.V = FunctionSpace(mesh, 'CG', 1)
+        self.V2 = VectorFunctionSpace(mesh, 'CG', 1)
+
+        self.ux = Function(self.V)
+        self.uy = Function(self.V)
+
+        self.ax = self.ux.vector().get_local()
+        self.ay = self.uy.vector().get_local()
+
+        self.alpha = numpy.concatenate([self.ax, self.ay])
+
+        self.num_f_eval = 0
+        return
+
+    def get_q2_r2(self, alpha):
+        jx = project(grad(self.ux), self.V2)
+        jy = project(grad(self.uy), self.V2)
+
+        jac = numpy.array([[jx(x, y), jy(x, y)] for x, y in self.centers])
+        jac = numpy.moveaxis(jac, 0, -1)
+
+        # jacs and J are of shape (2, 2, k). M must be of the same shape and
+        # contain the result of the k 2x2 dot products. Perhaps there's a
+        # dot() for this.
+        M = numpy.einsum('ijl,jkl->ikl', jac, self.J)
+
+        # One could use
+        #
+        #     M = numpy.moveaxis(M, -1, 0)
+        #     _, sigma, _ = numpy.linalg.svd(M)
+        #
+        # but computing the singular values explicitly via
+        # <https://scicomp.stackexchange.com/a/14103/3980> is faster.
+        a = (M[0, 0] + M[1, 1]) / 2
+        b = (M[0, 0] - M[1, 1]) / 2
+        c = (M[1, 0] + M[0, 1]) / 2
+        d = (M[1, 0] - M[0, 1]) / 2
+
+        # From the square roots of q2 and r2, the ellipse axes can be computed,
+        # namely
+        #
+        #   s1 = q + r
+        #   s2 = q - r
+        #
+        q2 = a**2 + d**2
+        r2 = b**2 + c**2
+
+        return q2, r2
+
+    def cost(self, alpha):
+        ax, ay = numpy.split(alpha, 2)
+
+        self.ux.vector().set_local(ax)
+        self.uy.vector().set_local(ay)
+
+        v = TestFunction(self.V)
+
+        res_x = assemble(dot(grad(self.ux), grad(v)) * dx)
+        res_y = assemble(dot(grad(self.uy), grad(v)) * dx)
+
+        q2, r2 = self.get_q2_r2(alpha)
+
+        out = numpy.concatenate([
+            res_x.get_local(),
+            res_y.get_local(),
+            q2 - 1.0,
+            r2,
+            ])
+
+        if self.num_f_eval % 10 == 0:
+            cost = numpy.sum(out**2)
+            print('{:7d}     {}'.format(self.num_f_eval, cost))
+
+        self.num_f_eval += 1
+        return out
+
+
 def _main():
     centers, J = _get_macadam()
     # centers, J = _get_luo_rigg()
 
-    problem = PadeEllipse(centers, J, [2, 0, 2, 0])
+    # problem = PadeEllipse(centers, J, [2, 0, 2, 0])
+    problem = PiecewiseEllipse(centers, J)
 
     print('num parameters: {}'.format(len(problem.alpha)))
 
@@ -328,24 +434,6 @@ def _main():
         )
 
     plt.show()
-
-    # for M in numpy.moveaxis(macadam.M, -1, 0):
-    #     print()
-    #     print(M)
-    #     # plot ellipse
-    #     angles = numpy.pi * numpy.linspace(-1, +1, 100)
-    #     v = numpy.array([numpy.cos(angles), numpy.sin(angles)])
-
-    #     plt.plot(*numpy.dot(M, v), color='k')
-    #     # plot arrows
-    #     angles = numpy.pi * numpy.linspace(-0.5, 0.5, 6)
-    #     v = numpy.array([numpy.cos(angles), numpy.sin(angles)])
-    #     for vv in v.T:
-    #         Mv = numpy.dot(M, vv)
-    #         plt.plot([0, Mv[0]], [0, Mv[1]])
-
-    #     plt.axis('equal')
-    #     plt.show()
     return
 
 
