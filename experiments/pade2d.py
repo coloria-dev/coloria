@@ -99,41 +99,22 @@ class Pade2d(object):
     coefficients, two for the components and two for numerator and denominator
     each.
     '''
-    def __init__(self, xy, degrees, alpha=None):
+    def __init__(self, xy, degrees, ax, bx, ay, by):
         self.degrees = degrees
-
-        # Subtract 1 for each denominator polynomial since the constant
-        # coefficient is fixed to 1.0.
-        self.num_coefficients = [
-            (degrees[0]+1)*(degrees[0]+2)//2,
-            (degrees[1]+1)*(degrees[1]+2)//2 - 1,
-            (degrees[2]+1)*(degrees[2]+2)//2,
-            (degrees[3]+1)*(degrees[3]+2)//2 - 1,
-            ]
-
-        self.num_coefficients = [(d+1)*(d+2)//2 for d in degrees]
-
-        # Subtract 1 for each denominator polynomial since the constant
-        # coefficient is fixed to 1.0.
-        self.total_num_coefficients = sum(self.num_coefficients) - 2
-
-        if alpha is None:
-            # Choose the coefficiens to create the identity function
-            coeffs_ax = numpy.zeros(self.num_coefficients[0])
-            coeffs_ax[1] = 1
-            coeffs_bx = numpy.zeros(self.num_coefficients[1] - 1)
-
-            coeffs_ay = numpy.zeros(self.num_coefficients[2])
-            coeffs_ay[2] = 1
-            coeffs_by = numpy.zeros(self.num_coefficients[3] - 1)
-
-            alpha = numpy.concatenate([
-                coeffs_ax, coeffs_bx, coeffs_ay, coeffs_by
-                ])
-
-        self.set_alpha(alpha)
-
+        self.set_coefficients(ax, bx, ay, by)
         self.set_xy(xy)
+        return
+
+    def set_coefficients(self, ax, bx, ay, by):
+        assert len(ax) == (self.degrees[0]+1) * (self.degrees[0]+2) // 2
+        assert len(bx) == (self.degrees[1]+1) * (self.degrees[1]+2) // 2
+        assert len(ay) == (self.degrees[2]+1) * (self.degrees[2]+2) // 2
+        assert len(by) == (self.degrees[3]+1) * (self.degrees[3]+2) // 2
+
+        self.ax = ax
+        self.ay = ay
+        self.bx = bx
+        self.by = by
         return
 
     def set_xy(self, xy):
@@ -150,22 +131,6 @@ class Pade2d(object):
         dy_tree = _get_dy_tree(xy, max(self.degrees))
         self.dy_list = \
             numpy.array([item for branch in dy_tree for item in branch])
-        return
-
-    def set_alpha(self, alpha):
-        assert len(alpha) == self.total_num_coefficients
-
-        self.alpha = alpha
-
-        num_coefficients = [(d+1)*(d+2)//2 for d in self.degrees]
-        num_coefficients[1] -= 1
-        num_coefficients[3] -= 1
-
-        self.ax, self.bx, self.ay, self.by = \
-            numpy.split(alpha, numpy.cumsum(num_coefficients[:-1]))
-
-        self.bx = numpy.concatenate([[1.0], self.bx])
-        self.by = numpy.concatenate([[1.0], self.by])
         return
 
     def eval(self, xy=None):

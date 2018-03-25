@@ -4,6 +4,7 @@ from __future__ import print_function, division
 
 import os
 
+import dolfin
 import matplotlib.pyplot as plt
 import numpy
 from scipy.optimize import leastsq, least_squares, minimize
@@ -159,8 +160,8 @@ def get_local_linearizations2(centers, points):
     return numpy.array(J)
 
 
-class EllipseCircle(object):
-    def __init__(self, centers, J):
+class PadeEllipse(object):
+    def __init__(self, centers, J, degrees):
         self.centers = centers
         self.J = J
 
@@ -168,6 +169,30 @@ class EllipseCircle(object):
         self.J /= self.target
 
         self.num_f_eval = 0
+
+        self.degrees = degrees
+
+        num_coefficients = [
+            (degrees[0]+1) * (degrees[0]+2) // 2,
+            (degrees[1]+1) * (degrees[1]+2) // 2,
+            (degrees[2]+1) * (degrees[2]+2) // 2,
+            (degrees[3]+1) * (degrees[3]+2) // 2,
+            ]
+
+        # Choose the coefficiens to create the identity function
+        ax = numpy.zeros(num_coefficients[0])
+        ax[1] = 1
+        bx = numpy.zeros(num_coefficients[1] - 1)
+        ay = numpy.zeros(num_coefficients[2])
+        ay[2] = 1
+        by = numpy.zeros(num_coefficients[3] - 1)
+
+        self.alpha = numpy.concatenate([ax, bx, ay, by])
+
+        bx = numpy.concatenate([[1.0], bx])
+        by = numpy.concatenate([[1.0], by])
+
+        self.pade2d = Pade2d(self.centers.T, degrees, ax, bx, ay, by)
 
         # self.J = numpy.array(self.get_local_linearizations2(centers, points))
 
@@ -186,14 +211,34 @@ class EllipseCircle(object):
         #     # plt.plot(*xy_new, 'x')
         #     plt.axis('equal')
         #     plt.show()
-
         return
 
-    def get_q2_r2(self, f):
+    def set_alpha(self, alpha):
+        # Subtract 1 for each denominator polynomial since the constant
+        # coefficient is fixed to 1.0.
+        assert len(alpha) == len(self.alpha)
+
+        self.alpha = alpha
+
+        num_coefficients = [(d+1)*(d+2)//2 for d in self.degrees]
+        num_coefficients[1] -= 1
+        num_coefficients[3] -= 1
+
+        ax, bx, ay, by = \
+            numpy.split(alpha, numpy.cumsum(num_coefficients[:-1]))
+        bx = numpy.concatenate([[1.0], bx])
+        by = numpy.concatenate([[1.0], by])
+
+        self.pade2d.set_coefficients(ax, bx, ay, by)
+        return
+
+    def get_q2_r2(self, alpha):
+        self.set_alpha(alpha)
+
         # jacs and J are of shape (2, 2, k). M must be of the same shape and
         # contain the result of the k 2x2 dot products. Perhaps there's a
         # dot() for this.
-        M = numpy.einsum('ijl,jkl->ikl', f.jac(), self.J)
+        M = numpy.einsum('ijl,jkl->ikl', self.pade2d.jac(), self.J)
 
         # One could use
         #
@@ -216,122 +261,69 @@ class EllipseCircle(object):
         q2 = a**2 + d**2
         r2 = b**2 + c**2
 
-        return q2, r2, M
+        return q2, r2
 
-    def get_ellipse_axes(self, f):
-        q, r = numpy.sqrt(self.get_q2_r2(f)[:2])
+    def get_ellipse_axes(self, alpha):
+        q, r = numpy.sqrt(self.get_q2_r2(alpha))
         sigma = numpy.array([q+r, q-r]) * self.target
         return sigma
 
-    def cost(self, f):
-        q2, r2, M = self.get_q2_r2(f)
+    def cost(self, alpha):
+        q2, r2 = self.get_q2_r2(alpha)
 
-        self.M = M
-
-        # for least squares
         out = numpy.array([q2 - 1.0, r2]).flatten()
 
         if self.num_f_eval % 10000 == 0:
-            # cost = numpy.sum([(numpy.sqrt(q2) - 1.0)**2, r2])
-            cost = numpy.sum([(q2 - 1.0)**2, r2])
+            cost = numpy.sum(out**2)
             print('{:7d}     {}'.format(self.num_f_eval, cost))
-            # print(numpy.moveaxis(M, -1, 0))
 
         self.num_f_eval += 1
         return out
 
 
-
 def _main():
-    # centers, J = _get_macadam()
-    centers, J = _get_luo_rigg()
+    centers, J = _get_macadam()
+    # centers, J = _get_luo_rigg()
 
-    ec = EllipseCircle(centers, J)
+    problem = PadeEllipse(centers, J, [2, 0, 2, 0])
 
-    pade2d = Pade2d(centers.T, [2, 0, 2, 0])
+    print('num parameters: {}'.format(len(problem.alpha)))
 
-    axes0 = ec.get_ellipse_axes(pade2d).T.flatten()
-    print(axes0.shape)
-    exit(1)
-
-
-    def f(alpha):
-        pade2d.set_alpha(alpha)
-        return ec.cost(pade2d)
-
-    # Create the identity function as initial guess
-    print('num parameters: {}'.format(pade2d.total_num_coefficients))
-    print('\ninitial parameters:')
-    pade2d.print()
-
-    alpha0 = pade2d.alpha.copy()
-
-    print('f evals     cost')
-    # out = minimize(
-    #         f, pade2d.alpha,
-    #         method='Nelder-Mead'
-    #         # method='Powell'
-    #         # method='CG'
-    #         # method='BFGS'
-    #         )
-
-    # Create the parameter bounds such that the denominator coefficients are
-    # nonnegative. This avoids division-by-zero in the transformation.
-    # bounds = numpy.zeros((2, len(alpha0)))
-    # bounds[0] = -numpy.inf
-    # bounds[1] = +numpy.inf
-    # #
-    # num_coefficients = [(d+1)*(d+2)//2 for d in pade2d.degrees]
-    # num_coefficients[1] -= 1
-    # num_coefficients[3] -= 1
-    # b0, b1, b2, b3 = \
-    #     numpy.split(bounds.T, numpy.cumsum(num_coefficients[:-1]))
-    # b1[:, 0] = 0.0
-    # b3[:, 0] = 0.0
-    # bounds = numpy.concatenate([b0, b1, b2, b3]).T
+    alpha0 = problem.alpha.copy()
 
     # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
     # problems, but it needs more conditions than parameters. This is not the
     # case for larger polynomial degrees.
-    out = least_squares(
-        f,
-        pade2d.alpha,
-        # bounds=bounds,
-        method='trf'
-        )
+    print('f evals     cost')
+    out = least_squares(problem.cost, alpha0, method='trf')
 
-    print('{:7d}     {}'.format(ec.num_f_eval, ec.cost(pade2d)))
-
-    print('\noptimal parameters:')
-    pade2d.set_alpha(out.x)
-    pade2d.print()
+    final_cost = numpy.sum(problem.cost(out.x)**2)
+    print('{:7d}     {}'.format(problem.num_f_eval, final_cost))
 
     # plot statistics
-    pade2d.set_alpha(alpha0)
-    axes0 = ec.get_ellipse_axes(pade2d).T.flatten()
+    axes0 = problem.get_ellipse_axes(alpha0).T.flatten()
     plt.plot(axes0, label='axes lengths before')
-    pade2d.set_alpha(out.x)
-    axes1 = ec.get_ellipse_axes(pade2d).T.flatten()
+    axes1 = problem.get_ellipse_axes(out.x).T.flatten()
     plt.plot(axes1, label='axes lengths opt')
     plt.legend()
     plt.grid()
 
     # Plot unperturbed MacAdam
     plt.figure()
-    # colorio.plot_macadam(
-    #     ellipse_scaling=10,
-    colorio.plot_luo_rigg(
-        ellipse_scaling=1,
+    # colorio.plot_luo_rigg(
+    #     ellipse_scaling=1,
+    colorio.plot_macadam(
+        ellipse_scaling=10,
         plot_rgb_triangle=False,
         )
 
     # Plot perturbed MacAdam
     plt.figure()
-    # colorio.plot_macadam(
-    #     ellipse_scaling=10,
-    colorio.plot_luo_rigg(
-        ellipse_scaling=1,
-        xy_to_2d=pade2d.eval,
+    # colorio.plot_luo_rigg(
+    #     ellipse_scaling=1,
+    colorio.plot_macadam(
+        ellipse_scaling=10,
+        xy_to_2d=problem.pade2d.eval,
         plot_rgb_triangle=False,
         )
 
