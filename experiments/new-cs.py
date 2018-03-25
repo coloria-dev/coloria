@@ -248,10 +248,12 @@ def _main():
 
     ec = EllipseCircle(centers, J)
 
-    pade2d = Pade2d([10, 0, 10, 0])
+    pade2d = Pade2d(centers.T, [2, 0, 2, 0])
 
-    # For MacAdam2, one only ever needs the values at the ellipse centers
-    pade2d.set_xy(ec.centers.T)
+    axes0 = ec.get_ellipse_axes(pade2d).T.flatten()
+    print(axes0.shape)
+    exit(1)
+
 
     def f(alpha):
         pade2d.set_alpha(alpha)

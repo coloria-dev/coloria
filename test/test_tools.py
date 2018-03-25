@@ -118,9 +118,15 @@ def test_show_straights(cs=colorio.CIELAB()):
     return
 
 
+def test_xy_gamut_mesh():
+    colorio.xy_gamut_mesh(0.05)
+    return
+
+
 if __name__ == '__main__':
     # test_uv_gamut()
-    test_luo_rigg()
+    # test_luo_rigg()
+    test_xy_gamut_mesh()
     # test_macadam()
     exit(1)
     # colorspace_ = colorio.SrgbLinear()

@@ -99,7 +99,7 @@ class Pade2d(object):
     coefficients, two for the components and two for numerator and denominator
     each.
     '''
-    def __init__(self, degrees, alpha=None):
+    def __init__(self, xy, degrees, alpha=None):
         self.degrees = degrees
 
         # Subtract 1 for each denominator polynomial since the constant
@@ -132,6 +132,8 @@ class Pade2d(object):
                 ])
 
         self.set_alpha(alpha)
+
+        self.set_xy(xy)
         return
 
     def set_xy(self, xy):
@@ -162,8 +164,8 @@ class Pade2d(object):
         self.ax, self.bx, self.ay, self.by = \
             numpy.split(alpha, numpy.cumsum(num_coefficients[:-1]))
 
-        self.bx = numpy.concatenate([[1.0], self.bx**2])
-        self.by = numpy.concatenate([[1.0], self.by**2])
+        self.bx = numpy.concatenate([[1.0], self.bx])
+        self.by = numpy.concatenate([[1.0], self.by])
         return
 
     def eval(self, xy=None):

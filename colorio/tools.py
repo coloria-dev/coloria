@@ -626,3 +626,36 @@ def show_straights(cs):
 
     plt.show()
     return
+
+
+def xy_gamut_mesh(lcar):
+    import pygmsh
+
+    observer = observers.cie_1931_2()
+
+    # Gather all points on the horseshoe outline
+    lmbda = 1.0e-9 * numpy.arange(380, 701)
+    all_points = []
+    xyy = XYY()
+    for k, _ in enumerate(lmbda):
+        data = numpy.zeros(len(lmbda))
+        data[k] = 1.0
+        all_points.append(
+            xyy.from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[:2]
+            )
+    all_points = numpy.array(all_points)
+
+    # Generate gmsh geometry: spline + straight line
+    all_points = numpy.column_stack([all_points, numpy.zeros(len(all_points))])
+    geom = pygmsh.built_in.Geometry()
+    gmsh_points = [geom.add_point(pt, lcar) for pt in all_points]
+    s1 = geom.add_spline(gmsh_points)
+    s2 = geom.add_line(gmsh_points[-1], gmsh_points[0])
+    ll = geom.add_line_loop([s1, s2])
+    geom.add_plane_surface(ll)
+
+    points, cells, _, _, _ = pygmsh.generate_mesh(geom)
+
+    # import meshio
+    # meshio.write('test.vtu', points, cells)
+    return points, cells
