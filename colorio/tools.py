@@ -212,7 +212,9 @@ def _plot_planckian_locus(observer, xy_to_2d):
 
 def plot_flat_gamut(xy_to_2d=lambda xy: xy,
                     axes_labels=('x', 'y'),
-                    plot_rgb_triangle=True, plot_planckian_locus=True):
+                    plot_rgb_triangle=True,
+                    fill_horseshoe=True,
+                    plot_planckian_locus=True):
     '''Show a flat color gamut, by default xy.  There exists a chroma gamut for
     all color models which transform lines in XYZ to lines, and hence have a
     natural decomposition into lightness and chroma components.  Also, the flat
@@ -223,7 +225,7 @@ def plot_flat_gamut(xy_to_2d=lambda xy: xy,
     observer = observers.cie_1931_2()
     # observer = observers.cie_1964_10()
 
-    _plot_monochromatic(observer, xy_to_2d)
+    _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=fill_horseshoe)
     # plt.grid()
 
     if plot_rgb_triangle:
@@ -412,7 +414,7 @@ def plot_macadam(ellipse_scaling=10,
                  plot_filter_positions=False,
                  plot_standard_deviations=False,
                  plot_rgb_triangle=True,
-                 plot_triangle_grid=True,
+                 plot_mesh=True,
                  xy_to_2d=lambda xy: xy,
                  axes_labels=('x', 'y')):
     '''See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
@@ -458,7 +460,7 @@ def plot_macadam(ellipse_scaling=10,
         offsets,
         ellipse_scaling=ellipse_scaling,
         xy_to_2d=xy_to_2d,
-        plot_triangle_grid=plot_triangle_grid,
+        plot_mesh=plot_mesh,
         plot_rgb_triangle=plot_rgb_triangle,
         )
     return
@@ -471,7 +473,7 @@ def show_luo_rigg(*args, **kwargs):
 
 
 def plot_luo_rigg(plot_rgb_triangle=True,
-                  plot_triangle_grid=True,
+                  plot_mesh=True,
                   ellipse_scaling=1,
                   xy_to_2d=lambda xy: xy):
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -513,7 +515,7 @@ def plot_luo_rigg(plot_rgb_triangle=True,
         offsets,
         ellipse_scaling=ellipse_scaling,
         xy_to_2d=xy_to_2d,
-        plot_triangle_grid=plot_triangle_grid,
+        plot_mesh=plot_mesh,
         plot_rgb_triangle=plot_rgb_triangle,
         )
     return
@@ -525,24 +527,21 @@ def _plot_ellipse_data(centers,
                        axes_labels=('x', 'y'),
                        plot_rgb_triangle=False,
                        ellipse_scaling=10,
-                       plot_triangle_grid=True):
+                       plot_mesh=False):
 
     plot_flat_gamut(
         plot_planckian_locus=False, xy_to_2d=xy_to_2d, axes_labels=axes_labels,
         plot_rgb_triangle=plot_rgb_triangle,
+        fill_horseshoe=not plot_mesh
         )
     # plt.grid(zorder=0)
     ax = plt.gca()
 
-    if plot_triangle_grid:
-        corners = numpy.array([
-            [0.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0],
-            ])
-        points, cells = meshzoo.triangle(ref_steps=4, corners=corners)
-        edges, _ = meshzoo.create_edges(cells)
+    if plot_mesh:
+        points, cells = xy_gamut_mesh(0.05)
+        cells = cells['triangle']
 
+        edges, _ = meshzoo.create_edges(cells)
         pts = xy_to_2d(points[..., :2].T).T
         lines = pts[edges].T
         plt.plot(*lines, color='0.8', zorder=0)
