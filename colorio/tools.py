@@ -662,4 +662,4 @@ def xy_gamut_mesh(lcar):
 
     # import meshio
     # meshio.write('test.vtu', points, cells)
-    return points, cells
+    return points, cells['triangle']

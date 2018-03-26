@@ -16,6 +16,7 @@ import yaml
 
 import colorio
 import meshio
+import meshzoo
 
 from pade2d import Pade2d
 
@@ -291,41 +292,52 @@ class PiecewiseEllipse(object):
         self.centers = centers
         self.J = J
 
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        with open(os.path.join(dir_path, '../colorio/data/gamut_triangulation.yaml')) as f:
-            data = yaml.safe_load(f)
+        self.target = 0.002
+        self.J /= self.target
 
-        points = numpy.column_stack([
-            data['points'], numpy.zeros(len(data['points']))
-            ])
-        cells = numpy.array(data['cells'])
+        # dir_path = os.path.dirname(os.path.realpath(__file__))
+        # with open(os.path.join(dir_path, '../colorio/data/gamut_triangulation.yaml')) as f:
+        #     data = yaml.safe_load(f)
+
+        # self.points = numpy.column_stack([
+        #     data['points'], numpy.zeros(len(data['points']))
+        #     ])
+        # self.cells = numpy.array(data['cells'])
+
+        # self.points, self.cells = colorio.xy_gamut_mesh(0.15)
+
+        self.points, self.cells = meshzoo.triangle(
+            corners=numpy.array([
+                [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
+                ]),
+            ref_steps=4
+            )
 
         # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
         with tempfile.TemporaryDirectory() as temp_dir:
             tmp_filename = os.path.join(temp_dir, 'test.xml')
             meshio.write(
-                tmp_filename, points, {'triangle': cells},
+                tmp_filename, self.points, {'triangle': self.cells},
                 file_format='dolfin-xml'
                 )
             mesh = Mesh(tmp_filename)
 
         self.V = FunctionSpace(mesh, 'CG', 1)
-        self.V2 = VectorFunctionSpace(mesh, 'CG', 1)
+        self.Vgrad = VectorFunctionSpace(mesh, 'DG', 0)
 
         self.ux = Function(self.V)
         self.uy = Function(self.V)
 
         self.ax = self.ux.vector().get_local()
         self.ay = self.uy.vector().get_local()
-
         self.alpha = numpy.concatenate([self.ax, self.ay])
 
         self.num_f_eval = 0
         return
 
-    def get_q2_r2(self, alpha):
-        jx = project(grad(self.ux), self.V2)
-        jy = project(grad(self.uy), self.V2)
+    def get_q2_r2(self):
+        jx = project(grad(self.ux), self.Vgrad)
+        jy = project(grad(self.uy), self.Vgrad)
 
         jac = numpy.array([[jx(x, y), jy(x, y)] for x, y in self.centers])
         jac = numpy.moveaxis(jac, 0, -1)
@@ -358,9 +370,17 @@ class PiecewiseEllipse(object):
 
         return q2, r2
 
+    def get_ellipse_axes(self, alpha):
+        ax, ay = numpy.split(alpha, 2)
+        self.ux.vector().set_local(ax)
+        self.uy.vector().set_local(ay)
+
+        q, r = numpy.sqrt(self.get_q2_r2())
+        sigma = numpy.array([q+r, q-r]) * self.target
+        return sigma
+
     def cost(self, alpha):
         ax, ay = numpy.split(alpha, 2)
-
         self.ux.vector().set_local(ax)
         self.uy.vector().set_local(ay)
 
@@ -369,7 +389,13 @@ class PiecewiseEllipse(object):
         res_x = assemble(dot(grad(self.ux), grad(v)) * dx)
         res_y = assemble(dot(grad(self.uy), grad(v)) * dx)
 
-        q2, r2 = self.get_q2_r2(alpha)
+        q2, r2 = self.get_q2_r2()
+
+        # print()
+        # print(ax)
+        # print(ay)
+        # print(q)
+        # print(r)
 
         out = numpy.concatenate([
             res_x.get_local(),
@@ -424,12 +450,26 @@ def _main():
         )
 
     # Plot perturbed MacAdam
+    def transform(XY):
+        is_solo = len(XY.shape) == 1
+        if is_solo:
+            XY = numpy.array([XY]).T
+        # print(XY)
+        out = numpy.array([
+            [problem.ux(x, y) for x, y in XY.T],
+            [problem.uy(x, y) for x, y in XY.T],
+            ])
+        if is_solo:
+            out = out[..., 0]
+        return out
+
     plt.figure()
     # colorio.plot_luo_rigg(
     #     ellipse_scaling=1,
     colorio.plot_macadam(
         ellipse_scaling=10,
-        xy_to_2d=problem.pade2d.eval,
+        # xy_to_2d=problem.pade2d.eval,
+        xy_to_2d=transform,
         plot_rgb_triangle=False,
         )
 
