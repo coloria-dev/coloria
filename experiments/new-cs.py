@@ -7,7 +7,7 @@ import os
 
 from dolfin import (
     Mesh, FunctionSpace, Function, grad, VectorFunctionSpace, project,
-    TestFunction, dot, dx, assemble
+    TrialFunction, TestFunction, dot, dx, assemble
     )
 import matplotlib.pyplot as plt
 import numpy
@@ -333,6 +333,10 @@ class PiecewiseEllipse(object):
         self.alpha = numpy.concatenate([self.ax, self.ay])
 
         self.num_f_eval = 0
+
+        u = TrialFunction(self.V)
+        v = TestFunction(self.V)
+        self.L = assemble(dot(grad(u), grad(v)) * dx)
         return
 
     def get_q2_r2(self):
@@ -384,10 +388,8 @@ class PiecewiseEllipse(object):
         self.ux.vector().set_local(ax)
         self.uy.vector().set_local(ay)
 
-        v = TestFunction(self.V)
-
-        res_x = assemble(dot(grad(self.ux), grad(v)) * dx)
-        res_y = assemble(dot(grad(self.uy), grad(v)) * dx)
+        res_x = self.L * self.ux.vector()
+        res_y = self.L * self.uy.vector()
 
         q2, r2 = self.get_q2_r2()
 
@@ -426,48 +428,48 @@ def _main():
     final_cost = numpy.sum(problem.cost(out.x)**2)
     print('{:7d}     {}'.format(problem.num_f_eval, final_cost))
 
-    # plot statistics
-    axes0 = problem.get_ellipse_axes(alpha0).T.flatten()
-    plt.plot(axes0, label='axes lengths before')
-    axes1 = problem.get_ellipse_axes(out.x).T.flatten()
-    plt.plot(axes1, label='axes lengths opt')
-    plt.legend()
-    plt.grid()
+    # # plot statistics
+    # axes0 = problem.get_ellipse_axes(alpha0).T.flatten()
+    # plt.plot(axes0, label='axes lengths before')
+    # axes1 = problem.get_ellipse_axes(out.x).T.flatten()
+    # plt.plot(axes1, label='axes lengths opt')
+    # plt.legend()
+    # plt.grid()
 
-    # Plot unperturbed MacAdam
-    plt.figure()
-    # colorio.plot_luo_rigg(
-    #     ellipse_scaling=1,
-    colorio.plot_macadam(
-        ellipse_scaling=10,
-        plot_rgb_triangle=False,
-        )
+    # # Plot unperturbed MacAdam
+    # plt.figure()
+    # # colorio.plot_luo_rigg(
+    # #     ellipse_scaling=1,
+    # colorio.plot_macadam(
+    #     ellipse_scaling=10,
+    #     plot_rgb_triangle=False,
+    #     )
 
-    # Plot perturbed MacAdam
-    def transform(XY):
-        is_solo = len(XY.shape) == 1
-        if is_solo:
-            XY = numpy.array([XY]).T
-        # print(XY)
-        out = numpy.array([
-            [problem.ux(x, y) for x, y in XY.T],
-            [problem.uy(x, y) for x, y in XY.T],
-            ])
-        if is_solo:
-            out = out[..., 0]
-        return out
+    # # Plot perturbed MacAdam
+    # def transform(XY):
+    #     is_solo = len(XY.shape) == 1
+    #     if is_solo:
+    #         XY = numpy.array([XY]).T
+    #     # print(XY)
+    #     out = numpy.array([
+    #         [problem.ux(x, y) for x, y in XY.T],
+    #         [problem.uy(x, y) for x, y in XY.T],
+    #         ])
+    #     if is_solo:
+    #         out = out[..., 0]
+    #     return out
 
-    plt.figure()
-    # colorio.plot_luo_rigg(
-    #     ellipse_scaling=1,
-    colorio.plot_macadam(
-        ellipse_scaling=10,
-        # xy_to_2d=problem.pade2d.eval,
-        xy_to_2d=transform,
-        plot_rgb_triangle=False,
-        )
+    # plt.figure()
+    # # colorio.plot_luo_rigg(
+    # #     ellipse_scaling=1,
+    # colorio.plot_macadam(
+    #     ellipse_scaling=10,
+    #     # xy_to_2d=problem.pade2d.eval,
+    #     xy_to_2d=transform,
+    #     plot_rgb_triangle=False,
+    #     )
 
-    plt.show()
+    # plt.show()
     return
 
 
