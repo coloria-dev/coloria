@@ -310,7 +310,7 @@ class PiecewiseEllipse(object):
             corners=numpy.array([
                 [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
                 ]),
-            ref_steps=4
+            ref_steps=2
             )
 
         # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
@@ -391,25 +391,19 @@ class PiecewiseEllipse(object):
 
         q2, r2 = self.get_q2_r2()
 
-        # print()
-        # print(ax)
-        # print(ay)
-        # print(q)
-        # print(r)
-
-        out = numpy.concatenate([
-            res_x.get_local(),
-            res_y.get_local(),
-            q2 - 1.0,
-            r2,
+        out = len(q2) * numpy.array([
+            res_x.get_local() / len(res_x.get_local()),
+            res_y.get_local() / len(res_y.get_local()),
+            (q2 - 1.0) / len(q2),
+            r2 / len(r2),
             ])
 
         if self.num_f_eval % 10 == 0:
-            cost = numpy.sum(out**2)
-            print('{:7d}     {}'.format(self.num_f_eval, cost))
+            cost = numpy.array([numpy.sum(ot**2) for ot in out])
+            print('{:7d}     {:e} {:e} {:e} {:e}'.format(self.num_f_eval, *cost))
 
         self.num_f_eval += 1
-        return out
+        return numpy.concatenate(out)
 
 
 def _main():
