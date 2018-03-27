@@ -326,16 +326,16 @@ class PiecewiseEllipse(object):
         self.V = FunctionSpace(mesh, 'CG', 1)
         self.Vgrad = VectorFunctionSpace(mesh, 'DG', 0)
 
-        # self.ux = Function(self.V)
-        # self.uy = Function(self.V)
+        # self.ux0 = Function(self.V)
+        # self.uy0 = Function(self.V)
 
         # Use F(x, y) = (x, y) as starting guess
-        self.ux = project(Expression('x[0]', degree=1), self.V)
-        self.uy = project(Expression('x[1]', degree=1), self.V)
+        self.ux0 = project(Expression('x[0]', degree=1), self.V)
+        self.uy0 = project(Expression('x[1]', degree=1), self.V)
 
-        self.ax = self.ux.vector().get_local()
-        self.ay = self.uy.vector().get_local()
-        self.alpha = numpy.concatenate([self.ax, self.ay])
+        ax = self.ux0.vector().get_local()
+        ay = self.uy0.vector().get_local()
+        self.alpha = numpy.concatenate([ax, ay])
 
         self.num_f_eval = 0
 
@@ -354,6 +354,7 @@ class PiecewiseEllipse(object):
 
             u = Function(self.V)
             u.vector().set_local(e)
+            u.vector().apply('')
 
             j = project(grad(u), self.Vgrad)
             self.jacs.append([j(x, y) for x, y in self.centers])
@@ -361,25 +362,25 @@ class PiecewiseEllipse(object):
         self.jacs = numpy.array(self.jacs).T
         return
 
-    def get_q2_r2(self):
+    def get_q2_r2(self, ux, uy):
         # Keep an eye on
         # https://www.allanswered.com/post/eqkmm/matrix-from-project-evaluation-at-many-points-at-once/
         # https://bitbucket.org/fenics-project/dolfin/issues/1011/evaluate-expressions-at-many-points-at
         # for speeding this up.
-        # jx = project(grad(self.ux), self.Vgrad)
-        # jy = project(grad(self.uy), self.Vgrad)
+        # jx = project(grad(ux), self.Vgrad)
+        # jy = project(grad(uy), self.Vgrad)
         # jac = numpy.array([[jx(x, y), jy(x, y)] for x, y in self.centers])
         # jac = numpy.moveaxis(jac, 0, -1)
         # assert numpy.all(abs(jj - jac) < 1.0e-15)
 
         # u = numpy.array([
-        #     self.ux.vector().get_local(),
-        #     self.uy.vector().get_local(),
+        #     ux.vector().get_local(),
+        #     uy.vector().get_local(),
         #     ])
         # jac = numpy.einsum('ikl,jl->jik', self.jacs, u)
 
-        jac_x = numpy.dot(self.jacs, self.ux.vector().get_local())
-        jac_y = numpy.dot(self.jacs, self.uy.vector().get_local())
+        jac_x = numpy.dot(self.jacs, ux.vector().get_local())
+        jac_y = numpy.dot(self.jacs, uy.vector().get_local())
         jac = numpy.array([jac_x, jac_y])
 
         # jacs and J are of shape (2, 2, k). M must be of the same shape and
@@ -422,22 +423,34 @@ class PiecewiseEllipse(object):
 
     def get_ellipse_axes(self, alpha):
         ax, ay = numpy.split(alpha, 2)
-        self.ux.vector().set_local(ax)
-        self.uy.vector().set_local(ay)
 
-        q, r = numpy.sqrt(self.get_q2_r2())
+        ux = Function(self.V)
+        ux.vector().set_local(ax)
+        ux.vector().apply('')
+
+        uy = Function(self.V)
+        uy.vector().set_local(ay)
+        uy.vector().apply('')
+
+        q, r = numpy.sqrt(self.get_q2_r2(ux, uy))
         sigma = numpy.array([q+r, q-r]) * self.target
         return sigma
 
     def cost(self, alpha):
         ax, ay = numpy.split(alpha, 2)
-        self.ux.vector().set_local(ax)
-        self.uy.vector().set_local(ay)
 
-        res_x = self.L * self.ux.vector()
-        res_y = self.L * self.uy.vector()
+        ux = Function(self.V)
+        ux.vector().set_local(ax)
+        ux.vector().apply('')
 
-        q2, r2 = self.get_q2_r2()
+        uy = Function(self.V)
+        uy.vector().set_local(ay)
+        uy.vector().apply('')
+
+        res_x = self.L * ux.vector()
+        res_y = self.L * uy.vector()
+
+        q2, r2 = self.get_q2_r2(ux, uy)
 
         # scale the problem with 100 to avoid premature exit in optimization
         out = 100 * numpy.array([
@@ -503,10 +516,16 @@ class PiecewiseEllipse(object):
             ax, ay = numpy.split(phi, 2)
 
             # Laplace part (it's linear, so this is easy)
-            self.ux.vector().set_local(ax)
-            self.uy.vector().set_local(ay)
-            res_x = self.L * self.ux.vector()
-            res_y = self.L * self.uy.vector()
+            ux = Function(self.V)
+            ux.vector().set_local(ax)
+            ux.vector().apply('')
+
+            uy = Function(self.V)
+            uy.vector().set_local(ay)
+            uy.vector().apply('')
+
+            res_x = self.L * ux.vector()
+            res_y = self.L * uy.vector()
 
             # q2, r2 part
             dq2_phi = numpy.dot(dq2, phi)
@@ -533,11 +552,17 @@ class PiecewiseEllipse(object):
             dq2_phi *= 100 / len(dq2_phi)
             dr2_phi *= 100 / len(dr2_phi)
 
-            self.ux.vector().set_local(res_x)
-            self.uy.vector().set_local(res_y)
+            ux = Function(self.V)
+            ux.vector().set_local(res_x)
+            ux.vector().apply('')
+
+            uy = Function(self.V)
+            uy.vector().set_local(res_y)
+            uy.vector().apply('')
+
             phi = numpy.concatenate([
-                (self.L * self.ux.vector()).get_local(),
-                (self.L * self.uy.vector()).get_local(),
+                (self.L * ux.vector()).get_local(),
+                (self.L * uy.vector()).get_local(),
                 ])
 
             q2p = numpy.dot(dq2.T, dq2_phi)
@@ -603,17 +628,17 @@ def _main():
             out = out[..., 0]
         return out
 
-    plt.figure()
-    # colorio.plot_luo_rigg(
-    #     ellipse_scaling=1,
-    colorio.plot_macadam(
-        ellipse_scaling=10,
-        # xy_to_2d=problem.pade2d.eval,
-        xy_to_2d=transform,
-        plot_rgb_triangle=False,
-        )
+    # plt.figure()
+    # # colorio.plot_luo_rigg(
+    # #     ellipse_scaling=1,
+    # colorio.plot_macadam(
+    #     ellipse_scaling=10,
+    #     # xy_to_2d=problem.pade2d.eval,
+    #     xy_to_2d=transform,
+    #     plot_rgb_triangle=False,
+    #     )
 
-    plt.show()
+    # plt.show()
     return
 
 
