@@ -7,7 +7,7 @@ import os
 
 from dolfin import (
     Mesh, FunctionSpace, Function, grad, VectorFunctionSpace, project,
-    TrialFunction, TestFunction, dot, dx, assemble
+    TrialFunction, TestFunction, dot, dx, assemble, Expression
     )
 import matplotlib.pyplot as plt
 import numpy
@@ -326,10 +326,13 @@ class PiecewiseEllipse(object):
         self.V = FunctionSpace(mesh, 'CG', 1)
         self.Vgrad = VectorFunctionSpace(mesh, 'DG', 0)
 
-        self.ux = Function(self.V)
-        self.uy = Function(self.V)
+        # self.ux = Function(self.V)
+        # self.uy = Function(self.V)
 
-        # self.alpha = self.u.vector().get_local()
+        # Use F(x, y) = (x, y) as starting guess
+        self.ux = project(Expression('x[0]', degree=1), self.V)
+        self.uy = project(Expression('x[1]', degree=1), self.V)
+
         self.ax = self.ux.vector().get_local()
         self.ay = self.uy.vector().get_local()
         self.alpha = numpy.concatenate([self.ax, self.ay])
@@ -555,16 +558,13 @@ def _main():
 
     alpha0 = problem.alpha.copy()
 
-    numpy.random.seed(0)
-    alpha0 = numpy.random.rand(*alpha0.shape)
-
     # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
     # problems, but it needs more conditions than parameters. This is not the
     # case for larger polynomial degrees.
     print('f evals     cost')
     out = least_squares(
         problem.cost, alpha0,
-        jac=problem.get_jac,
+        # jac=problem.get_jac,
         method='trf'
         )
     # out = minimize(problem.cost, alpha0, method='Powell')
