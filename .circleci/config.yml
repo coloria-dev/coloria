@@ -1,17 +1,15 @@
 version: 2
 
 jobs:
-
-  # python3:
   build:
     working_directory: ~/colorio
     docker:
-      - image: ubuntu:17.10
+      - image: ubuntu:18.04
     steps:
       - run: apt-get update
       # don't install sympy with apt: it pulls in texlive which takes for ever
       # to download and install
-      - run: apt-get install -y git python3-pip pandoc
+      - run: apt-get install -y git python3-pip
       - run: pip3 install -U pytest pytest-cov pylint bandit
       - checkout
       - run: pip3 install .
@@ -19,11 +17,6 @@ jobs:
       # lint, bandit
       - run: pylint setup.py colorio/ test/*.py
       - run: bandit -r .
-      # make sure that rst converts correctly
-      - run: cat README.md | sed 's_<img src="\([^"]*\)" width="\([^"]*\)">_![](\1){width="\2"}_g' > /tmp/README.md
-      - run: pandoc /tmp/README.md -o README.rst
-      - run: pip3 install docutils pygments
-      - run: python3 setup.py check -r -s
       # The tests
       - run: cd test/ && MPLBACKEND=Agg pytest --cov colorio
       # submit to codecov

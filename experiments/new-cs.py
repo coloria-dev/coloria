@@ -11,6 +11,7 @@ from dolfin import (
     )
 import matplotlib.pyplot as plt
 import numpy
+from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 from scipy.optimize import leastsq, least_squares, minimize
 import yaml
@@ -311,7 +312,7 @@ class PiecewiseEllipse(object):
             corners=numpy.array([
                 [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
                 ]),
-            ref_steps=3
+            ref_steps=4
             )
 
         # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
@@ -452,20 +453,32 @@ class PiecewiseEllipse(object):
 
         q2, r2 = self.get_q2_r2(ux, uy)
 
-        # scale the problem with 100 to avoid premature exit in optimization
-        out = 100 * numpy.array([
+        out = numpy.array([
             res_x.get_local() / len(res_x.get_local()),
             res_y.get_local() / len(res_y.get_local()),
             (q2 - 1.0) / len(q2),
             r2 / len(r2),
             ])
 
-        if self.num_f_eval % 1000 == 0:
+        if self.num_f_eval % 10 == 0:
             cost = numpy.array([numpy.sum(ot**2) for ot in out])
             print('{:7d}     {:e} {:e} {:e} {:e}'.format(self.num_f_eval, *cost))
 
         self.num_f_eval += 1
         return numpy.concatenate(out)
+
+    def get_u(self, alpha):
+        ax, ay = numpy.split(alpha, 2)
+
+        ux = Function(self.V)
+        ux.vector().set_local(ax)
+        ux.vector().apply('')
+
+        uy = Function(self.V)
+        uy.vector().set_local(ay)
+        uy.vector().apply('')
+        return ux, uy
+
 
     def get_jac(self, alpha):
         m = 2*self.V.dim() + 2*self.centers.shape[0]
@@ -502,8 +515,8 @@ class PiecewiseEllipse(object):
             c_phi = (M_phi[1, 0] + M_phi[0, 1]) / 2
             d_phi = (M_phi[1, 0] - M_phi[0, 1]) / 2
 
-            dq2.append((a_alpha*a_phi + d_alpha*d_phi) / 2)
-            dr2.append((b_alpha*b_phi + c_alpha*c_phi) / 2)
+            dq2.append(2 * (a_alpha*a_phi + d_alpha*d_phi))
+            dr2.append(2 * (b_alpha*b_phi + c_alpha*c_phi))
         dq2 = numpy.column_stack(dq2)
         dr2 = numpy.column_stack(dr2)
 
@@ -513,17 +526,8 @@ class PiecewiseEllipse(object):
                 assert phi.shape[1] == 1
                 phi = phi[:, 0]
 
-            ax, ay = numpy.split(phi, 2)
-
             # Laplace part (it's linear, so this is easy)
-            ux = Function(self.V)
-            ux.vector().set_local(ax)
-            ux.vector().apply('')
-
-            uy = Function(self.V)
-            uy.vector().set_local(ay)
-            uy.vector().apply('')
-
+            ux, uy = self.get_u(phi)
             res_x = self.L * ux.vector()
             res_y = self.L * uy.vector()
 
@@ -531,12 +535,23 @@ class PiecewiseEllipse(object):
             dq2_phi = numpy.dot(dq2, phi)
             dr2_phi = numpy.dot(dr2, phi)
 
-            # scale the problem with 100 to avoid premature exit in optimization
-            out = 100 * numpy.array([
+            # ax, ay = numpy.split(phi, 2)
+            # jac_phix = numpy.dot(self.jacs, ax)
+            # jac_phiy = numpy.dot(self.jacs, ay)
+            # jac_phi = numpy.array([jac_phix, jac_phiy])
+            # M_phi = numpy.einsum('ijl,jkl->ikl', jac_phi, self.J)
+            # a_phi = (M_phi[0, 0] + M_phi[1, 1]) / 2
+            # b_phi = (M_phi[0, 0] - M_phi[1, 1]) / 2
+            # c_phi = (M_phi[1, 0] + M_phi[0, 1]) / 2
+            # d_phi = (M_phi[1, 0] - M_phi[0, 1]) / 2
+            # dq2_phi = (a_alpha*a_phi + d_alpha*d_phi) * 2
+            # dr2_phi = (b_alpha*b_phi + c_alpha*c_phi) * 2
+
+            out = numpy.array([
                 res_x.get_local() / len(res_x.get_local()),
                 res_y.get_local() / len(res_y.get_local()),
-                dq2_phi / len(dq2),
-                dr2_phi / len(dr2),
+                dq2_phi / len(dq2_phi),
+                dr2_phi / len(dr2_phi),
                 ])
             return numpy.concatenate(out)
 
@@ -547,10 +562,10 @@ class PiecewiseEllipse(object):
                     self.V.dim(), self.V.dim(), self.centers.shape[0]
                     ])
                 )
-            res_x *= 100 / len(res_x)
-            res_y *= 100 / len(res_x)
-            dq2_phi *= 100 / len(dq2_phi)
-            dr2_phi *= 100 / len(dr2_phi)
+            res_x /= len(res_x)
+            res_y /= len(res_x)
+            dq2_phi /= len(dq2_phi)
+            dr2_phi /= len(dr2_phi)
 
             ux = Function(self.V)
             ux.vector().set_local(res_x)
@@ -569,7 +584,49 @@ class PiecewiseEllipse(object):
             r2p = numpy.dot(dr2.T, dr2_phi)
             return phi + q2p + r2p
 
-        return LinearOperator([m, n], matvec=matvec, rmatvec=rmatvec)
+        lo = LinearOperator([m, n], matvec=matvec, rmatvec=rmatvec)
+
+        matrix = lo.matmat(numpy.eye(n, n))
+        smatrix = sparse.csr_matrix(matrix)
+
+        lo2 = LinearOperator(
+            [m, n],
+            matvec=lambda x: numpy.dot(matrix, x),
+            rmatvec=lambda x: numpy.dot(matrix.T, x),
+            )
+
+        # # # test matvec
+        # # u = alpha
+        # # numpy.random.seed(0)
+        # # du = numpy.random.rand(n)
+        # # # du = numpy.zeros(n)
+        # # # du[0] = 1.0
+        # # eps = 1.0e-10
+        # # fupdu = self.cost(u + eps*du)
+        # # fumdu = self.cost(u - eps*du)
+        # # fu = self.cost(u)
+        # # ndiff1 = (fupdu - fu) / eps
+        # # ndiff2 = (fu - fumdu) / eps
+        # # ndiff3 = (fupdu - fumdu) / (2*eps)
+        # # jdiff1 = matvec(du)
+        # # jdiff2 = numpy.dot(matrix, du)
+        # # print()
+        # # d = self.V.dim()
+        # # print(ndiff1[-4:])
+        # # print(ndiff2[-4:])
+        # # print(ndiff3[-4:])
+        # # print(jdiff1[-4:])
+        # # print(jdiff2[-4:])
+        # # print()
+
+        # r0 = numpy.random.rand(matrix.shape[1])
+        # r1 = numpy.random.rand(matrix.shape[0])
+        # print('{:e} {:e}'.format(
+        #     numpy.max(abs(numpy.dot(matrix, r0) - lo.matvec(r0))),
+        #     numpy.max(abs(numpy.dot(matrix.T, r1) - lo.rmatvec(r1)))
+        #     ))
+
+        return matrix
 
 
 def _main():
@@ -589,7 +646,8 @@ def _main():
     print('f evals     cost')
     out = least_squares(
         problem.cost, alpha0,
-        # jac=problem.get_jac,
+        jac=problem.get_jac,
+        max_nfev=100,
         method='trf'
         )
     # out = minimize(problem.cost, alpha0, method='Powell')
@@ -615,30 +673,31 @@ def _main():
     #     )
 
     # Plot perturbed MacAdam
-    def transform(XY):
+    def transform(XY, out=out):
         is_solo = len(XY.shape) == 1
         if is_solo:
             XY = numpy.array([XY]).T
         # print(XY)
+        ux, uy = problem.get_u(out.x)
         out = numpy.array([
-            [problem.ux(x, y) for x, y in XY.T],
-            [problem.uy(x, y) for x, y in XY.T],
+            [ux(x, y) for x, y in XY.T],
+            [uy(x, y) for x, y in XY.T],
             ])
         if is_solo:
             out = out[..., 0]
         return out
 
-    # plt.figure()
-    # # colorio.plot_luo_rigg(
-    # #     ellipse_scaling=1,
-    # colorio.plot_macadam(
-    #     ellipse_scaling=10,
-    #     # xy_to_2d=problem.pade2d.eval,
-    #     xy_to_2d=transform,
-    #     plot_rgb_triangle=False,
-    #     )
+    plt.figure()
+    # colorio.plot_luo_rigg(
+    #     ellipse_scaling=1,
+    colorio.plot_macadam(
+        ellipse_scaling=10,
+        # xy_to_2d=problem.pade2d.eval,
+        xy_to_2d=transform,
+        plot_rgb_triangle=False,
+        )
 
-    # plt.show()
+    plt.show()
     return
 
 

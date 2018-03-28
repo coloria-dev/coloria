@@ -14,13 +14,7 @@ with open(os.path.join(base_dir, 'colorio', '__about__.py'), 'rb') as f:
 
 
 def read(fname):
-    try:
-        content = codecs.open(
-            os.path.join(base_dir, fname), encoding='utf-8'
-            ).read()
-    except IOError:
-        content = ''
-    return content
+    return codecs.open(os.path.join(base_dir, fname), encoding='utf-8').read()
 
 
 setup(
@@ -38,7 +32,9 @@ setup(
         'data/xiao/*.yaml',
         ]},
     url='https://github.com/nschloe/colorio',
-    download_url='https://pypi.python.org/pypi/colorio',
+    project_urls={
+      'Issues': 'https://github.com/nschloe/colorio/issues',
+      },
     author=about['__author__'],
     author_email=about['__email__'],
     install_requires=[
@@ -47,8 +43,9 @@ setup(
         'meshzoo',
         'numpy',
         ],
-    description='tools for color models',
-    long_description=read('README.rst'),
+    description='Tools for color models',
+    long_description=read('README.md'),
+    long_description_content_type='text/markdown',
     license=about['__license__'],
     classifiers=[
         about['__license__'],
@@ -57,7 +54,9 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
+        'Topic :: Multimedia :: Graphics',
         'Topic :: Scientific/Engineering',
-        'Topic :: Scientific/Engineering :: Mathematics'
+        'Topic :: Scientific/Engineering :: Mathematics',
+        'Topic :: Scientific/Engineering :: Visualization',
         ]
     )
