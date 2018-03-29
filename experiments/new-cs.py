@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
-from scipy.optimize import leastsq, least_squares, minimize
+from scipy.optimize import leastsq, least_squares
 import yaml
 
 import colorio
@@ -21,6 +21,10 @@ import meshio
 import meshzoo
 
 from pade2d import Pade2d
+
+
+def split(array, sizes):
+    return numpy.split(array, numpy.cumsum(sizes[:-1]))
 
 
 def f_ellipse(a_b_theta, x):
@@ -281,11 +285,10 @@ class PadeEllipse(object):
 
         out = numpy.array([q2 - 1.0, r2]).flatten()
 
+        self.num_f_eval += 1
         if self.num_f_eval % 10000 == 0:
             cost = numpy.sum(out**2)
             print('{:7d}     {}'.format(self.num_f_eval, cost))
-
-        self.num_f_eval += 1
         return out
 
 
@@ -437,7 +440,7 @@ class PiecewiseEllipse(object):
         sigma = numpy.array([q+r, q-r]) * self.target
         return sigma
 
-    def cost(self, alpha):
+    def cost_ls(self, alpha):
         ax, ay = numpy.split(alpha, 2)
 
         ux = Function(self.V)
@@ -460,12 +463,50 @@ class PiecewiseEllipse(object):
             r2 / len(r2),
             ])
 
+        self.num_f_eval += 1
         if self.num_f_eval % 10 == 0:
-            cost = numpy.array([numpy.sum(ot**2) for ot in out])
+            cost = numpy.array([numpy.dot(ot, ot) for ot in out])
             print('{:7d}     {:e} {:e} {:e} {:e}'.format(self.num_f_eval, *cost))
 
-        self.num_f_eval += 1
         return numpy.concatenate(out)
+
+    def cost_min(self, alpha):
+        ax, ay = numpy.split(alpha, 2)
+
+        ux = Function(self.V)
+        ux.vector().set_local(ax)
+        ux.vector().apply('')
+
+        uy = Function(self.V)
+        uy.vector().set_local(ay)
+        uy.vector().apply('')
+
+        # res_x = self.L * ux.vector()
+        # res_y = self.L * uy.vector()
+        # vx = 0.5 * numpy.dot(res_x.get_local(), res_x.get_local()) / len(res_x.get_local())
+        # vy = 0.5 * numpy.dot(res_y.get_local(), res_y.get_local()) / len(res_y.get_local())
+
+        weight = 1.0
+        # vx = weight * 0.5 * assemble(dot(grad(ux), grad(ux)) * dx)
+        # vy = weight * 0.5 * assemble(dot(grad(uy), grad(uy)) * dx)
+        vx = weight * 0.5 * ux.vector().inner(self.L * ux.vector())
+        vy = weight * 0.5 * uy.vector().inner(self.L * uy.vector())
+
+        q2, r2 = self.get_q2_r2(ux, uy)
+
+        out = [
+            vx, vy,
+            0.5 * numpy.dot(q2-1, q2-1) / len(q2),
+            0.5 * numpy.dot(r2, r2) / len(r2),
+            # 0.5 * numpy.sum(r2) / len(r2),
+            ]
+
+        self.num_f_eval += 1
+        if self.num_f_eval % 1000 == 0:
+            print('{:7d}     {:e} {:e} {:e} {:e}'.format(self.num_f_eval, *out))
+
+        return numpy.sum(out)
+
 
     def get_u(self, alpha):
         ax, ay = numpy.split(alpha, 2)
@@ -517,8 +558,8 @@ class PiecewiseEllipse(object):
 
             dq2.append(2 * (a_alpha*a_phi + d_alpha*d_phi))
             dr2.append(2 * (b_alpha*b_phi + c_alpha*c_phi))
-        dq2 = numpy.column_stack(dq2)
-        dr2 = numpy.column_stack(dr2)
+        dq2 = sparse.csr_matrix(numpy.column_stack(dq2))
+        dr2 = sparse.csr_matrix(numpy.column_stack(dr2))
 
         def matvec(phi):
             if len(phi.shape) > 1:
@@ -532,8 +573,8 @@ class PiecewiseEllipse(object):
             res_y = self.L * uy.vector()
 
             # q2, r2 part
-            dq2_phi = numpy.dot(dq2, phi)
-            dr2_phi = numpy.dot(dr2, phi)
+            dq2_phi = dq2.dot(phi)
+            dr2_phi = dr2.dot(phi)
 
             # ax, ay = numpy.split(phi, 2)
             # jac_phix = numpy.dot(self.jacs, ax)
@@ -555,45 +596,78 @@ class PiecewiseEllipse(object):
                 ])
             return numpy.concatenate(out)
 
+        tmp_lo = LinearOperator([m, n], matvec=matvec)
+        matrix = tmp_lo.matmat(numpy.eye(n, n))
+        smatrix = sparse.csr_matrix(matrix)
+
         def rmatvec(vec):
-            res_x, res_y, dq2_phi, dr2_phi = numpy.split(
+            res_x, res_y, dq2_phi, dr2_phi = split(
                 vec,
-                numpy.cumsum([
-                    self.V.dim(), self.V.dim(), self.centers.shape[0]
-                    ])
-                )
-            res_x /= len(res_x)
-            res_y /= len(res_x)
-            dq2_phi /= len(dq2_phi)
-            dr2_phi /= len(dr2_phi)
+                [
+                    self.V.dim(), self.V.dim(),
+                    self.centers.shape[0], self.centers.shape[0]
+                ])
+
+            w_res_x = res_x / len(res_x)
+            w_res_y = res_y / len(res_y)
+            w_dq2_phi = dq2_phi / len(dq2_phi)
+            w_dr2_phi = dr2_phi / len(dr2_phi)
 
             ux = Function(self.V)
-            ux.vector().set_local(res_x)
+            ux.vector().set_local(w_res_x)
             ux.vector().apply('')
 
             uy = Function(self.V)
-            uy.vector().set_local(res_y)
+            uy.vector().set_local(w_res_y)
             uy.vector().apply('')
 
-            phi = numpy.concatenate([
-                (self.L * ux.vector()).get_local(),
-                (self.L * uy.vector()).get_local(),
-                ])
+            L_ux = ux.vector().copy()
+            self.L.transpmult(ux.vector(), L_ux)
+            L_uy = uy.vector().copy()
+            self.L.transpmult(uy.vector(), L_uy)
 
-            q2p = numpy.dot(dq2.T, dq2_phi)
-            r2p = numpy.dot(dr2.T, dr2_phi)
-            return phi + q2p + r2p
+            phi = numpy.concatenate([L_ux.get_local(), L_uy.get_local()])
 
-        lo = LinearOperator([m, n], matvec=matvec, rmatvec=rmatvec)
+            q2p = dq2.T.dot(w_dq2_phi)
+            r2p = dr2.T.dot(w_dr2_phi)
+            out = phi + q2p + r2p
 
-        matrix = lo.matmat(numpy.eye(n, n))
-        smatrix = sparse.csr_matrix(matrix)
+            return out
 
-        lo2 = LinearOperator(
+        # lo2 = LinearOperator(
+        #     [m, n],
+        #     matvec=lambda x: numpy.dot(matrix, x),
+        #     rmatvec=lambda x: numpy.dot(matrix.T, x),
+        #     )
+
+        # tmp_rlo = LinearOperator([n, m], matvec=rmatvec)
+        # matrixT = []
+        # for k in range(m):
+        #     e = numpy.zeros(m)
+        #     e[k] = 1.0
+        #     matrixT.append(tmp_rlo.matvec(e))
+        # matrixT = numpy.column_stack(matrixT)
+
+        lo = LinearOperator(
             [m, n],
-            matvec=lambda x: numpy.dot(matrix, x),
-            rmatvec=lambda x: numpy.dot(matrix.T, x),
+            matvec=matvec,
+            rmatvec=rmatvec,
+            # rmatvec=lambda x: numpy.dot(matrix.T, x),
+            # rmatvec=lambda x: smatrix.T.dot(x),
+            # rmatvec=lambda x: matrixT.dot(x),
             )
+
+        # x = numpy.random.rand(m)
+        # print()
+        # print('comp:')
+        # print()
+        # print(numpy.dot(matrix.T, x))
+        # print()
+        # print(rmatvec(x))
+        # print()
+        # print(numpy.dot(matrix.T, x) - rmatvec(x))
+        # print(numpy.all(abs(numpy.dot(matrix.T, x) - rmatvec(x)) < 1.0e-14))
+        # exit(1)
 
         # # # test matvec
         # # u = alpha
@@ -626,7 +700,7 @@ class PiecewiseEllipse(object):
         #     numpy.max(abs(numpy.dot(matrix.T, r1) - lo.rmatvec(r1)))
         #     ))
 
-        return matrix
+        return lo
 
 
 def _main():
@@ -645,15 +719,23 @@ def _main():
     # case for larger polynomial degrees.
     print('f evals     cost')
     out = least_squares(
-        problem.cost, alpha0,
+        problem.cost_ls, alpha0,
         jac=problem.get_jac,
-        max_nfev=100,
-        method='trf'
+        max_nfev=200,
+        method='trf',
+        # tr_solver='exact',
+        tr_solver='lsmr',
         )
-    # out = minimize(problem.cost, alpha0, method='Powell')
+    # from scipy.optimize import show_options
+    # print(show_options(solver='minimize', method='cg'))
+    # from scipy.optimize import minimize
+    # out = minimize(
+    #     problem.cost_min, alpha0,
+    #     method='CG',
+    #     options={'maxiter': 100000, 'gtol': 1.0e-5}
+    #     )
 
-    final_cost = numpy.sum(problem.cost(out.x)**2)
-    print('{:7d}     {}'.format(problem.num_f_eval, final_cost))
+    print('{:7d}'.format(problem.num_f_eval))
 
     # # plot statistics
     # axes0 = problem.get_ellipse_axes(alpha0).T.flatten()
