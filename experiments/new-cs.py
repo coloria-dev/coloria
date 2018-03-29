@@ -627,74 +627,37 @@ class PiecewiseEllipse(object):
             q2p = dq2.T.dot(w_dq2_phi)
             r2p = dr2.T.dot(w_dr2_phi)
             out = phi + q2p + r2p
-
             return out
-
-        # lo2 = LinearOperator(
-        #     [m, n],
-        #     matvec=lambda x: numpy.dot(matrix, x),
-        #     rmatvec=lambda x: numpy.dot(matrix.T, x),
-        #     )
-
-        # tmp_rlo = LinearOperator([n, m], matvec=rmatvec)
-        # matrixT = []
-        # for k in range(m):
-        #     e = numpy.zeros(m)
-        #     e[k] = 1.0
-        #     matrixT.append(tmp_rlo.matvec(e))
-        # matrixT = numpy.column_stack(matrixT)
 
         lo = LinearOperator(
             [m, n],
             matvec=matvec,
             rmatvec=rmatvec,
-            # rmatvec=lambda x: numpy.dot(matrix.T, x),
-            # rmatvec=lambda x: smatrix.T.dot(x),
-            # rmatvec=lambda x: matrixT.dot(x),
             )
 
-        # x = numpy.random.rand(m)
+        # # test matvec
+        # u = alpha
+        # numpy.random.seed(0)
+        # du = numpy.random.rand(n)
+        # # du = numpy.zeros(n)
+        # # du[0] = 1.0
+        # eps = 1.0e-10
+        # fupdu = self.cost(u + eps*du)
+        # fumdu = self.cost(u - eps*du)
+        # fu = self.cost(u)
+        # ndiff1 = (fupdu - fu) / eps
+        # ndiff2 = (fu - fumdu) / eps
+        # ndiff3 = (fupdu - fumdu) / (2*eps)
+        # jdiff1 = matvec(du)
+        # jdiff2 = numpy.dot(matrix, du)
         # print()
-        # print('comp:')
+        # d = self.V.dim()
+        # print(ndiff1[-4:])
+        # print(ndiff2[-4:])
+        # print(ndiff3[-4:])
+        # print(jdiff1[-4:])
+        # print(jdiff2[-4:])
         # print()
-        # print(numpy.dot(matrix.T, x))
-        # print()
-        # print(rmatvec(x))
-        # print()
-        # print(numpy.dot(matrix.T, x) - rmatvec(x))
-        # print(numpy.all(abs(numpy.dot(matrix.T, x) - rmatvec(x)) < 1.0e-14))
-        # exit(1)
-
-        # # # test matvec
-        # # u = alpha
-        # # numpy.random.seed(0)
-        # # du = numpy.random.rand(n)
-        # # # du = numpy.zeros(n)
-        # # # du[0] = 1.0
-        # # eps = 1.0e-10
-        # # fupdu = self.cost(u + eps*du)
-        # # fumdu = self.cost(u - eps*du)
-        # # fu = self.cost(u)
-        # # ndiff1 = (fupdu - fu) / eps
-        # # ndiff2 = (fu - fumdu) / eps
-        # # ndiff3 = (fupdu - fumdu) / (2*eps)
-        # # jdiff1 = matvec(du)
-        # # jdiff2 = numpy.dot(matrix, du)
-        # # print()
-        # # d = self.V.dim()
-        # # print(ndiff1[-4:])
-        # # print(ndiff2[-4:])
-        # # print(ndiff3[-4:])
-        # # print(jdiff1[-4:])
-        # # print(jdiff2[-4:])
-        # # print()
-
-        # r0 = numpy.random.rand(matrix.shape[1])
-        # r1 = numpy.random.rand(matrix.shape[0])
-        # print('{:e} {:e}'.format(
-        #     numpy.max(abs(numpy.dot(matrix, r0) - lo.matvec(r0))),
-        #     numpy.max(abs(numpy.dot(matrix.T, r1) - lo.rmatvec(r1)))
-        #     ))
 
         return lo
 
