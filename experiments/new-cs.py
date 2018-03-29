@@ -596,10 +596,6 @@ class PiecewiseEllipse(object):
                 ])
             return numpy.concatenate(out)
 
-        tmp_lo = LinearOperator([m, n], matvec=matvec)
-        matrix = tmp_lo.matmat(numpy.eye(n, n))
-        smatrix = sparse.csr_matrix(matrix)
-
         def rmatvec(vec):
             res_x, res_y, dq2_phi, dr2_phi = split(
                 vec,
