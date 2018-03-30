@@ -352,6 +352,7 @@ class PiecewiseEllipse(object):
         indptr, indices, data = Lmat.getValuesCSR()
         size = Lmat.getSize()
         self.L = sparse.csr_matrix((data, indices, indptr), shape=size)
+        self.LT = self.L.getH()
 
         # The functions are locally linear, so we can cast the projection into a
         # matrix. The matrix will be very sparse, but never mind that now; just
@@ -550,6 +551,9 @@ class PiecewiseEllipse(object):
         dq2 = sparse.csr_matrix(numpy.column_stack(dq2))
         dr2 = sparse.csr_matrix(numpy.column_stack(dr2))
 
+        dq2T = numpy.transpose(dq2)
+        dr2T = numpy.transpose(dr2)
+
         def matvec(phi):
             if len(phi.shape) > 1:
                 assert len(phi.shape) == 2
@@ -598,13 +602,13 @@ class PiecewiseEllipse(object):
             w_dq2_phi = dq2_phi / len(dq2_phi)
             w_dr2_phi = dr2_phi / len(dr2_phi)
 
-            L_ux = self.L.T.dot(w_res_x)
-            L_uy = self.L.T.dot(w_res_y)
+            L_ux = self.LT.dot(w_res_x)
+            L_uy = self.LT.dot(w_res_y)
 
             phi = numpy.concatenate([L_ux, L_uy])
 
-            q2p = dq2.T.dot(w_dq2_phi)
-            r2p = dr2.T.dot(w_dr2_phi)
+            q2p = dq2T.dot(w_dq2_phi)
+            r2p = dr2T.dot(w_dr2_phi)
             out = phi + q2p + r2p
             return out
 
@@ -692,32 +696,32 @@ def _main():
     #     plot_rgb_triangle=False,
     #     )
 
-    # Plot perturbed MacAdam
-    def transform(XY, out=out):
-        is_solo = len(XY.shape) == 1
-        if is_solo:
-            XY = numpy.array([XY]).T
-        # print(XY)
-        ux, uy = problem.get_u(out.x)
-        out = numpy.array([
-            [ux(x, y) for x, y in XY.T],
-            [uy(x, y) for x, y in XY.T],
-            ])
-        if is_solo:
-            out = out[..., 0]
-        return out
+    # # Plot perturbed MacAdam
+    # def transform(XY, out=out):
+    #     is_solo = len(XY.shape) == 1
+    #     if is_solo:
+    #         XY = numpy.array([XY]).T
+    #     # print(XY)
+    #     ux, uy = problem.get_u(out.x)
+    #     out = numpy.array([
+    #         [ux(x, y) for x, y in XY.T],
+    #         [uy(x, y) for x, y in XY.T],
+    #         ])
+    #     if is_solo:
+    #         out = out[..., 0]
+    #     return out
 
-    plt.figure()
-    # colorio.plot_luo_rigg(
-    #     ellipse_scaling=1,
-    colorio.plot_macadam(
-        ellipse_scaling=10,
-        # xy_to_2d=problem.pade2d.eval,
-        xy_to_2d=transform,
-        plot_rgb_triangle=False,
-        )
+    # plt.figure()
+    # # colorio.plot_luo_rigg(
+    # #     ellipse_scaling=1,
+    # colorio.plot_macadam(
+    #     ellipse_scaling=10,
+    #     # xy_to_2d=problem.pade2d.eval,
+    #     xy_to_2d=transform,
+    #     plot_rgb_triangle=False,
+    #     )
 
-    plt.show()
+    # plt.show()
     return
 
 
