@@ -7,7 +7,8 @@ import os
 
 from dolfin import (
     Mesh, FunctionSpace, Function, grad, VectorFunctionSpace, project,
-    TrialFunction, TestFunction, dot, dx, assemble, Expression
+    TrialFunction, TestFunction, dot, dx, assemble, Expression, PETScMatrix,
+    as_backend_type
     )
 import matplotlib.pyplot as plt
 import numpy
@@ -343,9 +344,14 @@ class PiecewiseEllipse(object):
 
         self.num_f_eval = 0
 
+        # Build L as scipy csr_matrix
         u = TrialFunction(self.V)
         v = TestFunction(self.V)
-        self.L = assemble(dot(grad(u), grad(v)) * dx)
+        L = assemble(dot(grad(u), grad(v)) * dx)
+        Lmat = as_backend_type(L).mat()
+        indptr, indices, data = Lmat.getValuesCSR()
+        size = Lmat.getSize()
+        self.L = sparse.csr_matrix((data, indices, indptr), shape=size)
 
         # The functions are locally linear, so we can cast the projection into a
         # matrix. The matrix will be very sparse, but never mind that now; just
@@ -366,7 +372,7 @@ class PiecewiseEllipse(object):
         self.jacs = numpy.array(self.jacs).T
         return
 
-    def get_q2_r2(self, ux, uy):
+    def get_q2_r2(self, ax, ay):
         # Keep an eye on
         # https://www.allanswered.com/post/eqkmm/matrix-from-project-evaluation-at-many-points-at-once/
         # https://bitbucket.org/fenics-project/dolfin/issues/1011/evaluate-expressions-at-many-points-at
@@ -383,8 +389,8 @@ class PiecewiseEllipse(object):
         #     ])
         # jac = numpy.einsum('ikl,jl->jik', self.jacs, u)
 
-        jac_x = numpy.dot(self.jacs, ux.vector().get_local())
-        jac_y = numpy.dot(self.jacs, uy.vector().get_local())
+        jac_x = numpy.dot(self.jacs, ax)
+        jac_y = numpy.dot(self.jacs, ay)
         jac = numpy.array([jac_x, jac_y])
 
         # jacs and J are of shape (2, 2, k). M must be of the same shape and
@@ -427,38 +433,21 @@ class PiecewiseEllipse(object):
 
     def get_ellipse_axes(self, alpha):
         ax, ay = numpy.split(alpha, 2)
-
-        ux = Function(self.V)
-        ux.vector().set_local(ax)
-        ux.vector().apply('')
-
-        uy = Function(self.V)
-        uy.vector().set_local(ay)
-        uy.vector().apply('')
-
-        q, r = numpy.sqrt(self.get_q2_r2(ux, uy))
+        q, r = numpy.sqrt(self.get_q2_r2(ax, ay))
         sigma = numpy.array([q+r, q-r]) * self.target
         return sigma
 
     def cost_ls(self, alpha):
         ax, ay = numpy.split(alpha, 2)
 
-        ux = Function(self.V)
-        ux.vector().set_local(ax)
-        ux.vector().apply('')
+        res_x = self.L.dot(ax)
+        res_y = self.L.dot(ay)
 
-        uy = Function(self.V)
-        uy.vector().set_local(ay)
-        uy.vector().apply('')
-
-        res_x = self.L * ux.vector()
-        res_y = self.L * uy.vector()
-
-        q2, r2 = self.get_q2_r2(ux, uy)
+        q2, r2 = self.get_q2_r2(ax, ay)
 
         out = numpy.array([
-            res_x.get_local() / len(res_x.get_local()),
-            res_y.get_local() / len(res_y.get_local()),
+            res_x / len(res_x),
+            res_y / len(res_y),
             (q2 - 1.0) / len(q2),
             r2 / len(r2),
             ])
@@ -568,9 +557,9 @@ class PiecewiseEllipse(object):
                 phi = phi[:, 0]
 
             # Laplace part (it's linear, so this is easy)
-            ux, uy = self.get_u(phi)
-            res_x = self.L * ux.vector()
-            res_y = self.L * uy.vector()
+            ax, ay = numpy.split(phi, 2)
+            res_x = self.L.dot(ax)
+            res_y = self.L.dot(ay)
 
             # q2, r2 part
             dq2_phi = dq2.dot(phi)
@@ -589,8 +578,8 @@ class PiecewiseEllipse(object):
             # dr2_phi = (b_alpha*b_phi + c_alpha*c_phi) * 2
 
             out = numpy.array([
-                res_x.get_local() / len(res_x.get_local()),
-                res_y.get_local() / len(res_y.get_local()),
+                res_x / len(res_x),
+                res_y / len(res_y),
                 dq2_phi / len(dq2_phi),
                 dr2_phi / len(dr2_phi),
                 ])
@@ -609,20 +598,10 @@ class PiecewiseEllipse(object):
             w_dq2_phi = dq2_phi / len(dq2_phi)
             w_dr2_phi = dr2_phi / len(dr2_phi)
 
-            ux = Function(self.V)
-            ux.vector().set_local(w_res_x)
-            ux.vector().apply('')
+            L_ux = self.L.T.dot(w_res_x)
+            L_uy = self.L.T.dot(w_res_y)
 
-            uy = Function(self.V)
-            uy.vector().set_local(w_res_y)
-            uy.vector().apply('')
-
-            L_ux = ux.vector().copy()
-            self.L.transpmult(ux.vector(), L_ux)
-            L_uy = uy.vector().copy()
-            self.L.transpmult(uy.vector(), L_uy)
-
-            phi = numpy.concatenate([L_ux.get_local(), L_uy.get_local()])
+            phi = numpy.concatenate([L_ux, L_uy])
 
             q2p = dq2.T.dot(w_dq2_phi)
             r2p = dr2.T.dot(w_dr2_phi)
