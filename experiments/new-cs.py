@@ -24,10 +24,6 @@ import meshzoo
 from pade2d import Pade2d
 
 
-def split(array, sizes):
-    return numpy.split(array, numpy.cumsum(sizes[:-1]))
-
-
 def f_ellipse(a_b_theta, x):
     a, b, theta = a_b_theta
     cos = numpy.cos(theta)
@@ -439,7 +435,9 @@ class PiecewiseEllipse(object):
         return sigma
 
     def cost_ls(self, alpha):
-        ax, ay = numpy.split(alpha, 2)
+        n = self.V.dim()
+        ax = alpha[:n]
+        ay = alpha[n:]
 
         res_x = self.L.dot(ax)
         res_y = self.L.dot(ay)
@@ -461,7 +459,9 @@ class PiecewiseEllipse(object):
         return numpy.concatenate(out)
 
     def cost_min(self, alpha):
-        ax, ay = numpy.split(alpha, 2)
+        n = self.V.dim()
+        ax = alpha[:n]
+        ay = alpha[n:]
 
         ux = Function(self.V)
         ux.vector().set_local(ax)
@@ -499,7 +499,9 @@ class PiecewiseEllipse(object):
 
 
     def get_u(self, alpha):
-        ax, ay = numpy.split(alpha, 2)
+        n = self.V.dim()
+        ax = alpha[:n]
+        ay = alpha[n:]
 
         ux = Function(self.V)
         ux.vector().set_local(ax)
@@ -515,7 +517,12 @@ class PiecewiseEllipse(object):
         m = 2*self.V.dim() + 2*self.centers.shape[0]
         n = alpha.shape[0]
 
-        ax, ay = numpy.split(alpha, 2)
+        d = self.V.dim()
+        ax = alpha[:d]
+        ay = alpha[d:]
+
+        assert 2*d == n
+
         jac_alpha_x = numpy.dot(self.jacs, ax)
         jac_alpha_y = numpy.dot(self.jacs, ay)
         jac_alpha = numpy.array([jac_alpha_x, jac_alpha_y])
@@ -526,6 +533,9 @@ class PiecewiseEllipse(object):
         c_alpha = (M_alpha[1, 0] + M_alpha[0, 1]) / 2
         d_alpha = (M_alpha[1, 0] - M_alpha[0, 1]) / 2
 
+        d = self.V.dim()
+        c = self.centers.shape[0]
+
         # build lower q, r part of the linear operator
         dq2 = []
         dr2 = []
@@ -533,7 +543,8 @@ class PiecewiseEllipse(object):
             e = numpy.zeros(n)
             e[k] = 1.0
 
-            ax, ay = numpy.split(e, 2)
+            ax = e[:d]
+            ay = e[d:]
 
             # q2, r2 part
             jac_phix = numpy.dot(self.jacs, ax)
@@ -561,7 +572,8 @@ class PiecewiseEllipse(object):
                 phi = phi[:, 0]
 
             # Laplace part (it's linear, so this is easy)
-            ax, ay = numpy.split(phi, 2)
+            ax = phi[:d]
+            ay = phi[d:]
             res_x = self.L.dot(ax)
             res_y = self.L.dot(ay)
 
@@ -590,12 +602,16 @@ class PiecewiseEllipse(object):
             return numpy.concatenate(out)
 
         def rmatvec(vec):
-            res_x, res_y, dq2_phi, dr2_phi = split(
-                vec,
-                [
-                    self.V.dim(), self.V.dim(),
-                    self.centers.shape[0], self.centers.shape[0]
-                ])
+            # res_x, res_y, dq2_phi, dr2_phi = split(
+            #     vec,
+            #     [
+            #         self.V.dim(), self.V.dim(),
+            #         self.centers.shape[0], self.centers.shape[0]
+            #     ])
+            res_x = vec[:d]
+            res_y = vec[d:2*d]
+            dq2_phi = vec[2*d:2*d + c]
+            dr2_phi = vec[2*d + c:]
 
             w_res_x = res_x / len(res_x)
             w_res_y = res_y / len(res_y)
