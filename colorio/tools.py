@@ -538,13 +538,19 @@ def _plot_ellipse_data(centers,
     ax = plt.gca()
 
     if plot_mesh:
+        # dir_path = os.path.dirname(os.path.realpath(__file__))
+        # with open(os.path.join(dir_path, 'data/gamut_triangulation.yaml')) as f:
+        #     data = yaml.safe_load(f)
+        # points = numpy.array(data['points'])
+        # cells = numpy.array(data['cells'])
 
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        with open(os.path.join(dir_path, 'data/gamut_triangulation.yaml')) as f:
-            data = yaml.safe_load(f)
-
-        points = numpy.array(data['points'])
-        cells = numpy.array(data['cells'])
+        points, cells = meshzoo.triangle(
+            corners=numpy.array([
+                [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
+                ]),
+            ref_steps=5
+            )
+        points = points[:, :2]
 
         edges, _ = meshzoo.create_edges(cells)
         pts = xy_to_2d(points.T).T

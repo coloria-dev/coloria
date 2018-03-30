@@ -312,7 +312,7 @@ class PiecewiseEllipse(object):
             corners=numpy.array([
                 [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
                 ]),
-            ref_steps=4
+            ref_steps=5
             )
 
         # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
@@ -439,16 +439,17 @@ class PiecewiseEllipse(object):
         ax = alpha[:n]
         ay = alpha[n:]
 
+        # res_x, res_y = self.L.dot(numpy.column_stack([ax, ay])).T
         res_x = self.L.dot(ax)
         res_y = self.L.dot(ay)
 
         q2, r2 = self.get_q2_r2(ax, ay)
 
         out = numpy.array([
-            res_x / len(res_x),
-            res_y / len(res_y),
-            (q2 - 1.0) / len(q2),
-            r2 / len(r2),
+            res_x,
+            res_y,
+            (q2 - 1.0) / numpy.sqrt(len(q2)),
+            r2 / numpy.sqrt(len(q2)),
             ])
 
         self.num_f_eval += 1
@@ -593,40 +594,32 @@ class PiecewiseEllipse(object):
             # dq2_phi = (a_alpha*a_phi + d_alpha*d_phi) * 2
             # dr2_phi = (b_alpha*b_phi + c_alpha*c_phi) * 2
 
-            out = numpy.array([
-                res_x / len(res_x),
-                res_y / len(res_y),
-                dq2_phi / len(dq2_phi),
-                dr2_phi / len(dr2_phi),
+            return numpy.concatenate([
+                res_x,
+                res_y,
+                dq2_phi / numpy.sqrt(len(dq2_phi)),
+                dr2_phi / numpy.sqrt(len(dr2_phi)),
                 ])
-            return numpy.concatenate(out)
 
         def rmatvec(vec):
-            # res_x, res_y, dq2_phi, dr2_phi = split(
-            #     vec,
-            #     [
-            #         self.V.dim(), self.V.dim(),
-            #         self.centers.shape[0], self.centers.shape[0]
-            #     ])
             res_x = vec[:d]
             res_y = vec[d:2*d]
             dq2_phi = vec[2*d:2*d + c]
             dr2_phi = vec[2*d + c:]
 
-            w_res_x = res_x / len(res_x)
-            w_res_y = res_y / len(res_y)
-            w_dq2_phi = dq2_phi / len(dq2_phi)
-            w_dr2_phi = dr2_phi / len(dr2_phi)
+            w_res_x = res_x
+            w_res_y = res_y
+            w_dq2_phi = dq2_phi / numpy.sqrt(len(dq2_phi))
+            w_dr2_phi = dr2_phi / numpy.sqrt(len(dr2_phi))
 
-            L_ux = self.LT.dot(w_res_x)
-            L_uy = self.LT.dot(w_res_y)
-
-            phi = numpy.concatenate([L_ux, L_uy])
+            phi = numpy.concatenate([
+                self.LT.dot(w_res_x),
+                self.LT.dot(w_res_y),
+                ])
 
             q2p = dq2T.dot(w_dq2_phi)
             r2p = dr2T.dot(w_dr2_phi)
-            out = phi + q2p + r2p
-            return out
+            return phi + q2p + r2p
 
         lo = LinearOperator(
             [m, n],
@@ -679,7 +672,7 @@ def _main():
     out = least_squares(
         problem.cost_ls, alpha0,
         jac=problem.get_jac,
-        max_nfev=200,
+        max_nfev=100,
         method='trf',
         # tr_solver='exact',
         tr_solver='lsmr',
@@ -703,41 +696,41 @@ def _main():
     # plt.legend()
     # plt.grid()
 
-    # # Plot unperturbed MacAdam
-    # plt.figure()
-    # # colorio.plot_luo_rigg(
-    # #     ellipse_scaling=1,
-    # colorio.plot_macadam(
-    #     ellipse_scaling=10,
-    #     plot_rgb_triangle=False,
-    #     )
+    # Plot unperturbed MacAdam
+    plt.figure()
+    # colorio.plot_luo_rigg(
+    #     ellipse_scaling=1,
+    colorio.plot_macadam(
+        ellipse_scaling=10,
+        plot_rgb_triangle=False,
+        )
 
-    # # Plot perturbed MacAdam
-    # def transform(XY, out=out):
-    #     is_solo = len(XY.shape) == 1
-    #     if is_solo:
-    #         XY = numpy.array([XY]).T
-    #     # print(XY)
-    #     ux, uy = problem.get_u(out.x)
-    #     out = numpy.array([
-    #         [ux(x, y) for x, y in XY.T],
-    #         [uy(x, y) for x, y in XY.T],
-    #         ])
-    #     if is_solo:
-    #         out = out[..., 0]
-    #     return out
+    # Plot perturbed MacAdam
+    def transform(XY, out=out):
+        is_solo = len(XY.shape) == 1
+        if is_solo:
+            XY = numpy.array([XY]).T
+        # print(XY)
+        ux, uy = problem.get_u(out.x)
+        out = numpy.array([
+            [ux(x, y) for x, y in XY.T],
+            [uy(x, y) for x, y in XY.T],
+            ])
+        if is_solo:
+            out = out[..., 0]
+        return out
 
-    # plt.figure()
-    # # colorio.plot_luo_rigg(
-    # #     ellipse_scaling=1,
-    # colorio.plot_macadam(
-    #     ellipse_scaling=10,
-    #     # xy_to_2d=problem.pade2d.eval,
-    #     xy_to_2d=transform,
-    #     plot_rgb_triangle=False,
-    #     )
+    plt.figure()
+    # colorio.plot_luo_rigg(
+    #     ellipse_scaling=1,
+    colorio.plot_macadam(
+        ellipse_scaling=10,
+        # xy_to_2d=problem.pade2d.eval,
+        xy_to_2d=transform,
+        plot_rgb_triangle=False,
+        )
 
-    # plt.show()
+    plt.show()
     return
 
 
