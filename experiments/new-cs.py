@@ -347,7 +347,8 @@ class PiecewiseEllipse(object):
         Lmat = as_backend_type(L).mat()
         indptr, indices, data = Lmat.getValuesCSR()
         size = Lmat.getSize()
-        self.L = sparse.csr_matrix((data, indices, indptr), shape=size)
+        eps = 1.0
+        self.L = sparse.csr_matrix((eps * data, indices, indptr), shape=size)
         self.LT = self.L.getH()
 
         # The functions are locally linear, so we can cast the projection into a
@@ -445,11 +446,24 @@ class PiecewiseEllipse(object):
 
         q2, r2 = self.get_q2_r2(ax, ay)
 
+        # Some word on the (absence of) weights here.
+        # Weights on the residuals are not required: The residual entries are
+        # integrals with the test functions, so they'll naturally decrease in
+        # absolute value as the cell size decreases.
+        # One idea for scaling q2 and r2 would be to divide by the number of
+        # measurement points (or rather the sqrt thereof). This would ensure
+        # that, if more measure points are added, they as a set aren't weighted
+        # more than the other quality indicators, e.g., the smoothness in x and
+        # y.  On the other hand, by omitting an explicit weight that depends on
+        # the number of data points, one asserts that additional measurements
+        # do not decrease the weights on the other measurements. As
+        # consequence, more measurements as a set take a higher relative weight
+        # in the cost function. This is what we want.
         out = numpy.array([
             res_x,
             res_y,
-            (q2 - 1.0) / numpy.sqrt(len(q2)),
-            r2 / numpy.sqrt(len(q2)),
+            q2 - 1.0,
+            r2
             ])
 
         self.num_f_eval += 1
@@ -597,8 +611,8 @@ class PiecewiseEllipse(object):
             return numpy.concatenate([
                 res_x,
                 res_y,
-                dq2_phi / numpy.sqrt(len(dq2_phi)),
-                dr2_phi / numpy.sqrt(len(dr2_phi)),
+                dq2_phi,
+                dr2_phi,
                 ])
 
         def rmatvec(vec):
@@ -609,8 +623,8 @@ class PiecewiseEllipse(object):
 
             w_res_x = res_x
             w_res_y = res_y
-            w_dq2_phi = dq2_phi / numpy.sqrt(len(dq2_phi))
-            w_dr2_phi = dr2_phi / numpy.sqrt(len(dr2_phi))
+            w_dq2_phi = dq2_phi
+            w_dr2_phi = dr2_phi
 
             phi = numpy.concatenate([
                 self.LT.dot(w_res_x),
@@ -672,7 +686,7 @@ def _main():
     out = least_squares(
         problem.cost_ls, alpha0,
         jac=problem.get_jac,
-        max_nfev=100,
+        max_nfev=1000,
         method='trf',
         # tr_solver='exact',
         tr_solver='lsmr',
