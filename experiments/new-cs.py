@@ -355,7 +355,7 @@ class PiecewiseEllipse(object):
             corners=numpy.array([
                 [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
                 ]),
-            ref_steps=7
+            ref_steps=5
             )
 
         # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
@@ -681,7 +681,7 @@ def _main():
     out = least_squares(
         problem.cost_ls, alpha0,
         jac=problem.get_jac,
-        max_nfev=50,
+        # max_nfev=10,
         method='trf',
         # tr_solver='exact',
         tr_solver='lsmr',
@@ -706,10 +706,10 @@ def _main():
     # plt.grid()
 
     # Plot unperturbed MacAdam
-    plt.figure()
     # colorio.plot_luo_rigg(
     #     ellipse_scaling=1,
-    colorio.plot_macadam(
+    colorio.save_macadam(
+        'old.png',
         ellipse_scaling=10,
         plot_rgb_triangle=False,
         )
@@ -729,17 +729,15 @@ def _main():
             out = out[..., 0]
         return out
 
-    plt.figure()
     # colorio.plot_luo_rigg(
     #     ellipse_scaling=1,
-    colorio.plot_macadam(
+    colorio.save_macadam(
+        'optimized.png',
         ellipse_scaling=10,
         # xy_to_2d=problem.pade2d.eval,
         xy_to_2d=transform,
         plot_rgb_triangle=False,
         )
-
-    plt.show()
     return
 
 

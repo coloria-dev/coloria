@@ -410,6 +410,13 @@ def show_macadam(*args, **kwargs):
     return
 
 
+def save_macadam(filename, *args, **kwargs):
+    plt.figure()
+    plot_macadam(*args, **kwargs)
+    plt.savefig(filename)
+    return
+
+
 def plot_macadam(ellipse_scaling=10,
                  plot_filter_positions=False,
                  plot_standard_deviations=False,
@@ -548,7 +555,7 @@ def _plot_ellipse_data(centers,
             corners=numpy.array([
                 [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
                 ]),
-            ref_steps=7
+            ref_steps=5
             )
         points = points[:, :2]
 
