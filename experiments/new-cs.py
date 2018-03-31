@@ -8,7 +8,7 @@ import os
 from dolfin import (
     Mesh, FunctionSpace, Function, grad, VectorFunctionSpace, project,
     TrialFunction, TestFunction, dot, dx, assemble, Expression, PETScMatrix,
-    as_backend_type
+    as_backend_type, BoundingBoxTree, Point, Cell
     )
 import matplotlib.pyplot as plt
 import numpy
@@ -340,7 +340,7 @@ class PiecewiseEllipse(object):
 
         self.num_f_eval = 0
 
-        # Build L as scipy csr_matrix
+        # Build L as scipy.csr_matrix
         u = TrialFunction(self.V)
         v = TestFunction(self.V)
         L = assemble(dot(grad(u), grad(v)) * dx)
@@ -355,7 +355,7 @@ class PiecewiseEllipse(object):
         # matrix. The matrix will be very sparse, but never mind that now; just
         # use an array.
         n = self.V.dim()
-        self.jacs = []
+        grads = []
         for k in range(n):
             e = numpy.zeros(n)
             e[k] = 1.0
@@ -365,9 +365,33 @@ class PiecewiseEllipse(object):
             u.vector().apply('')
 
             j = project(grad(u), self.Vgrad)
-            self.jacs.append([j(x, y) for x, y in self.centers])
+            grads.append([j(x, y) for x, y in self.centers])
 
-        self.jacs = numpy.array(self.jacs).T
+        grads = numpy.array(grads).T
+
+        self.dx = sparse.csr_matrix(grads[0])
+        self.dy = sparse.csr_matrix(grads[1])
+
+        # bbt = BoundingBoxTree()
+        # bbt.build(mesh)
+        # dofmap = self.V.dofmap()
+        # el = self.V.element()
+        # for xy in centers:
+        #     print(xy)
+        #     cell_id = bbt.compute_first_entity_collision(Point(*xy))
+        #     cell = Cell(mesh, cell_id)
+        #     coordinate_dofs = cell.get_vertex_coordinates()
+        #     print(coordinate_dofs)
+
+        #     cols = dofmap.cell_dofs(cell_id)
+        #     print(cols)
+
+        #     v = numpy.zeros(2, dtype=float)
+        #     el.evaluate_basis_derivatives_all(
+        #         1, v, xy, coordinate_dofs, cell_id
+        #         )
+        #     print(v)
+        #     exit(1)
         return
 
     def get_q2_r2(self, ax, ay):
@@ -385,11 +409,12 @@ class PiecewiseEllipse(object):
         #     ux.vector().get_local(),
         #     uy.vector().get_local(),
         #     ])
-        # jac = numpy.einsum('ikl,jl->jik', self.jacs, u)
+        # jac = numpy.einsum('ikl,jl->jik', self.grads, u)
 
-        jac_x = numpy.dot(self.jacs, ax)
-        jac_y = numpy.dot(self.jacs, ay)
-        jac = numpy.array([jac_x, jac_y])
+        jac = numpy.array([
+            [self.dx.dot(ax), self.dy.dot(ax)],
+            [self.dx.dot(ay), self.dy.dot(ay)],
+            ])
 
         # jacs and J are of shape (2, 2, k). M must be of the same shape and
         # contain the result of the k 2x2 dot products. Perhaps there's a
@@ -538,9 +563,10 @@ class PiecewiseEllipse(object):
 
         assert 2*d == n
 
-        jac_alpha_x = numpy.dot(self.jacs, ax)
-        jac_alpha_y = numpy.dot(self.jacs, ay)
-        jac_alpha = numpy.array([jac_alpha_x, jac_alpha_y])
+        jac_alpha = numpy.array([
+            [self.dx.dot(ax), self.dy.dot(ax)],
+            [self.dx.dot(ay), self.dy.dot(ay)],
+            ])
         M_alpha = numpy.einsum('ijl,jkl->ikl', jac_alpha, self.J)
         #
         a_alpha = (M_alpha[0, 0] + M_alpha[1, 1]) / 2
@@ -562,9 +588,10 @@ class PiecewiseEllipse(object):
             ay = e[d:]
 
             # q2, r2 part
-            jac_phix = numpy.dot(self.jacs, ax)
-            jac_phiy = numpy.dot(self.jacs, ay)
-            jac_phi = numpy.array([jac_phix, jac_phiy])
+            jac_phi = numpy.array([
+                [self.dx.dot(ax), self.dy.dot(ax)],
+                [self.dx.dot(ay), self.dy.dot(ay)],
+                ])
             M_phi = numpy.einsum('ijl,jkl->ikl', jac_phi, self.J)
             #
             a_phi = (M_phi[0, 0] + M_phi[1, 1]) / 2
@@ -597,8 +624,8 @@ class PiecewiseEllipse(object):
             dr2_phi = dr2.dot(phi)
 
             # ax, ay = numpy.split(phi, 2)
-            # jac_phix = numpy.dot(self.jacs, ax)
-            # jac_phiy = numpy.dot(self.jacs, ay)
+            # jac_phix = self.grads.dot(ax)
+            # jac_phiy = self.grads.dot(ay)
             # jac_phi = numpy.array([jac_phix, jac_phiy])
             # M_phi = numpy.einsum('ijl,jkl->ikl', jac_phi, self.J)
             # a_phi = (M_phi[0, 0] + M_phi[1, 1]) / 2
@@ -686,7 +713,7 @@ def _main():
     out = least_squares(
         problem.cost_ls, alpha0,
         jac=problem.get_jac,
-        max_nfev=1000,
+        max_nfev=50,
         method='trf',
         # tr_solver='exact',
         tr_solver='lsmr',
