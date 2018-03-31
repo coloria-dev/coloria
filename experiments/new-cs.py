@@ -576,19 +576,17 @@ class PiecewiseEllipse(object):
             res_y = self.L.dot(ay)
 
             # q2, r2 part
-            # dq2_phi = dq2.dot(phi)
-            # dr2_phi = dr2.dot(phi)
             jac_phi = numpy.array([
                 [self.dx.dot(ax), self.dy.dot(ax)],
                 [self.dx.dot(ay), self.dy.dot(ay)],
                 ])
             M_phi = numpy.einsum('ijl,jkl->ikl', jac_phi, self.J)
-            a_phi = (M_phi[0, 0] + M_phi[1, 1]) / 2
-            b_phi = (M_phi[0, 0] - M_phi[1, 1]) / 2
-            c_phi = (M_phi[1, 0] + M_phi[0, 1]) / 2
-            d_phi = (M_phi[1, 0] - M_phi[0, 1]) / 2
-            dq2_phi = 2 * (a_alpha*a_phi + d_alpha*d_phi)
-            dr2_phi = 2 * (b_alpha*b_phi + c_alpha*c_phi)
+            a_phi = M_phi[0, 0] + M_phi[1, 1]
+            b_phi = M_phi[0, 0] - M_phi[1, 1]
+            c_phi = M_phi[1, 0] + M_phi[0, 1]
+            d_phi = M_phi[1, 0] - M_phi[0, 1]
+            dq2_phi = a_alpha*a_phi + d_alpha*d_phi
+            dr2_phi = b_alpha*b_phi + c_alpha*c_phi
 
             return numpy.concatenate([
                 res_x,
@@ -603,22 +601,11 @@ class PiecewiseEllipse(object):
             dq2_phi = vec[2*d:2*d + c]
             dr2_phi = vec[2*d + c:]
 
-            w_res_x = res_x
-            w_res_y = res_y
-            w_dq2_phi = dq2_phi
-            w_dr2_phi = dr2_phi
-
-            phi = numpy.concatenate([
-                self.LT.dot(w_res_x),
-                self.LT.dot(w_res_y),
-                ])
-
-            # q2, r2 part
             X = numpy.array([
-                a_alpha * w_dq2_phi,
-                b_alpha * w_dr2_phi,
-                c_alpha * w_dr2_phi,
-                d_alpha * w_dq2_phi,
+                a_alpha * dq2_phi,
+                b_alpha * dr2_phi,
+                c_alpha * dr2_phi,
+                d_alpha * dq2_phi,
                 ])
             Y = numpy.array([
                 X[0] + X[1],
@@ -632,11 +619,11 @@ class PiecewiseEllipse(object):
                 self.J[0][0] * Y[2] + self.J[0][1] * Y[3],
                 self.J[1][0] * Y[2] + self.J[1][1] * Y[3],
                 ])
-            out = numpy.concatenate([
-                self.dxT.dot(Z[0]) + self.dyT.dot(Z[1]),
-                self.dxT.dot(Z[2]) + self.dyT.dot(Z[3]),
+
+            return numpy.concatenate([
+                self.LT.dot(res_x) + self.dxT.dot(Z[0]) + self.dyT.dot(Z[1]),
+                self.LT.dot(res_y) + self.dxT.dot(Z[2]) + self.dyT.dot(Z[3]),
                 ])
-            return phi + out
 
         # # test matvec
         # u = alpha
@@ -670,7 +657,7 @@ def _main():
     # centers, J = _get_luo_rigg()
 
     # problem = PadeEllipse(centers, J, [2, 0, 2, 0])
-    ref_steps = 5
+    ref_steps = 6
     problem = PiecewiseEllipse(centers, J, ref_steps)
 
     print('num parameters: {}'.format(len(problem.alpha)))
@@ -715,6 +702,7 @@ def _main():
         'old.png',
         ellipse_scaling=10,
         plot_rgb_triangle=False,
+        mesh_ref_steps=ref_steps,
         )
 
     # Plot perturbed MacAdam
@@ -740,6 +728,7 @@ def _main():
         # xy_to_2d=problem.pade2d.eval,
         xy_to_2d=transform,
         plot_rgb_triangle=False,
+        mesh_ref_steps=ref_steps,
         )
     return
 

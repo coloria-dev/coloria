@@ -422,6 +422,7 @@ def plot_macadam(ellipse_scaling=10,
                  plot_standard_deviations=False,
                  plot_rgb_triangle=True,
                  plot_mesh=True,
+                 mesh_ref_steps=0,
                  xy_to_2d=lambda xy: xy,
                  axes_labels=('x', 'y')):
     '''See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
@@ -468,6 +469,7 @@ def plot_macadam(ellipse_scaling=10,
         ellipse_scaling=ellipse_scaling,
         xy_to_2d=xy_to_2d,
         plot_mesh=plot_mesh,
+        mesh_ref_steps=mesh_ref_steps,
         plot_rgb_triangle=plot_rgb_triangle,
         )
     return
@@ -534,7 +536,8 @@ def _plot_ellipse_data(centers,
                        axes_labels=('x', 'y'),
                        plot_rgb_triangle=False,
                        ellipse_scaling=10,
-                       plot_mesh=False):
+                       plot_mesh=False,
+                       mesh_ref_steps=0):
 
     plot_flat_gamut(
         plot_planckian_locus=False, xy_to_2d=xy_to_2d, axes_labels=axes_labels,
@@ -555,7 +558,7 @@ def _plot_ellipse_data(centers,
             corners=numpy.array([
                 [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
                 ]),
-            ref_steps=5
+            ref_steps=mesh_ref_steps
             )
         points = points[:, :2]
 
