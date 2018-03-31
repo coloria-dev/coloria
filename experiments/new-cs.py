@@ -333,7 +333,7 @@ def build_grad_matrices(V, points):
 
 
 class PiecewiseEllipse(object):
-    def __init__(self, centers, J):
+    def __init__(self, centers, J, ref_steps):
         self.centers = centers
         self.J = J
 
@@ -355,7 +355,7 @@ class PiecewiseEllipse(object):
             corners=numpy.array([
                 [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
                 ]),
-            ref_steps=5
+            ref_steps=ref_steps
             )
 
         # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
@@ -395,6 +395,8 @@ class PiecewiseEllipse(object):
         self.LT = self.L.getH()
 
         self.dx, self.dy = build_grad_matrices(self.V, centers)
+        self.dxT = self.dx.getH()
+        self.dyT = self.dy.getH()
         return
 
     def get_q2_r2(self, ax, ay):
@@ -480,7 +482,7 @@ class PiecewiseEllipse(object):
             ])
 
         self.num_f_eval += 1
-        if self.num_f_eval % 10 == 0:
+        if self.num_f_eval % 100 == 0:
             cost = numpy.array([numpy.dot(ot, ot) for ot in out])
             print('{:7d}     {:e} {:e} {:e} {:e}'.format(self.num_f_eval, *cost))
 
@@ -631,8 +633,8 @@ class PiecewiseEllipse(object):
                 self.J[1][0] * Y[2] + self.J[1][1] * Y[3],
                 ])
             out = numpy.concatenate([
-                self.dx.T.dot(Z[0]) + self.dy.T.dot(Z[1]),
-                self.dx.T.dot(Z[2]) + self.dy.T.dot(Z[3]),
+                self.dxT.dot(Z[0]) + self.dyT.dot(Z[1]),
+                self.dxT.dot(Z[2]) + self.dyT.dot(Z[3]),
                 ])
             return phi + out
 
@@ -668,7 +670,8 @@ def _main():
     # centers, J = _get_luo_rigg()
 
     # problem = PadeEllipse(centers, J, [2, 0, 2, 0])
-    problem = PiecewiseEllipse(centers, J)
+    ref_steps = 5
+    problem = PiecewiseEllipse(centers, J, ref_steps)
 
     print('num parameters: {}'.format(len(problem.alpha)))
 
@@ -732,7 +735,7 @@ def _main():
     # colorio.plot_luo_rigg(
     #     ellipse_scaling=1,
     colorio.save_macadam(
-        'optimized.png',
+        'optimized-{}.png'.format(ref_steps),
         ellipse_scaling=10,
         # xy_to_2d=problem.pade2d.eval,
         xy_to_2d=transform,
