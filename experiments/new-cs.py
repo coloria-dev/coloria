@@ -324,7 +324,7 @@ def build_grad_matrices(V, points):
     datax = numpy.concatenate(datax)
     datay = numpy.concatenate(datay)
 
-    m = len(centers)
+    m = len(points)
     n = V.dim()
     dx = sparse.csr_matrix((datax, (rows, cols)), shape=(m, n))
     dy = sparse.csr_matrix((datay, (rows, cols)), shape=(m, n))
@@ -355,7 +355,7 @@ class PiecewiseEllipse(object):
             corners=numpy.array([
                 [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
                 ]),
-            ref_steps=6
+            ref_steps=7
             )
 
         # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
@@ -394,26 +394,10 @@ class PiecewiseEllipse(object):
         self.L = sparse.csr_matrix((eps * data, indices, indptr), shape=size)
         self.LT = self.L.getH()
 
-        self.dx, self.dy = build_grad_matrices(V, centers)
+        self.dx, self.dy = build_grad_matrices(self.V, centers)
         return
 
     def get_q2_r2(self, ax, ay):
-        # Keep an eye on
-        # https://www.allanswered.com/post/eqkmm/matrix-from-project-evaluation-at-many-points-at-once/
-        # https://bitbucket.org/fenics-project/dolfin/issues/1011/evaluate-expressions-at-many-points-at
-        # for speeding this up.
-        # jx = project(grad(ux), self.Vgrad)
-        # jy = project(grad(uy), self.Vgrad)
-        # jac = numpy.array([[jx(x, y), jy(x, y)] for x, y in self.centers])
-        # jac = numpy.moveaxis(jac, 0, -1)
-        # assert numpy.all(abs(jj - jac) < 1.0e-15)
-
-        # u = numpy.array([
-        #     ux.vector().get_local(),
-        #     uy.vector().get_local(),
-        #     ])
-        # jac = numpy.einsum('ikl,jl->jik', self.grads, u)
-
         jac = numpy.array([
             [self.dx.dot(ax), self.dy.dot(ax)],
             [self.dx.dot(ay), self.dy.dot(ay)],
@@ -440,7 +424,8 @@ class PiecewiseEllipse(object):
         #     _, sigma, _ = numpy.linalg.svd(M)
         #
         # but computing the singular values explicitly via
-        # <https://scicomp.stackexchange.com/a/14103/3980> is faster.
+        # <https://scicomp.stackexchange.com/a/14103/3980> is faster and more
+        # explicit.
         a = (M[0, 0] + M[1, 1]) / 2
         b = (M[0, 0] - M[1, 1]) / 2
         c = (M[1, 0] + M[0, 1]) / 2
@@ -561,54 +546,20 @@ class PiecewiseEllipse(object):
         n = alpha.shape[0]
 
         d = self.V.dim()
-        ax = alpha[:d]
-        ay = alpha[d:]
-
+        c = self.centers.shape[0]
         assert 2*d == n
 
+        ax = alpha[:d]
+        ay = alpha[d:]
         jac_alpha = numpy.array([
             [self.dx.dot(ax), self.dy.dot(ax)],
             [self.dx.dot(ay), self.dy.dot(ay)],
             ])
         M_alpha = numpy.einsum('ijl,jkl->ikl', jac_alpha, self.J)
-        #
         a_alpha = (M_alpha[0, 0] + M_alpha[1, 1]) / 2
         b_alpha = (M_alpha[0, 0] - M_alpha[1, 1]) / 2
         c_alpha = (M_alpha[1, 0] + M_alpha[0, 1]) / 2
         d_alpha = (M_alpha[1, 0] - M_alpha[0, 1]) / 2
-
-        d = self.V.dim()
-        c = self.centers.shape[0]
-
-        # build lower q, r part of the linear operator
-        dq2 = []
-        dr2 = []
-        for k in range(n):
-            e = numpy.zeros(n)
-            e[k] = 1.0
-
-            ax = e[:d]
-            ay = e[d:]
-
-            # q2, r2 part
-            jac_phi = numpy.array([
-                [self.dx.dot(ax), self.dy.dot(ax)],
-                [self.dx.dot(ay), self.dy.dot(ay)],
-                ])
-            M_phi = numpy.einsum('ijl,jkl->ikl', jac_phi, self.J)
-            #
-            a_phi = (M_phi[0, 0] + M_phi[1, 1]) / 2
-            b_phi = (M_phi[0, 0] - M_phi[1, 1]) / 2
-            c_phi = (M_phi[1, 0] + M_phi[0, 1]) / 2
-            d_phi = (M_phi[1, 0] - M_phi[0, 1]) / 2
-
-            dq2.append(2 * (a_alpha*a_phi + d_alpha*d_phi))
-            dr2.append(2 * (b_alpha*b_phi + c_alpha*c_phi))
-        dq2 = sparse.csr_matrix(numpy.column_stack(dq2))
-        dr2 = sparse.csr_matrix(numpy.column_stack(dr2))
-
-        dq2T = numpy.transpose(dq2)
-        dr2T = numpy.transpose(dr2)
 
         def matvec(phi):
             if len(phi.shape) > 1:
@@ -623,20 +574,19 @@ class PiecewiseEllipse(object):
             res_y = self.L.dot(ay)
 
             # q2, r2 part
-            dq2_phi = dq2.dot(phi)
-            dr2_phi = dr2.dot(phi)
-
-            # ax, ay = numpy.split(phi, 2)
-            # jac_phix = self.grads.dot(ax)
-            # jac_phiy = self.grads.dot(ay)
-            # jac_phi = numpy.array([jac_phix, jac_phiy])
-            # M_phi = numpy.einsum('ijl,jkl->ikl', jac_phi, self.J)
-            # a_phi = (M_phi[0, 0] + M_phi[1, 1]) / 2
-            # b_phi = (M_phi[0, 0] - M_phi[1, 1]) / 2
-            # c_phi = (M_phi[1, 0] + M_phi[0, 1]) / 2
-            # d_phi = (M_phi[1, 0] - M_phi[0, 1]) / 2
-            # dq2_phi = (a_alpha*a_phi + d_alpha*d_phi) * 2
-            # dr2_phi = (b_alpha*b_phi + c_alpha*c_phi) * 2
+            # dq2_phi = dq2.dot(phi)
+            # dr2_phi = dr2.dot(phi)
+            jac_phi = numpy.array([
+                [self.dx.dot(ax), self.dy.dot(ax)],
+                [self.dx.dot(ay), self.dy.dot(ay)],
+                ])
+            M_phi = numpy.einsum('ijl,jkl->ikl', jac_phi, self.J)
+            a_phi = (M_phi[0, 0] + M_phi[1, 1]) / 2
+            b_phi = (M_phi[0, 0] - M_phi[1, 1]) / 2
+            c_phi = (M_phi[1, 0] + M_phi[0, 1]) / 2
+            d_phi = (M_phi[1, 0] - M_phi[0, 1]) / 2
+            dq2_phi = 2 * (a_alpha*a_phi + d_alpha*d_phi)
+            dr2_phi = 2 * (b_alpha*b_phi + c_alpha*c_phi)
 
             return numpy.concatenate([
                 res_x,
@@ -661,15 +611,30 @@ class PiecewiseEllipse(object):
                 self.LT.dot(w_res_y),
                 ])
 
-            q2p = dq2T.dot(w_dq2_phi)
-            r2p = dr2T.dot(w_dr2_phi)
-            return phi + q2p + r2p
-
-        lo = LinearOperator(
-            [m, n],
-            matvec=matvec,
-            rmatvec=rmatvec,
-            )
+            # q2, r2 part
+            X = numpy.array([
+                a_alpha * w_dq2_phi,
+                b_alpha * w_dr2_phi,
+                c_alpha * w_dr2_phi,
+                d_alpha * w_dq2_phi,
+                ])
+            Y = numpy.array([
+                X[0] + X[1],
+                X[2] - X[3],
+                X[2] + X[3],
+                X[0] - X[1],
+                ])
+            Z = numpy.array([
+                self.J[0][0] * Y[0] + self.J[0][1] * Y[1],
+                self.J[1][0] * Y[0] + self.J[1][1] * Y[1],
+                self.J[0][0] * Y[2] + self.J[0][1] * Y[3],
+                self.J[1][0] * Y[2] + self.J[1][1] * Y[3],
+                ])
+            out = numpy.concatenate([
+                self.dx.T.dot(Z[0]) + self.dy.T.dot(Z[1]),
+                self.dx.T.dot(Z[2]) + self.dy.T.dot(Z[3]),
+                ])
+            return phi + out
 
         # # test matvec
         # u = alpha
@@ -695,7 +660,7 @@ class PiecewiseEllipse(object):
         # print(jdiff2[-4:])
         # print()
 
-        return lo
+        return LinearOperator([m, n], matvec=matvec, rmatvec=rmatvec)
 
 
 def _main():
