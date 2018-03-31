@@ -289,6 +289,49 @@ class PadeEllipse(object):
         return out
 
 
+def build_grad_matrices(V, points):
+    '''Build the sparse m-by-n matrices that map a coefficient set for a
+    function in V to the values of dx and dy at a number m of points.
+    '''
+    # See <https://www.allanswered.com/post/lkbkm/#zxqgk>
+    mesh = V.mesh()
+
+    bbt = BoundingBoxTree()
+    bbt.build(mesh)
+    dofmap = V.dofmap()
+    el = V.element()
+    rows = []
+    cols = []
+    datax = []
+    datay = []
+    for i, xy in enumerate(points):
+        cell_id = bbt.compute_first_entity_collision(Point(*xy))
+        cell = Cell(mesh, cell_id)
+        coordinate_dofs = cell.get_vertex_coordinates()
+
+        rows.append([i, i, i])
+        cols.append(dofmap.cell_dofs(cell_id))
+
+        v = numpy.empty((3, 2), dtype=float)
+        el.evaluate_basis_derivatives_all(
+            1, v, xy, coordinate_dofs, cell_id
+            )
+        datax.append(v[:, 0])
+        datay.append(v[:, 1])
+
+    rows = numpy.concatenate(rows)
+    cols = numpy.concatenate(cols)
+    datax = numpy.concatenate(datax)
+    datay = numpy.concatenate(datay)
+
+    m = len(centers)
+    n = V.dim()
+    dx = sparse.csr_matrix((datax, (rows, cols)), shape=(m, n))
+    dy = sparse.csr_matrix((datay, (rows, cols)), shape=(m, n))
+
+    return dx, dy
+
+
 class PiecewiseEllipse(object):
     def __init__(self, centers, J):
         self.centers = centers
@@ -312,7 +355,7 @@ class PiecewiseEllipse(object):
             corners=numpy.array([
                 [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
                 ]),
-            ref_steps=5
+            ref_steps=6
             )
 
         # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
@@ -351,47 +394,7 @@ class PiecewiseEllipse(object):
         self.L = sparse.csr_matrix((eps * data, indices, indptr), shape=size)
         self.LT = self.L.getH()
 
-        # The functions are locally linear, so we can cast the projection into a
-        # matrix. The matrix will be very sparse, but never mind that now; just
-        # use an array.
-        n = self.V.dim()
-        grads = []
-        for k in range(n):
-            e = numpy.zeros(n)
-            e[k] = 1.0
-
-            u = Function(self.V)
-            u.vector().set_local(e)
-            u.vector().apply('')
-
-            j = project(grad(u), self.Vgrad)
-            grads.append([j(x, y) for x, y in self.centers])
-
-        grads = numpy.array(grads).T
-
-        self.dx = sparse.csr_matrix(grads[0])
-        self.dy = sparse.csr_matrix(grads[1])
-
-        # bbt = BoundingBoxTree()
-        # bbt.build(mesh)
-        # dofmap = self.V.dofmap()
-        # el = self.V.element()
-        # for xy in centers:
-        #     print(xy)
-        #     cell_id = bbt.compute_first_entity_collision(Point(*xy))
-        #     cell = Cell(mesh, cell_id)
-        #     coordinate_dofs = cell.get_vertex_coordinates()
-        #     print(coordinate_dofs)
-
-        #     cols = dofmap.cell_dofs(cell_id)
-        #     print(cols)
-
-        #     v = numpy.zeros(2, dtype=float)
-        #     el.evaluate_basis_derivatives_all(
-        #         1, v, xy, coordinate_dofs, cell_id
-        #         )
-        #     print(v)
-        #     exit(1)
+        self.dx, self.dy = build_grad_matrices(V, centers)
         return
 
     def get_q2_r2(self, ax, ay):

@@ -548,7 +548,7 @@ def _plot_ellipse_data(centers,
             corners=numpy.array([
                 [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
                 ]),
-            ref_steps=5
+            ref_steps=6
             )
         points = points[:, :2]
 
