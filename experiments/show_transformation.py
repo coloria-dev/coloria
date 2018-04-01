@@ -99,8 +99,8 @@ def _main():
         plot_rgb_triangle=False,
         mesh_ref_steps=ref_steps,
         )
-    plt.xlim(-0.2, 0.9)
-    plt.ylim(+0.0, 0.7)
+    # plt.xlim(-0.2, 0.9)
+    # plt.ylim(+0.0, 0.7)
     plt.savefig('macadam-{}.png'.format(ref_steps))
     return
 

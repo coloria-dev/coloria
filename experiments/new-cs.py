@@ -11,6 +11,7 @@ from dolfin import (
     as_backend_type, BoundingBoxTree, Point, Cell
     )
 import numpy
+import pyamg
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 from scipy.optimize import leastsq, least_squares
@@ -373,9 +374,11 @@ class PiecewiseEllipse(object):
         # Use F(x, y) = (x, y) as starting guess
         self.ux0 = project(Expression('x[0]', degree=1), self.V)
         self.uy0 = project(Expression('x[1]', degree=1), self.V)
-
         ax = self.ux0.vector().get_local()
         ay = self.uy0.vector().get_local()
+        # 0 starting guess
+        # ax = numpy.zeros(self.V.dim())
+        # ay = numpy.zeros(self.V.dim())
         self.alpha = numpy.concatenate([ax, ay])
 
         self.num_f_eval = 0
@@ -386,9 +389,15 @@ class PiecewiseEllipse(object):
         L = assemble(dot(grad(u), grad(v)) * dx)
         Lmat = as_backend_type(L).mat()
         indptr, indices, data = Lmat.getValuesCSR()
+        # Set the first row to [1.0, 0.0, ..., 0.0] to emulate a Dirichlet
+        # condition. This setting makes sure that the "first" node maps to [0,
+        # 0], a convention. Useful because now, L is nonsingular. Unfortunately
+        # it's also nonsymmetric.
+        data[indptr[0]:indptr[1]] = 0.0
+        assert indices[0] == 0
+        data[0] = 1.0
         size = Lmat.getSize()
-        eps = 1.0
-        self.L = sparse.csr_matrix((eps * data, indices, indptr), shape=size)
+        self.L = sparse.csr_matrix((data, indices, indptr), shape=size)
         self.LT = self.L.getH()
 
         self.dx, self.dy = build_grad_matrices(self.V, centers)
@@ -490,38 +499,63 @@ class PiecewiseEllipse(object):
         ax = alpha[:n]
         ay = alpha[n:]
 
-        ux = Function(self.V)
-        ux.vector().set_local(ax)
-        ux.vector().apply('')
+        Lax = self.L * ax
+        Lay = self.L * ay
 
-        uy = Function(self.V)
-        uy.vector().set_local(ay)
-        uy.vector().apply('')
-
-        # res_x = self.L * ux.vector()
-        # res_y = self.L * uy.vector()
-        # vx = 0.5 * numpy.dot(res_x.get_local(), res_x.get_local()) / len(res_x.get_local())
-        # vy = 0.5 * numpy.dot(res_y.get_local(), res_y.get_local()) / len(res_y.get_local())
-
-        weight = 1.0
-        # vx = weight * 0.5 * assemble(dot(grad(ux), grad(ux)) * dx)
-        # vy = weight * 0.5 * assemble(dot(grad(uy), grad(uy)) * dx)
-        vx = weight * 0.5 * ux.vector().inner(self.L * ux.vector())
-        vy = weight * 0.5 * uy.vector().inner(self.L * uy.vector())
-
-        q2, r2 = self.get_q2_r2(ux, uy)
+        q2, r2 = self.get_q2_r2(ax, ay)
 
         out = [
-            vx, vy,
-            0.5 * numpy.dot(q2-1, q2-1) / len(q2),
-            0.5 * numpy.dot(r2, r2) / len(r2),
-            # 0.5 * numpy.sum(r2) / len(r2),
+            0.5 * numpy.dot(Lax, Lax),
+            0.5 * numpy.dot(Lay, Lay),
+            0.5 * numpy.dot(q2-1, q2-1),
+            0.5 * numpy.dot(r2, r2),
             ]
 
-        self.num_f_eval += 1
-        if self.num_f_eval % 1000 == 0:
+        if self.num_f_eval % 10000 == 0:
             print('{:7d}     {:e} {:e} {:e} {:e}'.format(self.num_f_eval, *out))
 
+        self.num_f_eval += 1
+        return numpy.sum(out)
+
+    def cost_min_res(self, alpha):
+        n = self.V.dim()
+        ax = alpha[:n]
+        ay = alpha[n:]
+
+        # ml = pyamg.ruge_stuben_solver(self.L)
+        # # ml = pyamg.smoothed_aggregation_solver(self.L)
+        # print(ml)
+        # print()
+        # print(self.L)
+        # print()
+        # x = ml.solve(ax, tol=1e-10)
+        # print('residual: {}'.format(numpy.linalg.norm(ax - self.L*x)))
+        # print()
+        # print(ax)
+        # print()
+        # print(x)
+        # exit(1)
+
+        # x = sparse.linalg.spsolve(self.L, ax)
+        # print('residual: {}'.format(numpy.linalg.norm(ax - self.L*x)))
+        # exit(1)
+
+        q2, r2 = self.get_q2_r2(ax, ay)
+
+        Lax = self.L * ax
+        Lay = self.L * ay
+
+        out = [
+            0.5 * numpy.dot(Lax, Lax),
+            0.5 * numpy.dot(Lay, Lay),
+            0.5 * numpy.dot(q2-1, q2-1),
+            0.5 * numpy.dot(r2, r2),
+            ]
+
+        if self.num_f_eval % 10000 == 0:
+            print('{:7d}     {:e} {:e} {:e} {:e}'.format(self.num_f_eval, *out))
+
+        self.num_f_eval += 1
         return numpy.sum(out)
 
 
@@ -654,7 +688,7 @@ def _main():
     # centers, J = _get_luo_rigg()
 
     # problem = PadeEllipse(centers, J, [2, 0, 2, 0])
-    ref_steps = 7
+    ref_steps = 4
     problem = PiecewiseEllipse(centers, J, ref_steps)
 
     print('num parameters: {}'.format(len(problem.alpha)))
@@ -665,28 +699,30 @@ def _main():
     # problems, but it needs more conditions than parameters. This is not the
     # case for larger polynomial degrees.
     print('f evals     cost')
-    out = least_squares(
-        problem.cost_ls, alpha0,
-        jac=problem.get_jac,
-        max_nfev=10000,
-        method='trf',
-        # tr_solver='exact',
-        tr_solver='lsmr',
-        )
-
-    print('{:7d}'.format(out.nfev))
-
-    # from scipy.optimize import show_options
-    # print(show_options(solver='minimize', method='cg'))
-    # from scipy.optimize import minimize
-    # out = minimize(
-    #     problem.cost_min, alpha0,
-    #     method='CG',
-    #     options={'maxiter': 100000, 'gtol': 1.0e-5}
+    # out = least_squares(
+    #     problem.cost_ls, alpha0,
+    #     jac=problem.get_jac,
+    #     max_nfev=10000,
+    #     method='trf',
+    #     # tr_solver='exact',
+    #     tr_solver='lsmr',
     #     )
+    # print('{:7d}'.format(out.nfev))
 
+    from scipy.optimize import show_options
+    # print(show_options(solver='minimize', method='cg'))
+    from scipy.optimize import minimize
+    out = minimize(
+        problem.cost_min_res, alpha0,
+        method='BFGS',
+        options={'maxiter': 100000, 'gtol': 1.0e-5}
+        )
+    print(out)
+
+    filename = 'optimal-{}.npy'.format(ref_steps)
+    print('Writing data to {}'.format(filename))
     numpy.save(
-        'optimal-{}.npy'.format(ref_steps), {
+        filename, {
             'ref_steps': ref_steps,
             'data': out.x,
             })
