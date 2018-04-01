@@ -7,17 +7,15 @@ import os
 
 from dolfin import (
     Mesh, FunctionSpace, Function, grad, VectorFunctionSpace, project,
-    TrialFunction, TestFunction, dot, dx, assemble, Expression, PETScMatrix,
+    TrialFunction, TestFunction, dot, dx, assemble, Expression,
     as_backend_type, BoundingBoxTree, Point, Cell
     )
-import matplotlib.pyplot as plt
 import numpy
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 from scipy.optimize import leastsq, least_squares
 import yaml
 
-import colorio
 import meshio
 import meshzoo
 
@@ -326,10 +324,9 @@ def build_grad_matrices(V, points):
 
     m = len(points)
     n = V.dim()
-    dx = sparse.csr_matrix((datax, (rows, cols)), shape=(m, n))
-    dy = sparse.csr_matrix((datay, (rows, cols)), shape=(m, n))
-
-    return dx, dy
+    dx_matrix = sparse.csr_matrix((datax, (rows, cols)), shape=(m, n))
+    dy_matrix = sparse.csr_matrix((datay, (rows, cols)), shape=(m, n))
+    return dx_matrix, dy_matrix
 
 
 class PiecewiseEllipse(object):
@@ -657,7 +654,7 @@ def _main():
     # centers, J = _get_luo_rigg()
 
     # problem = PadeEllipse(centers, J, [2, 0, 2, 0])
-    ref_steps = 6
+    ref_steps = 7
     problem = PiecewiseEllipse(centers, J, ref_steps)
 
     print('num parameters: {}'.format(len(problem.alpha)))
@@ -671,11 +668,14 @@ def _main():
     out = least_squares(
         problem.cost_ls, alpha0,
         jac=problem.get_jac,
-        # max_nfev=10,
+        max_nfev=10000,
         method='trf',
         # tr_solver='exact',
         tr_solver='lsmr',
         )
+
+    print('{:7d}'.format(out.nfev))
+
     # from scipy.optimize import show_options
     # print(show_options(solver='minimize', method='cg'))
     # from scipy.optimize import minimize
@@ -685,51 +685,11 @@ def _main():
     #     options={'maxiter': 100000, 'gtol': 1.0e-5}
     #     )
 
-    print('{:7d}'.format(problem.num_f_eval))
-
-    # # plot statistics
-    # axes0 = problem.get_ellipse_axes(alpha0).T.flatten()
-    # plt.plot(axes0, label='axes lengths before')
-    # axes1 = problem.get_ellipse_axes(out.x).T.flatten()
-    # plt.plot(axes1, label='axes lengths opt')
-    # plt.legend()
-    # plt.grid()
-
-    # Plot unperturbed MacAdam
-    # colorio.plot_luo_rigg(
-    #     ellipse_scaling=1,
-    colorio.save_macadam(
-        'old.png',
-        ellipse_scaling=10,
-        plot_rgb_triangle=False,
-        mesh_ref_steps=ref_steps,
-        )
-
-    # Plot perturbed MacAdam
-    def transform(XY, out=out):
-        is_solo = len(XY.shape) == 1
-        if is_solo:
-            XY = numpy.array([XY]).T
-        # print(XY)
-        ux, uy = problem.get_u(out.x)
-        out = numpy.array([
-            [ux(x, y) for x, y in XY.T],
-            [uy(x, y) for x, y in XY.T],
-            ])
-        if is_solo:
-            out = out[..., 0]
-        return out
-
-    # colorio.plot_luo_rigg(
-    #     ellipse_scaling=1,
-    colorio.save_macadam(
-        'optimized-{}.png'.format(ref_steps),
-        ellipse_scaling=10,
-        # xy_to_2d=problem.pade2d.eval,
-        xy_to_2d=transform,
-        plot_rgb_triangle=False,
-        mesh_ref_steps=ref_steps,
-        )
+    numpy.save(
+        'optimal-{}.npy'.format(ref_steps), {
+            'ref_steps': ref_steps,
+            'data': out.x,
+            })
     return
 
 
