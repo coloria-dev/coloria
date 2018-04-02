@@ -405,7 +405,9 @@ class PiecewiseEllipse(object):
         self.dyT = self.dy.getH()
         return
 
-    def get_q2_r2(self, ax, ay):
+    def apply_M(self, ax, ay):
+        '''Linear operator that converts ax, ay to abcd.
+        '''
         jac = numpy.array([
             [self.dx.dot(ax), self.dy.dot(ax)],
             [self.dx.dot(ay), self.dy.dot(ay)],
@@ -439,6 +441,50 @@ class PiecewiseEllipse(object):
         c = (M[1, 0] + M[0, 1]) / 2
         d = (M[1, 0] - M[0, 1]) / 2
 
+        return a, b, c, d
+
+    def apply_M_alt(self, ax, ay):
+        X = numpy.array([
+            self.dx.dot(ax),
+            self.dy.dot(ax),
+            self.dx.dot(ay),
+            self.dy.dot(ay),
+            ])
+
+        Y = numpy.array([
+            X[0]*self.J[0][0] + X[1]*self.J[1][0],
+            X[0]*self.J[0][1] + X[1]*self.J[1][1],
+            X[2]*self.J[0][0] + X[3]*self.J[1][0],
+            X[2]*self.J[0][1] + X[3]*self.J[1][1],
+            ])
+
+        Z = 0.5 * numpy.array([
+            Y[0] + Y[3],
+            Y[0] - Y[3],
+            Y[2] + Y[1],
+            Y[2] - Y[1],
+            ])
+        return Z
+
+    def apply_MT(self, abcd):
+        a, b, c, d = abcd
+        X = 0.5 * numpy.array([a+b, c-d, c+d, a-b])
+
+        Y = numpy.array([
+            X[0]*self.J[0][0] + X[1]*self.J[0][1],
+            X[0]*self.J[1][0] + X[1]*self.J[1][1],
+            X[2]*self.J[0][0] + X[3]*self.J[0][1],
+            X[2]*self.J[1][0] + X[3]*self.J[1][1],
+            ])
+
+        Z = numpy.array([
+            self.dx.T.dot(Y[0]) + self.dy.T.dot(Y[1]),
+            self.dx.T.dot(Y[2]) + self.dy.T.dot(Y[3]),
+            ])
+        return Z
+
+    def get_q2_r2(self, ax, ay):
+        a, b, c, d = self.apply_M(ax, ay)
         # From the square roots of q2 and r2, the ellipse axes can be computed,
         # namely
         #
@@ -447,8 +493,22 @@ class PiecewiseEllipse(object):
         #
         q2 = a**2 + d**2
         r2 = b**2 + c**2
-
         return q2, r2
+
+    def jac_q2_r2(self, ax, ay, bx, by):
+        a, b, c, d = self.apply_M(ax, ay)
+        #
+        e, f, g, h = self.apply_M(bx, by)
+        out1 = 2 * (a*e + d*h)
+        out2 = 2 * (b*f + c*g)
+        return out1, out2
+
+    def jacT_q2_r2(self, ax, ay, out1, out2):
+        a, b, c, d = self.apply_M(ax, ay)
+        #
+        X = 2 * numpy.array([a*out1, b*out2, c*out2, d*out1])
+        Y = self.apply_MT(X)
+        return Y
 
     def get_ellipse_axes(self, alpha):
         ax, ay = numpy.split(alpha, 2)
@@ -494,87 +554,7 @@ class PiecewiseEllipse(object):
 
         return numpy.concatenate(out)
 
-    def cost_min(self, alpha):
-        n = self.V.dim()
-        ax = alpha[:n]
-        ay = alpha[n:]
-
-        Lax = self.L * ax
-        Lay = self.L * ay
-
-        q2, r2 = self.get_q2_r2(ax, ay)
-
-        out = [
-            0.5 * numpy.dot(Lax, Lax),
-            0.5 * numpy.dot(Lay, Lay),
-            0.5 * numpy.dot(q2-1, q2-1),
-            0.5 * numpy.dot(r2, r2),
-            ]
-
-        if self.num_f_eval % 10000 == 0:
-            print('{:7d}     {:e} {:e} {:e} {:e}'.format(self.num_f_eval, *out))
-
-        self.num_f_eval += 1
-        return numpy.sum(out)
-
-    def cost_min_res(self, alpha):
-        n = self.V.dim()
-        ax = alpha[:n]
-        ay = alpha[n:]
-
-        # ml = pyamg.ruge_stuben_solver(self.L)
-        # # ml = pyamg.smoothed_aggregation_solver(self.L)
-        # print(ml)
-        # print()
-        # print(self.L)
-        # print()
-        # x = ml.solve(ax, tol=1e-10)
-        # print('residual: {}'.format(numpy.linalg.norm(ax - self.L*x)))
-        # print()
-        # print(ax)
-        # print()
-        # print(x)
-        # exit(1)
-
-        # x = sparse.linalg.spsolve(self.L, ax)
-        # print('residual: {}'.format(numpy.linalg.norm(ax - self.L*x)))
-        # exit(1)
-
-        q2, r2 = self.get_q2_r2(ax, ay)
-
-        Lax = self.L * ax
-        Lay = self.L * ay
-
-        out = [
-            0.5 * numpy.dot(Lax, Lax),
-            0.5 * numpy.dot(Lay, Lay),
-            0.5 * numpy.dot(q2-1, q2-1),
-            0.5 * numpy.dot(r2, r2),
-            ]
-
-        if self.num_f_eval % 10000 == 0:
-            print('{:7d}     {:e} {:e} {:e} {:e}'.format(self.num_f_eval, *out))
-
-        self.num_f_eval += 1
-        return numpy.sum(out)
-
-
-    def get_u(self, alpha):
-        n = self.V.dim()
-        ax = alpha[:n]
-        ay = alpha[n:]
-
-        ux = Function(self.V)
-        ux.vector().set_local(ax)
-        ux.vector().apply('')
-
-        uy = Function(self.V)
-        uy.vector().set_local(ay)
-        uy.vector().apply('')
-        return ux, uy
-
-
-    def get_jac(self, alpha):
+    def jac_ls(self, alpha):
         m = 2*self.V.dim() + 2*self.centers.shape[0]
         n = alpha.shape[0]
 
@@ -682,6 +662,171 @@ class PiecewiseEllipse(object):
 
         return LinearOperator([m, n], matvec=matvec, rmatvec=rmatvec)
 
+    def cost_min(self, alpha):
+        n = self.V.dim()
+        ax = alpha[:n]
+        ay = alpha[n:]
+
+        Lax = self.L * ax
+        Lay = self.L * ay
+
+        q2, r2 = self.get_q2_r2(ax, ay)
+
+        out = [
+            0.5 * numpy.dot(Lax, Lax),
+            0.5 * numpy.dot(Lay, Lay),
+            0.5 * numpy.dot(q2-1, q2-1),
+            0.5 * numpy.dot(r2, r2),
+            ]
+
+        if self.num_f_eval % 100 == 0:
+            print('{:7d}     {:e} {:e} {:e} {:e}'.format(self.num_f_eval, *out))
+
+        self.num_f_eval += 1
+        return numpy.sum(out)
+
+    def grad_min(self, alpha):
+        n = self.V.dim()
+
+        assert_equality = False
+
+        if assert_equality:
+            M = []
+            for k in range(30):
+                e = numpy.zeros(30)
+                e[k] = 1.0
+                ax = e[:n]
+                ay = e[n:]
+                M.append(numpy.concatenate(self.apply_M_alt(ax, ay)))
+            M = numpy.column_stack(M)
+
+            MT = []
+            for k in range(100):
+                e = numpy.zeros(100)
+                e[k] = 1.0
+                abcd = numpy.array([
+                    e[:25],
+                    e[25:50],
+                    e[50:75],
+                    e[75:],
+                    ])
+                MT.append(numpy.concatenate(self.apply_MT(abcd)))
+            MT = numpy.column_stack(MT)
+            assert numpy.all(abs(M.T - MT) < 1.0e-13)
+
+
+        if assert_equality:
+            M = []
+            for k in range(30):
+                e = numpy.zeros(30)
+                e[k] = 1.0
+                bx = e[:n]
+                by = e[n:]
+                M.append(numpy.concatenate(self.jac_q2_r2(ax, ay, bx, by)))
+            M = numpy.column_stack(M)
+
+            MT = []
+            for k in range(50):
+                e = numpy.zeros(50)
+                e[k] = 1.0
+                out1 = e[:25]
+                out2 = e[25:]
+                MT.append(numpy.concatenate(self.jacT_q2_r2(ax, ay, out1, out2)))
+            MT = numpy.column_stack(MT)
+            assert numpy.all(abs(M.T - MT) < 1.0e-13)
+
+        # TODO remove RAND
+        # numpy.random.seed(1)
+        # alpha = numpy.random.rand(2*n)
+
+        ax = alpha[:n]
+        ay = alpha[n:]
+
+        q2, r2 = self.get_q2_r2(ax, ay)
+        j = self.jacT_q2_r2(ax, ay, q2-1, r2)
+
+        out = [
+            self.LT.dot(self.L.dot(ax)) + j[0],
+            self.LT.dot(self.L.dot(ay)) + j[1],
+            ]
+
+        if assert_equality:
+            n = len(alpha)
+            g = []
+            for k in range(n):
+                e = numpy.zeros(n)
+                e[k] = 1.0
+                eps = 1.0e-5
+                f0 = self.cost_min(alpha - eps*e)
+                f1 = self.cost_min(alpha + eps*e)
+                g.append((f1 - f0) / (2*eps))
+
+            # print(numpy.array(g))
+            # print(numpy.concatenate(out))
+            assert numpy.all(
+                abs(numpy.array(g) - numpy.concatenate(out)) < 1.0e-5
+                )
+
+        return numpy.concatenate(out)
+
+    def cost_min2(self, alpha):
+        '''Residual formulation, Hessian is a low-rank update of the identity.
+        '''
+        n = self.V.dim()
+        ax = alpha[:n]
+        ay = alpha[n:]
+
+        # ml = pyamg.ruge_stuben_solver(self.L)
+        # # ml = pyamg.smoothed_aggregation_solver(self.L)
+        # print(ml)
+        # print()
+        # print(self.L)
+        # print()
+        # x = ml.solve(ax, tol=1e-10)
+        # print('residual: {}'.format(numpy.linalg.norm(ax - self.L*x)))
+        # print()
+        # print(ax)
+        # print()
+        # print(x)
+        # exit(1)
+
+        # x = sparse.linalg.spsolve(self.L, ax)
+        # print('residual: {}'.format(numpy.linalg.norm(ax - self.L*x)))
+        # exit(1)
+
+        q2, r2 = self.get_q2_r2(ax, ay)
+
+        Lax = self.L * ax
+        Lay = self.L * ay
+
+        out = [
+            0.5 * numpy.dot(Lax, Lax),
+            0.5 * numpy.dot(Lay, Lay),
+            0.5 * numpy.dot(q2-1, q2-1),
+            0.5 * numpy.dot(r2, r2),
+            ]
+
+        if self.num_f_eval % 10000 == 0:
+            print('{:7d}     {:e} {:e} {:e} {:e}'.format(self.num_f_eval, *out))
+
+        self.num_f_eval += 1
+        return numpy.sum(out)
+
+    def get_u(self, alpha):
+        n = self.V.dim()
+        ax = alpha[:n]
+        ay = alpha[n:]
+
+        ux = Function(self.V)
+        ux.vector().set_local(ax)
+        ux.vector().apply('')
+
+        uy = Function(self.V)
+        uy.vector().set_local(ay)
+        uy.vector().apply('')
+        return ux, uy
+
+
 
 def _main():
     centers, J = _get_macadam()
@@ -701,7 +846,7 @@ def _main():
     print('f evals     cost')
     # out = least_squares(
     #     problem.cost_ls, alpha0,
-    #     jac=problem.get_jac,
+    #     jac=problem.jac_ls,
     #     max_nfev=10000,
     #     method='trf',
     #     # tr_solver='exact',
@@ -713,11 +858,16 @@ def _main():
     # print(show_options(solver='minimize', method='cg'))
     from scipy.optimize import minimize
     out = minimize(
-        problem.cost_min_res, alpha0,
+        problem.cost_min,
+        alpha0,
+        jac=problem.grad_min,
         method='BFGS',
         options={'maxiter': 100000, 'gtol': 1.0e-5}
         )
-    print(out)
+    print(out.success)
+    print(out.fun)
+    print(out.nfev)
+    print(out.njev)
 
     filename = 'optimal-{}.npy'.format(ref_steps)
     print('Writing data to {}'.format(filename))
