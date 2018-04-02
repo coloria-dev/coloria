@@ -478,8 +478,8 @@ class PiecewiseEllipse(object):
             ])
 
         Z = numpy.array([
-            self.dx.T.dot(Y[0]) + self.dy.T.dot(Y[1]),
-            self.dx.T.dot(Y[2]) + self.dy.T.dot(Y[3]),
+            self.dxT.dot(Y[0]) + self.dyT.dot(Y[1]),
+            self.dxT.dot(Y[2]) + self.dyT.dot(Y[3]),
             ])
         return Z
 
@@ -679,7 +679,7 @@ class PiecewiseEllipse(object):
             0.5 * numpy.dot(r2, r2),
             ]
 
-        if self.num_f_eval % 100 == 0:
+        if self.num_f_eval % 10000 == 0:
             print('{:7d}     {:e} {:e} {:e} {:e}'.format(self.num_f_eval, *out))
 
         self.num_f_eval += 1
@@ -734,10 +734,6 @@ class PiecewiseEllipse(object):
                 MT.append(numpy.concatenate(self.jacT_q2_r2(ax, ay, out1, out2)))
             MT = numpy.column_stack(MT)
             assert numpy.all(abs(M.T - MT) < 1.0e-13)
-
-        # TODO remove RAND
-        # numpy.random.seed(1)
-        # alpha = numpy.random.rand(2*n)
 
         ax = alpha[:n]
         ay = alpha[n:]
@@ -861,13 +857,11 @@ def _main():
         problem.cost_min,
         alpha0,
         jac=problem.grad_min,
-        method='BFGS',
-        options={'maxiter': 100000, 'gtol': 1.0e-5}
+        method='L-BFGS-B',
         )
     print(out.success)
     print(out.fun)
     print(out.nfev)
-    print(out.njev)
 
     filename = 'optimal-{}.npy'.format(ref_steps)
     print('Writing data to {}'.format(filename))
