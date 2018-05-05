@@ -18,7 +18,7 @@ class CIELAB(object):
             out = numpy.array(t, dtype=float)
             is_greater = out > delta**3
             out[is_greater] = numpy.cbrt(out[is_greater])
-            out[~is_greater] = out[~is_greater]/3/delta**2 + 4.0/29.0
+            out[~is_greater] = out[~is_greater]/3/(delta*delta) + 4.0/29.0
             return out
 
         fx, fy, fz = f((xyz.T / self.whitepoint).T)
@@ -34,7 +34,7 @@ class CIELAB(object):
             out = numpy.array(t, dtype=float)
             is_greater = out > delta
             out[is_greater] = out[is_greater]**3
-            out[~is_greater] = 3*delta**2 * (out[~is_greater] - 4.0/29.0)
+            out[~is_greater] = 3*delta*delta * (out[~is_greater] - 4.0/29.0)
             return out
 
         L, a, b = lab

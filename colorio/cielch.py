@@ -13,7 +13,7 @@ class CIELCH(object):
 
     def from_xyz100(self, xyz):
         L, u, v = self.cielab.from_xyz100(xyz)
-        C = numpy.sqrt(u**2 + v**2)
+        C = numpy.hypot(u, v)
         h = numpy.mod(numpy.arctan2(v, u), 2*numpy.pi) / numpy.pi * 180
         return numpy.array([L, C, h])
 
