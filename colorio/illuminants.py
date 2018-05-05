@@ -104,7 +104,7 @@ def planckian_radiator(temperature):
     h = 6.62607004e-34
     # Boltzmann constant
     k = 1.38064852e-23
-    c1 = 2*numpy.pi*h*c**2
+    c1 = 2*numpy.pi * h*c*c
     c2 = h*c / k
     return lmbda, c1 / lmbda**5 / (numpy.exp(c2/lmbda/temperature)-1)
 
@@ -158,12 +158,12 @@ def d(nominal_temperature):
     tcp = 1.4388e-2/1.4380e-2 * nominal_temperature
 
     if 4000 <= tcp <= 7000:
-        xd = -4.6070e9/tcp**3 + 2.9678e6/tcp**2 + 0.09911e3/tcp + 0.244063
+        xd = ((-4.6070e9/tcp + 2.9678e6)/tcp + 0.09911e3)/tcp + 0.244063
     else:
         assert 7000 < tcp <= 25000
-        xd = -2.0064e9/tcp**3 + 1.9018e6/tcp**2 + 0.24748e3/tcp + 0.237040
+        xd = ((-2.0064e9/tcp + 1.9018e6)/tcp + 0.24748e3)/tcp + 0.237040
 
-    yd = -3.000*xd**2 + 2.870*xd - 0.275
+    yd = (-3.000*xd + 2.870)*xd - 0.275
 
     m1 = (-1.3515 - 1.7703*xd + 5.9114*yd) / (0.0241 + 0.2562*xd - 0.7341*yd)
     m2 = (+0.0300 - 31.4424*xd + 30.0717*yd) / (0.0241 + 0.2562*xd - 0.7341*yd)

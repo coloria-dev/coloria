@@ -41,7 +41,7 @@ class SrgbLinear(object):
 
         a = 0.055
         # https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation
-        is_smaller = srgb_linear <= 12.92 * 0.0031308  # 0.040449936
+        is_smaller = srgb_linear <= 0.040449936  # 12.92 * 0.0031308
 
         srgb_linear[is_smaller] /= 12.92
         srgb_linear[~is_smaller] = ((srgb_linear[~is_smaller] + a)/(1+a))**2.4

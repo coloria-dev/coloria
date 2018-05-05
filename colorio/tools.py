@@ -413,7 +413,7 @@ def show_macadam(scaling=1,
         dat = numpy.array(datak['data']).T
         X = (
             numpy.array([numpy.ones(dat[4].shape[0]), dat[4]])
-            / numpy.sqrt(1 + dat[4]**2) * dat[5]
+            / numpy.sqrt(1 + dat[4]*dat[4]) * dat[5]
             )
 
         if X.shape[1] < 2:
@@ -432,21 +432,18 @@ def show_macadam(scaling=1,
 
         def f_ellipse(data, x=X):
             a, b, theta = data
-            return (
-                + a**2 * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))**2
-                + b**2 * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))**2
-                - 1.0
-                )
+            ta = a * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))
+            tb = b * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))
+            return ta*ta + tb*tb - 1.0
 
         def jac(data, x=X):
             a, b, theta = data
+            sa = x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)
+            sb = x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta)
             return numpy.array([
-                + 2*a * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))**2,
-                + 2*b * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))**2,
-                + a**2 * 2*(x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))
-                * (-x[0] * numpy.sin(theta) + x[1] * numpy.cos(theta))
-                + b**2 * 2*(x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))
-                * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)),
+                + 2*sa*sa * a,
+                + 2*sb*sb * b,
+                + 2*sa*sb * (b*b - a*a),
                 ]).T
 
         (a, b, theta), _ = leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac)

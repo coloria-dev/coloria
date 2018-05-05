@@ -36,9 +36,7 @@ class ICtCp(object):
     def from_rec2100(self, rgb):
         lms = dot(self.M1, rgb)
 
-        lms_ = (
-            (self.c1 + self.c2 * lms**self.m1) / (1 + self.c3 * lms**self.m1)
-            )**self.m2
+        lms_ = ((self.c1 + self.c2 * lms**self.m1) / (1 + self.c3 * lms**self.m1)) ** self.m2
 
         ictcp = dot(self.M2, lms_)
         return ictcp
@@ -50,7 +48,7 @@ class ICtCp(object):
         # This next line is part of the model, but really it shouldn't occur
         # for sane input data.
         # t[t < 0] = 0.0
-        lms = (t / (self.c2 - self.c3*lms_**(1/self.m2)))**(1/self.m1)
+        lms = (t / (self.c2 - self.c3*lms_**(1/self.m2))) ** (1/self.m1)
 
         rgb = solve(self.M1, lms)
         return rgb
