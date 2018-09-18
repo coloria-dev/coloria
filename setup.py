@@ -9,16 +9,11 @@ from setuptools import setup, find_packages
 base_dir = os.path.abspath(os.path.dirname(__file__))
 about = {}
 with open(os.path.join(base_dir, "colorio", "__about__.py"), "rb") as f:
-    # pylint: disable=exec-used
     exec(f.read(), about)
 
 
 def read(fname):
-    try:
-        content = codecs.open(os.path.join(base_dir, fname), encoding="utf-8").read()
-    except FileNotFoundError:
-        content = ""
-    return content
+    return codecs.open(os.path.join(base_dir, fname), encoding="utf-8").read()
 
 
 setup(
@@ -38,12 +33,12 @@ setup(
         ]
     },
     url="https://github.com/nschloe/colorio",
-    download_url="https://pypi.python.org/pypi/colorio",
     author=about["__author__"],
     author_email=about["__email__"],
     install_requires=["matplotlib", "meshio", "meshzoo", "numpy"],
     description="tools for color models",
-    long_description=read("README.rst"),
+    long_description=read("README.md"),
+    long_description_content_type="text/markdown",
     license=about["__license__"],
     classifiers=[
         about["__license__"],
