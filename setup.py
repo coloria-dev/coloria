@@ -35,7 +35,7 @@ setup(
     url="https://github.com/nschloe/colorio",
     author=about["__author__"],
     author_email=about["__email__"],
-    install_requires=["matplotlib", "meshio", "meshzoo", "numpy", "pyyaml"],
+    install_requires=["matplotlib", "meshio", "meshzoo", "numpy", "pyyaml", "scipy"],
     description="tools for color models",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
