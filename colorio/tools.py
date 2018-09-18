@@ -70,7 +70,7 @@ def show_visible_gamut(colorspace, observer, illuminant, filename,
 
     pts = colorspace.from_xyz100(values.T).T
 
-    meshio.write(filename, pts, cells={'triangle': cells})
+    meshio.write_points_cells(filename, pts, cells={'triangle': cells})
     return
 
 
@@ -88,7 +88,7 @@ def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
     srgb_linear = SrgbLinear()
     pts = colorspace.from_xyz100(srgb_linear.to_xyz100(points.T)).T
     rgb = srgb_linear.to_srgb1(points)
-    meshio.write(
+    meshio.write_points_cells(
         filename,
         pts, {'tetra': cells},
         point_data={'srgb': rgb}
@@ -110,7 +110,7 @@ def show_hdr_gamut(colorspace, filename, n=50, cut_000=False):
     cs = Rec2020()
     pts = colorspace.from_xyz100(cs.to_xyz100(points.T)).T
     rgb = cs.to_gamma(points)
-    meshio.write(
+    meshio.write_points_cells(
         filename,
         pts, {'tetra': cells},
         point_data={'rec2020-rgb': rgb}
