@@ -557,8 +557,7 @@ def _plot_ellipse_data(
         # cells = numpy.array(data['cells'])
 
         points, cells = meshzoo.triangle(
-            n,
-            corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]),
+            n, corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
         )
         points = points[:, :2]
 
