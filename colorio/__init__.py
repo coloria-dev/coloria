@@ -6,7 +6,6 @@ from .__about__ import (
     __author__,
     __email__,
     __copyright__,
-    __credits__,
     __license__,
     __version__,
     __maintainer__,
@@ -41,6 +40,47 @@ from .tools import (
     show_luo_rigg,
     show_xiao,
 )
+
+__all__ = [
+    "__author__",
+    "__email__",
+    "__copyright__",
+    "__license__",
+    "__version__",
+    "__maintainer__",
+    "__status__",
+    #
+    "CAM16",
+    "CAM16UCS",
+    "CIECAM02",
+    "CAM02",
+    "NegativeAError",
+    "CIEHCL",
+    "CIELAB",
+    "CIELCH",
+    "CIELUV",
+    "illuminants",
+    "ICtCp",
+    "IPT",
+    "JzAzBz",
+    "observers",
+    "Rec2020",
+    "SrgbLinear",
+    "XYY",
+    "XYZ",
+    #
+    "show_srgb_gamut",
+    "show_hdr_gamut",
+    "show_visible_gamut",
+    "show_gamut_diagram",
+    "delta",
+    "show_ebner_fairchild",
+    "show_hung_berns",
+    "show_munsell",
+    "show_macadam",
+    "show_luo_rigg",
+    "show_xiao",
+]
 
 try:
     import pipdate
