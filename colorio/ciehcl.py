@@ -7,16 +7,15 @@ from .illuminants import whitepoints_cie1931
 
 
 class CIEHCL(object):
-
-    def __init__(self, whitepoint=whitepoints_cie1931['D65']):
+    def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
         self.cieluv = cieluv.CIELUV(whitepoint=whitepoint)
-        self.labels = ['L', 'C', 'h']
+        self.labels = ["L", "C", "h"]
         return
 
     def from_xyz100(self, xyz):
         L, u, v = self.cieluv.from_xyz100(xyz)
-        C = numpy.sqrt(u**2 + v**2)
-        h = numpy.mod(numpy.arctan2(v, u), 2*numpy.pi) / numpy.pi * 180
+        C = numpy.sqrt(u ** 2 + v ** 2)
+        h = numpy.mod(numpy.arctan2(v, u), 2 * numpy.pi) / numpy.pi * 180
         return numpy.array([L, C, h])
 
     def to_xyz100(self, lch):

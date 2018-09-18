@@ -8,14 +8,14 @@ import sympy
 
 def _create_tree(alpha, degree):
     return [
-        numpy.array([alpha[d*(d+1)//2 + i] for i in range(d+1)])
-        for d in range(degree+1)
-        ]
+        numpy.array([alpha[d * (d + 1) // 2 + i] for i in range(d + 1)])
+        for d in range(degree + 1)
+    ]
     # return numpy.split(alpha, numpy.arange(1, degree+1))
 
 
 def _get_xy_tree(xy, degree):
-    '''Evaluates the entire tree of 2d mononomials.
+    """Evaluates the entire tree of 2d mononomials.
 
     The return value is a list of arrays, where `out[k]` hosts the `2*k+1`
     values of the `k`th level of the tree
@@ -24,26 +24,22 @@ def _get_xy_tree(xy, degree):
         (1, 0)   (0, 1)
         (2, 0)   (1, 1)   (0, 2)
           ...      ...      ...
-    '''
+    """
     x, y = xy
-    tree = [
-        numpy.array([numpy.ones(x.shape, dtype=int)])
-        ]
+    tree = [numpy.array([numpy.ones(x.shape, dtype=int)])]
     for d in range(degree):
-        tree.append(
-            numpy.concatenate([tree[-1] * x, [tree[-1][-1]*y]])
-            )
+        tree.append(numpy.concatenate([tree[-1] * x, [tree[-1][-1] * y]]))
     return tree
 
 
 def _get_dx_tree(xy, degree):
-    '''
+    """
                                       0
                             1*(0, 0)  0
                   2*(1, 0)  1*(0, 1)  0
         3*(2, 0)  2*(1, 1)  1*(0, 2)  0
           ...       ...      ...     ...
-    '''
+    """
     x, y = xy
 
     # build smaller tree
@@ -51,13 +47,15 @@ def _get_dx_tree(xy, degree):
     tree = [one]
     for d in range(1, degree):
         tree.append(
-            numpy.concatenate([
-                # Integer division `//` would be nice here, but
-                # <https://github.com/sympy/sympy/issues/14542>.
-                [tree[-1][0] / d * (d+1) * x],
-                tree[-1] * y,
-                ])
+            numpy.concatenate(
+                [
+                    # Integer division `//` would be nice here, but
+                    # <https://github.com/sympy/sympy/issues/14542>.
+                    [tree[-1][0] / d * (d + 1) * x],
+                    tree[-1] * y,
+                ]
             )
+        )
 
     # append zeros
     zero = numpy.array([numpy.zeros(x.shape, dtype=int)])
@@ -66,26 +64,28 @@ def _get_dx_tree(xy, degree):
 
 
 def _get_dy_tree(xy, degree):
-    '''
+    """
         0
         0  1*(0, 0)
         0  1*(1, 0)  2*(0, 1)
         0  1*(2, 0)  2*(1, 1)  3*(0, 2)
        ...   ...       ...       ...
-    '''
+    """
     x, y = xy
 
     one = numpy.array([numpy.ones(x.shape, dtype=int)])
     tree = [one]
     for d in range(1, degree):
         tree.append(
-            numpy.concatenate([
-                tree[-1] * x,
-                # Integer division `//` would be nice here, but
-                # <https://github.com/sympy/sympy/issues/14542>.
-                [tree[-1][-1] / d * (d+1) * y]
-                ])
+            numpy.concatenate(
+                [
+                    tree[-1] * x,
+                    # Integer division `//` would be nice here, but
+                    # <https://github.com/sympy/sympy/issues/14542>.
+                    [tree[-1][-1] / d * (d + 1) * y],
+                ]
             )
+        )
 
     # prepend zeros
     zero = numpy.array([numpy.zeros(x.shape, dtype=int)])
@@ -94,11 +94,12 @@ def _get_dy_tree(xy, degree):
 
 
 class Pade2d(object):
-    '''Pad'e polynomial in from R^2 to R^2, i.e., both components are Pad'e
+    """Pad'e polynomial in from R^2 to R^2, i.e., both components are Pad'e
     functions in x and y. The function is characterized by four sets of
     coefficients, two for the components and two for numerator and denominator
     each.
-    '''
+    """
+
     def __init__(self, xy, degrees, ax, bx, ay, by):
         self.degrees = degrees
         self.set_coefficients(ax, bx, ay, by)
@@ -106,10 +107,10 @@ class Pade2d(object):
         return
 
     def set_coefficients(self, ax, bx, ay, by):
-        assert len(ax) == (self.degrees[0]+1) * (self.degrees[0]+2) // 2
-        assert len(bx) == (self.degrees[1]+1) * (self.degrees[1]+2) // 2
-        assert len(ay) == (self.degrees[2]+1) * (self.degrees[2]+2) // 2
-        assert len(by) == (self.degrees[3]+1) * (self.degrees[3]+2) // 2
+        assert len(ax) == (self.degrees[0] + 1) * (self.degrees[0] + 2) // 2
+        assert len(bx) == (self.degrees[1] + 1) * (self.degrees[1] + 2) // 2
+        assert len(ay) == (self.degrees[2] + 1) * (self.degrees[2] + 2) // 2
+        assert len(by) == (self.degrees[3] + 1) * (self.degrees[3] + 2) // 2
 
         self.ax = ax
         self.ay = ay
@@ -121,60 +122,59 @@ class Pade2d(object):
         self.xy = xy
 
         xy_tree = _get_xy_tree(xy, max(self.degrees))
-        self.xy_list = \
-            numpy.array([item for branch in xy_tree for item in branch])
+        self.xy_list = numpy.array([item for branch in xy_tree for item in branch])
 
         dx_tree = _get_dx_tree(xy, max(self.degrees))
-        self.dx_list = \
-            numpy.array([item for branch in dx_tree for item in branch])
+        self.dx_list = numpy.array([item for branch in dx_tree for item in branch])
 
         dy_tree = _get_dy_tree(xy, max(self.degrees))
-        self.dy_list = \
-            numpy.array([item for branch in dy_tree for item in branch])
+        self.dy_list = numpy.array([item for branch in dy_tree for item in branch])
         return
 
     def eval(self, xy=None):
         if xy is not None:
             self.set_xy(xy)
 
-        ux = numpy.dot(self.ax, self.xy_list[:len(self.ax)])
-        vx = numpy.dot(self.bx, self.xy_list[:len(self.bx)])
-        uy = numpy.dot(self.ay, self.xy_list[:len(self.ay)])
-        vy = numpy.dot(self.by, self.xy_list[:len(self.by)])
+        ux = numpy.dot(self.ax, self.xy_list[: len(self.ax)])
+        vx = numpy.dot(self.bx, self.xy_list[: len(self.bx)])
+        uy = numpy.dot(self.ay, self.xy_list[: len(self.ay)])
+        vy = numpy.dot(self.by, self.xy_list[: len(self.by)])
 
         return numpy.array([ux / vx, uy / vy])
 
     def jac(self, xy=None):
-        '''Get the Jacobian at (x, y).
-        '''
+        """Get the Jacobian at (x, y).
+        """
         if xy is not None:
             self.set_xy(xy)
 
-        ux = numpy.dot(self.ax, self.xy_list[:len(self.ax)])
-        vx = numpy.dot(self.bx, self.xy_list[:len(self.bx)])
-        uy = numpy.dot(self.ay, self.xy_list[:len(self.ay)])
-        vy = numpy.dot(self.by, self.xy_list[:len(self.by)])
+        ux = numpy.dot(self.ax, self.xy_list[: len(self.ax)])
+        vx = numpy.dot(self.bx, self.xy_list[: len(self.bx)])
+        uy = numpy.dot(self.ay, self.xy_list[: len(self.ay)])
+        vy = numpy.dot(self.by, self.xy_list[: len(self.by)])
 
-        ux_dx = numpy.dot(self.ax, self.dx_list[:len(self.ax)])
-        vx_dx = numpy.dot(self.bx, self.dx_list[:len(self.bx)])
-        uy_dx = numpy.dot(self.ay, self.dx_list[:len(self.ay)])
-        vy_dx = numpy.dot(self.by, self.dx_list[:len(self.by)])
+        ux_dx = numpy.dot(self.ax, self.dx_list[: len(self.ax)])
+        vx_dx = numpy.dot(self.bx, self.dx_list[: len(self.bx)])
+        uy_dx = numpy.dot(self.ay, self.dx_list[: len(self.ay)])
+        vy_dx = numpy.dot(self.by, self.dx_list[: len(self.by)])
 
-        ux_dy = numpy.dot(self.ax, self.dy_list[:len(self.ax)])
-        vx_dy = numpy.dot(self.bx, self.dy_list[:len(self.bx)])
-        uy_dy = numpy.dot(self.ay, self.dy_list[:len(self.ay)])
-        vy_dy = numpy.dot(self.by, self.dy_list[:len(self.by)])
+        ux_dy = numpy.dot(self.ax, self.dy_list[: len(self.ax)])
+        vx_dy = numpy.dot(self.bx, self.dy_list[: len(self.bx)])
+        uy_dy = numpy.dot(self.ay, self.dy_list[: len(self.ay)])
+        vy_dy = numpy.dot(self.by, self.dy_list[: len(self.by)])
 
-        jac = numpy.array([
+        jac = numpy.array(
             [
-                (ux_dx * vx - vx_dx * ux) / vx**2,
-                (ux_dy * vx - vx_dy * ux) / vx**2,
-            ],
-            [
-                (uy_dx * vy - vy_dx * uy) / vy**2,
-                (uy_dy * vy - vy_dy * uy) / vy**2,
-            ],
-            ])
+                [
+                    (ux_dx * vx - vx_dx * ux) / vx ** 2,
+                    (ux_dy * vx - vx_dy * ux) / vx ** 2,
+                ],
+                [
+                    (uy_dx * vy - vy_dx * uy) / vy ** 2,
+                    (uy_dy * vy - vy_dy * uy) / vy ** 2,
+                ],
+            ]
+        )
         return jac
 
     def print(self):

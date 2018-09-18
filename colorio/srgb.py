@@ -12,11 +12,9 @@ class SrgbLinear(object):
     def __init__(self):
         # The standard actually gives the values in terms of M, but really
         # inv(M) is a direct derivative of the primary specification.
-        primaries_xyy = numpy.array([
-            [0.64, 0.33, 0.2126],
-            [0.30, 0.60, 0.7152],
-            [0.15, 0.06, 0.0722],
-            ])
+        primaries_xyy = numpy.array(
+            [[0.64, 0.33, 0.2126], [0.30, 0.60, 0.7152], [0.15, 0.06, 0.0722]]
+        )
         self.invM = XYY().to_xyz100(primaries_xyy.T)
         # numpy.linalg.inv(self.invM) is the matrix in the spec:
         # self.M = numpy.array([
@@ -24,7 +22,7 @@ class SrgbLinear(object):
         #     [-0.9689307, +1.8757561, +0.0415175],
         #     [+0.0557101, -0.2040211, +1.0569959],
         #     ])
-        self.labels = ['R', 'G', 'B']
+        self.labels = ["R", "G", "B"]
         return
 
     def from_xyz100(self, xyz):
@@ -45,7 +43,7 @@ class SrgbLinear(object):
         is_smaller = srgb_linear <= 12.92 * 0.0031308  # 0.040449936
 
         srgb_linear[is_smaller] /= 12.92
-        srgb_linear[~is_smaller] = ((srgb_linear[~is_smaller] + a)/(1+a))**2.4
+        srgb_linear[~is_smaller] = ((srgb_linear[~is_smaller] + a) / (1 + a)) ** 2.4
         return srgb_linear
 
     def to_srgb1(self, srgb_linear):
@@ -53,5 +51,5 @@ class SrgbLinear(object):
         is_smaller = srgb_linear <= 0.0031308
         srgb = numpy.array(srgb_linear, dtype=float)
         srgb[is_smaller] *= 12.92
-        srgb[~is_smaller] = (1+a) * srgb[~is_smaller]**(1/2.4) - a
+        srgb[~is_smaller] = (1 + a) * srgb[~is_smaller] ** (1 / 2.4) - a
         return srgb

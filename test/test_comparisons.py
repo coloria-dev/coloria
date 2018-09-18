@@ -35,12 +35,12 @@ def test_0():
 
 
 def test_from():
-    '''Compare colorio with colorspacius and colour.
-    '''
+    """Compare colorio with colorspacius and colour.
+    """
     xyz = 100 * numpy.random.rand(3)
 
     Y_b = 20
-    whitepoint = colorio.illuminants.whitepoints_cie1931['D65']
+    whitepoint = colorio.illuminants.whitepoints_cie1931["D65"]
     L_A = 64 / numpy.pi / 5
 
     c = 0.69  # average
@@ -49,9 +49,8 @@ def test_from():
 
     # compare with colorspacious
     cs1 = colorspacious.ciecam02.CIECAM02Space(
-        whitepoint, Y_b, L_A,
-        surround=colorspacious.CIECAM02Surround.AVERAGE
-        )
+        whitepoint, Y_b, L_A, surround=colorspacious.CIECAM02Surround.AVERAGE
+    )
     ref1 = cs1.XYZ100_to_CIECAM02(xyz)
     assert abs(ref1.J - J) < 1.0e-14 * J
     assert abs(ref1.C - C) < 1.0e-14 * C
@@ -62,9 +61,7 @@ def test_from():
     assert abs(ref1.Q - Q) < 1.0e-14 * Q
 
     # compare with color
-    ref2 = colour.appearance.ciecam02.XYZ_to_CIECAM02(
-        xyz, whitepoint, L_A, Y_b
-        )
+    ref2 = colour.appearance.ciecam02.XYZ_to_CIECAM02(xyz, whitepoint, L_A, Y_b)
     assert abs(ref2.J - J) < 1.0e-14 * J
     assert abs(ref2.C - C) < 1.0e-14 * C
     # assert abs(ref2.H - H) < 1.0e-14 * H
@@ -94,14 +91,11 @@ def performance_comparison_from():
 
     perfplot.show(
         setup=setup,
-        kernels=[
-            cam16.from_xyz100,
-            cam16_legacy.from_xyz100,
-            ],
-        labels=['new', 'legacy'],
+        kernels=[cam16.from_xyz100, cam16_legacy.from_xyz100],
+        labels=["new", "legacy"],
         n_range=1000 * numpy.arange(6),
-        equality_check=False
-        )
+        equality_check=False,
+    )
     return
 
 
@@ -115,27 +109,25 @@ def performance_comparison_to():
     cam16 = colorio.CAM16(c, Y_b, L_A)
 
     def cio(x):
-        return cam16.to_xyz100(x, 'JCh')
+        return cam16.to_xyz100(x, "JCh")
 
     cam16_legacy = CAM16Legacy(c, Y_b, L_A)
 
     def cio_legacy(x):
-        return cam16_legacy.to_xyz100(x, 'JCh')
+        return cam16_legacy.to_xyz100(x, "JCh")
 
     perfplot.plot(
         setup=lambda n: numpy.random.rand(3, n),
-        kernels=[
-            cio, cio_legacy
-            ],
+        kernels=[cio, cio_legacy],
         n_range=100000 * numpy.arange(11),
-        xlabel='Number of input samples'
-        )
+        xlabel="Number of input samples",
+    )
 
     # import matplotlib2tikz
     # matplotlib2tikz.save('fig.tikz')
     return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     performance_comparison_to()
     # test_0()
