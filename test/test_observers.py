@@ -6,10 +6,9 @@ import pytest
 import colorio
 
 
-@pytest.mark.parametrize('observer', [
-    colorio.observers.cie_1931_2(),
-    colorio.observers.cie_1964_10(),
-    ])
+@pytest.mark.parametrize(
+    "observer", [colorio.observers.cie_1931_2(), colorio.observers.cie_1964_10()]
+)
 def test_observers(observer):
     lmbda, data = observer
 
@@ -20,7 +19,7 @@ def test_observers(observer):
     for k in range(3):
         out = colorio.illuminants.spectrum_to_xyz100(
             (lmbda, data[k]), observer=observer
-            )
+        )
         out *= 100 / out[1]
         srgb = colorio.SrgbLinear()
         rgb_vals = srgb.from_xyz100(out)
@@ -33,7 +32,7 @@ def test_observers(observer):
     plt.plot(lmbda, data[1], color=colors[1])
     plt.plot(lmbda, data[2], color=colors[2])
 
-    plt.xlabel('wavelength (nm)')
+    plt.xlabel("wavelength (nm)")
     plt.grid()
     plt.xlim(lmbda[0], lmbda[-1])
     plt.ylim(ymin=0)
@@ -42,8 +41,8 @@ def test_observers(observer):
     return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_observers(
         # colorio.observers.cie_1931_2()
         colorio.observers.cie_1964_10()
-        )
+    )
