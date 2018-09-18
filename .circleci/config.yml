@@ -9,9 +9,7 @@ jobs:
       - run: apt-get update
       - run: apt-get install -y git python3-pip gmsh python3-lxml
       - run: pip3 install -U pytest pytest-cov black flake8
-      # lint, bandit
-      - run: pylint setup.py colorio/ test/*.py
-      - run: bandit -r .
+      - checkout
       - run: pip3 install .[all]
       # format and lint
       - run: LC_ALL=C.UTF-8 black --check setup.py colorio/ test/*.py
@@ -19,5 +17,5 @@ jobs:
       # The tests
       - run: cd test/ && MPLBACKEND=Agg pytest --cov colorio
       # submit to codecov
-      - run: apt install -y curl
+      - run: apt-get install -y curl
       - run: bash <(curl -s https://codecov.io/bash)
