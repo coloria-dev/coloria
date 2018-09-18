@@ -115,7 +115,7 @@ def test_macadam():
 
 
 def test_luo_rigg():
-    colorio.show_luo_rigg(scaling=1.5)
+    colorio.show_luo_rigg(ellipse_scaling=1.5)
     return
 
 
