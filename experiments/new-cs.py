@@ -393,9 +393,9 @@ class PiecewiseEllipse(object):
         # condition. This setting makes sure that the "first" node maps to [0,
         # 0], a convention. Useful because now, L is nonsingular. Unfortunately
         # it's also nonsymmetric.
-        data[indptr[0]:indptr[1]] = 0.0
-        assert indices[0] == 0
-        data[0] = 1.0
+        # data[indptr[0]:indptr[1]] = 0.0
+        # assert indices[0] == 0
+        # data[0] = 1.0
         size = Lmat.getSize()
         self.L = sparse.csr_matrix((data, indices, indptr), shape=size)
         self.LT = self.L.getH()
@@ -673,8 +673,8 @@ class PiecewiseEllipse(object):
         q2, r2 = self.get_q2_r2(ax, ay)
 
         out = [
-            0.5 * numpy.dot(Lax, Lax),
-            0.5 * numpy.dot(Lay, Lay),
+            0.5 * numpy.dot(ax, Lax),
+            0.5 * numpy.dot(ay, Lay),
             0.5 * numpy.dot(q2-1, q2-1),
             0.5 * numpy.dot(r2, r2),
             ]
@@ -742,8 +742,8 @@ class PiecewiseEllipse(object):
         j = self.jacT_q2_r2(ax, ay, q2-1, r2)
 
         out = [
-            self.LT.dot(self.L.dot(ax)) + j[0],
-            self.LT.dot(self.L.dot(ay)) + j[1],
+            0.5 * (self.L.dot(ax) + self.LT.dot(ax)) + j[0],
+            0.5 * (self.L.dot(ay) + self.LT.dot(ay)) + j[1],
             ]
 
         if assert_equality:
@@ -759,6 +759,7 @@ class PiecewiseEllipse(object):
 
             # print(numpy.array(g))
             # print(numpy.concatenate(out))
+            # print(numpy.array(g) - numpy.concatenate(out))
             assert numpy.all(
                 abs(numpy.array(g) - numpy.concatenate(out)) < 1.0e-5
                 )
@@ -857,7 +858,8 @@ def _main():
         problem.cost_min,
         alpha0,
         jac=problem.grad_min,
-        method='L-BFGS-B',
+        method='BFGS',
+        # method='L-BFGS-B',
         )
     print(out.success)
     print(out.fun)

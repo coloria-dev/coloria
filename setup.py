@@ -32,9 +32,6 @@ setup(
         'data/xiao/*.yaml',
         ]},
     url='https://github.com/nschloe/colorio',
-    project_urls={
-      'Issues': 'https://github.com/nschloe/colorio/issues',
-      },
     author=about['__author__'],
     author_email=about['__email__'],
     install_requires=[
@@ -42,6 +39,7 @@ setup(
         'meshio',
         'meshzoo',
         'numpy',
+        "pyyaml",
         ],
     description='Tools for color models',
     long_description=read('README.md'),
