@@ -107,12 +107,6 @@ def show_hdr_gamut(colorspace, filename, n=50, cut_000=False):
     return
 
 
-def show_gamut_diagram(*args, **kwargs):
-    plot_gamut_diagram(*args, **kwargs)
-    plt.show()
-    return
-
-
 def partition(boxes, balls):
     # <https://stackoverflow.com/a/36748940/353337>
     def rec(boxes, balls, parent=tuple()):
