@@ -2,21 +2,20 @@ version: 2
 
 jobs:
   build:
-    working_directory: ~/colorio
+    working_directory: ~/work
     docker:
       - image: ubuntu:18.04
     steps:
-      - run: apt update
-      - run: apt install -y git python3-pip
-      - run: pip3 install -U pytest pytest-cov pylint bandit
+      - run: apt-get update
+      - run: apt-get install -y git python3-pip
+      - run: pip3 install -U pytest pytest-cov black flake8
       - checkout
       - run: pip3 install .
-      - run: pip3 install -r test_requirements.txt
-      # lint, bandit
-      - run: pylint setup.py colorio/ test/*.py
-      - run: bandit -r .
+      # format and lint
+      - run: LC_ALL=C.UTF-8 black --check setup.py colorio/ test/*.py
+      - run: flake8 setup.py colorio/ test/*.py
       # The tests
       - run: cd test/ && MPLBACKEND=Agg pytest --cov colorio
       # submit to codecov
-      - run: apt install -y curl
+      - run: apt-get install -y curl
       - run: bash <(curl -s https://codecov.io/bash)
