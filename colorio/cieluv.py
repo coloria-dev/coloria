@@ -25,12 +25,15 @@ class CIELUV(object):
         L = f(xyz[1] / self.whitepoint[1])
 
         x, y, z = xyz
-        u_ = 4 * x / (x + 15 * y + 3 * z)
-        v_ = 9 * y / (x + 15 * y + 3 * z)
+        p = x + 15 * y + 3 * z
+        u = 4 * x / p
+        v = 9 * y / p
+
         wx, wy, wz = self.whitepoint
-        un_ = 4 * wx / (wx + 15 * wy + 3 * wz)
-        vn_ = 9 * wy / (wx + 15 * wy + 3 * wz)
-        return numpy.array([L, 13 * L * (u_ - un_), 13 * L * (v_ - vn_)])
+        q = wx + 15 * wy + 3 * wz
+        un = 4 * wx / q
+        vn = 9 * wy / q
+        return numpy.array([L, 13 * L * (u - un), 13 * L * (v - vn)])
 
     def to_xyz100(self, luv):
         def f1(t):
@@ -43,8 +46,9 @@ class CIELUV(object):
         L, u, v = luv
 
         wx, wy, wz = self.whitepoint
-        un = 4 * wx / (wx + 15 * wy + 3 * wz)
-        vn = 9 * wy / (wx + 15 * wy + 3 * wz)
+        q = wx + 15 * wy + 3 * wz
+        un = 4 * wx / q
+        vn = 9 * wy / q
 
         uu = u / (13 * L) + un
         vv = v / (13 * L) + vn

@@ -59,7 +59,7 @@ def compute_from(rgb_, cs):
     #
     # Note the extra 0.305 here from the adaptation in rgb_a_ above.
     p1_ = 50000 / 13 * e_t * cs.N_c * cs.N_cb
-    t = p1_ * numpy.sqrt(a ** 2 + b ** 2) / (u + 0.305)
+    t = p1_ * numpy.hypot(a, b) / (u + 0.305)
 
     alpha = t ** 0.9 * (1.64 - 0.29 ** cs.n) ** 0.73
     C = alpha * sqrt_J_100
@@ -99,9 +99,9 @@ def compute_to(data, description, cs):
         alpha = numpy.nan_to_num(alpha)
     else:
         assert description[1] == "s"
-        s = data[1]
-        C = (s / 100) ** 2 * Q / cs.F_L ** 0.25
-        alpha = (s / 50) ** 2 * (cs.A_w + 4) / cs.c
+        s = data[1] / 100
+        C = s * s * Q / cs.F_L ** 0.25
+        alpha = 4 * s * s * (cs.A_w + 4) / cs.c
 
     t = (alpha / (1.64 - 0.29 ** cs.n) ** 0.73) ** (1 / 0.9)
 
@@ -216,7 +216,9 @@ class CIECAM02(object):
         self.D_RGB = D * Y_w / RGB_w + 1 - D
 
         k = 1 / (5 * L_A + 1)
-        self.F_L = k ** 4 * L_A + 0.1 * (1 - k ** 4) ** 2 * numpy.cbrt(5 * L_A)
+        k4 = k * k * k * k
+        l4 = 1 - k4
+        self.F_L = k4 * L_A + 0.1 * l4 * l4 * numpy.cbrt(5 * L_A)
 
         self.n = Y_b / Y_w
         self.z = 1.48 + numpy.sqrt(self.n)
@@ -307,6 +309,6 @@ class CAM02(object):
         J_, a, b = jab
         J = J_ / (1 - (J_ - 100) * self.c1)
         h = numpy.mod(numpy.arctan2(b, a), 2 * numpy.pi) / numpy.pi * 180
-        M_ = numpy.sqrt(a ** 2 + b ** 2)
+        M_ = numpy.hypot(a, b)
         M = (numpy.exp(M_ * self.c2) - 1) / self.c2
         return self.ciecam02.to_xyz100(numpy.array([J, M, h]), "JMh")

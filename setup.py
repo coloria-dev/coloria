@@ -9,7 +9,6 @@ from setuptools import setup, find_packages
 base_dir = os.path.abspath(os.path.dirname(__file__))
 about = {}
 with open(os.path.join(base_dir, "colorio", "__about__.py"), "rb") as f:
-    # pylint: disable=exec-used
     exec(f.read(), about)
 
 
@@ -34,11 +33,10 @@ setup(
         ]
     },
     url="https://github.com/nschloe/colorio",
-    project_urls={"Issues": "https://github.com/nschloe/colorio/issues"},
     author=about["__author__"],
     author_email=about["__email__"],
-    install_requires=["matplotlib", "meshio", "meshzoo", "numpy"],
-    description="Tools for color models",
+    install_requires=["matplotlib", "meshio", "meshzoo", "numpy", "pyyaml"],
+    description="tools for color models",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
     license=about["__license__"],

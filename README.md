@@ -4,11 +4,11 @@ Tools for color models.
 
 [![CircleCI](https://img.shields.io/circleci/project/github/nschloe/colorio/master.svg)](https://circleci.com/gh/nschloe/colorio/tree/master)
 [![codecov](https://img.shields.io/codecov/c/github/nschloe/colorio.svg)](https://codecov.io/gh/nschloe/colorio)
-[![Codacy grade](https://img.shields.io/codacy/grade/b23fbc2af9884315bd7d6275aa2629b6.svg)](https://app.codacy.com/app/nschloe/colorio/dashboard)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![colorful](https://img.shields.io/badge/colorful-very-ff69b4.svg)](https://github.com/nschloe/colorio)
 [![PyPi Version](https://img.shields.io/pypi/v/colorio.svg)](https://pypi.org/project/colorio)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1172995.svg)](https://doi.org/10.5281/zenodo.1172995)
-[![GitHub stars](https://img.shields.io/github/stars/nschloe/colorio.svg?logo=github&label=Stars)](https://github.com/nschloe/colorio)
+[![GitHub stars](https://img.shields.io/github/stars/nschloe/colorio.svg?logo=github&label=Stars&logoColor=white)](https://github.com/nschloe/colorio)
 
 All methods in colorio are fully vectorized.
 

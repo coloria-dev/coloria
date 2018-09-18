@@ -38,7 +38,6 @@ class JzAzBz(object):
                 [-0.0166008, 0.264800, 0.6684799],
             ]
         )
-
         self.M2 = numpy.array(
             [
                 [0.5, 0.5, 0],

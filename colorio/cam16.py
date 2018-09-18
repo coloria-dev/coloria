@@ -50,7 +50,9 @@ class CAM16(object):
         self.D_RGB = D * Y_w / RGB_w + 1 - D
 
         k = 1 / (5 * L_A + 1)
-        self.F_L = k ** 4 * L_A + 0.1 * (1 - k ** 4) ** 2 * numpy.cbrt(5 * L_A)
+        k4 = k * k * k * k
+        l4 = 1 - k4
+        self.F_L = k4 * L_A + 0.1 * l4 * l4 * numpy.cbrt(5 * L_A)
 
         self.n = Y_b / Y_w
         self.z = 1.48 + numpy.sqrt(self.n)
@@ -126,6 +128,6 @@ class CAM16UCS(object):
         J_, a, b = jab
         J = J_ / (1 - (J_ - 100) * self.c1)
         h = numpy.mod(numpy.arctan2(b, a) / numpy.pi * 180, 360)
-        M_ = numpy.sqrt(a ** 2 + b ** 2)
+        M_ = numpy.hypot(a, b)
         M = (numpy.exp(M_ * self.c2) - 1) / self.c2
         return self.cam16.to_xyz100(numpy.array([J, M, h]), "JMh")

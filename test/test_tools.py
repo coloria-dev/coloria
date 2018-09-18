@@ -130,7 +130,6 @@ def test_xy_gamut_mesh():
 
 
 if __name__ == "__main__":
-    # test_uv_gamut()
     # test_luo_rigg()
     test_xy_gamut_mesh()
     # test_macadam()

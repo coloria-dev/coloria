@@ -63,12 +63,13 @@ def show_visible_gamut(colorspace, observer, illuminant, filename, cut_000=False
 
     pts = colorspace.from_xyz100(values.T).T
 
-    meshio.write(filename, pts, cells={"triangle": cells})
+    meshio.write_points_cells(filename, pts, cells={"triangle": cells})
     return
 
 
 def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
     import meshio
+    import meshzoo
 
     points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
 
@@ -81,12 +82,13 @@ def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
     srgb_linear = SrgbLinear()
     pts = colorspace.from_xyz100(srgb_linear.to_xyz100(points.T)).T
     rgb = srgb_linear.to_srgb1(points)
-    meshio.write(filename, pts, {"tetra": cells}, point_data={"srgb": rgb})
+    meshio.write_points_cells(filename, pts, {"tetra": cells}, point_data={"srgb": rgb})
     return
 
 
 def show_hdr_gamut(colorspace, filename, n=50, cut_000=False):
     import meshio
+    import meshzoo
 
     points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
 
@@ -99,7 +101,15 @@ def show_hdr_gamut(colorspace, filename, n=50, cut_000=False):
     cs = Rec2020()
     pts = colorspace.from_xyz100(cs.to_xyz100(points.T)).T
     rgb = cs.to_gamma(points)
-    meshio.write(filename, pts, {"tetra": cells}, point_data={"rec2020-rgb": rgb})
+    meshio.write_points_cells(
+        filename, pts, {"tetra": cells}, point_data={"rec2020-rgb": rgb}
+    )
+    return
+
+
+def show_gamut_diagram(*args, **kwargs):
+    plot_gamut_diagram(*args, **kwargs)
+    plt.show()
     return
 
 
@@ -138,8 +148,7 @@ def _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=True):
     if fill_horseshoe:
         plt.fill(*full.T, color=[0.8, 0.8, 0.8], zorder=1)
     # plot horseshoe outline
-    plt.plot(*values.T, "-k", label="monochromatic light")
-    plt.plot(*connect, "--k", label="connect")
+    plt.plot(values[:, 0], values[:, 1], "-k", label="monochromatic light")
     return
 
 
@@ -387,6 +396,9 @@ def show_munsell(colorspace, V):
 
 
 def show_macadam(*args, **kwargs):
+    """See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
+    <https://doi.org/10.1364%2FJOSA.32.000247>.
+    """
     plot_macadam(*args, **kwargs)
     plt.show()
     return
@@ -610,7 +622,6 @@ def _plot_ellipse_data(
 
 
 def show_straights(cs):
-    # pylint: disable=unused-variable
     from mpl_toolkits.mplot3d import Axes3D
 
     # Some straight lines in XYZ
@@ -618,7 +629,7 @@ def show_straights(cs):
     n = 10
 
     fig = plt.figure()
-    ax = fig.gca(projection="3d")
+    ax = fig.gca(projection=Axes3D.name)
     # ax.set_aspect('equal')
 
     for _ in range(n):
