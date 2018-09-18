@@ -44,8 +44,8 @@ def test_visible_gamut(colorspace, cut_000):
     return
 
 
-def test_gamut_diagram():
-    colorio.show_gamut_diagram()
+def test_flat_gamut(xy_to_2d=lambda xy: xy):
+    colorio.show_flat_gamut()
     return
 
 
@@ -98,19 +98,46 @@ def test_munsell(colorspace):
 
 
 def test_macadam():
-    colorio.show_macadam(scaling=10)
+    def xy_to_2d(xy):
+        x, y = xy
+        return numpy.array([4 * x, 9 * y]) / (-2 * x + 12 * y + 3)
+
+    # def xy_to_2d(xy):
+    #     return xy
+
+    colorio.show_macadam(
+        ellipse_scaling=10,
+        xy_to_2d=xy_to_2d,
+        # plot_standard_deviations=True,
+        # axes_labels=['u\'', 'v\'']
+    )
     return
 
 
 def test_luo_rigg():
-    colorio.show_luo_rigg(scaling=1.5)
+    colorio.show_luo_rigg(ellipse_scaling=1.5)
+    return
+
+
+def test_show_straights(cs=colorio.CIELAB()):
+    colorio.show_straights(cs)
+    return
+
+
+def test_xy_gamut_mesh():
+    points, cells = colorio.xy_gamut_mesh(0.05)
+
+    # import meshio
+    # meshio.write_points_cells("test.vtu", points, {"triangle": cells})
+    # exit(1)
     return
 
 
 if __name__ == "__main__":
     # test_luo_rigg()
+    test_xy_gamut_mesh()
     # test_macadam()
-    # exit(1)
+    exit(1)
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.Rec2020()
     # colorspace_ = colorio.XYZ()
@@ -126,5 +153,6 @@ if __name__ == "__main__":
     # test_srgb_gamut(colorspace_, cut_000=False)
     # test_ebner_fairchild(colorspace_)
     # test_hung_berns(colorspace_)
-    test_xiao(colorspace_)
+    # test_xiao(colorspace_)
+    test_show_straights(colorspace_)
     # test_munsell(colorspace_)

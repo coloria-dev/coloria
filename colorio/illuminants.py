@@ -104,7 +104,7 @@ def planckian_radiator(temperature):
     h = 6.62607004e-34
     # Boltzmann constant
     k = 1.38064852e-23
-    c1 = 2 * numpy.pi * h * c * c
+    c1 = 2 * numpy.pi * h * c ** 2
     c2 = h * c / k
     return lmbda, c1 / lmbda ** 5 / (numpy.exp(c2 / lmbda / temperature) - 1)
 

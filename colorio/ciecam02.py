@@ -193,7 +193,7 @@ class CIECAM02(object):
 
         # Nc and F are modelled as a function of c, and can be linearly
         # interpolated.
-        c_vals = [0.535, 0.59, 0.69]
+        c_vals = [0.525, 0.59, 0.69]
         F_Nc_vals = [0.8, 0.9, 1.0]
         assert 0.535 <= c <= 0.69
         F = numpy.interp(c, c_vals, F_Nc_vals)
@@ -295,6 +295,7 @@ class CAM02(object):
         }
         self.K_L, self.c1, self.c2 = params[variant]
         self.ciecam02 = CIECAM02(c, Y_b, L_A, whitepoint)
+        self.labels = ["J'", "a'", "b'"]
         return
 
     def from_xyz100(self, xyz):

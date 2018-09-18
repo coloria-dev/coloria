@@ -29,6 +29,8 @@ class ICtCp(object):
             numpy.array([[2048, 2048, 0], [6610, -13613, 7003], [17933, -17390, -543]])
             / 4096
         )
+
+        self.labels = ["I", "C_T", "C_P"]
         return
 
     def from_rec2100(self, rgb):

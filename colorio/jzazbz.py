@@ -38,7 +38,6 @@ class JzAzBz(object):
                 [-0.0166008, 0.264800, 0.6684799],
             ]
         )
-
         self.M2 = numpy.array(
             [
                 [0.5, 0.5, 0],
@@ -46,6 +45,8 @@ class JzAzBz(object):
                 [0.199076, +1.096799, -1.295875],
             ]
         )
+
+        self.labels = ["J_z", "a_z", "b_z"]
         return
 
     def from_xyz100(self, xyz):

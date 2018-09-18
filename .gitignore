@@ -10,3 +10,4 @@ build/
 .cache/
 *.egg-info/
 .pytest_cache/
+*.png

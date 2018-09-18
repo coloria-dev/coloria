@@ -6,7 +6,7 @@ Tools for color models.
 [![codecov](https://img.shields.io/codecov/c/github/nschloe/colorio.svg)](https://codecov.io/gh/nschloe/colorio)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![colorful](https://img.shields.io/badge/colorful-very-ff69b4.svg)](https://github.com/nschloe/colorio)
-[![PyPi Version](https://img.shields.io/pypi/v/colorio.svg)](https://pypi.python.org/pypi/colorio)
+[![PyPi Version](https://img.shields.io/pypi/v/colorio.svg)](https://pypi.org/project/colorio)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1172995.svg)](https://doi.org/10.5281/zenodo.1172995)
 [![GitHub stars](https://img.shields.io/github/stars/nschloe/colorio.svg?logo=github&label=Stars&logoColor=white)](https://github.com/nschloe/colorio)
 
@@ -109,7 +109,7 @@ locus](https://en.wikipedia.org/wiki/Planckian_locus) and the SRGB colors (at
 maximum luminosity).
 
 ```python
-colorio.show_gamut_diagram()
+colorio.show_xy_gamut()
 ```
 
 
@@ -188,7 +188,7 @@ The images below all show the SRGB gamut in the respective color space.
 
 ### Installation
 
-colorio is [available from the Python Package Index](https://pypi.python.org/pypi/colorio/), so with
+colorio is [available from the Python Package Index](https://pypi.org/project/colorio/), so with
 ```
 pip install -U colorio
 ```

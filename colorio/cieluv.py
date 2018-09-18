@@ -10,6 +10,7 @@ from .illuminants import whitepoints_cie1931
 class CIELUV(object):
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
         self.whitepoint = whitepoint
+        self.labels = ["L*", "u*", "v*"]
         return
 
     def from_xyz100(self, xyz):

@@ -22,6 +22,7 @@ class SrgbLinear(object):
         #     [-0.9689307, +1.8757561, +0.0415175],
         #     [+0.0557101, -0.2040211, +1.0569959],
         #     ])
+        self.labels = ["R", "G", "B"]
         return
 
     def from_xyz100(self, xyz):
