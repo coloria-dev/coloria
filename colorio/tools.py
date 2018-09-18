@@ -14,9 +14,7 @@ import yaml
 
 import meshzoo
 
-from .illuminants import (
-    spectrum_to_xyz100, planckian_radiator, whitepoints_cie1931
-    )
+from .illuminants import spectrum_to_xyz100, planckian_radiator, whitepoints_cie1931
 from . import observers
 from .rec2020 import Rec2020
 from .srgb import SrgbLinear
@@ -24,15 +22,14 @@ from .xyy import XYY
 
 
 def delta(a, b):
-    '''Computes the distances between two colors or color sets. The shape of
+    """Computes the distances between two colors or color sets. The shape of
     `a` and `b` must be equal.
-    '''
+    """
     diff = a - b
-    return numpy.einsum('i...,i...->...', diff, diff)
+    return numpy.einsum("i...,i...->...", diff, diff)
 
 
-def show_visible_gamut(colorspace, observer, illuminant, filename,
-                       cut_000=False):
+def show_visible_gamut(colorspace, observer, illuminant, filename, cut_000=False):
     import meshio
 
     # The XYZ gamut is actually defined by an arbitrarily chosen maximum
@@ -42,21 +39,15 @@ def show_visible_gamut(colorspace, observer, illuminant, filename,
     values = []
 
     data = numpy.zeros(len(lmbda))
-    values.append(
-        spectrum_to_xyz100((lmbda, illu*data), observer=observer)
-        )
+    values.append(spectrum_to_xyz100((lmbda, illu * data), observer=observer))
     for width in range(1, len(lmbda)):
         data = numpy.zeros(len(lmbda))
         data[:width] = 1.0
         for _, _ in enumerate(lmbda):
-            values.append(
-                spectrum_to_xyz100((lmbda, illu*data), observer=observer)
-                )
+            values.append(spectrum_to_xyz100((lmbda, illu * data), observer=observer))
             data = numpy.roll(data, shift=1)
     data = numpy.ones(len(lmbda))
-    values.append(
-        spectrum_to_xyz100((lmbda, illu*data), observer=observer)
-        )
+    values.append(spectrum_to_xyz100((lmbda, illu * data), observer=observer))
 
     # scale the values such that the Y-coordinate of the white point has value
     # 100.
@@ -72,12 +63,13 @@ def show_visible_gamut(colorspace, observer, illuminant, filename,
 
     pts = colorspace.from_xyz100(values.T).T
 
-    meshio.write_points_cells(filename, pts, cells={'triangle': cells})
+    meshio.write_points_cells(filename, pts, cells={"triangle": cells})
     return
 
 
 def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
     import meshio
+
     points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
 
     if cut_000:
@@ -89,16 +81,13 @@ def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
     srgb_linear = SrgbLinear()
     pts = colorspace.from_xyz100(srgb_linear.to_xyz100(points.T)).T
     rgb = srgb_linear.to_srgb1(points)
-    meshio.write_points_cells(
-        filename,
-        pts, {'tetra': cells},
-        point_data={'srgb': rgb}
-        )
+    meshio.write_points_cells(filename, pts, {"tetra": cells}, point_data={"srgb": rgb})
     return
 
 
 def show_hdr_gamut(colorspace, filename, n=50, cut_000=False):
     import meshio
+
     points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
 
     if cut_000:
@@ -111,10 +100,8 @@ def show_hdr_gamut(colorspace, filename, n=50, cut_000=False):
     pts = colorspace.from_xyz100(cs.to_xyz100(points.T)).T
     rgb = cs.to_gamma(points)
     meshio.write_points_cells(
-        filename,
-        pts, {'tetra': cells},
-        point_data={'rec2020-rgb': rgb}
-        )
+        filename, pts, {"tetra": cells}, point_data={"rec2020-rgb": rgb}
+    )
     return
 
 
@@ -140,14 +127,12 @@ def _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=True):
     for k, _ in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
-        values.append(
-            xyy.from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[:2]
-            )
+        values.append(xyy.from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[:2])
     values = numpy.array(values)
 
     # Add the values between the first and the last point of the horseshoe
     t = numpy.linspace(0.0, 1.0, 101)
-    connect = xy_to_2d(numpy.outer(values[0], t) + numpy.outer(values[-1], 1-t))
+    connect = xy_to_2d(numpy.outer(values[0], t) + numpy.outer(values[-1], 1 - t))
     values = xy_to_2d(values.T).T
     full = numpy.concatenate([values, connect.T])
 
@@ -155,8 +140,8 @@ def _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=True):
     if fill_horseshoe:
         plt.fill(*full.T, color=[0.8, 0.8, 0.8], zorder=1)
     # plot horseshoe outline
-    plt.plot(*values.T, '-k', label='monochromatic light')
-    plt.plot(*connect, '--k', label='connect')
+    plt.plot(*values.T, "-k", label="monochromatic light")
+    plt.plot(*connect, "--k", label="connect")
     return
 
 
@@ -188,11 +173,11 @@ def _plot_rgb_triangle(xy_to_2d, bright=True):
     z = numpy.arange(xyy_vals.shape[1])
     rgb = srgb_linear.to_srgb1(rgb_linear)
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
-        'gamut', rgb.T, N=len(rgb.T)
-        )
+        "gamut", rgb.T, N=len(rgb.T)
+    )
 
     triang = matplotlib.tri.Triangulation(xyy_vals[0], xyy_vals[1])
-    plt.tripcolor(triang, z, shading='gouraud', cmap=cmap)
+    plt.tripcolor(triang, z, shading="gouraud", cmap=cmap)
     return
 
 
@@ -201,27 +186,29 @@ def _plot_planckian_locus(observer, xy_to_2d):
     xyy = XYY()
     values = []
     for temp in numpy.arange(1000, 20001, 100):
-        xyy_vals = xy_to_2d(xyy.from_xyz100(
-            spectrum_to_xyz100(planckian_radiator(temp), observer)
-            ))
+        xyy_vals = xy_to_2d(
+            xyy.from_xyz100(spectrum_to_xyz100(planckian_radiator(temp), observer))
+        )
         values.append(xyy_vals)
     values = numpy.array(values)
-    plt.plot(values[:, 0], values[:, 1], ':k', label='Planckian locus')
+    plt.plot(values[:, 0], values[:, 1], ":k", label="Planckian locus")
     return
 
 
-def plot_flat_gamut(xy_to_2d=lambda xy: xy,
-                    axes_labels=('x', 'y'),
-                    plot_rgb_triangle=True,
-                    fill_horseshoe=True,
-                    plot_planckian_locus=True):
-    '''Show a flat color gamut, by default xy.  There exists a chroma gamut for
+def plot_flat_gamut(
+    xy_to_2d=lambda xy: xy,
+    axes_labels=("x", "y"),
+    plot_rgb_triangle=True,
+    fill_horseshoe=True,
+    plot_planckian_locus=True,
+):
+    """Show a flat color gamut, by default xy.  There exists a chroma gamut for
     all color models which transform lines in XYZ to lines, and hence have a
     natural decomposition into lightness and chroma components.  Also, the flat
     gamut is the same for every lightness value. Examples for color models with
     this property are CIELUV and IPT, examples for color models without are
     CIELAB and CIECAM02.
-    '''
+    """
     observer = observers.cie_1931_2()
     # observer = observers.cie_1964_10()
 
@@ -233,7 +220,7 @@ def plot_flat_gamut(xy_to_2d=lambda xy: xy,
     if plot_planckian_locus:
         _plot_planckian_locus(observer, xy_to_2d)
 
-    plt.gca().set_aspect('equal')
+    plt.gca().set_aspect("equal")
     # plt.legend()
     plt.xlabel(axes_labels[0])
     plt.ylabel(axes_labels[1])
@@ -248,15 +235,15 @@ def show_flat_gamut(*args, **kwargs):
 
 def show_ebner_fairchild(colorspace):
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, 'data/ebner_fairchild.yaml')) as f:
+    with open(os.path.join(dir_path, "data/ebner_fairchild.yaml")) as f:
         data = yaml.safe_load(f)
 
-    wp = colorspace.from_xyz100(numpy.array(data['white point']))[1:]
+    wp = colorspace.from_xyz100(numpy.array(data["white point"]))[1:]
 
     d = [
-        numpy.column_stack([dat['reference xyz'], numpy.array(dat['same']).T])
-        for dat in data['data']
-        ]
+        numpy.column_stack([dat["reference xyz"], numpy.array(dat["same"]).T])
+        for dat in data["data"]
+    ]
 
     _show_color_constancy_data(d, wp, colorspace)
     return
@@ -264,10 +251,10 @@ def show_ebner_fairchild(colorspace):
 
 def show_hung_berns(colorspace):
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, 'data/hung-berns/table3.yaml')) as f:
+    with open(os.path.join(dir_path, "data/hung-berns/table3.yaml")) as f:
         data = yaml.safe_load(f)
 
-    wp = colorspace.from_xyz100(numpy.array(whitepoints_cie1931['C']))[1:]
+    wp = colorspace.from_xyz100(numpy.array(whitepoints_cie1931["C"]))[1:]
 
     d = [numpy.array(list(color.values())).T for color in data.values()]
 
@@ -279,23 +266,23 @@ def show_xiao(colorspace):
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
     filenames = [
-        'unique_blue.yaml', 'unique_green.yaml', 'unique_red.yaml',
-        'unique_yellow.yaml'
-        ]
+        "unique_blue.yaml",
+        "unique_green.yaml",
+        "unique_red.yaml",
+        "unique_yellow.yaml",
+    ]
 
     data = []
     for filename in filenames:
-        with open(os.path.join(dir_path, 'data', 'xiao', filename)) as f:
+        with open(os.path.join(dir_path, "data", "xiao", filename)) as f:
             dat = numpy.array(yaml.safe_load(f))
         # average over all observers and sessions
-        data.append(
-            numpy.sum(dat, axis=(0, 1)) / numpy.prod(dat.shape[:2])
-            )
+        data.append(numpy.sum(dat, axis=(0, 1)) / numpy.prod(dat.shape[:2]))
 
     data = numpy.array(data)
 
     # Use Xiao's 'neutral gray' as white point.
-    with open(os.path.join(dir_path, 'data/xiao/neutral_gray.yaml')) as f:
+    with open(os.path.join(dir_path, "data/xiao/neutral_gray.yaml")) as f:
         ng_data = numpy.array(yaml.safe_load(f))
 
     ng = numpy.sum(ng_data, axis=0) / numpy.prod(ng_data.shape[:1])
@@ -314,16 +301,14 @@ def _show_color_constancy_data(data, wp, colorspace):
 
         # Find best fit line through all points
         def f(theta, D=d):
-            return (
-                + numpy.sin(theta) * (D[0] - wp[0])
-                + numpy.cos(theta) * (D[1] - wp[1])
-                )
+            return +numpy.sin(theta) * (D[0] - wp[0]) + numpy.cos(theta) * (
+                D[1] - wp[1]
+            )
 
         def jac(theta, D=d):
-            return (
-                + numpy.cos(theta) * (D[0] - wp[0])
-                - numpy.sin(theta) * (D[1] - wp[1])
-                )
+            return +numpy.cos(theta) * (D[0] - wp[0]) - numpy.sin(theta) * (
+                D[1] - wp[1]
+            )
 
         # out = least_squares(f, 0.0)
         # out = leastsq(f, 0.0, full_output=True)
@@ -334,9 +319,7 @@ def _show_color_constancy_data(data, wp, colorspace):
         theta = out[0]
 
         # Plot it from wp to the outmost point
-        length = numpy.sqrt(numpy.max(
-            numpy.einsum('ij,ij->i', (d.T-wp), (d.T-wp))
-            ))
+        length = numpy.sqrt(numpy.max(numpy.einsum("ij,ij->i", (d.T - wp), (d.T - wp))))
         # The solution theta can be rotated by pi and still give the same
         # result. Find out on which side all the points are sitting and plot
         # the line accordingly.
@@ -347,33 +330,31 @@ def _show_color_constancy_data(data, wp, colorspace):
         ep_wp = numpy.linalg.norm(end_point - wp)
         if ep_d > ep_wp:
             end_point = wp - ex
-        plt.plot(
-            [wp[0], end_point[0]], [wp[1], end_point[1]], '-', color='0.5'
-            )
+        plt.plot([wp[0], end_point[0]], [wp[1], end_point[1]], "-", color="0.5")
 
         # Deliberatly only handle the two last components, e.g., a* b* from
         # L*a*b*. They typically indicate the chroma.
         for dd, rgb in zip(d.T, srgb.from_xyz100(xyz).T):
             is_legal_srgb = numpy.all(rgb >= 0) and numpy.all(rgb <= 1)
-            col = srgb.to_srgb1(rgb) if is_legal_srgb else 'white'
-            ecol = srgb.to_srgb1(rgb) if is_legal_srgb else 'black'
-            plt.plot(dd[0], dd[1], 'o', color=col, markeredgecolor=ecol)
+            col = srgb.to_srgb1(rgb) if is_legal_srgb else "white"
+            ecol = srgb.to_srgb1(rgb) if is_legal_srgb else "black"
+            plt.plot(dd[0], dd[1], "o", color=col, markeredgecolor=ecol)
 
-    plt.axis('equal')
+    plt.axis("equal")
     plt.show()
     return
 
 
 def show_munsell(colorspace, V):
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, 'data/munsell/real.yaml')) as f:
+    with open(os.path.join(dir_path, "data/munsell/real.yaml")) as f:
         data = yaml.safe_load(f)
 
     # https://stackoverflow.com/a/6473724/353337
-    v = data['V']
-    x = data['x']
-    y = data['y']
-    Y = data['Y']
+    v = data["V"]
+    x = data["x"]
+    y = data["y"]
+    Y = data["Y"]
 
     idx = numpy.array(v) == V
     x = numpy.array(x)
@@ -388,18 +369,21 @@ def show_munsell(colorspace, V):
     rgb = srgb.from_xyz100(xyz)
     is_legal_srgb = numpy.logical_and(
         numpy.all(rgb >= 0, axis=0), numpy.all(rgb <= 1, axis=0)
-        )
+    )
 
     # plot the ones that cannot be represented in SRGB
     plt.plot(
-        vals[1, ~is_legal_srgb], vals[2, ~is_legal_srgb],
-        'o', color='white', markeredgecolor='black'
-        )
+        vals[1, ~is_legal_srgb],
+        vals[2, ~is_legal_srgb],
+        "o",
+        color="white",
+        markeredgecolor="black",
+    )
     # plot the srgb dots
     for val, rgb_ in zip(vals[:, is_legal_srgb].T, rgb[:, is_legal_srgb].T):
-        plt.plot(val[1], val[2], 'o', color=srgb.to_srgb1(rgb_))
+        plt.plot(val[1], val[2], "o", color=srgb.to_srgb1(rgb_))
 
-    plt.axis('equal')
+    plt.axis("equal")
     plt.show()
     return
 
@@ -417,19 +401,21 @@ def save_macadam(filename, *args, **kwargs):
     return
 
 
-def plot_macadam(ellipse_scaling=10,
-                 plot_filter_positions=False,
-                 plot_standard_deviations=False,
-                 plot_rgb_triangle=True,
-                 plot_mesh=True,
-                 mesh_ref_steps=0,
-                 xy_to_2d=lambda xy: xy,
-                 axes_labels=('x', 'y')):
-    '''See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
+def plot_macadam(
+    ellipse_scaling=10,
+    plot_filter_positions=False,
+    plot_standard_deviations=False,
+    plot_rgb_triangle=True,
+    plot_mesh=True,
+    mesh_ref_steps=0,
+    xy_to_2d=lambda xy: xy,
+    axes_labels=("x", "y"),
+):
+    """See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
     <https://doi.org/10.1364%2FJOSA.32.000247>.
-    '''
+    """
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, 'data/macadam1942/table3.yaml')) as f:
+    with open(os.path.join(dir_path, "data/macadam1942/table3.yaml")) as f:
         data = yaml.safe_load(f)
 
     # if plot_filter_positions:
@@ -448,17 +434,18 @@ def plot_macadam(ellipse_scaling=10,
     offsets = []
     for datak in data:
         # collect ellipse points
-        _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak['data']).T
+        _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak["data"]).T
 
         offset = (
             numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
-            / numpy.sqrt(1 + delta_y_delta_x**2) * delta_s
-            )
+            / numpy.sqrt(1 + delta_y_delta_x ** 2)
+            * delta_s
+        )
 
         if offset.shape[1] < 2:
             continue
 
-        centers.append([datak['x'], datak['y']])
+        centers.append([datak["x"], datak["y"]])
         offsets.append(numpy.column_stack([+offset, -offset]))
 
     centers = numpy.array(centers)
@@ -471,7 +458,7 @@ def plot_macadam(ellipse_scaling=10,
         plot_mesh=plot_mesh,
         mesh_ref_steps=mesh_ref_steps,
         plot_rgb_triangle=plot_rgb_triangle,
-        )
+    )
     return
 
 
@@ -481,19 +468,18 @@ def show_luo_rigg(*args, **kwargs):
     return
 
 
-def plot_luo_rigg(plot_rgb_triangle=True,
-                  plot_mesh=True,
-                  ellipse_scaling=1,
-                  xy_to_2d=lambda xy: xy):
+def plot_luo_rigg(
+    plot_rgb_triangle=True, plot_mesh=True, ellipse_scaling=1, xy_to_2d=lambda xy: xy
+):
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, 'data/luo-rigg/luo-rigg.yaml')) as f:
+    with open(os.path.join(dir_path, "data/luo-rigg/luo-rigg.yaml")) as f:
         data = yaml.safe_load(f)
 
     # collect the ellipse centers and offsets
     centers = []
     offsets = []
     # Use four offset points of each ellipse, one could take more
-    alpha = 2*numpy.pi * numpy.linspace(0.0, 1.0, 16, endpoint=False)
+    alpha = 2 * numpy.pi * numpy.linspace(0.0, 1.0, 16, endpoint=False)
     pts = numpy.array([numpy.cos(alpha), numpy.sin(alpha)])
     for _, data_set in data.items():
         # The set factor is the mean of the R values
@@ -504,7 +490,7 @@ def plot_luo_rigg(plot_rgb_triangle=True,
         for _, dat in data_set.items():
             x, y, Y, a, a_div_b, theta, _ = dat
             a /= 1.0e4
-            a *= (Y/30)**0.2
+            a *= (Y / 30) ** 0.2
             b = a / a_div_b
 
             # a *= R / set_factor
@@ -512,10 +498,12 @@ def plot_luo_rigg(plot_rgb_triangle=True,
 
             # plot the ellipse
             centers.append([x, y])
-            J = numpy.array([
-                [+a*numpy.cos(theta), -b*numpy.sin(theta)],
-                [+a*numpy.sin(theta), +b*numpy.cos(theta)],
-                ])
+            J = numpy.array(
+                [
+                    [+a * numpy.cos(theta), -b * numpy.sin(theta)],
+                    [+a * numpy.sin(theta), +b * numpy.cos(theta)],
+                ]
+            )
             offsets.append(numpy.dot(J, pts))
 
     centers = numpy.array(centers)
@@ -526,24 +514,28 @@ def plot_luo_rigg(plot_rgb_triangle=True,
         xy_to_2d=xy_to_2d,
         plot_mesh=plot_mesh,
         plot_rgb_triangle=plot_rgb_triangle,
-        )
+    )
     return
 
 
-def _plot_ellipse_data(centers,
-                       offsets,
-                       xy_to_2d=lambda xy: xy,
-                       axes_labels=('x', 'y'),
-                       plot_rgb_triangle=False,
-                       ellipse_scaling=10,
-                       plot_mesh=False,
-                       mesh_ref_steps=0):
+def _plot_ellipse_data(
+    centers,
+    offsets,
+    xy_to_2d=lambda xy: xy,
+    axes_labels=("x", "y"),
+    plot_rgb_triangle=False,
+    ellipse_scaling=10,
+    plot_mesh=False,
+    mesh_ref_steps=0,
+):
 
     plot_flat_gamut(
-        plot_planckian_locus=False, xy_to_2d=xy_to_2d, axes_labels=axes_labels,
+        plot_planckian_locus=False,
+        xy_to_2d=xy_to_2d,
+        axes_labels=axes_labels,
         plot_rgb_triangle=plot_rgb_triangle,
-        fill_horseshoe=not plot_mesh
-        )
+        fill_horseshoe=not plot_mesh,
+    )
     # plt.grid(zorder=0)
     ax = plt.gca()
 
@@ -555,45 +547,48 @@ def _plot_ellipse_data(centers,
         # cells = numpy.array(data['cells'])
 
         points, cells = meshzoo.triangle(
-            corners=numpy.array([
-                [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
-                ]),
-            ref_steps=mesh_ref_steps
-            )
+            corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]),
+            ref_steps=mesh_ref_steps,
+        )
         points = points[:, :2]
 
         edges, _ = meshzoo.create_edges(cells)
         pts = xy_to_2d(points.T).T
         lines = pts[edges].T
-        plt.plot(*lines, color='0.8', zorder=0)
+        plt.plot(*lines, color="0.8", zorder=0)
 
     for center, offset in zip(centers, offsets):
         # If xy_to_2d was linear, we would only need one of center+-offset
         tcenter = xy_to_2d(center)
-        X = numpy.column_stack([
-            xy_to_2d((center + offset.T).T),
-            xy_to_2d((center - offset.T).T),
-            ])
+        X = numpy.column_stack(
+            [xy_to_2d((center + offset.T).T), xy_to_2d((center - offset.T).T)]
+        )
         X = (X.T - tcenter).T
 
         def f_ellipse(a_b_theta, x=X):
             a, b, theta = a_b_theta
             return (
-                + a**2 * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))**2
-                + b**2 * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))**2
+                +a ** 2 * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)) ** 2
+                + b ** 2 * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta)) ** 2
                 - 1.0
-                )
+            )
 
         def jac(a_b_theta, x=X):
             a, b, theta = a_b_theta
-            return numpy.array([
-                + 2*a * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))**2,
-                + 2*b * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))**2,
-                + a**2 * 2*(x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))
-                * (-x[0] * numpy.sin(theta) + x[1] * numpy.cos(theta))
-                + b**2 * 2*(x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))
-                * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)),
-                ]).T
+            return numpy.array(
+                [
+                    +2 * a * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)) ** 2,
+                    +2 * b * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta)) ** 2,
+                    +a ** 2
+                    * 2
+                    * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))
+                    * (-x[0] * numpy.sin(theta) + x[1] * numpy.cos(theta))
+                    + b ** 2
+                    * 2
+                    * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))
+                    * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)),
+                ]
+            ).T
 
         # out = leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac, full_output=True)
         # print(out)
@@ -606,24 +601,26 @@ def _plot_ellipse_data(centers,
         # plot the scaled ellipse
         e = Ellipse(
             xy=tcenter,
-            width=ellipse_scaling*2/a, height=ellipse_scaling*2/b,
-            angle=theta / numpy.pi * 180
-            )
+            width=ellipse_scaling * 2 / a,
+            height=ellipse_scaling * 2 / b,
+            angle=theta / numpy.pi * 180,
+        )
         ax.add_artist(e)
         e.set_alpha(0.5)
-        e.set_facecolor('k')
+        e.set_facecolor("k")
     return
 
 
 def show_straights(cs):
     # pylint: disable=unused-variable
     from mpl_toolkits.mplot3d import Axes3D
+
     # Some straight lines in XYZ
     t = numpy.linspace(0.0, 1.0, 101)
     n = 10
 
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.gca(projection="3d")
     # ax.set_aspect('equal')
 
     for _ in range(n):
@@ -662,7 +659,7 @@ def xy_gamut_mesh(lcar):
         data[k] = 1.0
         all_points.append(
             xyy.from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[:2]
-            )
+        )
     all_points = numpy.array(all_points)
 
     # Generate gmsh geometry: spline + straight line
@@ -678,4 +675,4 @@ def xy_gamut_mesh(lcar):
 
     # import meshio
     # meshio.write('test.vtu', points, cells)
-    return points, cells['triangle']
+    return points, cells["triangle"]
