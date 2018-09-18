@@ -125,7 +125,11 @@ def test_show_straights(cs=colorio.CIELAB()):
 
 
 def test_xy_gamut_mesh():
-    colorio.xy_gamut_mesh(0.05)
+    points, cells = colorio.xy_gamut_mesh(0.05)
+
+    # import meshio
+    # meshio.write_points_cells("test.vtu", points, {"triangle": cells})
+    # exit(1)
     return
 
 

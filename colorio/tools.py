@@ -648,6 +648,7 @@ def show_straights(cs):
 
 
 def xy_gamut_mesh(lcar):
+    import optimesh
     import pygmsh
 
     observer = observers.cie_1931_2()
@@ -674,7 +675,7 @@ def xy_gamut_mesh(lcar):
     geom.add_plane_surface(ll)
 
     points, cells, _, _, _ = pygmsh.generate_mesh(geom)
-
-    # import meshio
-    # meshio.write('test.vtu', points, cells)
-    return points, cells["triangle"]
+    points, cells = optimesh.cvt.quasi_newton_uniform_lloyd(
+        points, cells["triangle"], 1.0e-2, 100, omega=2.0
+    )
+    return points, cells
