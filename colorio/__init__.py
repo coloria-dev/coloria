@@ -6,12 +6,11 @@ from .__about__ import (
     __author__,
     __email__,
     __copyright__,
-    __credits__,
     __license__,
     __version__,
     __maintainer__,
     __status__,
-    )
+)
 
 from .cam16 import CAM16, CAM16UCS
 from .ciecam02 import CIECAM02, CAM02, NegativeAError
@@ -29,10 +28,59 @@ from .srgb import SrgbLinear
 from .xyy import XYY
 from .xyz import XYZ
 from .tools import (
-    show_srgb_gamut, show_hdr_gamut, show_visible_gamut, show_gamut_diagram,
-    delta, show_ebner_fairchild, show_hung_berns, show_munsell, show_macadam,
-    show_luo_rigg, show_xiao
-    )
+    show_srgb_gamut,
+    show_hdr_gamut,
+    show_visible_gamut,
+    show_gamut_diagram,
+    delta,
+    show_ebner_fairchild,
+    show_hung_berns,
+    show_munsell,
+    show_macadam,
+    show_luo_rigg,
+    show_xiao,
+)
+
+__all__ = [
+    "__author__",
+    "__email__",
+    "__copyright__",
+    "__license__",
+    "__version__",
+    "__maintainer__",
+    "__status__",
+    #
+    "CAM16",
+    "CAM16UCS",
+    "CIECAM02",
+    "CAM02",
+    "NegativeAError",
+    "CIEHCL",
+    "CIELAB",
+    "CIELCH",
+    "CIELUV",
+    "illuminants",
+    "ICtCp",
+    "IPT",
+    "JzAzBz",
+    "observers",
+    "Rec2020",
+    "SrgbLinear",
+    "XYY",
+    "XYZ",
+    #
+    "show_srgb_gamut",
+    "show_hdr_gamut",
+    "show_visible_gamut",
+    "show_gamut_diagram",
+    "delta",
+    "show_ebner_fairchild",
+    "show_hung_berns",
+    "show_munsell",
+    "show_macadam",
+    "show_luo_rigg",
+    "show_xiao",
+]
 
 try:
     import pipdate
@@ -40,4 +88,4 @@ except ImportError:
     pass
 else:
     if pipdate.needs_checking(__name__):
-        print(pipdate.check(__name__, __version__), end='')
+        print(pipdate.check(__name__, __version__), end="")

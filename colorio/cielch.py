@@ -7,14 +7,14 @@ from .illuminants import whitepoints_cie1931
 
 
 class CIELCH(object):
-    def __init__(self, whitepoint=whitepoints_cie1931['D65']):
+    def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
         self.cielab = cielab.CIELAB(whitepoint=whitepoint)
         return
 
     def from_xyz100(self, xyz):
         L, u, v = self.cielab.from_xyz100(xyz)
         C = numpy.hypot(u, v)
-        h = numpy.mod(numpy.arctan2(v, u), 2*numpy.pi) / numpy.pi * 180
+        h = numpy.mod(numpy.arctan2(v, u), 2 * numpy.pi) / numpy.pi * 180
         return numpy.array([L, C, h])
 
     def to_xyz100(self, lch):
