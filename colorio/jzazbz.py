@@ -8,7 +8,6 @@ from .illuminants import whitepoints_cie1931
 from .linalg import dot, solve
 
 
-# pylint: disable=too-many-instance-attributes
 class JzAzBz(object):
     """
     Muhammad Safdar, Guihua Cui, Youn Jin Kim, and Ming Ronnier Luo,

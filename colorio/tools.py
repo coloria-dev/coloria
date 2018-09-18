@@ -612,7 +612,6 @@ def _plot_ellipse_data(
 
 
 def show_straights(cs):
-    # pylint: disable=unused-variable
     from mpl_toolkits.mplot3d import Axes3D
 
     # Some straight lines in XYZ
@@ -620,8 +619,8 @@ def show_straights(cs):
     n = 10
 
     fig = plt.figure()
-    ax = fig.gca(projection="3d")
-    # ax.set_aspect('equal')
+    ax = fig.gca(projection=Axes3D.name)
+    # ax.set_aspect('square')
 
     for _ in range(n):
         s1 = numpy.random.rand(3)

@@ -5,7 +5,6 @@ from __future__ import division
 import numpy
 
 
-# pylint: disable=no-self-use
 class XYY(object):
     def __init__(self):
         self.labels = ["x", "y", "Y"]
