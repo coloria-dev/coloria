@@ -417,7 +417,7 @@ def plot_macadam(
     plot_standard_deviations=False,
     plot_rgb_triangle=True,
     plot_mesh=True,
-    mesh_ref_steps=0,
+    n=1,
     xy_to_2d=lambda xy: xy,
     axes_labels=("x", "y"),
 ):
@@ -466,7 +466,7 @@ def plot_macadam(
         ellipse_scaling=ellipse_scaling,
         xy_to_2d=xy_to_2d,
         plot_mesh=plot_mesh,
-        mesh_ref_steps=mesh_ref_steps,
+        n=n,
         plot_rgb_triangle=plot_rgb_triangle,
     )
     return
@@ -536,7 +536,7 @@ def _plot_ellipse_data(
     plot_rgb_triangle=False,
     ellipse_scaling=10,
     plot_mesh=False,
-    mesh_ref_steps=0,
+    n=1,
 ):
 
     plot_flat_gamut(
@@ -557,8 +557,8 @@ def _plot_ellipse_data(
         # cells = numpy.array(data['cells'])
 
         points, cells = meshzoo.triangle(
+            n,
             corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]),
-            ref_steps=mesh_ref_steps,
         )
         points = points[:, :2]
 

@@ -34,7 +34,7 @@ clean:
 	@rm -rf *.egg-info/ build/ dist/ MANIFEST
 
 black:
-	black setup.py colorio/ test/*.py
+	black setup.py colorio/ test/*.py experiments/*.py
 
 lint:
 	black --check setup.py colorio/ test/*.py

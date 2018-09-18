@@ -106,7 +106,7 @@ def test_macadam():
     #     return xy
 
     colorio.show_macadam(
-        scaling=10,
+        ellipse_scaling=10,
         xy_to_2d=xy_to_2d,
         # plot_standard_deviations=True,
         # axes_labels=['u\'', 'v\'']
@@ -115,7 +115,7 @@ def test_macadam():
 
 
 def test_luo_rigg():
-    colorio.show_luo_rigg(scaling=1.5)
+    colorio.show_luo_rigg(ellipse_scaling=1.5)
     return
 
 
