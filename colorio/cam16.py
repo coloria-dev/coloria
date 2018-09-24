@@ -17,7 +17,6 @@ class CAM16(object):
     <https://doi.org/10.1002/col.22131>.
     """
 
-    # pylint: disable=too-many-instance-attributes, too-many-arguments
     def __init__(
         self, c, Y_b, L_A, exact_inversion=True, whitepoint=whitepoints_cie1931["D65"]
     ):

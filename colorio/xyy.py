@@ -5,7 +5,6 @@ from __future__ import division
 import numpy
 
 
-# pylint: disable=no-self-use
 class XYY(object):
     def __init__(self):
         self.labels = ["x", "y", "Y"]
@@ -15,8 +14,8 @@ class XYY(object):
         sum_xyz = numpy.sum(xyz, axis=0)
         x = xyz[0]
         y = xyz[1]
-        return numpy.array([x / sum_xyz, y / sum_xyz, y])
+        return numpy.array([x / sum_xyz, y / sum_xyz, y / 100])
 
     def to_xyz100(self, xyy):
         x, y, Y = xyy
-        return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)])
+        return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
