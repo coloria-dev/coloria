@@ -87,5 +87,15 @@ def test_reference_values(xyz, ref):
     return
 
 
+def test_whitepoint():
+    # With infinite luminance of the adapting field, the whitepoint is found
+    # at (100, 0, 0).
+    L_A = numpy.inf
+    cam16 = colorio.CAM16UCS(0.69, 20, L_A)
+    out = cam16.from_xyz100(colorio.illuminants.whitepoints_cie1931["D65"])
+    assert numpy.all(out == [100, 0, 0])
+    return
+
+
 if __name__ == "__main__":
     test_conversion(numpy.random.rand(3))

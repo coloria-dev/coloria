@@ -138,7 +138,7 @@ def d(nominal_temperature):
     """CIE D-series illuminants.
 
     The technical report `Colorimetry, 3rd edition, 2004` gives the data for
-    D50, D55, and D65 explicitly, but also explains how it's computes for S0,
+    D50, D55, and D65 explicitly, but also explains how it's computed for S0,
     S1, S2. Values are given at 5nm resolution in the document, but really
     every other value is just interpolated. Hence, only provide 10 nm data
     here.

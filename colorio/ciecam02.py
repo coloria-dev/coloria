@@ -9,28 +9,35 @@ from .linalg import dot
 
 
 def compute_from(rgb_, cs):
-    # Step 4: Calculate the post-adaptation cone response (resulting in
-    #         dynamic range compression)
-    alpha = (cs.F_L * abs(rgb_) / 100) ** 0.42
-    # Omit the 0.1 here; that's canceled out in almost all cases below anyways
-    # (except the computation of `t`).
-    rgb_a_ = numpy.sign(rgb_) * 400 * alpha / (alpha + 27.13)  # + 0.1
+    # Step 4: Calculate the post-adaptation cone response (resulting in dynamic range
+    #         compression)
+    alpha = (
+        numpy.full(rgb_.shape, numpy.inf)
+        if cs.F_L == numpy.inf
+        else (cs.F_L * abs(rgb_) / 100) ** 0.42
+    )
+    # Omit the 0.1 here; that's canceled out in almost all cases below anyways (except
+    # the computation of `t`).
+
+    # Deal with alpha == 0, alpha == inf
+    beta = numpy.empty(alpha.shape)
+    idx = alpha < 1.0
+    beta[idx] = alpha[idx] / (alpha[idx] + 27.13)  # + 0.1
+    idx = ~idx
+    beta[idx] = 1.0 / (1.0 + 27.13 / alpha[idx])  # + 0.1
+    rgb_a_ = numpy.sign(rgb_) * 400 * beta  # + 0.1
 
     # Mix steps 5, 7, and part of step 10 here in one big dot-product.
     # Step 5: Calculate Redness-Greenness (a) , Yellowness-Blueness (b)
     #         components and hue angle (h)
     # Step 7: Calculate achromatic response A
     a, b, p2_, u = dot(
-        numpy.array(
-            [
-                [1, -12 / 11, 1 / 11],
-                [1 / 9, 1 / 9, -2 / 9],
-                [2, 1, 1 / 20],
-                [1, 1, 21 / 20],
-            ]
-        ),
-        rgb_a_,
+        numpy.array([[11, -12, 1], [1, 1, -2], [40, 20, 1], [20, 20, 21]]), rgb_a_
     )
+    a /= 11
+    b /= 9
+    p2_ /= 20
+    u /= 20
 
     A = p2_ * cs.N_bb
     if numpy.any(A < 0):
@@ -39,8 +46,8 @@ def compute_from(rgb_, cs):
     # Make sure that h is in [0, 360]
     h = numpy.rad2deg(numpy.arctan2(b, a)) % 360
 
-    # Step 6: Calculate eccentricity (e_t) and hue composition (H), using
-    #         the unique hue data given in Table 2.4.
+    # Step 6: Calculate eccentricity (e_t) and hue composition (H), using the unique hue
+    #         data given in Table 2.4.
     h_ = (h - cs.h[0]) % 360 + cs.h[0]
     e_t = (numpy.cos(numpy.deg2rad(h_) + 2) + 3.8) / 4
     i = numpy.searchsorted(cs.h, h_) - 1
@@ -54,8 +61,8 @@ def compute_from(rgb_, cs):
     sqrt_J_100 = numpy.sqrt(J / 100)
     Q = (4 / cs.c) * sqrt_J_100 * (cs.A_w + 4) * cs.F_L ** 0.25
 
-    # Step 10: Calculate the correlates of chroma (C), colourfulness (M)
-    #          and saturation (s)
+    # Step 10: Calculate the correlates of chroma (C), colourfulness (M) and saturation
+    # (s)
     #
     # Note the extra 0.305 here from the adaptation in rgb_a_ above.
     p1_ = 50000 / 13 * e_t * cs.N_c * cs.N_cb
@@ -63,11 +70,13 @@ def compute_from(rgb_, cs):
 
     alpha = t ** 0.9 * (1.64 - 0.29 ** cs.n) ** 0.73
     C = alpha * sqrt_J_100
-    M = C * cs.F_L ** 0.25
+
+    M = numpy.zeros(C.shape) if cs.F_L == numpy.inf else C * cs.F_L ** 0.25
 
     # ENH avoid division by Q=0 here.
     # s = 100 * numpy.sqrt(M/Q)
     s = 50 * numpy.sqrt(cs.c * alpha / (cs.A_w + 4))
+
     return numpy.array([J, C, H, h, M, s, Q])
 
 
@@ -146,12 +155,15 @@ def compute_to(data, description, cs):
     )
 
     # Step 5: Calculate RGB_
-    rgb_ = (
-        numpy.sign(rgb_a_)
-        * 100
-        / cs.F_L
-        * ((27.13 * abs(rgb_a_)) / (400 - abs(rgb_a_))) ** (1 / 0.42)
+    t = numpy.array(
+        [
+            1.0
+            if cs.F_L == numpy.inf
+            else ((27.13 * abs(r)) / (400 - abs(r))) ** (1 / 0.42) / cs.F_L
+            for r in rgb_a_
+        ]
     )
+    rgb_ = numpy.sign(rgb_a_) * 100 * t
 
     return rgb_
 
