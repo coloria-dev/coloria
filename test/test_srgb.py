@@ -50,3 +50,11 @@ def test_reference_xyz(vals, ref):
     srgb_linear = colorio.SrgbLinear()
     assert numpy.all(abs(srgb_linear.to_xyz100(vals) - ref) < 1.0e-3 * numpy.array(ref))
     return
+
+
+def test_whitepoint():
+    srgb_linear = colorio.SrgbLinear()
+    val = srgb_linear.to_xyz100([1.0, 1.0, 1.0])
+    d65_whitepoint = colorio.illuminants.whitepoints_cie1931["D65"]
+    assert numpy.all(numpy.abs(val - d65_whitepoint) < 1.0e-12)
+    return
