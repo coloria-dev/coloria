@@ -10,7 +10,7 @@ from .linalg import dot, solve
 
 
 class SrgbLinear(object):
-    def __init__(self):
+    def __init__(self, whitepoint_correction=True):
         # The standard actually gives the values in terms of M, but really inv(M) is a
         # direct derivative of the primary specification at
         # <https://en.wikipedia.org/wiki/SRGB>.
@@ -18,15 +18,16 @@ class SrgbLinear(object):
             [[0.64, 0.33, 0.2126], [0.30, 0.60, 0.7152], [0.15, 0.06, 0.0722]]
         )
         self.invM = XYY().to_xyz100(primaries_xyy.T)
-        # Here, the values are given only approximately, resulting in the fact that
-        # SRGB(1.0, 1.0, 1.0) is only approximately mapped into the reference whitepoint
-        # D65.Add a correction here.
-        correction = (
-            whitepoints_cie1931["D65"] / numpy.sum(self.invM, axis=1)
-        )
-        self.invM = (self.invM.T * correction).T
+
+        if whitepoint_correction:
+            # The above values are given only approximately, resulting in the fact that
+            # SRGB(1.0, 1.0, 1.0) is only approximately mapped into the reference
+            # whitepoint D65. Add a correction here.
+            correction = whitepoints_cie1931["D65"] / numpy.sum(self.invM, axis=1)
+            self.invM = (self.invM.T * correction).T
+
         self.invM /= 100
-        # numpy.linalg.inv(self.invM) is approximately the matrix in the spec:
+        # numpy.linalg.inv(self.invM) is the matrix in the spec:
         # M = numpy.array([
         #     [+3.2406255, -1.537208, -0.4986286],
         #     [-0.9689307, +1.8757561, +0.0415175],

@@ -49,9 +49,9 @@ class CAM16(object):
         self.D_RGB = D * Y_w / RGB_w + 1 - D
 
         k = 1 / (5 * L_A + 1)
-        k4 = k * k * k * k
-        l4 = 1 - k4
-        self.F_L = k4 * L_A + 0.1 * l4 * l4 * numpy.cbrt(5 * L_A)
+        l4 = 1 - k ** 4
+        k4_L_A = 0.0 if L_A == numpy.inf else k ** 4 * L_A
+        self.F_L = k4_L_A + 0.1 * l4 ** 2 * numpy.cbrt(5 * L_A)
 
         self.n = Y_b / Y_w
         self.z = 1.48 + numpy.sqrt(self.n)
@@ -60,7 +60,9 @@ class CAM16(object):
 
         RGB_wc = self.D_RGB * RGB_w
         alpha = (self.F_L * RGB_wc / 100) ** 0.42
-        RGB_aw_ = 400 * alpha / (alpha + 27.13) + 0.1
+        RGB_aw_ = numpy.array(
+            [400.1 if a == numpy.inf else 400 * a / (a + 27.13) + 0.1 for a in alpha]
+        )
         self.A_w = (numpy.dot([2, 1, 1 / 20], RGB_aw_) - 0.305) * self.N_bb
 
         self.h = numpy.array([20.14, 90.00, 164.25, 237.53, 380.14])
@@ -105,7 +107,6 @@ class CAM16(object):
 
 
 class CAM16UCS(object):
-    # pylint: disable=too-many-arguments
     def __init__(
         self, c, Y_b, L_A, exact_inversion=True, whitepoint=whitepoints_cie1931["D65"]
     ):
@@ -117,7 +118,7 @@ class CAM16UCS(object):
         return
 
     def from_xyz100(self, xyz):
-        J, _, _, h, M, _, _ = self.cam16.from_xyz100(xyz)
+        J, C, H, h, M, s, Q = self.cam16.from_xyz100(xyz)
         J_ = (1 + 100 * self.c1) * J / (1 + self.c1 * J)
         M_ = 1 / self.c2 * numpy.log(1 + self.c2 * M)
         h_ = h * numpy.pi / 180
