@@ -11,7 +11,11 @@ from .linalg import dot
 def compute_from(rgb_, cs):
     # Step 4: Calculate the post-adaptation cone response (resulting in dynamic range
     #         compression)
-    alpha = (cs.F_L * abs(rgb_) / 100) ** 0.42
+    alpha = (
+        numpy.full(rgb_.shape, numpy.inf)
+        if cs.F_L == numpy.inf
+        else (cs.F_L * abs(rgb_) / 100) ** 0.42
+    )
     # Omit the 0.1 here; that's canceled out in almost all cases below anyways (except
     # the computation of `t`).
 
