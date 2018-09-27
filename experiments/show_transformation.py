@@ -8,7 +8,7 @@ import os
 import tempfile
 import matplotlib.pyplot as plt
 
-from dolfin import Mesh, FunctionSpace, Function
+from dolfin import Mesh, FunctionSpace, Function, MeshEditor
 import numpy
 
 import colorio
@@ -22,7 +22,7 @@ def _main():
     content = numpy.load(args.infile)
 
     data = content.item()["data"]
-    ref_steps = content.item()["ref_steps"]
+    n = content.item()["n"]
 
     # # plot statistics
     # axes0 = problem.get_ellipse_axes(alpha0).T.flatten()
@@ -39,21 +39,25 @@ def _main():
         "macadam-native.png",
         ellipse_scaling=10,
         plot_rgb_triangle=False,
-        mesh_ref_steps=ref_steps,
+        n=n,
     )
 
     points, cells = meshzoo.triangle(
         corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]),
-        ref_steps=ref_steps,
+        n=n
     )
 
     # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
-    with tempfile.TemporaryDirectory() as temp_dir:
-        tmp_filename = os.path.join(temp_dir, "test.xml")
-        meshio.write(
-            tmp_filename, points, {"triangle": cells}, file_format="dolfin-xml"
-        )
-        mesh = Mesh(tmp_filename)
+    editor = MeshEditor()
+    mesh = Mesh()
+    editor.open(mesh, "triangle", 2, 2)
+    editor.init_vertices(points.shape[0])
+    editor.init_cells(cells.shape[0])
+    for k, point in enumerate(points):
+        editor.add_vertex(k, point[:2])
+    for k, cell in enumerate(cells):
+        editor.add_cell(k, cell)
+    editor.close()
 
     V = FunctionSpace(mesh, "CG", 1)
 
@@ -91,11 +95,11 @@ def _main():
         # xy_to_2d=problem.pade2d.eval,
         xy_to_2d=transform,
         plot_rgb_triangle=False,
-        mesh_ref_steps=ref_steps,
+        n=n,
     )
     # plt.xlim(-0.2, 0.9)
     # plt.ylim(+0.0, 0.7)
-    plt.savefig("macadam-{}.png".format(ref_steps))
+    plt.savefig("macadam-{}.png".format(n))
     return
 
 
