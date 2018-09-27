@@ -181,16 +181,16 @@ class CAM16Legacy(object):
             [numpy.isnan(one_over_t), True], [numpy.inf, one_over_t]
         )
 
-        p1 = (50000. / 13) * self.N_c * self.N_cb * e_t * one_over_t
+        p1 = (50000.0 / 13) * self.N_c * self.N_cb * e_t * one_over_t
         p2 = A / self.N_bb + 0.305
         p3 = 21 / 20
 
         sin_h = numpy.sin(h)
         cos_h = numpy.cos(h)
 
-        num = p2 * (2 + p3) * (460. / 1403)
-        denom_part2 = (2 + p3) * (220. / 1403)
-        denom_part3 = (-27. / 1403) + p3 * (6300. / 1403)
+        num = p2 * (2 + p3) * (460.0 / 1403)
+        denom_part2 = (2 + p3) * (220.0 / 1403)
+        denom_part3 = (-27.0 / 1403) + p3 * (6300.0 / 1403)
 
         a = numpy.empty_like(h)
         b = numpy.empty_like(h)

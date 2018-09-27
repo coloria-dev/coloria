@@ -2,11 +2,11 @@
 #
 from __future__ import print_function, division
 
-import tempfile
 import os
 
 from dolfin import (
     Mesh,
+    MeshEditor,
     FunctionSpace,
     Function,
     grad,
@@ -30,7 +30,6 @@ from scipy.sparse.linalg import LinearOperator
 from scipy.optimize import leastsq, least_squares
 import yaml
 
-import meshio
 import meshzoo
 
 from pade2d import Pade2d
@@ -307,8 +306,8 @@ class PadeEllipse(object):
 
 
 def build_grad_matrices(V, points):
-    """Build the sparse m-by-n matrices that map a coefficient set for a
-    function in V to the values of dx and dy at a number m of points.
+    """Build the sparse m-by-n matrices that map a coefficient set for a function in V
+    to the values of dx and dy at a number m of points.
     """
     # See <https://www.allanswered.com/post/lkbkm/#zxqgk>
     mesh = V.mesh()
@@ -329,8 +328,8 @@ def build_grad_matrices(V, points):
         rows.append([i, i, i])
         cols.append(dofmap.cell_dofs(cell_id))
 
-        v = numpy.empty((3, 2), dtype=float)
-        el.evaluate_basis_derivatives_all(1, v, xy, coordinate_dofs, cell_id)
+        v = el.evaluate_basis_derivatives_all(1, xy, coordinate_dofs, cell_id)
+        v = v.reshape(3, 2)
         datax.append(v[:, 0])
         datay.append(v[:, 1])
 
@@ -347,7 +346,7 @@ def build_grad_matrices(V, points):
 
 
 class PiecewiseEllipse(object):
-    def __init__(self, centers, J, ref_steps):
+    def __init__(self, centers, J, n):
         self.centers = centers
         self.J = J
 
@@ -366,20 +365,20 @@ class PiecewiseEllipse(object):
         # self.points, self.cells = colorio.xy_gamut_mesh(0.15)
 
         self.points, self.cells = meshzoo.triangle(
-            corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]),
-            ref_steps=ref_steps,
+            n, corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
         )
 
         # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
-        with tempfile.TemporaryDirectory() as temp_dir:
-            tmp_filename = os.path.join(temp_dir, "test.xml")
-            meshio.write(
-                tmp_filename,
-                self.points,
-                {"triangle": self.cells},
-                file_format="dolfin-xml",
-            )
-            mesh = Mesh(tmp_filename)
+        editor = MeshEditor()
+        mesh = Mesh()
+        editor.open(mesh, "triangle", 2, 2)
+        editor.init_vertices(self.points.shape[0])
+        editor.init_cells(self.cells.shape[0])
+        for k, point in enumerate(self.points):
+            editor.add_vertex(k, point[:2])
+        for k, cell in enumerate(self.cells):
+            editor.add_cell(k, cell)
+        editor.close()
 
         self.V = FunctionSpace(mesh, "CG", 1)
         self.Vgrad = VectorFunctionSpace(mesh, "DG", 0)
@@ -819,16 +818,16 @@ def _main():
     # centers, J = _get_luo_rigg()
 
     # problem = PadeEllipse(centers, J, [2, 0, 2, 0])
-    ref_steps = 4
-    problem = PiecewiseEllipse(centers, J, ref_steps)
+    n = 32
+    problem = PiecewiseEllipse(centers, J, n)
 
     print("num parameters: {}".format(len(problem.alpha)))
 
     alpha0 = problem.alpha.copy()
 
     # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
-    # problems, but it needs more conditions than parameters. This is not the
-    # case for larger polynomial degrees.
+    # problems, but it needs more conditions than parameters. This is not the case for
+    # larger polynomial degrees.
     print("f evals     cost")
     # out = least_squares(
     #     problem.cost_ls, alpha0,
@@ -850,9 +849,9 @@ def _main():
     print(out.fun)
     print(out.nfev)
 
-    filename = "optimal-{}.npy".format(ref_steps)
+    filename = "optimal-{}.npy".format(n)
     print("Writing data to {}".format(filename))
-    numpy.save(filename, {"ref_steps": ref_steps, "data": out.x})
+    numpy.save(filename, {"n": n, "data": out.x})
     return
 
 

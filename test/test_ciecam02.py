@@ -122,13 +122,13 @@ def test_gold():
     reference_values = numpy.array(
         [
             # J, C, H, h, M, s, Q
-            4.17310911e+01,
+            4.17310911e01,
             1.04707861e-01,
-            2.78060724e+02,
-            2.19048423e+02,
+            2.78060724e02,
+            2.19048423e02,
             1.08842280e-01,
-            2.36030659e+00,
-            1.95371311e+02,
+            2.36030659e00,
+            1.95371311e02,
         ]
     )
     assert numpy.all(abs(values - reference_values) < 1.0e-8 * reference_values)
