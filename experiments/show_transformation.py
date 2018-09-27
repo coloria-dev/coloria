@@ -36,15 +36,11 @@ def _main():
     # colorio.plot_luo_rigg(
     #     ellipse_scaling=1,
     colorio.save_macadam(
-        "macadam-native.png",
-        ellipse_scaling=10,
-        plot_rgb_triangle=False,
-        n=n,
+        "macadam-native.png", ellipse_scaling=10, plot_rgb_triangle=False, n=n
     )
 
     points, cells = meshzoo.triangle(
-        corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]),
-        n=n
+        corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]), n=n
     )
 
     # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices

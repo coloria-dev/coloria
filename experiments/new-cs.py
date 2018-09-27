@@ -365,8 +365,7 @@ class PiecewiseEllipse(object):
         # self.points, self.cells = colorio.xy_gamut_mesh(0.15)
 
         self.points, self.cells = meshzoo.triangle(
-            n,
-            corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]),
+            n, corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
         )
 
         # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
