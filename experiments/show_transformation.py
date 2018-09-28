@@ -4,15 +4,12 @@
 from __future__ import print_function, division
 
 import argparse
-import os
-import tempfile
 import matplotlib.pyplot as plt
 
 from dolfin import Mesh, FunctionSpace, Function, MeshEditor
 import numpy
 
 import colorio
-import meshio
 import meshzoo
 
 
@@ -95,7 +92,7 @@ def _main():
     )
     # plt.xlim(-0.2, 0.9)
     # plt.ylim(+0.0, 0.7)
-    plt.savefig("macadam-{}.png".format(n))
+    plt.savefig("macadam-{:03d}.png".format(n))
     return
 
 

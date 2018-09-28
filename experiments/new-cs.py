@@ -22,12 +22,13 @@ from dolfin import (
     BoundingBoxTree,
     Point,
     Cell,
+    dof_to_vertex_map,
+    vertex_to_dof_map,
 )
 import numpy
-import pyamg
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
-from scipy.optimize import leastsq, least_squares
+from scipy.optimize import leastsq
 import yaml
 
 import meshzoo
@@ -365,7 +366,7 @@ class PiecewiseEllipse(object):
         # self.points, self.cells = colorio.xy_gamut_mesh(0.15)
 
         self.points, self.cells = meshzoo.triangle(
-            n, corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
+            n, corners=numpy.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
         )
 
         # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
@@ -375,7 +376,7 @@ class PiecewiseEllipse(object):
         editor.init_vertices(self.points.shape[0])
         editor.init_cells(self.cells.shape[0])
         for k, point in enumerate(self.points):
-            editor.add_vertex(k, point[:2])
+            editor.add_vertex(k, point)
         for k, cell in enumerate(self.cells):
             editor.add_cell(k, cell)
         editor.close()
@@ -386,14 +387,19 @@ class PiecewiseEllipse(object):
         # self.ux0 = Function(self.V)
         # self.uy0 = Function(self.V)
 
-        # Use F(x, y) = (x, y) as starting guess
-        self.ux0 = project(Expression("x[0]", degree=1), self.V)
-        self.uy0 = project(Expression("x[1]", degree=1), self.V)
-        ax = self.ux0.vector().get_local()
-        ay = self.uy0.vector().get_local()
         # 0 starting guess
         # ax = numpy.zeros(self.V.dim())
         # ay = numpy.zeros(self.V.dim())
+
+        # Use F(x, y) = (x, y) as starting guess
+        self.ux0 = project(Expression("x[0]", degree=1), self.V)
+        ax = self.ux0.vector().get_local()
+        self.uy0 = project(Expression("x[1]", degree=1), self.V)
+        ax = self.ux0.vector().get_local()
+        ay = self.uy0.vector().get_local()
+        # Note that alpha doesn't contain the values in the order that one might expect,
+        # see
+        # <https://www.allanswered.com/post/awevg/projectexpressionx0-v-vector-get_local-not-in-order/>.
         self.alpha = numpy.concatenate([ax, ay])
 
         self.num_f_eval = 0
@@ -404,13 +410,7 @@ class PiecewiseEllipse(object):
         L = assemble(dot(grad(u), grad(v)) * dx)
         Lmat = as_backend_type(L).mat()
         indptr, indices, data = Lmat.getValuesCSR()
-        # Set the first row to [1.0, 0.0, ..., 0.0] to emulate a Dirichlet
-        # condition. This setting makes sure that the "first" node maps to [0,
-        # 0], a convention. Useful because now, L is nonsingular. Unfortunately
-        # it's also nonsymmetric.
-        data[indptr[0] : indptr[1]] = 0.0
-        assert indices[0] == 0
-        data[0] = 1.0
+
         size = Lmat.getSize()
         self.L = sparse.csr_matrix((data, indices, indptr), shape=size)
         self.LT = self.L.getH()
@@ -540,18 +540,17 @@ class PiecewiseEllipse(object):
         q2, r2 = self.get_q2_r2(ax, ay)
 
         # Some word on the (absence of) weights here.
-        # Weights on the residuals are not required: The residual entries are
-        # integrals with the test functions, so they'll naturally decrease in
-        # absolute value as the cell size decreases.
-        # One idea for scaling q2 and r2 would be to divide by the number of
-        # measurement points (or rather the sqrt thereof). This would ensure
-        # that, if more measure points are added, they as a set aren't weighted
-        # more than the other quality indicators, e.g., the smoothness in x and
-        # y.  On the other hand, by omitting an explicit weight that depends on
-        # the number of data points, one asserts that additional measurements
-        # do not decrease the weights on the other measurements. As
-        # consequence, more measurements as a set take a higher relative weight
-        # in the cost function. This is what we want.
+        # Weights on the residuals are not required: The residual entries are integrals
+        # with the test functions, so they'll naturally decrease in absolute value as
+        # the cell size decreases.
+        # One idea for scaling q2 and r2 would be to divide by the number of measurement
+        # points (or rather the sqrt thereof). This would ensure that, if more measure
+        # points are added, they as a set aren't weighted more than the other quality
+        # indicators, e.g., the smoothness in x and y.  On the other hand, by omitting
+        # an explicit weight that depends on the number of data points, one asserts that
+        # additional measurements do not decrease the weights on the other measurements.
+        # As consequence, more measurements as a set take a higher relative weight in
+        # the cost function. This is what we want.
         out = numpy.array([res_x, res_y, q2 - 1.0, r2])
 
         self.num_f_eval += 1
@@ -813,47 +812,105 @@ class PiecewiseEllipse(object):
         return ux, uy
 
 
+def test_invariance():
+    """Asserts invariance of cost functional w.r.t. translation and rotation
+    """
+    centers, J = _get_macadam()
+    n = 1
+    problem = PiecewiseEllipse(centers, J.copy(), n)
+
+    alpha = problem.alpha.copy()
+
+    c0 = problem.cost_min(alpha)
+    alpha += 1.23
+    c1 = problem.cost_min(alpha)
+    assert abs(c0 - c1) < 1.0e-12 * c0
+
+    d2v = dof_to_vertex_map(problem.V)
+    v2d = vertex_to_dof_map(problem.V)
+
+    alpha = problem.alpha.copy()
+    alpha = alpha.reshape(2, -1).T
+    coords = alpha[v2d]
+    # rotate
+    theta = 0.35 * numpy.pi
+    sin = numpy.sin(theta)
+    cos = numpy.cos(theta)
+    R = numpy.array([[cos, -sin], [sin, cos]])
+    rcoords = numpy.dot(R, coords.T)
+    # map back to alpha)
+    alpha = numpy.concatenate(rcoords[:, d2v])
+    c2 = problem.cost_min(alpha)
+    assert abs(c0 - c2) < 1.0e-12 * c0
+    return
+
+
 def _main():
     centers, J = _get_macadam()
     # centers, J = _get_luo_rigg()
 
     # problem = PadeEllipse(centers, J, [2, 0, 2, 0])
-    n = 32
-    problem = PiecewiseEllipse(centers, J, n)
+    for k in range(8):
+        n = 2 ** k
+        problem = PiecewiseEllipse(centers, J.copy(), n)
 
-    print("num parameters: {}".format(len(problem.alpha)))
+        print()
+        print("n = {}".format(n))
+        print("num parameters: {}".format(len(problem.alpha)))
 
-    alpha0 = problem.alpha.copy()
+        alpha0 = problem.alpha.copy()
 
-    # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
-    # problems, but it needs more conditions than parameters. This is not the case for
-    # larger polynomial degrees.
-    print("f evals     cost")
-    # out = least_squares(
-    #     problem.cost_ls, alpha0,
-    #     jac=problem.jac_ls,
-    #     max_nfev=10000,
-    #     method='trf',
-    #     # tr_solver='exact',
-    #     tr_solver='lsmr',
-    #     )
-    # print('{:7d}'.format(out.nfev))
+        # Levenberg-Marquardt (lm) is better suited for small, dense, unconstrained
+        # problems, but it needs more conditions than parameters. This is not the case
+        # for larger polynomial degrees.
+        print("f evals     cost")
+        # out = least_squares(
+        #     problem.cost_ls, alpha0,
+        #     jac=problem.jac_ls,
+        #     max_nfev=10000,
+        #     method='trf',
+        #     # tr_solver='exact',
+        #     tr_solver='lsmr',
+        #     )
+        # print('{:7d}'.format(out.nfev))
 
-    from scipy.optimize import show_options
+        # from scipy.optimize import show_options
+        # print(show_options(solver='minimize', method='cg'))
+        from scipy.optimize import minimize
 
-    # print(show_options(solver='minimize', method='cg'))
-    from scipy.optimize import minimize
+        out = minimize(problem.cost_min, alpha0, jac=problem.grad_min, method="L-BFGS-B")
+        print("success?", out.success)
+        print("f(sol)", out.fun)
+        print("fun evals", out.nfev)
 
-    out = minimize(problem.cost_min, alpha0, jac=problem.grad_min, method="L-BFGS-B")
-    print(out.success)
-    print(out.fun)
-    print(out.nfev)
+        # move, scale, and rotate the result such that (0, 0) is mapped to (0, 0)
+        # and (1, 0) to (1, 0)
+        v2d = vertex_to_dof_map(problem.V)
+        alpha = out.x.reshape(2, -1).T
+        coords = alpha[v2d]
+        # move point[0] to [0, 0]
+        assert numpy.all(numpy.abs(problem.points[0] - [0, 0]) < 1.0e-12)
+        coords = coords - coords[0]
+        # rotate point[n] to [..., 0]
+        assert numpy.all(numpy.abs(problem.points[n] - [1, 0]) < 1.0e-12)
+        theta = numpy.arctan2(coords[n, 1], coords[n, 0])
+        sin = numpy.sin(-theta)
+        cos = numpy.cos(-theta)
+        R = numpy.array([[cos, -sin], [sin, cos]])
+        coords = numpy.dot(R, coords.T).T
+        # scale
+        coords /= coords[n, 0]
+        # translate back to alpha
+        d2v = dof_to_vertex_map(problem.V)
+        alpha = numpy.concatenate(coords[d2v].T)
 
-    filename = "optimal-{}.npy".format(n)
-    print("Writing data to {}".format(filename))
-    numpy.save(filename, {"n": n, "data": out.x})
+        filename = "optimal-{:03d}.npy".format(n)
+        print("Writing data to {}".format(filename))
+        numpy.save(filename, {"n": n, "data": alpha})
+
     return
 
 
 if __name__ == "__main__":
     _main()
+    # test_invariance()
