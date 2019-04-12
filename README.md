@@ -77,11 +77,13 @@ colorspace = colorio.CIELAB()
 colorio.show_srgb_gamut(colorspace, 'out.vtu', n=50, cut_000=False)
 ```
 The [VTU](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
-in, e.g., ParaView. To see the coloring, select the `srgb` data and disable
-`Map Scalars`. You might also want to disable the Light Kit.
+in, e.g., ParaView, where the following instructions apply:
+1. Open the file in ParaView and execute the following steps in the **Properties** tab to the left.
+2. Press the **Apply** button.
+3. Under the **Coloring** section, change `Solid Color` to `srgb`.
+4. Under the **Scalar Coloring** section, uncheck **Map Scalars**.
 
-More images are [in the gh-pages
-branch](https://github.com/nschloe/colorio/tree/gh-pages).
+More images are [in the gh-pages branch](https://github.com/nschloe/colorio/tree/gh-pages).
 
 The data can be written in all formats supported by
 [meshio](https://github.com/nschloe/meshio).
