@@ -674,8 +674,8 @@ def xy_gamut_mesh(lcar):
     ll = geom.add_line_loop([s1, s2])
     geom.add_plane_surface(ll)
 
-    points, cells, _, _, _ = pygmsh.generate_mesh(geom)
+    mesh = pygmsh.generate_mesh(geom)
     points, cells = optimesh.cvt.quasi_newton_uniform_lloyd(
-        points, cells["triangle"], 1.0e-2, 100, omega=2.0
+        mesh.points, mesh.cells["triangle"], 1.0e-2, 100, omega=2.0
     )
     return points, cells

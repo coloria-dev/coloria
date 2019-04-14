@@ -2,8 +2,8 @@
 #
 import numpy
 
+# import colour
 import colorspacious
-import colour
 import colorio
 
 from cam16_legacy import CAM16Legacy
@@ -61,14 +61,15 @@ def test_from():
     assert abs(ref1.Q - Q) < 1.0e-14 * Q
 
     # compare with color
-    ref2 = colour.appearance.ciecam02.XYZ_to_CIECAM02(xyz, whitepoint, L_A, Y_b)
-    assert abs(ref2.J - J) < 1.0e-14 * J
-    assert abs(ref2.C - C) < 1.0e-14 * C
-    # assert abs(ref2.H - H) < 1.0e-14 * H
-    assert abs(ref2.h - h) < 1.0e-14 * h
-    assert abs(ref2.M - M) < 1.0e-14 * M
-    assert abs(ref2.s - s) < 1.0e-14 * s
-    assert abs(ref2.Q - Q) < 1.0e-14 * Q
+    # TODO reinstate once https://github.com/colour-science/colour/issues/467 is fixed
+    # ref2 = colour.appearance.ciecam02.XYZ_to_CIECAM02(xyz, whitepoint, L_A, Y_b)
+    # assert abs(ref2.J - J) < 1.0e-14 * J
+    # assert abs(ref2.C - C) < 1.0e-14 * C
+    # # assert abs(ref2.H - H) < 1.0e-14 * H
+    # assert abs(ref2.h - h) < 1.0e-14 * h
+    # assert abs(ref2.M - M) < 1.0e-14 * M
+    # assert abs(ref2.s - s) < 1.0e-14 * s
+    # assert abs(ref2.Q - Q) < 1.0e-14 * Q
     return
 
 

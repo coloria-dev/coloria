@@ -203,8 +203,7 @@ class CIECAM02(object):
         #        samples
         Y_w = whitepoint[1]
 
-        # Nc and F are modelled as a function of c, and can be linearly
-        # interpolated.
+        # Nc and F are modelled as a function of c, and can be linearly interpolated.
         c_vals = [0.525, 0.59, 0.69]
         F_Nc_vals = [0.8, 0.9, 1.0]
         assert 0.535 <= c <= 0.69
