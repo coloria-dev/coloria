@@ -45,7 +45,7 @@ setup(
         "pyyaml",
         "scipy",
     ],
-    description="tools for color models",
+    description="Tools for color models",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
     license=about["__license__"],

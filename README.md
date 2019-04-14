@@ -74,7 +74,7 @@ translated into other color spaces. The above image shows the SRGB gamut in XYZ
 space. The image data was created with
 ```python
 colorspace = colorio.CIELAB()
-colorio.show_srgb_gamut(colorspace, 'out.vtu', n=50, cut_000=False)
+colorio.show_srgb_gamut(colorspace, "out.vtk", n=50, cut_000=False)
 ```
 The [VTU](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
 in, e.g., ParaView, where the following instructions apply:
@@ -97,10 +97,10 @@ Same as above, but with the gamut visible under a given illuminant.
 colorspace = colorio.XYZ()
 illuminant = colorio.illuminants.d65()
 observer = colorio.observers.cie_1931_2()
-colorio.show_visible_gamut(colorspace, observer, illuminant, 'visible.vtu')
+colorio.show_visible_gamut(colorspace, observer, illuminant, "visible.vtk")
 ```
 The gamut is shown in grey since SRGB screens are not able to display the
-colors.
+colors anyway.
 
 #### The xy-gamut
 
