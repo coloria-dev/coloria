@@ -2,8 +2,8 @@
 #
 import numpy
 
+# import colour
 import colorspacious
-import colour
 import colorio
 
 from cam16_legacy import CAM16Legacy
