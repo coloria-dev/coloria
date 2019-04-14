@@ -878,7 +878,9 @@ def _main():
         # print(show_options(solver='minimize', method='cg'))
         from scipy.optimize import minimize
 
-        out = minimize(problem.cost_min, alpha0, jac=problem.grad_min, method="L-BFGS-B")
+        out = minimize(
+            problem.cost_min, alpha0, jac=problem.grad_min, method="L-BFGS-B"
+        )
         print("success?", out.success)
         print("f(sol)", out.fun)
         print("fun evals", out.nfev)
