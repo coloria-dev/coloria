@@ -90,7 +90,7 @@ The data can be written in all formats supported by
 
 #### Visualizing the visible gamut
 
-<img src="https://nschloe.github.io/colorio/visible-d65-xyz.png" width="40%">
+<img src="https://nschloe.github.io/colorio/visible-d65-xyz.png" width="20%">
 
 Same as above, but with the gamut visible under a given illuminant.
 ```python
@@ -147,8 +147,8 @@ colorio.show_ebner_fairchild(colorspace)
 shows constant-hue data from [the Ebner-Fairchild
 experiments](https://doi.org/10.1117/12.298269) in the
 a<sub>z</sub>b<sub>z</sub>-plane of the
-J<sub>z</sub>a<sub>z</sub>b<sub>z</sub> color space. (Ideally, all colors in
-one set sit on a line.)
+J<sub>z</sub>a<sub>z</sub>b<sub>z</sub> color space. (Ideally, all colors in one set sit
+on a line.)
 
 
 ###### Hung-Berns
@@ -184,9 +184,6 @@ colorio.show_munsell(colorspace, V=5)
 #### Color differences
 
 Color differences in any space can be computed with `colorio.delta(a, b)`.
-
-The images below all show the SRGB gamut in the respective color space.
-
 
 ### Installation
 
