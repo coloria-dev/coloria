@@ -85,8 +85,9 @@ in, e.g., ParaView, where the following instructions apply:
 
 More images are [in the gh-pages branch](https://github.com/nschloe/colorio/tree/gh-pages).
 
-The data can be written in all formats supported by
-[meshio](https://github.com/nschloe/meshio).
+The data can be written in most formats supported by
+[meshio](https://github.com/nschloe/meshio). (You might have to install additional
+packages for some formats.)
 
 #### Visualizing the visible gamut
 
