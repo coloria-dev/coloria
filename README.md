@@ -75,14 +75,13 @@ data was created with
 colorspace = colorio.CIELAB()
 colorio.show_srgb_gamut(colorspace, "out.vtk", n=50, cut_000=False)
 ```
-The output file can then be opened in, e.g., ParaView, where the following instructions
-apply:
-
-1. Open the file in ParaView and execute the following steps in the **Properties** tab
-   to the left.
+The [VTK](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
+in, e.g., ParaView, where the following instructions apply:
+1. Open the file in ParaView and execute the following steps in the **Properties** tab to the left.
 2. Press the **Apply** button.
 3. Under the **Coloring** section, change `Solid Color` to `srgb`.
-4. Under the **Scalar Coloring** section, uncheck **Map Scalars**.
+4. If necessary, press the gear button to the right of the search field to activate advanced options.
+5. Under the **Scalar Coloring** section, uncheck **Map Scalars**.
 
 More images are [in the gh-pages branch](https://github.com/nschloe/colorio/tree/gh-pages).
 
