@@ -15,7 +15,7 @@ coordinates for the Munsell colors. The files here reflect that correction.
 There are three files available for download. All are of the same format: six
 columns of Munsell hue, Munsell value, Munsell chroma, CIE x, y, and Y. The
 chromaticity coordinates were calculated using illuminant C and the CIE 1931 2
-degree observer.In a sense, all three files represent the same set of data, in
+degree observer. In a sense, all three files represent the same set of data, in
 that all depend on the scaling experiments of the late 1930's.
 
 A report entitled "One Set of Munsell Re-renotations," by Deane B. Judd and
