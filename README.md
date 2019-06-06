@@ -62,16 +62,15 @@ The following color spaces are implemented:
 
 ### Tools
 
-colorio provides a number of useful tools for analyzing and visualizing color
-spaces.
+colorio provides a number of useful tools for analyzing and visualizing color spaces.
 
 #### Visualizing the SRGB gamut
 
 <img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="40%">
 
-The SRGB gamut is a perfect cube in SRGB space, and takes curious shapes when
-translated into other color spaces. The above image shows the SRGB gamut in XYZ
-space. The image data was created with
+The SRGB gamut is a perfect cube in SRGB space, and takes curious shapes when translated
+into other color spaces. The above image shows the SRGB gamut in XYZ space. The image
+data was created with
 ```python
 colorspace = colorio.CIELAB()
 colorio.show_srgb_gamut(colorspace, "out.vtk", n=50, cut_000=False)
@@ -101,16 +100,15 @@ illuminant = colorio.illuminants.d65()
 observer = colorio.observers.cie_1931_2()
 colorio.show_visible_gamut(colorspace, observer, illuminant, "visible.vtk")
 ```
-The gamut is shown in grey since SRGB screens are not able to display the
-colors anyway.
+The gamut is shown in grey since SRGB screens are not able to display the colors anyway.
 
 #### The xy-gamut
 
 <img src="https://nschloe.github.io/colorio/xy-gamut.png" width="40%">
 
 Show the classical visible gamut in xy with [Planckian
-locus](https://en.wikipedia.org/wiki/Planckian_locus) and the SRGB colors (at
-maximum luminosity).
+locus](https://en.wikipedia.org/wiki/Planckian_locus) and the SRGB colors (at maximum
+luminosity).
 
 ```python
 colorio.show_xy_gamut()
@@ -119,8 +117,8 @@ colorio.show_xy_gamut()
 
 #### Show experimental data
 
-colorio contains lots of experimental data sets some of which can be used to
-assess certain properties of color spaces.
+colorio contains lots of experimental data sets some of which can be used to assess
+certain properties of color spaces.
 
 
 ###### MacAdam
@@ -183,6 +181,11 @@ colorspace = colorio.CIELUV()
 colorio.show_munsell(colorspace, V=5)
 ```
 
+To simply retrieve the Munsell data in xyY format, use
+```python
+h, V, C, xyy = colorio.get_munsell_data()
+```
+
 #### Color differences
 
 Color differences in any space can be computed with `colorio.delta(a, b)`.
@@ -201,17 +204,6 @@ To run the tests, simply check out this repository and run
 ```
 pytest
 ```
-
-### Distribution
-
-To create a new release
-
-1. bump the `__version__` number,
-
-2. publish to PyPi and GitHub:
-    ```
-    $ make publish
-    ```
 
 ### License
 colorio is published under the [MIT license](https://en.wikipedia.org/wiki/MIT_License).

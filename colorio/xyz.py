@@ -2,7 +2,6 @@
 #
 
 
-# pylint: disable=no-self-use
 class XYZ(object):
     def __init__(self):
         self.labels = ["X", "Y", "Z"]

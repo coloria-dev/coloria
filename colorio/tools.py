@@ -347,30 +347,17 @@ def _show_color_constancy_data(data, wp, colorspace):
 
 
 def show_munsell(colorspace, V):
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, "data/munsell/real.yaml")) as f:
-        data = yaml.safe_load(f)
+    _, v, _, xyy = get_munsell_data()
 
-    # https://stackoverflow.com/a/6473724/353337
-    v = data["V"]
-    x = data["x"]
-    y = data["y"]
-    Y = data["Y"]
-
-    idx = numpy.array(v) == V
-    x = numpy.array(x)
-    y = numpy.array(y)
-    Y = numpy.array(Y)
-    xyy = numpy.array([x[idx], y[idx], Y[idx]])
+    # pick the data from the given munsell level
+    xyy = xyy[:, v == V]
 
     xyz = XYY().to_xyz100(xyy)
     vals = colorspace.from_xyz100(xyz)
 
     srgb = SrgbLinear()
     rgb = srgb.from_xyz100(xyz)
-    is_legal_srgb = numpy.logical_and(
-        numpy.all(rgb >= 0, axis=0), numpy.all(rgb <= 1, axis=0)
-    )
+    is_legal_srgb = numpy.all((0 <= rgb) & (rgb <= 1), axis=0)
 
     # plot the ones that cannot be represented in SRGB
     plt.plot(
@@ -387,6 +374,19 @@ def show_munsell(colorspace, V):
     plt.axis("equal")
     plt.show()
     return
+
+
+def get_munsell_data():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(dir_path, "data/munsell/real.yaml")) as f:
+        data = yaml.safe_load(f)
+
+    h = numpy.array(data["h"])
+    V = numpy.array(data["V"])
+    C = numpy.array(data["C"])
+    xyy = numpy.array([data["x"], data["y"], data["Y"]])
+
+    return h, V, C, xyy
 
 
 def show_macadam(*args, **kwargs):
