@@ -13,7 +13,6 @@ class CAM16Legacy(object):
     Legacy CAM16 implementation for comparison purposes.
     """
 
-    # pylint: disable=too-many-instance-attributes, too-many-arguments
     def __init__(
         self, c, Y_b, L_A, exact_inversion=True, whitepoint=whitepoints_cie1931["D65"]
     ):
@@ -127,7 +126,6 @@ class CAM16Legacy(object):
 
         return numpy.array([J, C, H, h, M, s, Q])
 
-    # pylint: disable=too-many-statements
     def to_xyz100(self, data, description):
         """Input: J or Q; C, M or s; H or h
         """

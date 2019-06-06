@@ -357,9 +357,7 @@ def show_munsell(colorspace, V):
 
     srgb = SrgbLinear()
     rgb = srgb.from_xyz100(xyz)
-    is_legal_srgb = numpy.logical_and(
-        numpy.all(rgb >= 0, axis=0), numpy.all(rgb <= 1, axis=0)
-    )
+    is_legal_srgb = numpy.all((0 <= rgb) & (rgb <= 1), axis=0)
 
     # plot the ones that cannot be represented in SRGB
     plt.plot(

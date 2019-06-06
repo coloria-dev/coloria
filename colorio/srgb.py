@@ -46,7 +46,6 @@ class SrgbLinear(object):
     def to_xyz100(self, srgb1_linear):
         return 100 * dot(self.invM, srgb1_linear)
 
-    # pylint: disable=no-self-use
     def from_srgb1(self, srgb1):
         srgb_linear = numpy.array(srgb1, dtype=float)
 

@@ -197,7 +197,6 @@ class CIECAM02(object):
     <DOI: 10.1002/col.20198>.
     """
 
-    # pylint: disable=too-many-instance-attributes
     def __init__(self, c, Y_b, L_A, whitepoint=whitepoints_cie1931["D65"]):
         # step0: Calculate all values/parameters which are independent of input
         #        samples
@@ -297,7 +296,6 @@ class CIECAM02(object):
 
 
 class CAM02(object):
-    # pylint: disable=too-many-arguments, bad-continuation
     def __init__(self, variant, c, Y_b, L_A, whitepoint=whitepoints_cie1931["D65"]):
         params = {
             "LCD": (0.77, 0.007, 0.0053),
