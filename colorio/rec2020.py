@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 from __future__ import division
 
 import numpy
@@ -17,8 +15,7 @@ class Rec2020(object):
     """
 
     def __init__(self):
-        # The Y-coordinate the guessed, it does not explicitly appear in the
-        # spec.
+        # The Y-coordinate the guessed, it does not explicitly appear in the spec.
         primaries_xyy = numpy.array(
             [[0.708, 0.292, 1 / 3], [0.170, 0.797, 1 / 3], [0.131, 0.046, 1 / 3]]
         )

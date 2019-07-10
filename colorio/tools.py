@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 from __future__ import division
 
 import os
@@ -81,6 +79,7 @@ def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
 
     srgb_linear = SrgbLinear()
     pts = colorspace.from_xyz100(srgb_linear.to_xyz100(points.T)).T
+    assert pts.shape[1] == 3
     rgb = srgb_linear.to_srgb1(points)
     meshio.write_points_cells(filename, pts, {"tetra": cells}, point_data={"srgb": rgb})
     return

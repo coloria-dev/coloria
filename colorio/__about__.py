@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 
 __author__ = u"Nico Schlömer"
 __email__ = "nico.schloemer@gmail.com"

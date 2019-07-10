@@ -192,11 +192,12 @@ Color differences in any space can be computed with `colorio.delta(a, b)`.
 
 ### Installation
 
-colorio is [available from the Python Package Index](https://pypi.org/project/colorio/), so with
+colorio is [available from the Python Package Index](https://pypi.org/project/colorio/),
+so just use
 ```
-pip install -U colorio
+pip3 install colorio --user
 ```
-you can install/upgrade.
+to install.
 
 ### Testing
 

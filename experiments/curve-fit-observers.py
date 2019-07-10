@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 """
 Curve-fit observer curves with sums of exp(-x**2).
 """

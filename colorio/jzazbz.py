@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 from __future__ import division
 
 import numpy
@@ -11,8 +9,8 @@ from .linalg import dot, solve
 class JzAzBz(object):
     """
     Muhammad Safdar, Guihua Cui, Youn Jin Kim, and Ming Ronnier Luo,
-    Perceptually uniform color space for image signals including high dynamic
-    range and wide gamut,
+    Perceptually uniform color space for image signals including high dynamic range and
+    wide gamut,
     Optics Express Vol. 25, Issue 13, pp. 15131-15151 (2017),
     <https://doi.org/10.1364/OE.25.015131>.
     """
@@ -66,6 +64,7 @@ class JzAzBz(object):
         jz, az, bz = jzazbz
         iz = (jz + self.d0) / (1 + self.d - self.d * (jz + self.d0))
         lms_ = solve(self.M2, numpy.array([iz, az, bz]))
+        assert numpy.all(lms_ >= 0.0)
         lms = 10000 * (
             (self.c1 - lms_ ** (1 / self.p))
             / (self.c3 * lms_ ** (1 / self.p) - self.c2)

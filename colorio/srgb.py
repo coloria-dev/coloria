@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 from __future__ import division
 
 import numpy
@@ -44,6 +42,8 @@ class SrgbLinear(object):
         return solve(self.invM, xyz / 100)
 
     def to_xyz100(self, srgb1_linear):
+        # Note: The Y value is often used for grayscale conversion.
+        # 0.2126 * R_linear + 0.7152 * G_linear + 0.0722 * B_linear
         return 100 * dot(self.invM, srgb1_linear)
 
     def from_srgb1(self, srgb1):
