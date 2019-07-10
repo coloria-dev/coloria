@@ -4,7 +4,7 @@ from .illuminants import whitepoints_cie1931
 from .linalg import dot, solve
 
 
-class JzAzBz(object):
+class JzAzBz:
     """
     Muhammad Safdar, Guihua Cui, Youn Jin Kim, and Ming Ronnier Luo,
     Perceptually uniform color space for image signals including high dynamic range and

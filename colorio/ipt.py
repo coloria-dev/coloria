@@ -3,7 +3,7 @@ import numpy
 from .linalg import dot, solve
 
 
-class IPT(object):
+class IPT:
     """
     IPT color model.
     """

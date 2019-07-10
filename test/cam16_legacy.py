@@ -4,7 +4,7 @@ from colorio.illuminants import whitepoints_cie1931
 from colorio.linalg import dot
 
 
-class CAM16Legacy(object):
+class CAM16Legacy:
     """
     Legacy CAM16 implementation for comparison purposes.
     """

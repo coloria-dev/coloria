@@ -89,7 +89,7 @@ def _get_dy_tree(xy, degree):
     return tree
 
 
-class Pade2d(object):
+class Pade2d:
     """Pad'e polynomial in from R^2 to R^2, i.e., both components are Pad'e
     functions in x and y. The function is characterized by four sets of
     coefficients, two for the components and two for numerator and denominator

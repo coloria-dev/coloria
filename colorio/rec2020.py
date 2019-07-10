@@ -4,7 +4,7 @@ from .linalg import dot, solve
 from .xyy import XYY
 
 
-class Rec2020(object):
+class Rec2020:
     """
     RGB color space from the Rec. 2020. Same as Rec. 2100, used in HDR. The
     primary colors are monochromatic at wave lengths 467nm, 532nm, and 630nm.

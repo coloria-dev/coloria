@@ -3,7 +3,7 @@ import numpy
 from .illuminants import whitepoints_cie1931
 
 
-class CIELAB(object):
+class CIELAB:
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
         self.whitepoint = whitepoint
         self.labels = ["L*", "a*", "b*"]

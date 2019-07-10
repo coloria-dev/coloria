@@ -5,7 +5,7 @@ from .xyy import XYY
 from .linalg import dot, solve
 
 
-class SrgbLinear(object):
+class SrgbLinear:
     """Rec. 709 SRGB.
     """
     def __init__(self, whitepoint_correction=True):

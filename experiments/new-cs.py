@@ -183,7 +183,7 @@ def get_local_linearizations2(centers, points):
     return numpy.array(J)
 
 
-class PadeEllipse(object):
+class PadeEllipse:
     def __init__(self, centers, J, degrees):
         self.centers = centers
         self.J = J
@@ -342,7 +342,7 @@ def build_grad_matrices(V, points):
     return dx_matrix, dy_matrix
 
 
-class PiecewiseEllipse(object):
+class PiecewiseEllipse:
     def __init__(self, centers, J, n):
         self.centers = centers
         self.J = J

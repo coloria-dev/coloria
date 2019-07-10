@@ -1,7 +1,7 @@
 import numpy
 
 
-class XYY(object):
+class XYY:
     def __init__(self):
         self.labels = ["x", "y", "Y"]
         return
