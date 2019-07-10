@@ -1,5 +1,3 @@
-from __future__ import division
-
 import numpy
 
 from .ciecam02 import compute_from, compute_to

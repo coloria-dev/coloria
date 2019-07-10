@@ -1,5 +1,3 @@
-from __future__ import division
-
 import numpy
 
 from .illuminants import whitepoints_cie1931

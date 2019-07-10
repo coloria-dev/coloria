@@ -1,6 +1,3 @@
-#
-from __future__ import print_function, division
-
 import argparse
 import matplotlib.pyplot as plt
 
