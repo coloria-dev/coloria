@@ -73,8 +73,13 @@ The SRGB gamut is a perfect cube in SRGB space, and takes curious shapes when tr
 into other color spaces. The above image shows the SRGB gamut in XYZ space. The image
 data was created with
 ```python
+import colorio
+
 colorspace = colorio.CIELAB()
-colorio.show_srgb_gamut(colorspace, "out.vtk", n=50, cut_000=False)
+colorio.show_srgb_gamut(colorspace, "srgb.vtk", n=50, cut_000=False)
+
+# The HDR (Rec.2100, Rec.2020) gamut works the same way
+# colorio.show_rec2020_gamut(colorspace, "hdr.vtk", n=50, cut_000=False)
 ```
 The [VTK](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
 in, e.g., ParaView, where the following instructions apply:
