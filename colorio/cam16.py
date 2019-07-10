@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-#
-from __future__ import division
-
 import numpy
 
 from .ciecam02 import compute_from, compute_to
@@ -9,7 +5,7 @@ from .illuminants import whitepoints_cie1931
 from .linalg import dot
 
 
-class CAM16(object):
+class CAM16:
     """
     Li C, Li Z, Wang Z, et al.,
     Comprehensive color solutions: CAM16, CAT16, and CAM16-UCS.
@@ -106,7 +102,7 @@ class CAM16(object):
         return dot(self.invM_, rgb_c)
 
 
-class CAM16UCS(object):
+class CAM16UCS:
     def __init__(
         self, c, Y_b, L_A, exact_inversion=True, whitepoint=whitepoints_cie1931["D65"]
     ):

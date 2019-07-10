@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-#
 import codecs
 import os
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 # https://packaging.python.org/single_source_version/
 base_dir = os.path.abspath(os.path.dirname(__file__))
@@ -45,6 +43,7 @@ setup(
         "pyyaml",
         "scipy",
     ],
+    python_requires=">=3",
     description="Tools for color models",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
@@ -54,7 +53,6 @@ setup(
         about["__status__"],
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
         "Topic :: Multimedia :: Graphics",
         "Topic :: Scientific/Engineering",

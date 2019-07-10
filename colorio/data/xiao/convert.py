@@ -1,10 +1,10 @@
 """
 Helper tool for converting XLSX data to YAML.
 """
-import openpyxl
 import numpy
 import yaml
 
+import openpyxl
 
 wb = openpyxl.load_workbook("xiao.xlsx")
 

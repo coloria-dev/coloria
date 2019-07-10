@@ -1,13 +1,9 @@
-# -*- coding: utf-8 -*-
-#
-from __future__ import division
-
 import numpy
 
 from .linalg import dot, solve
 
 
-class ICtCp(object):
+class ICtCp:
     """
     ICtCp color model.
     <https://en.wikipedia.org/wiki/ICtCp>

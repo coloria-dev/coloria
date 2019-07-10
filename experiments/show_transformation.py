@@ -1,13 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
-from __future__ import print_function, division
-
 import argparse
-import matplotlib.pyplot as plt
 
-from dolfin import Mesh, FunctionSpace, Function, MeshEditor
+import matplotlib.pyplot as plt
 import numpy
+from dolfin import Function, FunctionSpace, Mesh, MeshEditor
 
 import colorio
 import meshzoo

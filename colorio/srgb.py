@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
-#
-from __future__ import division
-
 import numpy
 
 from .illuminants import whitepoints_cie1931
-from .xyy import XYY
 from .linalg import dot, solve
+from .xyy import XYY
 
 
-class SrgbLinear(object):
+class SrgbLinear:
+    """Rec. 709 SRGB.
+    """
+
     def __init__(self, whitepoint_correction=True):
         # The standard actually gives the values in terms of M, but really inv(M) is a
         # direct derivative of the primary specification at
@@ -44,6 +43,8 @@ class SrgbLinear(object):
         return solve(self.invM, xyz / 100)
 
     def to_xyz100(self, srgb1_linear):
+        # Note: The Y value is often used for grayscale conversion.
+        # 0.2126 * R_linear + 0.7152 * G_linear + 0.0722 * B_linear
         return 100 * dot(self.invM, srgb1_linear)
 
     def from_srgb1(self, srgb1):

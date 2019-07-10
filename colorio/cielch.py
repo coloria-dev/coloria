@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
-#
 import numpy
 
 from . import cielab
 from .illuminants import whitepoints_cie1931
 
 
-class CIELCH(object):
+class CIELCH:
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
         self.cielab = cielab.CIELAB(whitepoint=whitepoint)
         self.labels = ["L", "C", "h"]

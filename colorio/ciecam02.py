@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-#
-from __future__ import division
-
 import numpy
 
 from .illuminants import whitepoints_cie1931
@@ -172,7 +168,7 @@ class NegativeAError(ValueError):
     pass
 
 
-class CIECAM02(object):
+class CIECAM02:
     """
     Ming Ronnier Luo and Changjun Li,
     CIECAM02 and Its Recent Developments,
@@ -295,7 +291,7 @@ class CIECAM02(object):
         return dot(self.invM_, rgb_)
 
 
-class CAM02(object):
+class CAM02:
     def __init__(self, variant, c, Y_b, L_A, whitepoint=whitepoints_cie1931["D65"]):
         params = {
             "LCD": (0.77, 0.007, 0.0053),

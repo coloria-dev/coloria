@@ -1,38 +1,33 @@
-# -*- coding: utf-8 -*-
-#
-from __future__ import print_function, division
-
 import os
 
+import numpy
+import yaml
 from dolfin import (
+    BoundingBoxTree,
+    Cell,
+    Expression,
+    Function,
+    FunctionSpace,
     Mesh,
     MeshEditor,
-    FunctionSpace,
-    Function,
-    grad,
-    VectorFunctionSpace,
-    project,
-    TrialFunction,
+    Point,
     TestFunction,
+    TrialFunction,
+    VectorFunctionSpace,
+    as_backend_type,
+    assemble,
+    dof_to_vertex_map,
     dot,
     dx,
-    assemble,
-    Expression,
-    as_backend_type,
-    BoundingBoxTree,
-    Point,
-    Cell,
-    dof_to_vertex_map,
+    grad,
+    project,
     vertex_to_dof_map,
 )
-import numpy
 from scipy import sparse
-from scipy.sparse.linalg import LinearOperator
 from scipy.optimize import leastsq
-import yaml
+from scipy.sparse.linalg import LinearOperator
 
 import meshzoo
-
 from pade2d import Pade2d
 
 
@@ -187,7 +182,7 @@ def get_local_linearizations2(centers, points):
     return numpy.array(J)
 
 
-class PadeEllipse(object):
+class PadeEllipse:
     def __init__(self, centers, J, degrees):
         self.centers = centers
         self.J = J
@@ -346,7 +341,7 @@ def build_grad_matrices(V, points):
     return dx_matrix, dy_matrix
 
 
-class PiecewiseEllipse(object):
+class PiecewiseEllipse:
     def __init__(self, centers, J, n):
         self.centers = centers
         self.J = J

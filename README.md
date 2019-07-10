@@ -1,14 +1,15 @@
-# colorio
+<p align="center">
+  <a href="https://github.com/nschloe/colorio"><img alt="colorio" src="https://nschloe.github.io/colorio/colorio-logo.svg" width="60%"></a>
+  <p align="center">Tools for color models.</p>
+</p>
 
-Tools for color models.
-
-[![CircleCI](https://img.shields.io/circleci/project/github/nschloe/colorio/master.svg)](https://circleci.com/gh/nschloe/colorio/tree/master)
-[![codecov](https://img.shields.io/codecov/c/github/nschloe/colorio.svg)](https://codecov.io/gh/nschloe/colorio)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
-[![colorful](https://img.shields.io/badge/colorful-very-ff69b4.svg)](https://github.com/nschloe/colorio)
-[![PyPi Version](https://img.shields.io/pypi/v/colorio.svg)](https://pypi.org/project/colorio)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1172995.svg)](https://doi.org/10.5281/zenodo.1172995)
-[![GitHub stars](https://img.shields.io/github/stars/nschloe/colorio.svg?logo=github&label=Stars&logoColor=white)](https://github.com/nschloe/colorio)
+[![CircleCI](https://img.shields.io/circleci/project/github/nschloe/colorio/master.svg?style=flat-square)](https://circleci.com/gh/nschloe/colorio/tree/master)
+[![codecov](https://img.shields.io/codecov/c/github/nschloe/colorio.svg?style=flat-square)](https://codecov.io/gh/nschloe/colorio)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/ambv/black)
+[![colorful](https://img.shields.io/badge/colorful-very-ff69b4.svg?style=flat-square)](https://github.com/nschloe/colorio)
+[![PyPi Version](https://img.shields.io/pypi/v/colorio.svg?style=flat-square)](https://pypi.org/project/colorio)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1172995.svg?style=flat-square)](https://doi.org/10.5281/zenodo.1172995)
+[![GitHub stars](https://img.shields.io/github/stars/nschloe/colorio.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/nschloe/colorio)
 
 All methods in colorio are fully vectorized.
 
@@ -72,8 +73,13 @@ The SRGB gamut is a perfect cube in SRGB space, and takes curious shapes when tr
 into other color spaces. The above image shows the SRGB gamut in XYZ space. The image
 data was created with
 ```python
+import colorio
+
 colorspace = colorio.CIELAB()
-colorio.show_srgb_gamut(colorspace, "out.vtk", n=50, cut_000=False)
+colorio.show_srgb_gamut(colorspace, "srgb.vtk", n=50, cut_000=False)
+
+# The HDR (Rec.2100, Rec.2020) gamut works the same way
+# colorio.show_rec2020_gamut(colorspace, "hdr.vtk", n=50, cut_000=False)
 ```
 The [VTK](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
 in, e.g., ParaView, where the following instructions apply:
@@ -192,11 +198,12 @@ Color differences in any space can be computed with `colorio.delta(a, b)`.
 
 ### Installation
 
-colorio is [available from the Python Package Index](https://pypi.org/project/colorio/), so with
+colorio is [available from the Python Package Index](https://pypi.org/project/colorio/),
+so just use
 ```
-pip install -U colorio
+pip3 install colorio --user
 ```
-you can install/upgrade.
+to install.
 
 ### Testing
 

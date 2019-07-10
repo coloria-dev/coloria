@@ -1,21 +1,17 @@
-# -*- coding: utf-8 -*-
-#
-from __future__ import division
-
 import os
 
 import matplotlib
-from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 import numpy
+import yaml
+from matplotlib.patches import Ellipse
 from scipy.optimize import leastsq
 from scipy.spatial import ConvexHull
-import yaml
 
 import meshzoo
 
-from .illuminants import spectrum_to_xyz100, planckian_radiator, whitepoints_cie1931
 from . import observers
+from .illuminants import planckian_radiator, spectrum_to_xyz100, whitepoints_cie1931
 from .rec2020 import Rec2020
 from .srgb import SrgbLinear
 from .xyy import XYY
@@ -81,12 +77,13 @@ def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
 
     srgb_linear = SrgbLinear()
     pts = colorspace.from_xyz100(srgb_linear.to_xyz100(points.T)).T
+    assert pts.shape[1] == 3
     rgb = srgb_linear.to_srgb1(points)
     meshio.write_points_cells(filename, pts, {"tetra": cells}, point_data={"srgb": rgb})
     return
 
 
-def show_hdr_gamut(colorspace, filename, n=50, cut_000=False):
+def show_rec2020_gamut(colorspace, filename, n=50, cut_000=False):
     import meshio
     import meshzoo
 

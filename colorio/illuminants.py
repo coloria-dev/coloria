@@ -1,14 +1,9 @@
-# -*- coding: utf-8 -*-
-#
-from __future__ import division
-
 import os
 
 import numpy
 import yaml
 
 from . import observers
-
 
 # The 'standard' 2 degree observer (CIE 1931). From
 # <https://github.com/njsmith/colorspacious/blob/master/colorspacious/illuminants.py>

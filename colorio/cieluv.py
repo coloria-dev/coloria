@@ -1,13 +1,9 @@
-# -*- coding: utf-8 -*-
-#
-from __future__ import division
-
 import numpy
 
 from .illuminants import whitepoints_cie1931
 
 
-class CIELUV(object):
+class CIELUV:
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
         self.whitepoint = whitepoint
         self.labels = ["L*", "u*", "v*"]
