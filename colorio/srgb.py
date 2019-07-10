@@ -6,6 +6,8 @@ from .linalg import dot, solve
 
 
 class SrgbLinear(object):
+    """Rec. 709 SRGB.
+    """
     def __init__(self, whitepoint_correction=True):
         # The standard actually gives the values in terms of M, but really inv(M) is a
         # direct derivative of the primary specification at
