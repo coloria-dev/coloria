@@ -1,5 +1,3 @@
-
-
 class XYZ:
     def __init__(self):
         self.labels = ["X", "Y", "Z"]

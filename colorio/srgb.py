@@ -1,13 +1,14 @@
 import numpy
 
 from .illuminants import whitepoints_cie1931
-from .xyy import XYY
 from .linalg import dot, solve
+from .xyy import XYY
 
 
 class SrgbLinear:
     """Rec. 709 SRGB.
     """
+
     def __init__(self, whitepoint_correction=True):
         # The standard actually gives the values in terms of M, but really inv(M) is a
         # direct derivative of the primary specification at

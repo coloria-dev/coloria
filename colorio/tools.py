@@ -1,17 +1,17 @@
 import os
 
 import matplotlib
-from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 import numpy
+import yaml
+from matplotlib.patches import Ellipse
 from scipy.optimize import leastsq
 from scipy.spatial import ConvexHull
-import yaml
 
 import meshzoo
 
-from .illuminants import spectrum_to_xyz100, planckian_radiator, whitepoints_cie1931
 from . import observers
+from .illuminants import planckian_radiator, spectrum_to_xyz100, whitepoints_cie1931
 from .rec2020 import Rec2020
 from .srgb import SrgbLinear
 from .xyy import XYY

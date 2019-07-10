@@ -1,8 +1,8 @@
 import argparse
-import matplotlib.pyplot as plt
 
-from dolfin import Mesh, FunctionSpace, Function, MeshEditor
+import matplotlib.pyplot as plt
 import numpy
+from dolfin import Function, FunctionSpace, Mesh, MeshEditor
 
 import colorio
 import meshzoo
