@@ -83,7 +83,7 @@ def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
     return
 
 
-def show_hdr_gamut(colorspace, filename, n=50, cut_000=False):
+def show_rec2020_gamut(colorspace, filename, n=50, cut_000=False):
     import meshio
     import meshzoo
 

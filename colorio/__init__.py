@@ -25,7 +25,7 @@ from .xyy import XYY
 from .xyz import XYZ
 from .tools import (
     show_srgb_gamut,
-    show_hdr_gamut,
+    show_rec2020_gamut,
     show_visible_gamut,
     show_flat_gamut,
     delta,
@@ -71,7 +71,7 @@ __all__ = [
     "XYZ",
     #
     "show_srgb_gamut",
-    "show_hdr_gamut",
+    "show_rec2020_gamut",
     "show_visible_gamut",
     "show_flat_gamut",
     "delta",
