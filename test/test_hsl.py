@@ -8,8 +8,7 @@ numpy.random.seed(2)
 
 
 @pytest.mark.parametrize(
-    "vals", [numpy.random.rand(3)]
-    # , numpy.random.rand(3, 7), numpy.random.rand(3, 4, 5)]
+    "vals", [numpy.random.rand(3), numpy.random.rand(3, 7), numpy.random.rand(3, 4, 5)]
 )
 def test_conversion(vals):
     hsl = colorio.Hsl()

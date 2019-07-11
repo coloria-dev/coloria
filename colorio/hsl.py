@@ -7,31 +7,23 @@ class Hsl(object):
         assert numpy.all(srgb >= 0)
         assert numpy.all(srgb <= 1)
 
-        argmax = numpy.argmax(srgb)
-        max_val = srgb[argmax]
-        argmin = numpy.argmin(srgb)
-        min_val = srgb[argmin]
+        argmax = numpy.argmax(srgb, axis=0)
+        max_val = numpy.max(srgb, axis=0)
+        min_val = numpy.min(srgb, axis=0)
 
         diff = max_val - min_val
 
-        if max_val == min_val:
-            H = 0.0
-        else:
-            if argmax == 0:
-                H = 60 * (srgb[1] - srgb[2]) / diff
-            elif argmax == 1:
-                H = 60 * (2 + ((srgb[2] - srgb[0]) / diff))
-            else:
-                assert argmax == 2
-                H = 60 * (4 + (srgb[0] - srgb[1]) / diff)
+        H = numpy.empty(srgb1.shape[1:], dtype=float)
+        H[max_val == min_val] = 0
+        H[argmax == 0] = 60 * (srgb[1] - srgb[2]) / diff
+        H[argmax == 1] = 60 * (srgb[2] - srgb[0]) / diff
+        H[argmax == 2] = 60 * (srgb[0] - srgb[1]) / diff
+        H = numpy.mod(H, 360)
 
-            if H < 0:
-                H += 360
-
-        if max_val == 0 or min_val == 1:
-            S = 0
-        else:
-            S = diff / (1 - numpy.abs(max_val + min_val - 1))
+        S = numpy.empty(srgb1.shape[1:], dtype=float)
+        S[max_val == 0] = 0
+        S[min_val == 1] = 0
+        S[(max_val > 0) & (min_val < 1)] = diff / (1 - numpy.abs(max_val + min_val - 1))
 
         L = (max_val + min_val) / 2
 
