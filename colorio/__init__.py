@@ -13,6 +13,8 @@ from .ciehcl import CIEHCL
 from .cielab import CIELAB
 from .cielch import CIELCH
 from .cieluv import CIELUV
+from .hsl import Hsl
+from .hsv import Hsv
 from .ictcp import ICtCp
 from .ipt import IPT
 from .jzazbz import JzAzBz
@@ -56,6 +58,8 @@ __all__ = [
     "CIELAB",
     "CIELCH",
     "CIELUV",
+    "Hsl",
+    "Hsv",
     "illuminants",
     "ICtCp",
     "IPT",
