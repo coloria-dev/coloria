@@ -3,7 +3,6 @@ import pytest
 
 import colorio
 
-
 numpy.random.seed(2)
 
 
