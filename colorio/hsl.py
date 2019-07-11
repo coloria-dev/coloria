@@ -15,9 +15,12 @@ class Hsl(object):
 
         H = numpy.empty(srgb1.shape[1:], dtype=float)
         H[max_val == min_val] = 0
-        H[argmax == 0] = 60 * (srgb[1] - srgb[2]) / diff
-        H[argmax == 1] = 60 * (srgb[2] - srgb[0]) / diff
-        H[argmax == 2] = 60 * (srgb[0] - srgb[1]) / diff
+        i = argmax == 0
+        H[i] = 60 * (0 + (srgb[1][i] - srgb[2][i]) / diff[i])
+        i = argmax == 1
+        H[i] = 60 * (2 + (srgb[2][i] - srgb[0][i]) / diff[i])
+        i = argmax == 2
+        H[i] = 60 * (4 + (srgb[0][i] - srgb[1][i]) / diff[i])
         H = numpy.mod(H, 360)
 
         S = numpy.empty(srgb1.shape[1:], dtype=float)
