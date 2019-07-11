@@ -34,6 +34,13 @@ The following color spaces are implemented:
    to_srgb1()
    ```
    for conversion from and to standard RGB.
+ * [HSL and HSV](https://en.wikipedia.org/wiki/HSL_and_HSV)  (`colorio.Hsl()`, `colorio.Hsv()`)
+   These classes have the two methods
+   ```
+   from_srgb1()
+   to_srgb1()
+   ```
+   for conversion from and to standard RGB.
  * [CIELAB](https://en.wikipedia.org/wiki/Lab_color_space) (`colorio.CIELAB()`)
  * [CIELUV](https://en.wikipedia.org/wiki/CIELUV) (`colorio.CIELUV()`)
  * [ICtCp](https://en.wikipedia.org/wiki/ICtCp) (`colorio.ICtCp()`)
