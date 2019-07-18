@@ -1,7 +1,7 @@
 import numpy
 
-from colorio.illuminants import whitepoints_cie1931
 from colorio._linalg import dot
+from colorio.illuminants import whitepoints_cie1931
 
 
 class CAM16Legacy:

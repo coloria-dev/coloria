@@ -10,11 +10,9 @@ from scipy.optimize import leastsq
 import meshzoo
 
 from . import observers
-
-from .illuminants import planckian_radiator, spectrum_to_xyz100
-
 from ._srgb import SrgbLinear
 from ._xyy import XYY
+from .illuminants import planckian_radiator, spectrum_to_xyz100
 
 
 def delta(a, b):

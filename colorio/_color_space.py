@@ -7,9 +7,9 @@ from scipy.optimize import leastsq
 from scipy.spatial import ConvexHull
 
 from ._hdr import HdrLinear
-from .illuminants import whitepoints_cie1931
 from ._srgb import SrgbLinear
 from ._tools import get_munsell_data, spectrum_to_xyz100
+from .illuminants import whitepoints_cie1931
 
 
 class ColorSpace:
