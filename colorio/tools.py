@@ -12,7 +12,7 @@ import meshzoo
 
 from . import observers
 from .illuminants import planckian_radiator, spectrum_to_xyz100, whitepoints_cie1931
-from .rec2020 import Rec2020
+from .hdr import Hdr
 from .srgb import SrgbLinear
 from .xyy import XYY
 
@@ -83,7 +83,7 @@ def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
     return
 
 
-def show_rec2020_gamut(colorspace, filename, n=50, cut_000=False):
+def show_hdr_gamut(colorspace, filename, n=50, cut_000=False):
     import meshio
     import meshzoo
 
@@ -95,11 +95,11 @@ def show_rec2020_gamut(colorspace, filename, n=50, cut_000=False):
         cells = cells[~numpy.any(cells == 0, axis=1)]
         cells -= 1
 
-    cs = Rec2020()
+    cs = Hdr()
     pts = colorspace.from_xyz100(cs.to_xyz100(points.T)).T
-    rgb = cs.to_gamma(points)
+    rgb = cs.to_hdr1(points)
     meshio.write_points_cells(
-        filename, pts, {"tetra": cells}, point_data={"rec2020-rgb": rgb}
+        filename, pts, {"tetra": cells}, point_data={"hdr-rgb": rgb}
     )
     return
 

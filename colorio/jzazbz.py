@@ -46,6 +46,7 @@ class JzAzBz:
 
     def from_xyz100(self, xyz):
         # x, y, z = (xyz.T / self.whitepoint).T
+        # In nit units, ranging from 0 to 10000?
         x, y, z = xyz
         x_ = self.b * x - (self.b - 1) * z
         y_ = self.g * y - (self.g - 1) * x

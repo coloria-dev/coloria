@@ -4,7 +4,7 @@ from .linalg import dot, solve
 from .xyy import XYY
 
 
-class Rec2020:
+class HdrLinear:
     """
     RGB color space from the Rec. 2020. Same as Rec. 2100, used in HDR. The
     primary colors are monochromatic at wave lengths 467nm, 532nm, and 630nm.
@@ -27,11 +27,12 @@ class Rec2020:
         # TODO NaN the values smaller than 0 and larger than 1
         return solve(self.invM, xyz100 / 100)
 
-    def to_xyz100(self, rec2020_linear):
-        return 100 * dot(self.invM, rec2020_linear)
+    def to_xyz100(self, hdr_linear):
+        return 100 * dot(self.invM, hdr_linear)
 
-    def from_gamma(self, gamma_corrected):
-        out = numpy.array(gamma_corrected, dtype=float)
+    # gamma corrections:
+    def from_hdr1(self, hdr1):
+        out = numpy.asarray(hdr1, dtype=float)
 
         is_smaller = out <= 4.5 * self.beta
         out[is_smaller] /= 4.5
@@ -40,10 +41,10 @@ class Rec2020:
         )
         return out
 
-    def to_gamma(self, linear):
-        out = numpy.array(linear, dtype=float)
+    def to_hdr1(self, hdr_linear):
+        out = numpy.asarray(hdr_linear, dtype=float)
 
-        is_smaller = linear <= self.beta
+        is_smaller = hdr_linear <= self.beta
         out[is_smaller] *= 4.5
         out[~is_smaller] = self.alpha * out[~is_smaller] ** 0.45 - self.alpha + 1
         return out

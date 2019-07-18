@@ -18,7 +18,7 @@ from .hsv import Hsv
 from .ictcp import ICtCp
 from .ipt import IPT
 from .jzazbz import JzAzBz
-from .rec2020 import Rec2020
+from .hdr import Hdr
 from .srgb import SrgbLinear
 from .tools import (
     delta,
@@ -31,7 +31,7 @@ from .tools import (
     show_luo_rigg,
     show_macadam,
     show_munsell,
-    show_rec2020_gamut,
+    show_hdr_gamut,
     show_srgb_gamut,
     show_straights,
     show_visible_gamut,
@@ -65,13 +65,13 @@ __all__ = [
     "IPT",
     "JzAzBz",
     "observers",
-    "Rec2020",
+    "Hdr",
     "SrgbLinear",
     "XYY",
     "XYZ",
     #
     "show_srgb_gamut",
-    "show_rec2020_gamut",
+    "show_hdr_gamut",
     "show_visible_gamut",
     "show_flat_gamut",
     "delta",
