@@ -161,11 +161,11 @@ class ColorSpace:
         xyy = xyy[:, v == V]
 
         x, y, Y = xyy
-        xyz = numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
-        vals = self.from_xyz100(xyz)
+        xyz100 = numpy.array([Y / y * x, Y, Y / y * (1 - x - y)])
+        vals = self.from_xyz100(xyz100)
 
         srgb = SrgbLinear()
-        rgb = srgb.from_xyz100(xyz)
+        rgb = srgb.from_xyz100(xyz100)
         is_legal_srgb = numpy.all((0 <= rgb) & (rgb <= 1), axis=0)
 
         # plot the ones that cannot be represented in SRGB
