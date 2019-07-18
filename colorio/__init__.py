@@ -14,13 +14,13 @@ from ._cielab import CIELAB
 from ._cielch import CIELCH
 from ._cieluv import CIELUV
 from ._hdr import HdrLinear
-from ._hsl import Hsl
-from ._hsv import Hsv
+from ._hsl import HSL
+from ._hsv import HSV
 from ._ictcp import ICtCp
 from ._ipt import IPT
 from ._jzazbz import JzAzBz
 from ._srgb import SrgbLinear
-from .tools import (
+from ._tools import (
     delta,
     plot_luo_rigg,
     plot_macadam,
@@ -51,8 +51,8 @@ __all__ = [
     "CIELAB",
     "CIELCH",
     "CIELUV",
-    "Hsl",
-    "Hsv",
+    "HSL",
+    "HSV",
     "illuminants",
     "ICtCp",
     "IPT",

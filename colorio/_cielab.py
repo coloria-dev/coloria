@@ -1,6 +1,6 @@
 import numpy
 
-from .color_space import ColorSpace
+from ._color_space import ColorSpace
 from .illuminants import whitepoints_cie1931
 
 

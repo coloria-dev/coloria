@@ -1,8 +1,8 @@
 import numpy
 
-from .color_space import ColorSpace
+from ._color_space import ColorSpace
 from .illuminants import whitepoints_cie1931
-from .linalg import dot, solve
+from ._linalg import dot, solve
 
 
 class JzAzBz(ColorSpace):

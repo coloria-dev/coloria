@@ -1,7 +1,7 @@
 import numpy
 
 from .illuminants import whitepoints_cie1931
-from .linalg import dot, solve
+from ._linalg import dot, solve
 from ._xyy import XYY
 
 

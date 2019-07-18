@@ -1,6 +1,6 @@
 import numpy
 
-from .linalg import dot, solve
+from ._linalg import dot, solve
 from ._xyy import XYY
 
 

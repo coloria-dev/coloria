@@ -1,7 +1,7 @@
 import numpy
 
-from .color_space import ColorSpace
-from .linalg import dot, solve
+from ._color_space import ColorSpace
+from ._linalg import dot, solve
 
 
 class IPT(ColorSpace):
