@@ -1,7 +1,7 @@
 import numpy
 
 
-class Hsv(object):
+class HSV:
     def from_srgb1(self, srgb1):
         srgb = numpy.asarray(srgb1, dtype=float)
         orig_shape = srgb.shape

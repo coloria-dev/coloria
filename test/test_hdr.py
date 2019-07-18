@@ -8,11 +8,11 @@ import colorio
     "vals", [numpy.random.rand(3), numpy.random.rand(3, 7), numpy.random.rand(3, 4, 5)]
 )
 def test_conversion(vals):
-    cs = colorio.Rec2020()
+    cs = colorio.HdrLinear()
 
     out = cs.to_xyz100(cs.from_xyz100(vals))
     assert numpy.all(abs(vals - out) < 1.0e-14)
 
-    out = cs.to_gamma(cs.from_gamma(vals))
+    out = cs.to_hdr1(cs.from_hdr1(vals))
     assert numpy.all(abs(vals - out) < 1.0e-14)
     return

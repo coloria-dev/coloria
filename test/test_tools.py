@@ -7,21 +7,21 @@ import colorio
 @pytest.mark.parametrize(
     "colorspace, cut_000",
     [
-        # colorio.CIELAB(),
-        (colorio.XYY(), True),
+        (colorio.CIELAB(), False),
+        # (colorio.XYY(), True),
         (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False),
     ],
 )
 def test_srgb_gamut(colorspace, cut_000, n=10):
-    colorio.show_srgb_gamut(colorspace, "srgb.vtu", n=n, cut_000=cut_000)
+    colorspace.save_srgb_gamut("srgb.vtu", n=n, cut_000=cut_000)
     return
 
 
 @pytest.mark.parametrize(
     "colorspace", [colorio.CIELAB(), colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5)]
 )
-def test_rec2020_gamut(colorspace, n=10):
-    colorio.show_rec2020_gamut(colorspace, "hdr.vtu", n=n)
+def test_hdr_gamut(colorspace, n=10):
+    colorspace.save_hdr_gamut("hdr.vtu", n=n)
     return
 
 
@@ -29,16 +29,14 @@ def test_rec2020_gamut(colorspace, n=10):
     "colorspace,cut_000",
     [
         # (colorio.CIELAB(), False),
-        (colorio.XYY(), True),
-        (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False),
+        # (colorio.XYY(), True),
+        (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False)
     ],
 )
 def test_visible_gamut(colorspace, cut_000):
     illuminant = colorio.illuminants.d65()
     observer = colorio.observers.cie_1931_2()
-    colorio.show_visible_gamut(
-        colorspace, observer, illuminant, "visible.vtu", cut_000=cut_000
-    )
+    colorspace.save_visible_gamut(observer, illuminant, "visible.vtu", cut_000=cut_000)
     return
 
 
@@ -58,40 +56,30 @@ def test_conversion_variants(a):
 
 
 @pytest.mark.parametrize(
-    "colorspace",
-    [
-        colorio.CIELAB(),
-        colorio.XYY(),
-        colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
-    ],
+    "colorspace", [colorio.CIELAB(), colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5)]
 )
 def test_ebner_fairchild(colorspace):
-    colorio.show_ebner_fairchild(colorspace)
+    colorspace.show_ebner_fairchild()
     return
 
 
 @pytest.mark.parametrize(
-    "colorspace",
-    [
-        colorio.CIELAB(),
-        colorio.XYY(),
-        colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
-    ],
+    "colorspace", [colorio.CIELAB(), colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5)]
 )
 def test_hung_berns(colorspace):
-    colorio.show_hung_berns(colorspace)
+    colorspace.show_hung_berns()
     return
 
 
 @pytest.mark.parametrize("colorspace", [colorio.CIELAB()])
 def test_xiao(colorspace):
-    colorio.show_xiao(colorspace)
+    colorspace.show_xiao()
     return
 
 
 @pytest.mark.parametrize("colorspace", [colorio.CIELAB()])
 def test_munsell(colorspace):
-    colorio.show_munsell(colorspace, V=5)
+    colorspace.show_munsell(V=5)
     return
 
 
@@ -136,7 +124,7 @@ if __name__ == "__main__":
     test_xy_gamut_mesh()
     # test_macadam()
     # colorspace_ = colorio.SrgbLinear()
-    # colorspace_ = colorio.Rec2020()
+    # colorspace_ = colorio.Hdr()
     # colorspace_ = colorio.XYZ()
     # colorspace_ = colorio.XYY()
     # colorspace_ = colorio.IPT()
@@ -145,7 +133,7 @@ if __name__ == "__main__":
     colorspace_ = colorio.CIELAB()
     # colorspace_ = colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5)
     # colorspace_ = colorio.CAM16UCS(0.69, 20, 64/numpy.pi/5)
-    # test_rec2020_gamut(colorspace_, n=10)
+    # test_hdr_gamut(colorspace_, n=10)
     # test_visible_gamut(colorspace_, cut_000=False)
     # test_srgb_gamut(colorspace_, cut_000=False)
     # test_ebner_fairchild(colorspace_)

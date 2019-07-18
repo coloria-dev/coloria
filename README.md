@@ -34,7 +34,7 @@ The following color spaces are implemented:
    to_srgb1()
    ```
    for conversion from and to standard RGB.
- * [HSL and HSV](https://en.wikipedia.org/wiki/HSL_and_HSV)  (`colorio.Hsl()`, `colorio.Hsv()`)
+ * [HSL and HSV](https://en.wikipedia.org/wiki/HSL_and_HSV)  (`colorio.HSL()`, `colorio.HSV()`)
    These classes have the two methods
    ```
    from_srgb1()
@@ -54,8 +54,8 @@ The following color spaces are implemented:
    ciecam02 = colorio.CIECAM02(0.69, 20, L_A)
    cam02 = colorio.CAM02('UCS', 0.69, 20, L_A)
    ```
-   The implementation contains a few improvements over the CIECAM02
-   specification (see [here](https://arxiv.org/abs/1802.06067)).
+   The implementation contains a few improvements over the CIECAM02 specification (see
+   [here](https://arxiv.org/abs/1802.06067)).
  * [CAM16 / CAM16-UCS](https://doi.org/10.1002/col.22131)
    ```python
    L_A = 64 / numpy.pi / 5
@@ -83,20 +83,23 @@ data was created with
 import colorio
 
 colorspace = colorio.CIELAB()
-colorio.show_srgb_gamut(colorspace, "srgb.vtk", n=50, cut_000=False)
+colorspace.save_srgb_gamut(colorspace, "srgb.vtk", n=50, cut_000=False)
 
 # The HDR (Rec.2100, Rec.2020) gamut works the same way
-# colorio.show_rec2020_gamut(colorspace, "hdr.vtk", n=50, cut_000=False)
+colorspace.save_hdr_gamut(colorspace, "hdr.vtk", n=50, cut_000=False)
 ```
 The [VTK](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
 in, e.g., ParaView, where the following instructions apply:
-1. Open the file in ParaView and execute the following steps in the **Properties** tab to the left.
+1. Open the file in ParaView and execute the following steps in the **Properties** tab
+   to the left.
 2. Press the **Apply** button.
 3. Under the **Coloring** section, change `Solid Color` to `srgb`.
-4. If necessary, press the gear button to the right of the search field to activate advanced options.
+4. If necessary, press the gear button to the right of the search field to activate
+   advanced options.
 5. Under the **Scalar Coloring** section, uncheck **Map Scalars**.
 
-More images are [in the gh-pages branch](https://github.com/nschloe/colorio/tree/gh-pages).
+More images are [in the gh-pages
+branch](https://github.com/nschloe/colorio/tree/gh-pages).
 
 The data can be written in most formats supported by
 [meshio](https://github.com/nschloe/meshio). (You might have to install additional
@@ -111,7 +114,7 @@ Same as above, but with the gamut visible under a given illuminant.
 colorspace = colorio.XYZ()
 illuminant = colorio.illuminants.d65()
 observer = colorio.observers.cie_1931_2()
-colorio.show_visible_gamut(colorspace, observer, illuminant, "visible.vtk")
+colorspace.save_visible_gamut(colorspace, observer, illuminant, "visible.vtk")
 ```
 The gamut is shown in grey since SRGB screens are not able to display the colors anyway.
 
@@ -155,13 +158,12 @@ colorio.show_macadam(
 For example
 ```python
 colorspace = colorio.JzAzBz()
-colorio.show_ebner_fairchild(colorspace)
+colorspace.show_ebner_fairchild()
 ```
 shows constant-hue data from [the Ebner-Fairchild
-experiments](https://doi.org/10.1117/12.298269) in the
-a<sub>z</sub>b<sub>z</sub>-plane of the
-J<sub>z</sub>a<sub>z</sub>b<sub>z</sub> color space. (Ideally, all colors in one set sit
-on a line.)
+experiments](https://doi.org/10.1117/12.298269) in the a<sub>z</sub>b<sub>z</sub>-plane
+of the J<sub>z</sub>a<sub>z</sub>b<sub>z</sub> color space. (Ideally, all colors in one
+set sit on a line.)
 
 
 ###### Hung-Berns
@@ -171,7 +173,7 @@ Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
 
 ```python
 colorspace = colorio.JzAzBz()
-colorio.show_hung_berns(colorspace)
+colorspace.show_hung_berns()
 ```
 
 ###### Xiao et al.
@@ -181,7 +183,7 @@ Likewise for [Xiao et al.](https://doi.org/10.1002/col.20637):
 
 ```python
 colorspace = colorio.CIELAB()
-colorio.show_xiao(colorspace)
+colorspace.show_xiao()
 ```
 
 ##### Munsell
@@ -191,7 +193,7 @@ colorio.show_xiao(colorspace)
 
 ```python
 colorspace = colorio.CIELUV()
-colorio.show_munsell(colorspace, V=5)
+colorspace.show_munsell(V=5)
 ```
 
 To simply retrieve the Munsell data in xyY format, use

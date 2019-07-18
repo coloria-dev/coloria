@@ -1,9 +1,10 @@
 import numpy
 
-from .linalg import dot, solve
+from ._color_space import ColorSpace
+from ._linalg import dot, solve
 
 
-class IPT:
+class IPT(ColorSpace):
     """
     IPT color model.
     """

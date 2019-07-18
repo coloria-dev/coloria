@@ -1,8 +1,9 @@
 import numpy
 
-from .ciecam02 import compute_from, compute_to
+from ._ciecam02 import compute_from, compute_to
+from ._color_space import ColorSpace
+from ._linalg import dot
 from .illuminants import whitepoints_cie1931
-from .linalg import dot
 
 
 class CAM16:
@@ -102,7 +103,7 @@ class CAM16:
         return dot(self.invM_, rgb_c)
 
 
-class CAM16UCS:
+class CAM16UCS(ColorSpace):
     def __init__(
         self, c, Y_b, L_A, exact_inversion=True, whitepoint=whitepoints_cie1931["D65"]
     ):

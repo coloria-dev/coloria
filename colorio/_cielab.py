@@ -1,9 +1,10 @@
 import numpy
 
+from ._color_space import ColorSpace
 from .illuminants import whitepoints_cie1931
 
 
-class CIELAB:
+class CIELAB(ColorSpace):
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
         self.whitepoint = whitepoint
         self.labels = ["L*", "a*", "b*"]

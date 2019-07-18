@@ -30,7 +30,7 @@ def test_breakdown():
     bad_xyz = [8.71292997, 2.02183974, 83.26198455]
     L_A = 64 / numpy.pi / 5
     ciecam02 = colorio.CIECAM02(0.69, 20, L_A)
-    with pytest.raises(colorio.ciecam02.NegativeAError):
+    with pytest.raises(colorio.NegativeAError):
         ciecam02.from_xyz100(bad_xyz)
     return
 

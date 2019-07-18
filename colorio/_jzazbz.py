@@ -1,10 +1,11 @@
 import numpy
 
+from ._color_space import ColorSpace
+from ._linalg import dot, solve
 from .illuminants import whitepoints_cie1931
-from .linalg import dot, solve
 
 
-class JzAzBz:
+class JzAzBz(ColorSpace):
     """
     Muhammad Safdar, Guihua Cui, Youn Jin Kim, and Ming Ronnier Luo,
     Perceptually uniform color space for image signals including high dynamic range and
@@ -46,6 +47,7 @@ class JzAzBz:
 
     def from_xyz100(self, xyz):
         # x, y, z = (xyz.T / self.whitepoint).T
+        # In nit units, ranging from 0 to 10000?
         x, y, z = xyz
         x_ = self.b * x - (self.b - 1) * z
         y_ = self.g * y - (self.g - 1) * x

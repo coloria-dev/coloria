@@ -1,8 +1,8 @@
 import numpy
 
+from ._linalg import dot, solve
+from ._xyy import XYY
 from .illuminants import whitepoints_cie1931
-from .linalg import dot, solve
-from .xyy import XYY
 
 
 class SrgbLinear:
