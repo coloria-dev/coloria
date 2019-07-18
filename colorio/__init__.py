@@ -7,19 +7,19 @@ from .__about__ import (
     __status__,
     __version__,
 )
-from .cam16 import CAM16, CAM16UCS
-from .ciecam02 import CAM02, CIECAM02, NegativeAError
-from .ciehcl import CIEHCL
-from .cielab import CIELAB
-from .cielch import CIELCH
-from .cieluv import CIELUV
-from .hdr import HdrLinear
-from .hsl import Hsl
-from .hsv import Hsv
-from .ictcp import ICtCp
-from .ipt import IPT
-from .jzazbz import JzAzBz
-from .srgb import SrgbLinear
+from ._cam16 import CAM16, CAM16UCS
+from ._ciecam02 import CAM02, CIECAM02, NegativeAError
+from ._ciehcl import CIEHCL
+from ._cielab import CIELAB
+from ._cielch import CIELCH
+from ._cieluv import CIELUV
+from ._hdr import HdrLinear
+from ._hsl import Hsl
+from ._hsv import Hsv
+from ._ictcp import ICtCp
+from ._ipt import IPT
+from ._jzazbz import JzAzBz
+from ._srgb import SrgbLinear
 from .tools import (
     delta,
     plot_luo_rigg,
@@ -31,8 +31,8 @@ from .tools import (
     show_straights,
     xy_gamut_mesh,
 )
-from .xyy import XYY
-from .xyz import XYZ
+from ._xyy import XYY
+from ._xyz import XYZ
 
 __all__ = [
     "__author__",

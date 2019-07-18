@@ -11,12 +11,10 @@ import meshzoo
 
 from . import observers
 
-# from .illuminants import planckian_radiator, spectrum_to_xyz100, whitepoints_cie1931
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
-# from .hdr import Hdr
-from .srgb import SrgbLinear
-from .xyy import XYY
+from ._srgb import SrgbLinear
+from ._xyy import XYY
 
 
 def delta(a, b):

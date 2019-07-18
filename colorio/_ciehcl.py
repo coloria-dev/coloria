@@ -1,13 +1,13 @@
 import numpy
 
-from . import cieluv
+from . import _cieluv
 from .color_space import ColorSpace
 from .illuminants import whitepoints_cie1931
 
 
 class CIEHCL(ColorSpace):
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
-        self.cieluv = cieluv.CIELUV(whitepoint=whitepoint)
+        self.cieluv = _cieluv.CIELUV(whitepoint=whitepoint)
         self.labels = ["L", "C", "h"]
         return
 

@@ -2,7 +2,7 @@ import numpy
 
 from .illuminants import whitepoints_cie1931
 from .linalg import dot, solve
-from .xyy import XYY
+from ._xyy import XYY
 
 
 class SrgbLinear:

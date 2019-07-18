@@ -1,7 +1,7 @@
 import numpy
 
 from .linalg import dot, solve
-from .xyy import XYY
+from ._xyy import XYY
 
 
 class HdrLinear:
