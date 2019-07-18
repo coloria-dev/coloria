@@ -30,15 +30,13 @@ def test_hdr_gamut(colorspace, n=10):
     [
         # (colorio.CIELAB(), False),
         # (colorio.XYY(), True),
-        (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False),
+        (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False)
     ],
 )
 def test_visible_gamut(colorspace, cut_000):
     illuminant = colorio.illuminants.d65()
     observer = colorio.observers.cie_1931_2()
-    colorspace.save_visible_gamut(
-        observer, illuminant, "visible.vtu", cut_000=cut_000
-    )
+    colorspace.save_visible_gamut(observer, illuminant, "visible.vtu", cut_000=cut_000)
     return
 
 
@@ -58,11 +56,7 @@ def test_conversion_variants(a):
 
 
 @pytest.mark.parametrize(
-    "colorspace",
-    [
-        colorio.CIELAB(),
-        colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
-    ],
+    "colorspace", [colorio.CIELAB(), colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5)]
 )
 def test_ebner_fairchild(colorspace):
     colorspace.show_ebner_fairchild()
@@ -70,11 +64,7 @@ def test_ebner_fairchild(colorspace):
 
 
 @pytest.mark.parametrize(
-    "colorspace",
-    [
-        colorio.CIELAB(),
-        colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
-    ],
+    "colorspace", [colorio.CIELAB(), colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5)]
 )
 def test_hung_berns(colorspace):
     colorspace.show_hung_berns()

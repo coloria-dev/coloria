@@ -13,12 +13,12 @@ from .ciehcl import CIEHCL
 from .cielab import CIELAB
 from .cielch import CIELCH
 from .cieluv import CIELUV
+from .hdr import HdrLinear
 from .hsl import Hsl
 from .hsv import Hsv
 from .ictcp import ICtCp
 from .ipt import IPT
 from .jzazbz import JzAzBz
-from .hdr import HdrLinear
 from .srgb import SrgbLinear
 from .tools import (
     delta,

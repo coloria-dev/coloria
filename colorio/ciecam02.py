@@ -1,8 +1,8 @@
 import numpy
 
+from .color_space import ColorSpace
 from .illuminants import whitepoints_cie1931
 from .linalg import dot
-from .color_space import ColorSpace
 
 
 def compute_from(rgb_, cs):

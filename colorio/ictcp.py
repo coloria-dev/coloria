@@ -1,7 +1,7 @@
 import numpy
 
-from .linalg import dot, solve
 from .color_space import ColorSpace
+from .linalg import dot, solve
 
 
 class ICtCp(ColorSpace):

@@ -83,10 +83,10 @@ data was created with
 import colorio
 
 colorspace = colorio.CIELAB()
-colorio.show_srgb_gamut(colorspace, "srgb.vtk", n=50, cut_000=False)
+colorspace.save_srgb_gamut(colorspace, "srgb.vtk", n=50, cut_000=False)
 
 # The HDR (Rec.2100, Rec.2020) gamut works the same way
-# colorio.show_rec2020_gamut(colorspace, "hdr.vtk", n=50, cut_000=False)
+colorspace.save_hdr_gamut(colorspace, "hdr.vtk", n=50, cut_000=False)
 ```
 The [VTK](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
 in, e.g., ParaView, where the following instructions apply:
@@ -111,7 +111,7 @@ Same as above, but with the gamut visible under a given illuminant.
 colorspace = colorio.XYZ()
 illuminant = colorio.illuminants.d65()
 observer = colorio.observers.cie_1931_2()
-colorio.show_visible_gamut(colorspace, observer, illuminant, "visible.vtk")
+colorspace.save_visible_gamut(colorspace, observer, illuminant, "visible.vtk")
 ```
 The gamut is shown in grey since SRGB screens are not able to display the colors anyway.
 
@@ -155,13 +155,12 @@ colorio.show_macadam(
 For example
 ```python
 colorspace = colorio.JzAzBz()
-colorio.show_ebner_fairchild(colorspace)
+colorspace.show_ebner_fairchild()
 ```
 shows constant-hue data from [the Ebner-Fairchild
-experiments](https://doi.org/10.1117/12.298269) in the
-a<sub>z</sub>b<sub>z</sub>-plane of the
-J<sub>z</sub>a<sub>z</sub>b<sub>z</sub> color space. (Ideally, all colors in one set sit
-on a line.)
+experiments](https://doi.org/10.1117/12.298269) in the a<sub>z</sub>b<sub>z</sub>-plane
+of the J<sub>z</sub>a<sub>z</sub>b<sub>z</sub> color space. (Ideally, all colors in one
+set sit on a line.)
 
 
 ###### Hung-Berns
@@ -171,7 +170,7 @@ Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
 
 ```python
 colorspace = colorio.JzAzBz()
-colorio.show_hung_berns(colorspace)
+colorspace.show_hung_berns()
 ```
 
 ###### Xiao et al.
@@ -181,7 +180,7 @@ Likewise for [Xiao et al.](https://doi.org/10.1002/col.20637):
 
 ```python
 colorspace = colorio.CIELAB()
-colorio.show_xiao(colorspace)
+colorspace.show_xiao()
 ```
 
 ##### Munsell
@@ -191,7 +190,7 @@ colorio.show_xiao(colorspace)
 
 ```python
 colorspace = colorio.CIELUV()
-colorio.show_munsell(colorspace, V=5)
+colorspace.show_munsell(V=5)
 ```
 
 To simply retrieve the Munsell data in xyY format, use

@@ -1,8 +1,8 @@
 import numpy
 
 from . import cieluv
-from .illuminants import whitepoints_cie1931
 from .color_space import ColorSpace
+from .illuminants import whitepoints_cie1931
 
 
 class CIEHCL(ColorSpace):

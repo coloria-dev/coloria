@@ -1,14 +1,15 @@
 import os
-import yaml
-import numpy
-import matplotlib.pyplot as plt
-from scipy.spatial import ConvexHull
-from scipy.optimize import leastsq
 
-from .illuminants import whitepoints_cie1931
-from .tools import get_munsell_data, spectrum_to_xyz100
-from .srgb import SrgbLinear
+import matplotlib.pyplot as plt
+import numpy
+import yaml
+from scipy.optimize import leastsq
+from scipy.spatial import ConvexHull
+
 from .hdr import HdrLinear
+from .illuminants import whitepoints_cie1931
+from .srgb import SrgbLinear
+from .tools import get_munsell_data, spectrum_to_xyz100
 
 
 class ColorSpace:
