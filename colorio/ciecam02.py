@@ -2,6 +2,7 @@ import numpy
 
 from .illuminants import whitepoints_cie1931
 from .linalg import dot
+from .color_space import ColorSpace
 
 
 def compute_from(rgb_, cs):
@@ -291,7 +292,7 @@ class CIECAM02:
         return dot(self.invM_, rgb_)
 
 
-class CAM02:
+class CAM02(ColorSpace):
     def __init__(self, variant, c, Y_b, L_A, whitepoint=whitepoints_cie1931["D65"]):
         params = {
             "LCD": (0.77, 0.007, 0.0053),

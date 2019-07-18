@@ -7,13 +7,13 @@ import colorio
 @pytest.mark.parametrize(
     "colorspace, cut_000",
     [
-        # colorio.CIELAB(),
-        (colorio.XYY(), True),
+        (colorio.CIELAB(), False),
+        # (colorio.XYY(), True),
         (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False),
     ],
 )
 def test_srgb_gamut(colorspace, cut_000, n=10):
-    colorio.show_srgb_gamut(colorspace, "srgb.vtu", n=n, cut_000=cut_000)
+    colorspace.save_srgb_gamut("srgb.vtu", n=n, cut_000=cut_000)
     return
 
 
@@ -21,7 +21,7 @@ def test_srgb_gamut(colorspace, cut_000, n=10):
     "colorspace", [colorio.CIELAB(), colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5)]
 )
 def test_hdr_gamut(colorspace, n=10):
-    colorio.show_hdr_gamut(colorspace, "hdr.vtu", n=n)
+    colorspace.save_hdr_gamut("hdr.vtu", n=n)
     return
 
 
@@ -29,15 +29,15 @@ def test_hdr_gamut(colorspace, n=10):
     "colorspace,cut_000",
     [
         # (colorio.CIELAB(), False),
-        (colorio.XYY(), True),
+        # (colorio.XYY(), True),
         (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False),
     ],
 )
 def test_visible_gamut(colorspace, cut_000):
     illuminant = colorio.illuminants.d65()
     observer = colorio.observers.cie_1931_2()
-    colorio.show_visible_gamut(
-        colorspace, observer, illuminant, "visible.vtu", cut_000=cut_000
+    colorspace.save_visible_gamut(
+        observer, illuminant, "visible.vtu", cut_000=cut_000
     )
     return
 
@@ -61,12 +61,11 @@ def test_conversion_variants(a):
     "colorspace",
     [
         colorio.CIELAB(),
-        colorio.XYY(),
         colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
     ],
 )
 def test_ebner_fairchild(colorspace):
-    colorio.show_ebner_fairchild(colorspace)
+    colorspace.show_ebner_fairchild()
     return
 
 
@@ -74,24 +73,23 @@ def test_ebner_fairchild(colorspace):
     "colorspace",
     [
         colorio.CIELAB(),
-        colorio.XYY(),
         colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
     ],
 )
 def test_hung_berns(colorspace):
-    colorio.show_hung_berns(colorspace)
+    colorspace.show_hung_berns()
     return
 
 
 @pytest.mark.parametrize("colorspace", [colorio.CIELAB()])
 def test_xiao(colorspace):
-    colorio.show_xiao(colorspace)
+    colorspace.show_xiao()
     return
 
 
 @pytest.mark.parametrize("colorspace", [colorio.CIELAB()])
 def test_munsell(colorspace):
-    colorio.show_munsell(colorspace, V=5)
+    colorspace.show_munsell(V=5)
     return
 
 

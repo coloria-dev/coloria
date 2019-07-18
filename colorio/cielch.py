@@ -2,9 +2,10 @@ import numpy
 
 from . import cielab
 from .illuminants import whitepoints_cie1931
+from .color_space import ColorSpace
 
 
-class CIELCH:
+class CIELCH(ColorSpace):
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
         self.cielab = cielab.CIELAB(whitepoint=whitepoint)
         self.labels = ["L", "C", "h"]

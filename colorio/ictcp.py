@@ -1,9 +1,10 @@
 import numpy
 
 from .linalg import dot, solve
+from .color_space import ColorSpace
 
 
-class ICtCp:
+class ICtCp(ColorSpace):
     """
     ICtCp color model.
     <https://en.wikipedia.org/wiki/ICtCp>

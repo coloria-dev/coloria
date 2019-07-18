@@ -6,13 +6,15 @@ import numpy
 import yaml
 from matplotlib.patches import Ellipse
 from scipy.optimize import leastsq
-from scipy.spatial import ConvexHull
 
 import meshzoo
 
 from . import observers
-from .illuminants import planckian_radiator, spectrum_to_xyz100, whitepoints_cie1931
-from .hdr import Hdr
+
+# from .illuminants import planckian_radiator, spectrum_to_xyz100, whitepoints_cie1931
+from .illuminants import planckian_radiator, spectrum_to_xyz100
+
+# from .hdr import Hdr
 from .srgb import SrgbLinear
 from .xyy import XYY
 
@@ -23,85 +25,6 @@ def delta(a, b):
     """
     diff = a - b
     return numpy.einsum("i...,i...->...", diff, diff)
-
-
-def show_visible_gamut(colorspace, observer, illuminant, filename, cut_000=False):
-    import meshio
-
-    # The XYZ gamut is actually defined by an arbitrarily chosen maximum
-    # intensity (here: 1). Then, all block spectra with this intensity are
-    # mapped into XYZ space; they form the outer hull.
-    lmbda, illu = illuminant
-    values = []
-
-    data = numpy.zeros(len(lmbda))
-    values.append(spectrum_to_xyz100((lmbda, illu * data), observer=observer))
-    for width in range(1, len(lmbda)):
-        data = numpy.zeros(len(lmbda))
-        data[:width] = 1.0
-        for _, _ in enumerate(lmbda):
-            values.append(spectrum_to_xyz100((lmbda, illu * data), observer=observer))
-            data = numpy.roll(data, shift=1)
-    data = numpy.ones(len(lmbda))
-    values.append(spectrum_to_xyz100((lmbda, illu * data), observer=observer))
-
-    # scale the values such that the Y-coordinate of the white point has value
-    # 100.
-    values = numpy.array(values)
-    values *= 100 / values[-1][1]
-
-    cells = ConvexHull(values).simplices
-
-    if cut_000:
-        values = values[1:]
-        cells = cells[~numpy.any(cells == 0, axis=1)]
-        cells -= 1
-
-    pts = colorspace.from_xyz100(values.T).T
-
-    meshio.write_points_cells(filename, pts, cells={"triangle": cells})
-    return
-
-
-def show_srgb_gamut(colorspace, filename, n=50, cut_000=False):
-    import meshio
-    import meshzoo
-
-    points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
-
-    if cut_000:
-        # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
-        points = points[1:]
-        cells = cells[~numpy.any(cells == 0, axis=1)]
-        cells -= 1
-
-    srgb_linear = SrgbLinear()
-    pts = colorspace.from_xyz100(srgb_linear.to_xyz100(points.T)).T
-    assert pts.shape[1] == 3
-    rgb = srgb_linear.to_srgb1(points)
-    meshio.write_points_cells(filename, pts, {"tetra": cells}, point_data={"srgb": rgb})
-    return
-
-
-def show_hdr_gamut(colorspace, filename, n=50, cut_000=False):
-    import meshio
-    import meshzoo
-
-    points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
-
-    if cut_000:
-        # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
-        points = points[1:]
-        cells = cells[~numpy.any(cells == 0, axis=1)]
-        cells -= 1
-
-    cs = Hdr()
-    pts = colorspace.from_xyz100(cs.to_xyz100(points.T)).T
-    rgb = cs.to_hdr1(points)
-    meshio.write_points_cells(
-        filename, pts, {"tetra": cells}, point_data={"hdr-rgb": rgb}
-    )
-    return
 
 
 def partition(boxes, balls):
@@ -151,11 +74,11 @@ def _plot_rgb_triangle(xy_to_2d, bright=True):
     # Get all RGB values that sum up to 1.
     rgb_linear = numpy.array(partition(3, n)).T / n
     if bright:
-        # For the x-y-diagram, it doesn't matter if the values are scaled in
-        # any way. After all, the tranlation to XYZ is linear, and then to xyY
-        # it's (X/(X+Y+Z), Y/(X+Y+Z), Y), so the factor will only be present in
-        # the last component which is discarded. To make the plot a bit
-        # brighter, scale the colors up as much as possible.
+        # For the x-y-diagram, it doesn't matter if the values are scaled in any way.
+        # After all, the tranlation to XYZ is linear, and then to xyY it's (X/(X+Y+Z),
+        # Y/(X+Y+Z), Y), so the factor will only be present in the last component which
+        # is discarded. To make the plot a bit brighter, scale the colors up as much as
+        # possible.
         rgb_linear /= numpy.max(rgb_linear, axis=0)
 
     xyy = XYY()
@@ -227,148 +150,6 @@ def plot_flat_gamut(
 
 def show_flat_gamut(*args, **kwargs):
     plot_flat_gamut(*args, **kwargs)
-    plt.show()
-    return
-
-
-def show_ebner_fairchild(colorspace):
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, "data/ebner_fairchild.yaml")) as f:
-        data = yaml.safe_load(f)
-
-    wp = colorspace.from_xyz100(numpy.array(data["white point"]))[1:]
-
-    d = [
-        numpy.column_stack([dat["reference xyz"], numpy.array(dat["same"]).T])
-        for dat in data["data"]
-    ]
-
-    _show_color_constancy_data(d, wp, colorspace)
-    return
-
-
-def show_hung_berns(colorspace):
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, "data/hung-berns/table3.yaml")) as f:
-        data = yaml.safe_load(f)
-
-    wp = colorspace.from_xyz100(numpy.array(whitepoints_cie1931["C"]))[1:]
-
-    d = [numpy.array(list(color.values())).T for color in data.values()]
-
-    _show_color_constancy_data(d, wp, colorspace)
-    return
-
-
-def show_xiao(colorspace):
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-
-    filenames = [
-        "unique_blue.yaml",
-        "unique_green.yaml",
-        "unique_red.yaml",
-        "unique_yellow.yaml",
-    ]
-
-    data = []
-    for filename in filenames:
-        with open(os.path.join(dir_path, "data", "xiao", filename)) as f:
-            dat = numpy.array(yaml.safe_load(f))
-        # average over all observers and sessions
-        data.append(numpy.sum(dat, axis=(0, 1)) / numpy.prod(dat.shape[:2]))
-
-    data = numpy.array(data)
-
-    # Use Xiao's 'neutral gray' as white point.
-    with open(os.path.join(dir_path, "data/xiao/neutral_gray.yaml")) as f:
-        ng_data = numpy.array(yaml.safe_load(f))
-
-    ng = numpy.sum(ng_data, axis=0) / numpy.prod(ng_data.shape[:1])
-    ng_cs = colorspace.from_xyz100(ng)[1:]
-
-    data = numpy.moveaxis(data, 1, 2)
-
-    _show_color_constancy_data(data, ng_cs, colorspace)
-    return
-
-
-def _show_color_constancy_data(data, wp, colorspace):
-    srgb = SrgbLinear()
-    for xyz in data:
-        d = colorspace.from_xyz100(xyz)[1:]
-
-        # Find best fit line through all points
-        def f(theta, D=d):
-            return +numpy.sin(theta) * (D[0] - wp[0]) + numpy.cos(theta) * (
-                D[1] - wp[1]
-            )
-
-        def jac(theta, D=d):
-            return +numpy.cos(theta) * (D[0] - wp[0]) - numpy.sin(theta) * (
-                D[1] - wp[1]
-            )
-
-        # out = least_squares(f, 0.0)
-        # out = leastsq(f, 0.0, full_output=True)
-
-        out, _ = leastsq(f, 0.0, Dfun=jac)
-        # We have to take the first element here, see
-        # <https://github.com/scipy/scipy/issues/8532>.
-        theta = out[0]
-
-        # Plot it from wp to the outmost point
-        length = numpy.sqrt(numpy.max(numpy.einsum("ij,ij->i", (d.T - wp), (d.T - wp))))
-        # The solution theta can be rotated by pi and still give the same
-        # result. Find out on which side all the points are sitting and plot
-        # the line accordingly.
-        ex = length * numpy.array([numpy.cos(theta), -numpy.sin(theta)])
-
-        end_point = wp + ex
-        ep_d = numpy.linalg.norm(end_point - d[:, -1])
-        ep_wp = numpy.linalg.norm(end_point - wp)
-        if ep_d > ep_wp:
-            end_point = wp - ex
-        plt.plot([wp[0], end_point[0]], [wp[1], end_point[1]], "-", color="0.5")
-
-        # Deliberatly only handle the two last components, e.g., a* b* from
-        # L*a*b*. They typically indicate the chroma.
-        for dd, rgb in zip(d.T, srgb.from_xyz100(xyz).T):
-            is_legal_srgb = numpy.all(rgb >= 0) and numpy.all(rgb <= 1)
-            col = srgb.to_srgb1(rgb) if is_legal_srgb else "white"
-            ecol = srgb.to_srgb1(rgb) if is_legal_srgb else "black"
-            plt.plot(dd[0], dd[1], "o", color=col, markeredgecolor=ecol)
-
-    plt.axis("equal")
-    plt.show()
-    return
-
-
-def show_munsell(colorspace, V):
-    _, v, _, xyy = get_munsell_data()
-
-    # pick the data from the given munsell level
-    xyy = xyy[:, v == V]
-
-    xyz = XYY().to_xyz100(xyy)
-    vals = colorspace.from_xyz100(xyz)
-
-    srgb = SrgbLinear()
-    rgb = srgb.from_xyz100(xyz)
-    is_legal_srgb = numpy.all((0 <= rgb) & (rgb <= 1), axis=0)
-
-    # plot the ones that cannot be represented in SRGB
-    plt.plot(
-        vals[1, ~is_legal_srgb],
-        vals[2, ~is_legal_srgb],
-        "o",
-        color="white",
-        markeredgecolor="black",
-    )
-    # plot the srgb dots
-    for val, rgb_ in zip(vals[:, is_legal_srgb].T, rgb[:, is_legal_srgb].T):
-        plt.plot(val[1], val[2], "o", color=srgb.to_srgb1(rgb_))
-
-    plt.axis("equal")
     plt.show()
     return
 

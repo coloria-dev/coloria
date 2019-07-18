@@ -18,24 +18,17 @@ from .hsv import Hsv
 from .ictcp import ICtCp
 from .ipt import IPT
 from .jzazbz import JzAzBz
-from .hdr import Hdr
+from .hdr import HdrLinear
 from .srgb import SrgbLinear
 from .tools import (
     delta,
     plot_luo_rigg,
     plot_macadam,
     save_macadam,
-    show_ebner_fairchild,
     show_flat_gamut,
-    show_hung_berns,
     show_luo_rigg,
     show_macadam,
-    show_munsell,
-    show_hdr_gamut,
-    show_srgb_gamut,
     show_straights,
-    show_visible_gamut,
-    show_xiao,
     xy_gamut_mesh,
 )
 from .xyy import XYY
@@ -65,7 +58,7 @@ __all__ = [
     "IPT",
     "JzAzBz",
     "observers",
-    "Hdr",
+    "HdrLinear",
     "SrgbLinear",
     "XYY",
     "XYZ",
