@@ -151,6 +151,16 @@ colorio.show_macadam(
     )
 ```
 
+###### Luo-Rigg
+
+<img src="https://nschloe.github.io/colorio/luo-rigg.png" width="30%">
+
+Likewise for [Luo-Rigg](https://doi.org/10.1002/col.5080110107).
+```
+import colorio
+colorio.show_luo_rigg(plot_rgb_triangle=True, ellipse_scaling=2)
+```
+
 ###### Ebner-Fairchild
 
 <img src="https://nschloe.github.io/colorio/ebner_fairchild_jzazbz.png" width="40%">
