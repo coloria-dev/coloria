@@ -56,7 +56,7 @@ def _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=True):
 
     # fill horseshoe area
     if fill_horseshoe:
-        plt.fill(*full.T, color=[0.8, 0.8, 0.8], zorder=1)
+        plt.fill(*full.T, color=[0.8, 0.8, 0.8], zorder=0)
     # plot horseshoe outline
     plt.plot(values[:, 0], values[:, 1], "-k", label="monochromatic light")
     return
@@ -175,7 +175,7 @@ def show_macadam(*args, **kwargs):
 def save_macadam(filename, *args, **kwargs):
     plt.figure()
     plot_macadam(*args, **kwargs)
-    plt.savefig(filename)
+    plt.savefig(filename, bbox_inches="tight", transparent=True)
     return
 
 
@@ -246,9 +246,19 @@ def show_luo_rigg(*args, **kwargs):
     return
 
 
-def plot_luo_rigg(
-    plot_rgb_triangle=True, plot_mesh=True, ellipse_scaling=1, xy_to_2d=lambda xy: xy
-):
+def save_luo_rigg(filename, *args, **kwargs):
+    plt.figure()
+    plot_luo_rigg(*args, **kwargs)
+    plt.savefig(filename, bbox_inches="tight", transparent=True)
+    return
+
+
+def plot_luo_rigg(plot_rgb_triangle=True, ellipse_scaling=1, xy_to_2d=lambda xy: xy):
+    # M. R. Luo, B. Rigg,
+    # Chromaticity Discrimination Ellipses for Surface Colours,
+    # Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25-42,
+    # <https://doi.org/10.1002/col.5080110107>.
+
     dir_path = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(dir_path, "data/luo-rigg/luo-rigg.yaml")) as f:
         data = yaml.safe_load(f)
@@ -265,7 +275,7 @@ def plot_luo_rigg(
         #     numpy.sum(numpy.array(list(data_set.values()))[:, -1])
         #     / len(data_set)
         #     )
-        for _, dat in data_set.items():
+        for dat in data_set.values():
             x, y, Y, a, a_div_b, theta, _ = dat
             a /= 1.0e4
             a *= (Y / 30) ** 0.2
@@ -290,9 +300,11 @@ def plot_luo_rigg(
         offsets,
         ellipse_scaling=ellipse_scaling,
         xy_to_2d=xy_to_2d,
-        plot_mesh=plot_mesh,
+        plot_mesh=False,
         plot_rgb_triangle=plot_rgb_triangle,
     )
+    plt.xlim(0.0)
+    plt.ylim(0.0)
     return
 
 
