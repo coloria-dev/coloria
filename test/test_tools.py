@@ -120,8 +120,8 @@ def test_xy_gamut_mesh():
 
 
 if __name__ == "__main__":
-    # test_luo_rigg()
-    test_xy_gamut_mesh()
+    test_luo_rigg()
+    # test_xy_gamut_mesh()
     # test_macadam()
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.Hdr()
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     # colorspace_ = colorio.IPT()
     # colorspace_ = colorio.JzAzBz()
     # colorspace_ = colorio.CIELUV()
-    colorspace_ = colorio.CIELAB()
+    # colorspace_ = colorio.CIELAB()
     # colorspace_ = colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5)
     # colorspace_ = colorio.CAM16UCS(0.69, 20, 64/numpy.pi/5)
     # test_hdr_gamut(colorspace_, n=10)
@@ -139,5 +139,5 @@ if __name__ == "__main__":
     # test_ebner_fairchild(colorspace_)
     # test_hung_berns(colorspace_)
     # test_xiao(colorspace_)
-    test_show_straights(colorspace_)
+    # test_show_straights(colorspace_)
     # test_munsell(colorspace_)

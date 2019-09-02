@@ -58,7 +58,14 @@ def _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=True):
     if fill_horseshoe:
         plt.fill(*full.T, color=[0.8, 0.8, 0.8], zorder=0)
     # plot horseshoe outline
-    plt.plot(values[:, 0], values[:, 1], "-k", label="monochromatic light")
+    plt.plot(
+        values[:, 0],
+        values[:, 1],
+        "-k",
+        # label="monochromatic light"
+    )
+    # plot dotted connector
+    plt.plot(connect[0], connect[1], ":k")
     return
 
 
@@ -184,8 +191,7 @@ def plot_macadam(
     plot_filter_positions=False,
     plot_standard_deviations=False,
     plot_rgb_triangle=True,
-    plot_mesh=True,
-    n=1,
+    mesh_resolution=1,
     xy_to_2d=lambda xy: xy,
     axes_labels=("x", "y"),
 ):
@@ -233,8 +239,7 @@ def plot_macadam(
         offsets,
         ellipse_scaling=ellipse_scaling,
         xy_to_2d=xy_to_2d,
-        plot_mesh=plot_mesh,
-        n=n,
+        mesh_resolution=mesh_resolution,
         plot_rgb_triangle=plot_rgb_triangle,
     )
     return
@@ -263,20 +268,20 @@ def plot_luo_rigg(plot_rgb_triangle=True, ellipse_scaling=1, xy_to_2d=lambda xy:
     with open(os.path.join(dir_path, "data/luo-rigg/luo-rigg.yaml")) as f:
         data = yaml.safe_load(f)
 
-    # collect the ellipse centers and offsets
     centers = []
     offsets = []
+
+    # collect the ellipse centers and offsets
     # Use four offset points of each ellipse, one could take more
     alpha = 2 * numpy.pi * numpy.linspace(0.0, 1.0, 16, endpoint=False)
     pts = numpy.array([numpy.cos(alpha), numpy.sin(alpha)])
-    for _, data_set in data.items():
+    for data_set in data.values():
         # The set factor is the mean of the R values
-        # set_factor = (
-        #     numpy.sum(numpy.array(list(data_set.values()))[:, -1])
-        #     / len(data_set)
-        #     )
+        # set_factor = sum([dat[-1] for dat in data_set.values()]) / len(data_set)
+
         for dat in data_set.values():
-            x, y, Y, a, a_div_b, theta, _ = dat
+            x, y, Y, a, a_div_b, theta_deg, _ = dat
+            theta = theta_deg * 2 * numpy.pi / 360
             a /= 1.0e4
             a *= (Y / 30) ** 0.2
             b = a / a_div_b
@@ -300,7 +305,6 @@ def plot_luo_rigg(plot_rgb_triangle=True, ellipse_scaling=1, xy_to_2d=lambda xy:
         offsets,
         ellipse_scaling=ellipse_scaling,
         xy_to_2d=xy_to_2d,
-        plot_mesh=False,
         plot_rgb_triangle=plot_rgb_triangle,
     )
     plt.xlim(0.0)
@@ -315,21 +319,17 @@ def _plot_ellipse_data(
     axes_labels=("x", "y"),
     plot_rgb_triangle=False,
     ellipse_scaling=10,
-    plot_mesh=False,
-    n=1,
+    mesh_resolution=None,
 ):
-
     plot_flat_gamut(
         plot_planckian_locus=False,
         xy_to_2d=xy_to_2d,
         axes_labels=axes_labels,
         plot_rgb_triangle=plot_rgb_triangle,
-        fill_horseshoe=not plot_mesh,
+        fill_horseshoe=mesh_resolution is None,
     )
-    # plt.grid(zorder=0)
-    ax = plt.gca()
 
-    if plot_mesh:
+    if mesh_resolution is not None:
         # dir_path = os.path.dirname(os.path.realpath(__file__))
         # with open(os.path.join(dir_path, 'data/gamut_triangulation.yaml')) as f:
         #     data = yaml.safe_load(f)
@@ -337,7 +337,8 @@ def _plot_ellipse_data(
         # cells = numpy.array(data['cells'])
 
         points, cells = meshzoo.triangle(
-            n, corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
+            mesh_resolution,
+            corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]),
         )
         points = points[:, :2]
 
@@ -345,6 +346,15 @@ def _plot_ellipse_data(
         pts = xy_to_2d(points.T).T
         lines = pts[edges].T
         plt.plot(*lines, color="0.8", zorder=0)
+
+    _plot_ellipses(centers, offsets, xy_to_2d, ellipse_scaling)
+    return
+
+
+def _plot_ellipses(
+    centers, offsets, xy_to_2d, ellipse_scaling, alpha=0.5, facecolor="k", label=None
+):
+    ax = plt.gca()
 
     for center, offset in zip(centers, offsets):
         # If xy_to_2d was linear, we would only need one of center+-offset
@@ -356,29 +366,36 @@ def _plot_ellipse_data(
 
         def f_ellipse(a_b_theta, x=X):
             a, b, theta = a_b_theta
+            sin_t = numpy.sin(theta)
+            cos_t = numpy.cos(theta)
             return (
-                +a ** 2 * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)) ** 2
-                + b ** 2 * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta)) ** 2
+                +a ** 2 * (x[0] * cos_t + x[1] * sin_t) ** 2
+                + b ** 2 * (x[0] * sin_t - x[1] * cos_t) ** 2
                 - 1.0
             )
 
         def jac(a_b_theta, x=X):
             a, b, theta = a_b_theta
+            sin_t = numpy.sin(theta)
+            cos_t = numpy.cos(theta)
             return numpy.array(
                 [
-                    +2 * a * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)) ** 2,
-                    +2 * b * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta)) ** 2,
+                    +2 * a * (x[0] * cos_t + x[1] * sin_t) ** 2,
+                    +2 * b * (x[0] * sin_t - x[1] * cos_t) ** 2,
                     +a ** 2
                     * 2
-                    * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta))
-                    * (-x[0] * numpy.sin(theta) + x[1] * numpy.cos(theta))
+                    * (x[0] * cos_t + x[1] * sin_t)
+                    * (-x[0] * sin_t + x[1] * cos_t)
                     + b ** 2
                     * 2
-                    * (x[0] * numpy.sin(theta) - x[1] * numpy.cos(theta))
-                    * (x[0] * numpy.cos(theta) + x[1] * numpy.sin(theta)),
+                    * (x[0] * sin_t - x[1] * cos_t)
+                    * (x[0] * cos_t + x[1] * sin_t),
                 ]
             ).T
 
+        # We need to use some optimization here to find the new ellipses which best fit
+        # the modified data. If xy_to_2d is the identity, we wouldn't need this.
+        #
         # out = leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac, full_output=True)
         # print(out)
         (a, b, theta), _ = leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac)
@@ -393,10 +410,11 @@ def _plot_ellipse_data(
             width=ellipse_scaling * 2 / a,
             height=ellipse_scaling * 2 / b,
             angle=theta / numpy.pi * 180,
+            label=label,
         )
         ax.add_artist(e)
-        e.set_alpha(0.5)
-        e.set_facecolor("k")
+        e.set_alpha(alpha)
+        e.set_facecolor(facecolor)
     return
 
 
