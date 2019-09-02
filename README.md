@@ -145,6 +145,8 @@ certain properties of color spaces.
 The famous MacAdam ellipses (from [this
 article](https://doi.org/10.1364%2FJOSA.32.000247)) can be plotted with
 ```python
+import colorio
+
 colorio.show_macadam(
     scaling=10,
     plot_filter_positions=False,
@@ -159,7 +161,8 @@ colorio.show_macadam(
 Likewise for [Luo-Rigg](https://doi.org/10.1002/col.5080110107).
 ```
 import colorio
-colorio.show_luo_rigg(plot_rgb_triangle=True, ellipse_scaling=2)
+
+colorio.show_luo_rigg(plot_rgb_triangle=True, ellipse_scaling=1.5)
 ```
 
 ###### Ebner-Fairchild
@@ -168,6 +171,8 @@ colorio.show_luo_rigg(plot_rgb_triangle=True, ellipse_scaling=2)
 
 For example
 ```python
+import colorio
+
 colorspace = colorio.JzAzBz()
 colorspace.show_ebner_fairchild()
 ```
