@@ -1,5 +1,4 @@
 import numpy
-import sympy
 
 
 def _create_tree(alpha, degree):
