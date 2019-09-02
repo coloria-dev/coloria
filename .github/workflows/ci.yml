@@ -27,10 +27,14 @@ jobs:
       with:
         python-version: "3.x"
     - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: |
+        sudo apt-get install python3-lxml gmsh
+        pip install lxml
     - name: Install package
       run: |
         pip install --upgrade pip
-        pip install .[all]
+        pip install .
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
