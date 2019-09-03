@@ -59,6 +59,8 @@ The following color spaces are implemented:
    [here](https://arxiv.org/abs/1802.06067)).
  * [CAM16 / CAM16-UCS](https://doi.org/10.1002/col.22131)
    ```python
+   import colorio
+
    L_A = 64 / numpy.pi / 5
    cam16 = colorio.CAM16(0.69, 20, L_A)
    cam16ucs = colorio.CAM16UCS(0.69, 20, L_A)
@@ -112,6 +114,8 @@ packages for some formats.)
 
 Same as above, but with the gamut visible under a given illuminant.
 ```python
+import colorio
+
 colorspace = colorio.XYZ()
 illuminant = colorio.illuminants.d65()
 observer = colorio.observers.cie_1931_2()
@@ -128,6 +132,8 @@ locus](https://en.wikipedia.org/wiki/Planckian_locus) and the SRGB colors (at ma
 luminosity).
 
 ```python
+import colorio
+
 colorio.show_xy_gamut()
 ```
 
@@ -151,7 +157,7 @@ colorio.show_macadam(
     scaling=10,
     plot_filter_positions=False,
     plot_standard_deviations=False
-    )
+)
 ```
 
 ###### Luo-Rigg
@@ -188,6 +194,8 @@ Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
 <img src="https://nschloe.github.io/colorio/hung_berns_jzazbz.png" width="40%">
 
 ```python
+import colorio
+
 colorspace = colorio.JzAzBz()
 colorspace.show_hung_berns()
 ```
@@ -208,12 +216,16 @@ colorspace.show_xiao()
 <img src="https://nschloe.github.io/colorio/munsell_cieluv.png" width="40%">
 
 ```python
+import colorio
+
 colorspace = colorio.CIELUV()
 colorspace.show_munsell(V=5)
 ```
 
 To simply retrieve the Munsell data in xyY format, use
 ```python
+import colorio
+
 h, V, C, xyy = colorio.get_munsell_data()
 ```
 
