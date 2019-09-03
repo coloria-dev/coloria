@@ -97,6 +97,16 @@ class ColorSpace:
         return
 
     def show_ebner_fairchild(self):
+        self.plot_ebner_fairchild()
+        plt.show()
+        return
+
+    def save_ebner_fairchild(self, filename):
+        self.plot_ebner_fairchild()
+        plt.savefig(filename, transparent=True, bbox_inches="tight")
+        return
+
+    def plot_ebner_fairchild(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         with open(os.path.join(dir_path, "data/ebner_fairchild.yaml")) as f:
             data = yaml.safe_load(f)
@@ -108,10 +118,20 @@ class ColorSpace:
             for dat in data["data"]
         ]
 
-        _show_color_constancy_data(d, wp, self)
+        _plot_color_constancy_data(d, wp, self)
         return
 
     def show_hung_berns(self):
+        self.plot_hung_berns()
+        plt.show()
+        return
+
+    def save_hung_berns(self, filename):
+        self.plot_hung_berns()
+        plt.savefig(filename, transparent=True, bbox_inches="tight")
+        return
+
+    def plot_hung_berns(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         with open(os.path.join(dir_path, "data/hung-berns/table3.yaml")) as f:
             data = yaml.safe_load(f)
@@ -120,10 +140,20 @@ class ColorSpace:
 
         d = [numpy.array(list(color.values())).T for color in data.values()]
 
-        _show_color_constancy_data(d, wp, self)
+        _plot_color_constancy_data(d, wp, self)
         return
 
     def show_xiao(self):
+        self.plot_xiao()
+        plt.show()
+        return
+
+    def save_xiao(self, filename):
+        self.plot_xiao()
+        plt.savefig(filename, transparent=True, bbox_inches="tight")
+        return
+
+    def plot_xiao(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
 
         filenames = [
@@ -151,10 +181,20 @@ class ColorSpace:
 
         data = numpy.moveaxis(data, 1, 2)
 
-        _show_color_constancy_data(data, ng_cs, self)
+        _plot_color_constancy_data(data, ng_cs, self)
         return
 
-    def show_munsell(self, V):
+    def show_munsell(self):
+        self.plot_munsell()
+        plt.show()
+        return
+
+    def save_munsell(self, filename):
+        self.plot_munsell()
+        plt.savefig(filename, transparent=True, bbox_inches="tight")
+        return
+
+    def plot_munsell(self, V):
         _, v, _, xyy = get_munsell_data()
 
         # pick the data from the given munsell level
@@ -181,11 +221,10 @@ class ColorSpace:
             plt.plot(val[1], val[2], "o", color=srgb.to_srgb1(rgb_))
 
         plt.axis("equal")
-        plt.show()
         return
 
 
-def _show_color_constancy_data(data, wp, colorspace, approximate_colors_in_srgb=False):
+def _plot_color_constancy_data(data, wp, colorspace, approximate_colors_in_srgb=False):
     srgb = SrgbLinear()
     for xyz in data:
         d = colorspace.from_xyz100(xyz)[1:]
@@ -237,5 +276,4 @@ def _show_color_constancy_data(data, wp, colorspace, approximate_colors_in_srgb=
             plt.plot(dd[0], dd[1], "o", color=col, markeredgecolor=ecol)
 
     plt.axis("equal")
-    plt.show()
     return
