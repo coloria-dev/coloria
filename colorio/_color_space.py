@@ -184,13 +184,13 @@ class ColorSpace:
         _plot_color_constancy_data(data, ng_cs, self)
         return
 
-    def show_munsell(self):
-        self.plot_munsell()
+    def show_munsell(self, V):
+        self.plot_munsell(V)
         plt.show()
         return
 
-    def save_munsell(self, filename):
-        self.plot_munsell()
+    def save_munsell(self, filename, V):
+        self.plot_munsell(V)
         plt.savefig(filename, transparent=True, bbox_inches="tight")
         return
 
