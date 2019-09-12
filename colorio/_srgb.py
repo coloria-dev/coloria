@@ -1,8 +1,12 @@
 import numpy
 
 from ._linalg import dot, solve
-from ._xyy import XYY
 from .illuminants import whitepoints_cie1931
+
+
+def _xyy_to_xyz100(xyy):
+    x, y, Y = xyy
+    return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
 
 
 class SrgbLinear:
@@ -16,7 +20,7 @@ class SrgbLinear:
         primaries_xyy = numpy.array(
             [[0.64, 0.33, 0.2126], [0.30, 0.60, 0.7152], [0.15, 0.06, 0.0722]]
         )
-        self.invM = XYY().to_xyz100(primaries_xyy.T)
+        self.invM = _xyy_to_xyz100(primaries_xyy.T)
 
         if whitepoint_correction:
             # The above values are given only approximately, resulting in the fact that

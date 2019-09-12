@@ -11,7 +11,6 @@ import meshzoo
 
 from . import observers
 from ._srgb import SrgbLinear
-from ._xyy import XYY
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
 
@@ -36,16 +35,22 @@ def partition(boxes, balls):
     return list(rec(boxes, balls))
 
 
+def _xyy_from_xyz100(xyz):
+    sum_xyz = numpy.sum(xyz, axis=0)
+    x = xyz[0]
+    y = xyz[1]
+    return numpy.array([x / sum_xyz, y / sum_xyz, y / 100])
+
+
 def _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=True):
     # draw outline of monochromatic spectra
     lmbda = 1.0e-9 * numpy.arange(380, 701)
     values = []
     # TODO vectorize (see <https://github.com/numpy/numpy/issues/10439>)
-    xyy = XYY()
     for k, _ in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
-        values.append(xyy.from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[:2])
+        values.append(_xyy_from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[:2])
     values = numpy.array(values)
 
     # Add the values between the first and the last point of the horseshoe
@@ -84,11 +89,9 @@ def _plot_rgb_triangle(xy_to_2d, bright=True):
         # possible.
         rgb_linear /= numpy.max(rgb_linear, axis=0)
 
-    xyy = XYY()
-
     srgb_linear = SrgbLinear()
     xyz = srgb_linear.to_xyz100(rgb_linear)
-    xyy_vals = xy_to_2d(xyy.from_xyz100(xyz)[:2])
+    xyy_vals = xy_to_2d(_xyy_from_xyz100(xyz)[:2])
 
     # Unfortunately, one cannot use tripcolors with explicit RGB specification
     # (see <https://github.com/matplotlib/matplotlib/issues/10265>). As a
@@ -107,11 +110,10 @@ def _plot_rgb_triangle(xy_to_2d, bright=True):
 
 def _plot_planckian_locus(observer, xy_to_2d):
     # plot planckian locus
-    xyy = XYY()
     values = []
     for temp in numpy.arange(1000, 20001, 100):
         xyy_vals = xy_to_2d(
-            xyy.from_xyz100(spectrum_to_xyz100(planckian_radiator(temp), observer))
+            _xyy_from_xyz100(spectrum_to_xyz100(planckian_radiator(temp), observer))
         )
         values.append(xyy_vals)
     values = numpy.array(values)
@@ -258,7 +260,13 @@ def save_luo_rigg(filename, *args, **kwargs):
     return
 
 
-def plot_luo_rigg(plot_rgb_triangle=True, ellipse_scaling=1, xy_to_2d=lambda xy: xy):
+def plot_luo_rigg(
+    plot_rgb_triangle=True,
+    ellipse_scaling=1,
+    xy_to_2d=lambda xy: xy,
+    mesh_resolution=1,
+    ellipse_color="k",
+):
     # M. R. Luo, B. Rigg,
     # Chromaticity Discrimination Ellipses for Surface Colours,
     # Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25-42,
@@ -304,8 +312,10 @@ def plot_luo_rigg(plot_rgb_triangle=True, ellipse_scaling=1, xy_to_2d=lambda xy:
         centers,
         offsets,
         ellipse_scaling=ellipse_scaling,
+        mesh_resolution=mesh_resolution,
         xy_to_2d=xy_to_2d,
         plot_rgb_triangle=plot_rgb_triangle,
+        ellipse_color=ellipse_color,
     )
     plt.xlim(0.0)
     plt.ylim(0.0)
@@ -319,6 +329,7 @@ def _plot_ellipse_data(
     axes_labels=("x", "y"),
     plot_rgb_triangle=False,
     ellipse_scaling=10,
+    ellipse_color="k",
     mesh_resolution=None,
 ):
     plot_flat_gamut(
@@ -347,7 +358,7 @@ def _plot_ellipse_data(
         lines = pts[edges].T
         plt.plot(*lines, color="0.8", zorder=0)
 
-    _plot_ellipses(centers, offsets, xy_to_2d, ellipse_scaling)
+    _plot_ellipses(centers, offsets, xy_to_2d, ellipse_scaling, facecolor=ellipse_color)
     return
 
 
@@ -460,12 +471,11 @@ def xy_gamut_mesh(lcar):
     # Gather all points on the horseshoe outline
     lmbda = 1.0e-9 * numpy.arange(380, 701)
     all_points = []
-    xyy = XYY()
     for k, _ in enumerate(lmbda):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
         all_points.append(
-            xyy.from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[:2]
+            _xyy_from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[:2]
         )
     all_points = numpy.array(all_points)
 

@@ -1,7 +1,11 @@
 import numpy
 
 from ._linalg import dot, solve
-from ._xyy import XYY
+
+
+def _xyy_to_xyz100(xyy):
+    x, y, Y = xyy
+    return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
 
 
 class HdrLinear:
@@ -17,7 +21,7 @@ class HdrLinear:
         primaries_xyy = numpy.array(
             [[0.708, 0.292, 1 / 3], [0.170, 0.797, 1 / 3], [0.131, 0.046, 1 / 3]]
         )
-        self.invM = XYY().to_xyz100(primaries_xyy.T) / 100
+        self.invM = _xyy_to_xyz100(primaries_xyy.T) / 100
 
         self.alpha = 1.09929682680944
         self.beta = 0.018053968510807

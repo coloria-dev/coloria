@@ -5,7 +5,7 @@ import yaml
 
 from . import observers
 
-# The 'standard' 2 degree observer (CIE 1931). From
+# The "standard" 2 degree observer (CIE 1931). From
 # <https://github.com/njsmith/colorspacious/blob/master/colorspacious/illuminants.py>
 whitepoints_cie1931 = {
     "A": (109.850, 100, 35.585),
@@ -16,7 +16,7 @@ whitepoints_cie1931 = {
     "D75": (94.972, 100, 122.638),
 }
 
-# The 'supplementary' 10 degree observer (CIE 1964). From
+# The "supplementary" 10 degree observer (CIE 1964). From
 # <https://github.com/njsmith/colorspacious/blob/master/colorspacious/illuminants.py>
 whitepoints_cie1964 = {
     "A": (111.144, 100, 35.200),
@@ -29,14 +29,13 @@ whitepoints_cie1964 = {
 
 
 def spectrum_to_xyz100(spectrum, observer):
-    """Computes the tristimulus values XYZ from a given spectrum for a given
-    observer via
+    """Computes the tristimulus values XYZ from a given spectrum for a given observer
+    via
 
     X_i = int_lambda spectrum_i(lambda) * observer_i(lambda) dlambda.
 
-    In section 7, the technical report CIE Standard Illuminants for
-    Colorimetry, 1999, gives a recommendation on how to perform the
-    computation.
+    In section 7, the technical report CIE Standard Illuminants for Colorimetry, 1999,
+    gives a recommendation on how to perform the computation.
     """
     lambda_o, data_o = observer
     lambda_s, data_s = spectrum
@@ -63,8 +62,8 @@ def spectrum_to_xyz100(spectrum, observer):
     #      neighboring data points around the point to be interpolated, or
     #   4) a Sprague interpolation (see Seve, 2003).
     # ```
-    # Well, don't do that but simply use linear interpolation now. We only use
-    # the midpoint rule for integration anyways.
+    # Well, don't do that but simply use linear interpolation now. We only use the
+    # midpoint rule for integration anyways.
     idata_s = numpy.interp(lmbda, lambda_s, data_s)
 
     # step sizes
@@ -81,8 +80,8 @@ def spectrum_to_xyz100(spectrum, observer):
 
 def white_point(illuminant, observer=observers.cie_1931_2()):
     """From <https://en.wikipedia.org/wiki/White_point>:
-    The white point of an illuminant is the chromaticity of a white object
-    under the illuminant.
+    The white point of an illuminant is the chromaticity of a white object under the
+    illuminant.
     """
     values = spectrum_to_xyz100(illuminant, observer)
     # normalize for relative luminance, Y=100
@@ -107,11 +106,11 @@ def planckian_radiator(temperature):
 def a(interval=1.0e-9):
     """CIE Standard Illuminants for Colorimetry, 1999:
     CIE standard illuminant A is intended to represent typical, domestic,
-    tungsten-filament lighting. Its relative spectral power distribution is
-    that of a Planckian radiator at a temperature of approximately 2856 K. CIE
-    standard illuminant A should be used in all applications of colorimetry
-    involving the use of incandescent lighting, unless there are specific
-    reasons for using a different illuminant.
+    tungsten-filament lighting. Its relative spectral power distribution is that of a
+    Planckian radiator at a temperature of approximately 2856 K. CIE standard illuminant
+    A should be used in all applications of colorimetry involving the use of
+    incandescent lighting, unless there are specific reasons for using a different
+    illuminant.
     """
     # https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_A
     lmbda = numpy.arange(300e-9, 831e-9, interval)
@@ -132,28 +131,25 @@ def a(interval=1.0e-9):
 def d(nominal_temperature):
     """CIE D-series illuminants.
 
-    The technical report `Colorimetry, 3rd edition, 2004` gives the data for
-    D50, D55, and D65 explicitly, but also explains how it's computed for S0,
-    S1, S2. Values are given at 5nm resolution in the document, but really
-    every other value is just interpolated. Hence, only provide 10 nm data
-    here.
+    The technical report `Colorimetry, 3rd edition, 2004` gives the data for D50, D55,
+    and D65 explicitly, but also explains how it's computed for S0, S1, S2. Values are
+    given at 5nm resolution in the document, but really every other value is just
+    interpolated. Hence, only provide 10 nm data here.
     """
     # From CIE 15:2004. Colorimetry, 3rd edition, 2004 (page 69, note 5):
     #
-    # The method required to calculate the values for the relative spectral
-    # power distributions of illuminants D50, D55, D65, and D75, in Table T.1
-    # is as follows
-    #   1. Multiply the nominal correlated colour temperature (5000 K, 5500 K,
-    #      6500 K or 7500 K) by 1,4388/1,4380.
+    # The method required to calculate the values for the relative spectral power
+    # distributions of illuminants D50, D55, D65, and D75, in Table T.1 is as follows
+    #   1. Multiply the nominal correlated colour temperature (5000 K, 5500 K, 6500 K or
+    #   7500 K) by 1,4388/1,4380.
     #   2. Calculate XD and YD using the equations given in the text.
     #   3. Calculate M1 and M2 using the equations given in the text.
     #   4. Round M1 and M2 to three decimal places.
     #   5. Calculate S(lambda) every 10 nm by
     #        S(lambda) = S0(lambda) + M1 S1(lambda) + M2 S2(lambda)
-    #      using values of S0(lambda), S1(lambda) and S2(lambda) from
-    #      Table T.2.
-    #   6. Interpolate the 10 nm values of S(lambda) linearly to obtain values
-    #      at intermediate wavelengths.
+    #      using values of S0(lambda), S1(lambda) and S2(lambda) from Table T.2.
+    #   6. Interpolate the 10 nm values of S(lambda) linearly to obtain values at
+    #   intermediate wavelengths.
     tcp = 1.4388e-2 / 1.4380e-2 * nominal_temperature
 
     if 4000 <= tcp <= 7000:
@@ -182,15 +178,13 @@ def d(nominal_temperature):
 
 
 def d50():
-    """CIE illuminant D50, mid-morning/mid-afternoon daylight, at 10nm
-    resolution.
+    """CIE illuminant D50, mid-morning/mid-afternoon daylight, at 10nm resolution.
     """
     return d(5000)
 
 
 def d55():
-    """CIE illuminant D55, mid-morning/mid-afternoon daylight, at 10nm
-    resolution.
+    """CIE illuminant D55, mid-morning/mid-afternoon daylight, at 10nm resolution.
     """
     return d(5500)
 
@@ -208,8 +202,8 @@ def d75():
 
 
 def e():
-    """This is a hypothetical reference radiator. All wavelengths in CIE
-    illuminant E are weighted equally with a relative spectral power of 100.0.
+    """This is a hypothetical reference radiator. All wavelengths in CIE illuminant E
+    are weighted equally with a relative spectral power of 100.0.
     """
     lmbda = 1.0e-9 * numpy.arange(300, 831)
     data = numpy.full(lmbda.shape, 100.0)
