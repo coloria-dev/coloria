@@ -1,7 +1,9 @@
 import numpy
 
+from ._color_space import ColorSpace
 
-class XYY:
+
+class XYY(ColorSpace):
     def __init__(self):
         self.labels = ["x", "y", "Y"]
         return

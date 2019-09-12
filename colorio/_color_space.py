@@ -19,28 +19,33 @@ class ColorSpace:
     def save_visible_gamut(self, observer, illuminant, filename, cut_000=False):
         import meshio
 
-        # The XYZ gamut is actually defined by an arbitrarily chosen maximum
-        # intensity (here: 1). Then, all block spectra with this intensity are
-        # mapped into XYZ space; they form the outer hull.
         lmbda, illu = illuminant
         values = []
 
-        data = numpy.zeros(len(lmbda))
-        values.append(spectrum_to_xyz100((lmbda, illu * data), observer=observer))
-        for width in range(1, len(lmbda)):
-            data = numpy.zeros(len(lmbda))
-            data[:width] = 1.0
-            for _, _ in enumerate(lmbda):
-                values.append(
-                    spectrum_to_xyz100((lmbda, illu * data), observer=observer)
-                )
-                data = numpy.roll(data, shift=1)
-        data = numpy.ones(len(lmbda))
-        values.append(spectrum_to_xyz100((lmbda, illu * data), observer=observer))
+        # Iterate over every possible illuminant input and store it in values
+        n = len(lmbda)
+        values = numpy.empty((n * (n - 1) + 2, 3))
+        k = 0
 
-        # scale the values such that the Y-coordinate of the white point has value
-        # 100.
-        values = numpy.array(values)
+        # No light
+        data = numpy.zeros(n)
+        values[k] = spectrum_to_xyz100((lmbda, illu * data), observer=observer)
+        k += 1
+        # frequency blocks
+        for width in range(1, n):
+            data = numpy.zeros(n)
+            data[:width] = 1.0
+            for _ in range(n):
+                values[k] = spectrum_to_xyz100((lmbda, illu * data), observer=observer)
+                k += 1
+                data = numpy.roll(data, shift=1)
+        # Full illuminant
+        data = numpy.ones(len(lmbda))
+        values[k] = spectrum_to_xyz100((lmbda, illu * data), observer=observer)
+        k += 1
+
+        # scale the values such that the Y-coordinate of the white point (last entry)
+        # has value 100.
         values *= 100 / values[-1][1]
 
         cells = ConvexHull(values).simplices

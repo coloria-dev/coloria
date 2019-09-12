@@ -1,4 +1,7 @@
-class XYZ:
+from ._color_space import ColorSpace
+
+
+class XYZ(ColorSpace):
     def __init__(self):
         self.labels = ["X", "Y", "Z"]
         return

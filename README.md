@@ -119,7 +119,7 @@ import colorio
 colorspace = colorio.XYZ()
 illuminant = colorio.illuminants.d65()
 observer = colorio.observers.cie_1931_2()
-colorspace.save_visible_gamut(colorspace, observer, illuminant, "visible.vtk")
+colorspace.save_visible_gamut(observer, illuminant, "visible.vtk")
 ```
 The gamut is shown in grey since SRGB screens are not able to display the colors anyway.
 
@@ -165,7 +165,7 @@ colorio.show_macadam(
 <img src="https://nschloe.github.io/colorio/luo-rigg.png" width="30%">
 
 Likewise for [Luo-Rigg](https://doi.org/10.1002/col.5080110107).
-```
+```python
 import colorio
 
 colorio.show_luo_rigg(plot_rgb_triangle=True, ellipse_scaling=1.5)
@@ -206,6 +206,8 @@ Likewise for [Xiao et al.](https://doi.org/10.1002/col.20637):
 <img src="https://nschloe.github.io/colorio/xiao.png" width="40%">
 
 ```python
+import colorio
+
 colorspace = colorio.CIELAB()
 colorspace.show_xiao()
 ```
