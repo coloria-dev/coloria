@@ -104,6 +104,7 @@ class ColorSpace:
     def save_cone_gamut(self, filename, observer, max_Y):
         import meshio
         import pygmsh
+
         geom = pygmsh.built_in.Geometry()
 
         max_stepsize = 4.0e-2
@@ -117,11 +118,7 @@ class ColorSpace:
 
         axis = [0, 0, max_Y]
 
-        geom.extrude(
-            poly,
-            translation_axis=axis,
-            point_on_axis=[0, 0, 0],
-        )
+        geom.extrude(poly, translation_axis=axis, point_on_axis=[0, 0, 0])
 
         mesh = pygmsh.generate_mesh(geom, verbose=False)
         # meshio.write(filename, mesh)
