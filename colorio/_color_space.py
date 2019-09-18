@@ -8,7 +8,7 @@ from scipy.spatial import ConvexHull
 
 from ._hdr import HdrLinear
 from ._srgb import SrgbLinear
-from ._tools import get_munsell_data, spectrum_to_xyz100
+from ._tools import get_munsell_data, spectrum_to_xyz100, get_mono_outline_xy
 from .illuminants import whitepoints_cie1931
 
 
@@ -99,6 +99,36 @@ class ColorSpace:
         meshio.write_points_cells(
             filename, pts, {"tetra": cells}, point_data={"hdr-rgb": rgb}
         )
+        return
+
+    def save_cone_gamut(self, filename, observer, max_Y):
+        import meshio
+        import pygmsh
+        geom = pygmsh.built_in.Geometry()
+
+        max_stepsize = 4.0e-2
+        xy = get_mono_outline_xy(observer, max_stepsize=max_stepsize)
+
+        # append third component
+        xy = numpy.column_stack([xy, numpy.full(xy.shape[0], 1.0e-5)])
+
+        # Draw a cross.
+        poly = geom.add_polygon(xy, lcar=max_stepsize)
+
+        axis = [0, 0, max_Y]
+
+        geom.extrude(
+            poly,
+            translation_axis=axis,
+            point_on_axis=[0, 0, 0],
+        )
+
+        mesh = pygmsh.generate_mesh(geom, verbose=False)
+        # meshio.write(filename, mesh)
+        # print(filename)
+
+        pts = self.from_xyz100(_xyy_to_xyz100(mesh.points.T)).T
+        meshio.write_points_cells(filename, pts, {"tetra": mesh.cells["tetra"]})
         return
 
     def show_ebner_fairchild(self):
@@ -282,3 +312,15 @@ def _plot_color_constancy_data(data, wp, colorspace, approximate_colors_in_srgb=
 
     plt.axis("equal")
     return
+
+
+def _xyy_from_xyz100(xyz):
+    sum_xyz = numpy.sum(xyz, axis=0)
+    x = xyz[0]
+    y = xyz[1]
+    return numpy.array([x / sum_xyz, y / sum_xyz, y / 100])
+
+
+def _xyy_to_xyz100(xyy):
+    x, y, Y = xyy
+    return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100

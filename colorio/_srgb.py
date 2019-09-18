@@ -30,6 +30,7 @@ class SrgbLinear:
             self.invM = (self.invM.T * correction).T
 
         self.invM /= 100
+
         # numpy.linalg.inv(self.invM) is the matrix in the spec:
         # M = numpy.array([
         #     [+3.2406255, -1.537208, -0.4986286],
