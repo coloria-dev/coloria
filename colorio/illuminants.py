@@ -32,10 +32,41 @@ def spectrum_to_xyz100(spectrum, observer):
     """Computes the tristimulus values XYZ from a given spectrum for a given observer
     via
 
-    X_i = int_lambda spectrum_i(lambda) * observer_i(lambda) dlambda.
+      X_i = sum_lambda spectrum_i(lambda) * observer_i(lambda) delta_lambda.
 
-    In section 7, the technical report CIE Standard Illuminants for Colorimetry, 1999,
-    gives a recommendation on how to perform the computation.
+    The technical report CIE Standard Illuminants for Colorimetry, 1999, section 7
+    ("Recommendations concerning the calculation of tristimulus values and chromaticity
+    coordinates"), gives a recommendation on how to perform the computation:
+
+    > The CIE Standard (CIE, 1986a) on standard colorimetric observers recommends that
+    > the CIE tristimulus values of a colour stimulus be obtained by multiplying at each
+    > wavelength the value of the colour stimulus function phi_lambda(lambda) by that of
+    > each of the CIE colour-matching functions and integrating each set of products
+    > over the wavelength range corresponding to the entire visible spectrum, 360 nm to
+    > 830 nm. The integration can be carried out by numerical summation at wavelength
+    > intervals, delta lmbda, equal to 1 nm.
+
+    Note that the above sum is supposed to approximate the integral
+
+      int_lambda spectrum_i(lambda) * observer_i(lambda) dlambda.
+
+    It gets a little tricky when asking what the correct value is for monochromatic
+    light. Mathematically, one would insert a scaled delta distribution for spectrum_i
+    to get a * observer_i(lambda0). It would be easy to assume that you do the same in
+    the corresponding sum above, but there you get
+
+      a * observer_i(lambda0) * delta_lambda.
+
+    So just using a unity vector for spectrum_i in the sum does _not_ correspond to
+    monochromatic light, but rather light of a very small bandwidth (between
+    lambda0 - delta_lambda and lambda0 + delta_lambda).
+
+    To get a more consistent view on things, it is useful to look at observer_i as a
+    piecewise linear function, and the spectrum vector as a piecewise constant function.
+    The above sum accurately represents the integral of the product of the two.
+
+    Note that any constant factor (like delta_lambda) gets canceled out in x and y (of
+    xyY), so being careless might not be punished in all applications.
     """
     lambda_o, data_o = observer
     lambda_s, data_s = spectrum

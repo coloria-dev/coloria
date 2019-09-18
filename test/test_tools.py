@@ -18,6 +18,20 @@ def test_srgb_gamut(colorspace, cut_000, n=10):
 
 
 @pytest.mark.parametrize(
+    "colorspace",
+    [
+        colorio.CIELAB(),
+        colorio.XYY(),
+        colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
+    ],
+)
+def test_cone_gamut(colorspace, n=10):
+    observer = colorio.observers.cie_1931_2()
+    colorspace.save_cone_gamut("cone.vtu", observer, max_Y=1)
+    return
+
+
+@pytest.mark.parametrize(
     "colorspace", [colorio.CIELAB(), colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5)]
 )
 def test_hdr_gamut(colorspace, n=10):
@@ -120,7 +134,7 @@ def test_xy_gamut_mesh():
 
 
 if __name__ == "__main__":
-    test_luo_rigg()
+    # test_luo_rigg()
     # test_xy_gamut_mesh()
     # test_macadam()
     # colorspace_ = colorio.SrgbLinear()
@@ -141,3 +155,6 @@ if __name__ == "__main__":
     # test_xiao(colorspace_)
     # test_show_straights(colorspace_)
     # test_munsell(colorspace_)
+    # test_cone_gamut(colorio.XYY())
+    test_cone_gamut(colorio.XYZ())
+    # test_cone_gamut(colorio.CIELAB())

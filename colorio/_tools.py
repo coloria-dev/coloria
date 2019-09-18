@@ -470,14 +470,13 @@ def xy_gamut_mesh(lcar):
 
     # Gather all points on the horseshoe outline
     lmbda = 1.0e-9 * numpy.arange(380, 701)
-    all_points = []
-    for k, _ in enumerate(lmbda):
+    all_points = numpy.empty((len(lmbda), 2))
+    for k in range(len(lmbda)):
         data = numpy.zeros(len(lmbda))
         data[k] = 1.0
-        all_points.append(
-            _xyy_from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[:2]
-        )
-    all_points = numpy.array(all_points)
+        all_points[k] = _xyy_from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[
+            :2
+        ]
 
     # Generate gmsh geometry: spline + straight line
     all_points = numpy.column_stack([all_points, numpy.zeros(len(all_points))])
@@ -493,3 +492,46 @@ def xy_gamut_mesh(lcar):
         mesh.points, mesh.cells["triangle"], 1.0e-2, 100, omega=2.0
     )
     return points, cells
+
+
+def get_mono_outline_xy(observer, max_stepsize, max_angle=None):
+    """Monochromatic light of different frequencies form a horseshoe-like shape in
+    xy-space. Get the outline of that space.
+    """
+    lmbda, data = observer
+
+    m = lmbda.shape[0]
+    mono = numpy.zeros(m)
+
+    # first the straight connector at the bottom
+    mono[:] = 0.0
+    mono[-1] = 1.0
+    first = _xyy_from_xyz100(spectrum_to_xyz100((lmbda, mono), observer))[:2]
+    mono[:] = 0.0
+    mono[0] = 1.0
+    last = _xyy_from_xyz100(spectrum_to_xyz100((lmbda, mono), observer))[:2]
+    #
+    diff = first - last
+    dist = numpy.sqrt(numpy.sum(diff ** 2))
+    num_steps = dist / max_stepsize
+    num_steps = int(num_steps) + 2
+    #
+    vals = []
+    for t in numpy.linspace(0, 1, num_steps):
+        vals.append(first * (1 - t) + last * t)
+
+    k = 1
+    while k < m:
+        mono[:] = 0.0
+        mono[k] = 1.0
+        val = _xyy_from_xyz100(spectrum_to_xyz100((lmbda, mono), observer))[:2]
+
+        diff = vals[-1] - val
+        dist = numpy.sqrt(numpy.dot(diff, diff))
+
+        if dist > max_stepsize:
+            vals.append(val)
+
+        k += 1
+
+    return numpy.array(vals)
