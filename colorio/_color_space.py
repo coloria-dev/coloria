@@ -3,7 +3,6 @@ import os
 import matplotlib.pyplot as plt
 import numpy
 import yaml
-from scipy.optimize import leastsq
 from scipy.spatial import ConvexHull
 
 from ._hdr import HdrLinear
@@ -270,23 +269,18 @@ def _plot_color_constancy_data(data, wp, colorspace, approximate_colors_in_srgb=
         # over theta, which means to minimize the orthogonal component of of (x_i, y_i)
         # to (cos(theta), sin(theta)).
         #
-        # A more simple and effective approach is simply to use the angle of the average
-        # of all points,
+        # A more simple and effective approach is to use the average of all points,
         #    theta = arctan(sum(y_i) / sum(x_i)).
+        # This also fits in nicely with minimization problems which move around the
+        # points to minimize the difference from the average,
         #
-        theta = numpy.arctan2(numpy.sum(y), numpy.sum(x))
-
+        #    sum_j (y_j / x_j - bar{y} / bar{x}) ** 2 -> min,
+        #    sum_j (y_j bar{x} - x_j bar{y}) ** 2 -> min.
+        #
         # Plot it from wp to the outmost point
         length = numpy.sqrt(numpy.max(numpy.einsum("ij,ij->j", xy, xy)))
-        # The solution theta can be rotated by pi and still give the same result. Find
-        # out on which side all the points are sitting and plot the line accordingly.
-        ex = length * numpy.array([numpy.cos(theta), numpy.sin(theta)])
-
-        end_point = wp + ex
-        ep_d = numpy.linalg.norm(end_point - d[:, -1])
-        ep_wp = numpy.linalg.norm(end_point - wp)
-        if ep_d > ep_wp:
-            end_point = wp - ex
+        avg = numpy.sum(xy, axis=1)
+        end_point = length * avg / numpy.sqrt(numpy.sum(avg ** 2))
         plt.plot([wp[0], end_point[0]], [wp[1], end_point[1]], "-", color="0.5")
 
         # Deliberatly only handle the last two components, e.g., a* b* from L*a*b*. They
