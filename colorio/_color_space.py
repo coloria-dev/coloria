@@ -8,7 +8,7 @@ from scipy.spatial import ConvexHull
 
 from ._hdr import HdrLinear
 from ._srgb import SrgbLinear
-from ._tools import get_mono_outline_xy, get_munsell_data, spectrum_to_xyz100, partition
+from ._tools import get_mono_outline_xy, get_munsell_data, spectrum_to_xyz100
 from .illuminants import whitepoints_cie1931
 from .observers import cie_1931_2
 
@@ -154,7 +154,7 @@ class ColorSpace:
         plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
 
         if plot_srgb_triangle:
-            self._plot_rgb_triangle(k0, level)
+            self._plot_srgb_triangle(k0, level)
 
         plt.axis("equal")
         plt.xlabel(self.labels[k1])
@@ -209,13 +209,9 @@ class ColorSpace:
         # )
         return
 
-    def _plot_rgb_triangle(self, k0, level, bright=False):
-        # plot sRGB triangle
-        # number of discretization points
-        n = 10
+    def _plot_srgb_triangle(self, k0, level, bright=False):
+        import meshzoo
 
-        # Get all RGB values that sum up to 1.
-        srgb_vals = numpy.array(partition(3, n)).T / n
         # if bright:
         #     # For the x-y-diagram, it doesn't matter if the values are scaled in any
         #     # way.  After all, the translation to XYZ is linear, and then to xyY it's
@@ -223,14 +219,20 @@ class ColorSpace:
         #     # component which is discarded. To make the plot a bit brighter, scale the
         #     # colors up as much as possible.
         #     rgb_linear /= numpy.max(rgb_linear, axis=0)
-        triang = matplotlib.tri.Triangulation(srgb_vals[0], srgb_vals[1])
+
+        # Get all RGB values that sum up to 1.
+        srgb_vals, triangles = meshzoo.triangle(
+            n=20,
+            corners=numpy.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]),
+        )
+        srgb_vals = numpy.column_stack([srgb_vals, 1.0 - numpy.sum(srgb_vals, axis=1)])
 
         # Use bisection to
         srgb_linear = SrgbLinear()
         tol = 1.0e-5
-        self_vals = numpy.empty((srgb_vals.shape[1], 3))
-        mask = numpy.ones(srgb_vals.shape[1], dtype=bool)
-        for k, val in enumerate(srgb_vals.T):
+        self_vals = numpy.empty((srgb_vals.shape[0], 3))
+        mask = numpy.ones(srgb_vals.shape[0], dtype=bool)
+        for k, val in enumerate(srgb_vals):
             alpha_min = 0.0
             xyz100 = srgb_linear.to_xyz100(val * alpha_min)
             self_val_min = self.from_xyz100(xyz100)
@@ -259,12 +261,8 @@ class ColorSpace:
             self_vals[k] = self_val
 
         # Remove all masked points and all triangles which have masked corner points
-        tri_mask = numpy.all(mask[triang.triangles], axis=1)
-        triangles = triang.triangles[tri_mask]
-
-        # print(self_vals.shape)
-        # print(numpy.max(triangles))
-        # exit(1)
+        tri_mask = numpy.all(mask[triangles], axis=1)
+        triangles = triangles[tri_mask]
 
         # Unfortunately, one cannot use tripcolors with explicit RGB specification
         # (see <https://github.com/matplotlib/matplotlib/issues/10265>). As a
