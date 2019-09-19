@@ -8,7 +8,7 @@ from scipy.spatial import ConvexHull
 
 from ._hdr import HdrLinear
 from ._srgb import SrgbLinear
-from ._tools import get_munsell_data, spectrum_to_xyz100, get_mono_outline_xy
+from ._tools import get_mono_outline_xy, get_munsell_data, spectrum_to_xyz100
 from .illuminants import whitepoints_cie1931
 
 
@@ -260,32 +260,27 @@ def _plot_color_constancy_data(data, wp, colorspace, approximate_colors_in_srgb=
     srgb = SrgbLinear()
     for xyz in data:
         d = colorspace.from_xyz100(xyz)[1:]
+        xy = (d.T - wp).T
+        x, y = xy
 
-        # Find best fit line through all points
-        def f(theta, D=d):
-            return +numpy.sin(theta) * (D[0] - wp[0]) + numpy.cos(theta) * (
-                D[1] - wp[1]
-            )
-
-        def jac(theta, D=d):
-            return +numpy.cos(theta) * (D[0] - wp[0]) - numpy.sin(theta) * (
-                D[1] - wp[1]
-            )
-
-        # out = least_squares(f, 0.0)
-        # out = leastsq(f, 0.0, full_output=True)
-
-        out, _ = leastsq(f, 0.0, Dfun=jac)
-        # We have to take the first element here, see
-        # <https://github.com/scipy/scipy/issues/8532>.
-        theta = out[0]
+        # There are numerous possibilities of defining the "best" approximating line for
+        # a bunch of points (x_i, y_i). For example, one could try and minimize the
+        # expression
+        #    sum_i (-numpy.sin(theta) * x_i + numpy.cos(theta) * y_i) ** 2
+        # over theta, which means to minimize the orthogonal component of of (x_i, y_i)
+        # to (cos(theta), sin(theta)).
+        #
+        # A more simple and effective approach is simply to use the angle of the average
+        # of all points,
+        #    theta = arctan(sum(y_i) / sum(x_i)).
+        #
+        theta = numpy.arctan2(numpy.sum(y), numpy.sum(x))
 
         # Plot it from wp to the outmost point
-        length = numpy.sqrt(numpy.max(numpy.einsum("ij,ij->i", (d.T - wp), (d.T - wp))))
-        # The solution theta can be rotated by pi and still give the same
-        # result. Find out on which side all the points are sitting and plot
-        # the line accordingly.
-        ex = length * numpy.array([numpy.cos(theta), -numpy.sin(theta)])
+        length = numpy.sqrt(numpy.max(numpy.einsum("ij,ij->j", xy, xy)))
+        # The solution theta can be rotated by pi and still give the same result. Find
+        # out on which side all the points are sitting and plot the line accordingly.
+        ex = length * numpy.array([numpy.cos(theta), numpy.sin(theta)])
 
         end_point = wp + ex
         ep_d = numpy.linalg.norm(end_point - d[:, -1])
@@ -294,8 +289,8 @@ def _plot_color_constancy_data(data, wp, colorspace, approximate_colors_in_srgb=
             end_point = wp - ex
         plt.plot([wp[0], end_point[0]], [wp[1], end_point[1]], "-", color="0.5")
 
-        # Deliberatly only handle the two last components, e.g., a* b* from
-        # L*a*b*. They typically indicate the chroma.
+        # Deliberatly only handle the last two components, e.g., a* b* from L*a*b*. They
+        # typically indicate the chroma.
         for dd, rgb in zip(d.T, srgb.from_xyz100(xyz).T):
             if approximate_colors_in_srgb:
                 is_legal_srgb = True
