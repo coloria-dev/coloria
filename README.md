@@ -173,7 +173,7 @@ colorio.show_luo_rigg(plot_rgb_triangle=True, ellipse_scaling=1.5)
 
 ###### Ebner-Fairchild
 
-<img src="https://nschloe.github.io/colorio/ebner_fairchild_jzazbz.png" width="40%">
+<img src="https://nschloe.github.io/colorio/ebner_fairchild_jzazbz.svg" width="40%">
 
 For example
 ```python
@@ -191,7 +191,7 @@ set sit on a line.)
 ###### Hung-Berns
 Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
 
-<img src="https://nschloe.github.io/colorio/hung_berns_jzazbz.png" width="40%">
+<img src="https://nschloe.github.io/colorio/hung_berns_jzazbz.svg" width="40%">
 
 ```python
 import colorio
@@ -203,7 +203,7 @@ colorspace.show_hung_berns()
 ###### Xiao et al.
 Likewise for [Xiao et al.](https://doi.org/10.1002/col.20637):
 
-<img src="https://nschloe.github.io/colorio/xiao.png" width="40%">
+<img src="https://nschloe.github.io/colorio/xiao-cielab.svg" width="40%">
 
 ```python
 import colorio
