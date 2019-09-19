@@ -149,27 +149,11 @@ class ColorSpace:
         plot_srgb_triangle=True,
         ellipse_scaling=10.0,
     ):
-        # first plot the monochromatic outline
-        mono_xy, conn_xy = get_mono_outline_xy(
-            observer=cie_1931_2(), max_stepsize=outline_prec
-        )
-
-        mono_vals = numpy.array([self._bisect(xy, k0, level) for xy in mono_xy])
-        conn_vals = numpy.array([self._bisect(xy, k0, level) for xy in conn_xy])
-
-        idx = [0, 1, 2]
-        k1, k2 = idx[:k0] + idx[k0 + 1 :]
-        plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
-        plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
-
-        if plot_srgb_triangle:
-            self._plot_srgb_triangle(k0, level)
-
-        # Now the Macadams ellipses
+        # Extract ellipse centers and offsets from MacAdams data
         dir_path = os.path.dirname(os.path.realpath(__file__))
         with open(os.path.join(dir_path, "data/macadam1942/table3.yaml")) as f:
             data = yaml.safe_load(f)
-
+        #
         # collect the ellipse centers and offsets
         xy_centers = []
         xy_offsets = []
@@ -185,6 +169,105 @@ class ColorSpace:
                 continue
             xy_centers.append([datak["x"], datak["y"]])
             xy_offsets.append(numpy.column_stack([+offset, -offset]))
+
+        self._plot_ellipses(
+            xy_centers,
+            xy_offsets,
+            k0,
+            level,
+            outline_prec=outline_prec,
+            plot_srgb_triangle=plot_srgb_triangle,
+            ellipse_scaling=ellipse_scaling,
+        )
+        return
+
+    def show_luo_rigg(self, *args, **kwargs):
+        self.plot_luo_rigg(*args, **kwargs)
+        plt.show()
+        return
+
+    def save_luo_rigg(self, filename, *args, **kwargs):
+        self.plot_luo_rigg(*args, **kwargs)
+        plt.savefig(filename, transparent=True, bbox_inches="tight")
+        return
+
+    def plot_luo_rigg(
+        self,
+        k0,
+        level,
+        outline_prec=1.0e-2,
+        plot_srgb_triangle=True,
+        ellipse_scaling=2.0,
+    ):
+        # M. R. Luo, B. Rigg,
+        # Chromaticity Discrimination Ellipses for Surface Colours,
+        # Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25-42,
+        # <https://doi.org/10.1002/col.5080110107>.
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.join(dir_path, "data/luo-rigg/luo-rigg.yaml")) as f:
+            data = yaml.safe_load(f)
+        #
+        xy_centers = []
+        xy_offsets = []
+        # collect the ellipse centers and offsets
+        # Use four offset points of each ellipse, one could take more
+        alpha = 2 * numpy.pi * numpy.linspace(0.0, 1.0, 16, endpoint=False)
+        pts = numpy.array([numpy.cos(alpha), numpy.sin(alpha)])
+        for data_set in data.values():
+            # The set factor is the mean of the R values
+            # set_factor = sum([dat[-1] for dat in data_set.values()]) / len(data_set)
+            for dat in data_set.values():
+                x, y, Y, a, a_div_b, theta_deg, _ = dat
+                theta = theta_deg * 2 * numpy.pi / 360
+                a /= 1.0e4
+                a *= (Y / 30) ** 0.2
+                b = a / a_div_b
+                # plot the ellipse
+                xy_centers.append([x, y])
+                J = numpy.array(
+                    [
+                        [+a * numpy.cos(theta), -b * numpy.sin(theta)],
+                        [+a * numpy.sin(theta), +b * numpy.cos(theta)],
+                    ]
+                )
+                xy_offsets.append(numpy.dot(J, pts))
+
+        self._plot_ellipses(
+            xy_centers,
+            xy_offsets,
+            k0,
+            level,
+            outline_prec=outline_prec,
+            plot_srgb_triangle=plot_srgb_triangle,
+            ellipse_scaling=ellipse_scaling,
+        )
+        return
+
+    def _plot_ellipses(
+        self,
+        xy_centers,
+        xy_offsets,
+        k0,
+        level,
+        outline_prec=1.0e-2,
+        plot_srgb_triangle=True,
+        ellipse_scaling=10.0,
+    ):
+        # first plot the monochromatic outline
+        mono_xy, conn_xy = get_mono_outline_xy(
+            observer=cie_1931_2(), max_stepsize=outline_prec
+        )
+
+        mono_vals = numpy.array([self._bisect(xy, k0, level) for xy in mono_xy])
+        conn_vals = numpy.array([self._bisect(xy, k0, level) for xy in conn_xy])
+
+        idx = [0, 1, 2]
+        k1, k2 = idx[:k0] + idx[k0 + 1 :]
+        plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
+        plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
+
+        if plot_srgb_triangle:
+            self._plot_srgb_triangle(k0, level)
 
         for center, offset in zip(xy_centers, xy_offsets):
             # get all the approximate ellipse points in xy space
@@ -257,14 +340,6 @@ class ColorSpace:
 
     def _plot_srgb_triangle(self, k0, level, bright=False):
         import meshzoo
-
-        # if bright:
-        #     # For the x-y-diagram, it doesn't matter if the values are scaled in any
-        #     # way.  After all, the translation to XYZ is linear, and then to xyY it's
-        #     # (X/(X+Y+Z), Y/(X+Y+Z), Y), so the factor will only be present in the last
-        #     # component which is discarded. To make the plot a bit brighter, scale the
-        #     # colors up as much as possible.
-        #     rgb_linear /= numpy.max(rgb_linear, axis=0)
 
         # Get all RGB values that sum up to 1.
         srgb_vals, triangles = meshzoo.triangle(n=50, corners=[[0, 0], [1, 0], [0, 1]])
