@@ -4,6 +4,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy
 import yaml
+from matplotlib.patches import Ellipse
+from scipy.optimize import leastsq
 from scipy.spatial import ConvexHull
 
 from ._hdr import HdrLinear
@@ -139,14 +141,21 @@ class ColorSpace:
         plt.savefig(filename, transparent=True, bbox_inches="tight")
         return
 
-    def plot_macadams(self, k0, level, outline_prec=1.0e-2, plot_srgb_triangle=True):
+    def plot_macadams(
+        self,
+        k0,
+        level,
+        outline_prec=1.0e-2,
+        plot_srgb_triangle=True,
+        ellipse_scaling=10.0,
+    ):
         # first plot the monochromatic outline
         mono_xy, conn_xy = get_mono_outline_xy(
             observer=cie_1931_2(), max_stepsize=outline_prec
         )
 
-        mono_vals = self._bisect(mono_xy, k0, level)
-        conn_vals = self._bisect(conn_xy, k0, level)
+        mono_vals = numpy.array([self._bisect(xy, k0, level) for xy in mono_xy])
+        conn_vals = numpy.array([self._bisect(xy, k0, level) for xy in conn_xy])
 
         idx = [0, 1, 2]
         k1, k2 = idx[:k0] + idx[k0 + 1 :]
@@ -156,57 +165,96 @@ class ColorSpace:
         if plot_srgb_triangle:
             self._plot_srgb_triangle(k0, level)
 
+        # Now the Macadams ellipses
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.join(dir_path, "data/macadam1942/table3.yaml")) as f:
+            data = yaml.safe_load(f)
+
+        # collect the ellipse centers and offsets
+        xy_centers = []
+        xy_offsets = []
+        for datak in data:
+            # collect ellipse points
+            _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak["data"]).T
+            offset = (
+                numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
+                / numpy.sqrt(1 + delta_y_delta_x ** 2)
+                * delta_s
+            )
+            if offset.shape[1] < 2:
+                continue
+            xy_centers.append([datak["x"], datak["y"]])
+            xy_offsets.append(numpy.column_stack([+offset, -offset]))
+
+        for center, offset in zip(xy_centers, xy_offsets):
+            # get all the approximate ellipse points in xy space
+            xy_ellipse = (center + offset.T).T
+
+            tcenter = self._bisect(center, k0, level)
+            tvals = numpy.array([self._bisect(xy, k0, level) for xy in xy_ellipse.T])
+
+            # cut off the irrelevant index
+            assert k0 == 0
+            tcenter = tcenter[1:]
+            tvals = tvals[:, 1:]
+
+            # Given these new transformed vals, find the ellipse that best fits those
+            # points
+            X = (tvals - tcenter).T
+
+            def f_ellipse(a_b_theta):
+                a, b, theta = a_b_theta
+                sin_t = numpy.sin(theta)
+                cos_t = numpy.cos(theta)
+                return (
+                    +a ** 2 * (X[0] * cos_t + X[1] * sin_t) ** 2
+                    + b ** 2 * (X[0] * sin_t - X[1] * cos_t) ** 2
+                    - 1.0
+                )
+
+            def jac(a_b_theta):
+                a, b, theta = a_b_theta
+                sin_t = numpy.sin(theta)
+                cos_t = numpy.cos(theta)
+                return numpy.array(
+                    [
+                        +2 * a * (X[0] * cos_t + X[1] * sin_t) ** 2,
+                        +2 * b * (X[0] * sin_t - X[1] * cos_t) ** 2,
+                        +a ** 2
+                        * 2
+                        * (X[0] * cos_t + X[1] * sin_t)
+                        * (-X[0] * sin_t + X[1] * cos_t)
+                        + b ** 2
+                        * 2
+                        * (X[0] * sin_t - X[1] * cos_t)
+                        * (X[0] * cos_t + X[1] * sin_t),
+                    ]
+                ).T
+
+            # We need to use some optimization here to find the new ellipses which best
+            # fit the modified data.
+            (a, b, theta), _ = leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac)
+
+            # plot the scaled ellipse
+            e = Ellipse(
+                xy=tcenter,
+                width=ellipse_scaling * 2 / a,
+                height=ellipse_scaling * 2 / b,
+                angle=theta / numpy.pi * 180,
+                # label=label,
+            )
+            plt.gca().add_artist(e)
+            e.set_alpha(0.5)
+            e.set_facecolor("k")
+
+            # plt.plot(tvals[:, 0], tvals[:, 1], "xk")
+
         plt.axis("equal")
         plt.xlabel(self.labels[k1])
         plt.ylabel(self.labels[k2])
         plt.title(f"{self.labels[k0]} = {level}")
         plt.show()
         exit(1)
-
-        # dir_path = os.path.dirname(os.path.realpath(__file__))
-        # with open(os.path.join(dir_path, "data/macadam1942/table3.yaml")) as f:
-        #     data = yaml.safe_load(f)
-
-        # # if plot_filter_positions:
-        # #     with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
-        # #         filters_xyz = yaml.safe_load(f)
-        # #     filters_xyz = {
-        # #         key: 100 * numpy.array(value) for key, value in filters_xyz.items()
-        # #         }
-        # #     for key, xyz in filters_xyz.items():
-        # #         x, y = xyz100_to_2d(xyz)
-        # #         plt.plot(x, y, 'xk')
-        # #         ax.annotate(key, (x, y))
-
-        # # collect the ellipse centers and offsets
-        # centers = []
-        # offsets = []
-        # for datak in data:
-        #     # collect ellipse points
-        #     _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak["data"]).T
-
-        #     offset = (
-        #         numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
-        #         / numpy.sqrt(1 + delta_y_delta_x ** 2)
-        #         * delta_s
-        #     )
-
-        #     if offset.shape[1] < 2:
-        #         continue
-
-        #     centers.append([datak["x"], datak["y"]])
-        #     offsets.append(numpy.column_stack([+offset, -offset]))
-
-        # centers = numpy.array(centers)
-
-        # _plot_ellipse_data(
-        #     centers,
-        #     offsets,
-        #     ellipse_scaling=ellipse_scaling,
-        #     xy_to_2d=xy_to_2d,
-        #     mesh_resolution=mesh_resolution,
-        #     plot_rgb_triangle=plot_rgb_triangle,
-        # )
         return
 
     def _plot_srgb_triangle(self, k0, level, bright=False):
@@ -221,7 +269,7 @@ class ColorSpace:
         #     rgb_linear /= numpy.max(rgb_linear, axis=0)
 
         # Get all RGB values that sum up to 1.
-        srgb_vals, triangles = meshzoo.triangle(n=20, corners=[[0, 0], [1, 0], [0, 1]])
+        srgb_vals, triangles = meshzoo.triangle(n=50, corners=[[0, 0], [1, 0], [0, 1]])
         srgb_vals = numpy.column_stack([srgb_vals, 1.0 - numpy.sum(srgb_vals, axis=1)])
 
         # Use bisection to
@@ -289,40 +337,36 @@ class ColorSpace:
 
     def _bisect(self, xy, k0, level):
         tol = 1.0e-5
-        vals = numpy.empty((xy.shape[0], 3))
-        for k, (x, y) in enumerate(xy):
-            # Use bisection to find a matching Y value that projects the xy into the
-            # given level.
-            min_Y = 0.0
-            xyz100 = numpy.array([min_Y / y * x, min_Y, min_Y / y * (1 - x - y)]) * 100
-            min_val = self.from_xyz100(xyz100)[k0]
-            assert min_val <= level
+        x, y = xy
+        # Use bisection to find a matching Y value that projects the xy into the
+        # given level.
+        min_Y = 0.0
+        xyz100 = numpy.array([min_Y / y * x, min_Y, min_Y / y * (1 - x - y)]) * 100
+        min_val = self.from_xyz100(xyz100)[k0]
+        assert min_val <= level
 
-            # search for an appropriate max_Y to start with
-            max_Y = 1.0
-            while True:
-                xyz100 = (
-                    numpy.array([max_Y / y * x, max_Y, max_Y / y * (1 - x - y)]) * 100
-                )
-                max_val = self.from_xyz100(xyz100)[k0]
-                if max_val >= level:
-                    break
-                max_Y *= 2
+        # search for an appropriate max_Y to start with
+        max_Y = 1.0
+        while True:
+            xyz100 = numpy.array([max_Y / y * x, max_Y, max_Y / y * (1 - x - y)]) * 100
+            max_val = self.from_xyz100(xyz100)[k0]
+            if max_val >= level:
+                break
+            max_Y *= 2
 
-            while True:
-                Y = (max_Y + min_Y) / 2
-                xyz100 = numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
-                val = self.from_xyz100(xyz100)
-                if abs(val[k0] - level) < tol:
-                    break
-                elif val[k0] > level:
-                    max_Y = Y
-                else:
-                    assert val[k0] < level
-                    min_Y = Y
+        while True:
+            Y = (max_Y + min_Y) / 2
+            xyz100 = numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
+            val = self.from_xyz100(xyz100)
+            if abs(val[k0] - level) < tol:
+                break
+            elif val[k0] > level:
+                max_Y = Y
+            else:
+                assert val[k0] < level
+                min_Y = Y
 
-            vals[k] = val
-        return vals
+        return val
 
     def show_ebner_fairchild(self):
         self.plot_ebner_fairchild()
