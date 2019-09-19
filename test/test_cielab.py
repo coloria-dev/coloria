@@ -51,12 +51,22 @@ def test_reference_xyz_d50(xyz100, ref):
 
 
 def test_macadams():
-    cielab = colorio.CIELAB()
-    cielab.plot_macadams(0, 50)
+    # cielab = colorio.CIELAB()
+    # cielab.show_macadams(0, 50)
     # cieluv = colorio.CIELUV()
-    # cieluv.plot_macadams(0, 30)
+    # cieluv.show_macadams(0, 50)
+    # cieluv = colorio.JzAzBz()
+    # cieluv.show_macadams(0, 0.1)
     # xyy = colorio.XYY()
-    # xyy.plot_macadams(1.5, k0=2)
+    # xyy.show_macadams(1.5, k0=2)
+    #
+    # L_A = 64 / numpy.pi / 5
+    # cam02 = colorio.CAM02("UCS", 0.69, 20, L_A)
+    # cam02.show_macadams(0, 50)
+    #
+    L_A = 64 / numpy.pi / 5
+    cam16 = colorio.CAM16UCS(0.69, 20, L_A)
+    cam16.show_macadams(0, 60)
     return
 
 

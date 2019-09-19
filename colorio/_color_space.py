@@ -253,8 +253,6 @@ class ColorSpace:
         plt.xlabel(self.labels[k1])
         plt.ylabel(self.labels[k2])
         plt.title(f"{self.labels[k0]} = {level}")
-        plt.show()
-        exit(1)
         return
 
     def _plot_srgb_triangle(self, k0, level, bright=False):
@@ -309,6 +307,8 @@ class ColorSpace:
 
         # Remove all masked points and all triangles which have masked corner points
         tri_mask = numpy.all(mask[triangles], axis=1)
+        if ~numpy.any(tri_mask):
+            return
         triangles = triangles[tri_mask]
 
         # Unfortunately, one cannot use tripcolors with explicit RGB specification (see
