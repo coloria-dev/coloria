@@ -515,23 +515,24 @@ def get_mono_outline_xy(observer, max_stepsize, max_angle=None):
     dist = numpy.sqrt(numpy.sum(diff ** 2))
     num_steps = dist / max_stepsize
     num_steps = int(num_steps) + 2
-    #
-    vals = []
-    for t in numpy.linspace(0, 1, num_steps):
-        vals.append(first * (1 - t) + last * t)
+    # connection between lowest and highest frequencies
+    vals_conn = numpy.array([
+        first * (1 - t) + last * t
+        for t in numpy.linspace(0, 1, num_steps)
+    ])
 
-    k = 1
-    while k < m:
+    vals_mono = [vals_conn[-1]]
+    for k in range(1, m):
         mono[:] = 0.0
         mono[k] = 1.0
         val = _xyy_from_xyz100(spectrum_to_xyz100((lmbda, mono), observer))[:2]
 
-        diff = vals[-1] - val
+        diff = vals_mono[-1] - val
         dist = numpy.sqrt(numpy.dot(diff, diff))
 
         if dist > max_stepsize:
-            vals.append(val)
+            vals_mono.append(val)
+    vals_mono.append(vals_conn[0])
+    vals_mono = numpy.array(vals_mono)
 
-        k += 1
-
-    return numpy.array(vals)
+    return vals_mono, vals_conn

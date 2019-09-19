@@ -48,3 +48,17 @@ def test_reference_xyz_d50(xyz100, ref):
         abs(cielab.from_xyz100(xyz100) - ref) < 1.0e-4 * abs(numpy.array(ref))
     )
     return
+
+
+def test_macadams():
+    # cielab = colorio.CIELAB()
+    # cielab.plot_macadams(0, 30)
+    cieluv = colorio.CIELUV()
+    cieluv.plot_macadams(0, 30)
+    # xyy = colorio.XYY()
+    # xyy.plot_macadams(1.5, k0=2)
+    return
+
+
+if __name__ == "__main__":
+    test_macadams()

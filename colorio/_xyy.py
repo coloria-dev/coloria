@@ -8,11 +8,12 @@ class XYY(ColorSpace):
         self.labels = ["x", "y", "Y"]
         return
 
-    def from_xyz100(self, xyz):
+    def from_xyz100(self, xyz100):
+        xyz = xyz100 / 100
         sum_xyz = numpy.sum(xyz, axis=0)
         x = xyz[0]
         y = xyz[1]
-        return numpy.array([x / sum_xyz, y / sum_xyz, y / 100])
+        return numpy.array([x / sum_xyz, y / sum_xyz, y])
 
     def to_xyz100(self, xyy):
         x, y, Y = xyy

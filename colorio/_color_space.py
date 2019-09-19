@@ -1,5 +1,6 @@
 import os
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy
 import yaml
@@ -7,8 +8,9 @@ from scipy.spatial import ConvexHull
 
 from ._hdr import HdrLinear
 from ._srgb import SrgbLinear
-from ._tools import get_mono_outline_xy, get_munsell_data, spectrum_to_xyz100
+from ._tools import get_mono_outline_xy, get_munsell_data, spectrum_to_xyz100, partition
 from .illuminants import whitepoints_cie1931
+from .observers import cie_1931_2
 
 
 class ColorSpace:
@@ -126,6 +128,198 @@ class ColorSpace:
         pts = self.from_xyz100(_xyy_to_xyz100(mesh.points.T)).T
         meshio.write_points_cells(filename, pts, {"tetra": mesh.cells["tetra"]})
         return
+
+    def show_macadams(self, *args):
+        self.plot_macadams(*args)
+        plt.show()
+        return
+
+    def save_macadams(self, filename, *args):
+        self.plot_macadams()
+        plt.savefig(filename, transparent=True, bbox_inches="tight")
+        return
+
+    def plot_macadams(self, k0, level, outline_prec=1.0e-2, plot_srgb_triangle=True):
+        # first plot the monochromatic outline
+        mono_xy, conn_xy = get_mono_outline_xy(
+            observer=cie_1931_2(), max_stepsize=outline_prec
+        )
+
+        mono_vals = self._bisect(mono_xy, k0, level)
+        conn_vals = self._bisect(conn_xy, k0, level)
+
+        idx = [0, 1, 2]
+        k1, k2 = idx[:k0] + idx[k0 + 1 :]
+        plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
+        plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
+
+        if plot_srgb_triangle:
+            self._plot_rgb_triangle(k0, level)
+
+        plt.axis("equal")
+        plt.xlabel(self.labels[k1])
+        plt.ylabel(self.labels[k2])
+        plt.title(f"{self.labels[k0]} = {level}")
+        plt.show()
+        exit(1)
+
+        # dir_path = os.path.dirname(os.path.realpath(__file__))
+        # with open(os.path.join(dir_path, "data/macadam1942/table3.yaml")) as f:
+        #     data = yaml.safe_load(f)
+
+        # # if plot_filter_positions:
+        # #     with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
+        # #         filters_xyz = yaml.safe_load(f)
+        # #     filters_xyz = {
+        # #         key: 100 * numpy.array(value) for key, value in filters_xyz.items()
+        # #         }
+        # #     for key, xyz in filters_xyz.items():
+        # #         x, y = xyz100_to_2d(xyz)
+        # #         plt.plot(x, y, 'xk')
+        # #         ax.annotate(key, (x, y))
+
+        # # collect the ellipse centers and offsets
+        # centers = []
+        # offsets = []
+        # for datak in data:
+        #     # collect ellipse points
+        #     _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak["data"]).T
+
+        #     offset = (
+        #         numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
+        #         / numpy.sqrt(1 + delta_y_delta_x ** 2)
+        #         * delta_s
+        #     )
+
+        #     if offset.shape[1] < 2:
+        #         continue
+
+        #     centers.append([datak["x"], datak["y"]])
+        #     offsets.append(numpy.column_stack([+offset, -offset]))
+
+        # centers = numpy.array(centers)
+
+        # _plot_ellipse_data(
+        #     centers,
+        #     offsets,
+        #     ellipse_scaling=ellipse_scaling,
+        #     xy_to_2d=xy_to_2d,
+        #     mesh_resolution=mesh_resolution,
+        #     plot_rgb_triangle=plot_rgb_triangle,
+        # )
+        return
+
+    def _plot_rgb_triangle(self, k0, level, bright=False):
+        # plot sRGB triangle
+        # number of discretization points
+        n = 10
+
+        # Get all RGB values that sum up to 1.
+        srgb_vals = numpy.array(partition(3, n)).T / n
+        # if bright:
+        #     # For the x-y-diagram, it doesn't matter if the values are scaled in any
+        #     # way.  After all, the translation to XYZ is linear, and then to xyY it's
+        #     # (X/(X+Y+Z), Y/(X+Y+Z), Y), so the factor will only be present in the last
+        #     # component which is discarded. To make the plot a bit brighter, scale the
+        #     # colors up as much as possible.
+        #     rgb_linear /= numpy.max(rgb_linear, axis=0)
+        triang = matplotlib.tri.Triangulation(srgb_vals[0], srgb_vals[1])
+
+        # Use bisection to
+        srgb_linear = SrgbLinear()
+        tol = 1.0e-5
+        self_vals = numpy.empty((srgb_vals.shape[1], 3))
+        mask = numpy.ones(srgb_vals.shape[1], dtype=bool)
+        for k, val in enumerate(srgb_vals.T):
+            alpha_min = 0.0
+            xyz100 = srgb_linear.to_xyz100(val * alpha_min)
+            self_val_min = self.from_xyz100(xyz100)
+            if self_val_min[k0] > level:
+                mask[k] = False
+                continue
+
+            alpha_max = 1.0 / numpy.max(val)
+            xyz100 = srgb_linear.to_xyz100(val * alpha_max)
+            self_val_max = self.from_xyz100(xyz100)
+            if self_val_max[k0] < level:
+                mask[k] = False
+                continue
+
+            while True:
+                alpha = (alpha_max + alpha_min) / 2
+                xyz100 = srgb_linear.to_xyz100(val * alpha)
+                self_val = self.from_xyz100(xyz100)
+                if abs(self_val[k0] - level) < tol:
+                    break
+                elif self_val[k0] < level:
+                    alpha_min = alpha
+                else:
+                    assert self_val[k0] > level
+                    alpha_max = alpha
+            self_vals[k] = self_val
+
+        # Remove all masked points and all triangles which have masked corner points
+        tri_mask = numpy.all(mask[triang.triangles], axis=1)
+        triangles = triang.triangles[tri_mask]
+
+        # print(self_vals.shape)
+        # print(numpy.max(triangles))
+        # exit(1)
+
+        # Unfortunately, one cannot use tripcolors with explicit RGB specification
+        # (see <https://github.com/matplotlib/matplotlib/issues/10265>). As a
+        # workaround, associate range(n) data with the points and create a colormap
+        # that associates the integer values with the respective RGBs.
+        # z = numpy.arange(xyy_vals.shape[1])
+        # rgb = srgb_linear.to_srgb1(rgb_linear)
+        # cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+        #     "gamut", rgb.T, N=len(rgb.T)
+        # )
+
+        idx = [0, 1, 2]
+        k1, k2 = idx[:k0] + idx[k0 + 1 :]
+
+        # plt.tripcolor(triang, z, shading="gouraud", cmap=cmap)
+        # plt.triplot(self_vals[k0], self_vals[k1], triangles=triangles)
+        plt.triplot(self_vals[:, k1], self_vals[:, k2], triangles=triangles)
+        return
+
+    def _bisect(self, xy, k0, level):
+        tol = 1.0e-5
+        vals = numpy.empty((xy.shape[0], 3))
+        for k, (x, y) in enumerate(xy):
+            # Use bisection to find a matching Y value that projects the xy into the
+            # given level.
+            min_Y = 0.0
+            xyz100 = numpy.array([min_Y / y * x, min_Y, min_Y / y * (1 - x - y)]) * 100
+            min_val = self.from_xyz100(xyz100)[k0]
+            assert min_val <= level
+
+            # search for an appropriate max_Y to start with
+            max_Y = 1.0
+            while True:
+                xyz100 = (
+                    numpy.array([max_Y / y * x, max_Y, max_Y / y * (1 - x - y)]) * 100
+                )
+                max_val = self.from_xyz100(xyz100)[k0]
+                if max_val >= level:
+                    break
+                max_Y *= 2
+
+            while True:
+                Y = (max_Y + min_Y) / 2
+                xyz100 = numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
+                val = self.from_xyz100(xyz100)
+                if abs(val[k0] - level) < tol:
+                    break
+                elif val[k0] > level:
+                    max_Y = Y
+                else:
+                    assert val[k0] < level
+                    min_Y = Y
+
+            vals[k] = val
+        return vals
 
     def show_ebner_fairchild(self):
         self.plot_ebner_fairchild()
