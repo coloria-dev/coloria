@@ -221,16 +221,14 @@ class ColorSpace:
         #     rgb_linear /= numpy.max(rgb_linear, axis=0)
 
         # Get all RGB values that sum up to 1.
-        srgb_vals, triangles = meshzoo.triangle(
-            n=20,
-            corners=numpy.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]),
-        )
+        srgb_vals, triangles = meshzoo.triangle(n=20, corners=[[0, 0], [1, 0], [0, 1]])
         srgb_vals = numpy.column_stack([srgb_vals, 1.0 - numpy.sum(srgb_vals, axis=1)])
 
         # Use bisection to
         srgb_linear = SrgbLinear()
         tol = 1.0e-5
         self_vals = numpy.empty((srgb_vals.shape[0], 3))
+        srgb_linear_vals = numpy.empty((srgb_vals.shape[0], 3))
         mask = numpy.ones(srgb_vals.shape[0], dtype=bool)
         for k, val in enumerate(srgb_vals):
             alpha_min = 0.0
@@ -249,7 +247,8 @@ class ColorSpace:
 
             while True:
                 alpha = (alpha_max + alpha_min) / 2
-                xyz100 = srgb_linear.to_xyz100(val * alpha)
+                srgb_linear_vals[k] = val * alpha
+                xyz100 = srgb_linear.to_xyz100(srgb_linear_vals[k])
                 self_val = self.from_xyz100(xyz100)
                 if abs(self_val[k0] - level) < tol:
                     break
@@ -264,22 +263,28 @@ class ColorSpace:
         tri_mask = numpy.all(mask[triangles], axis=1)
         triangles = triangles[tri_mask]
 
-        # Unfortunately, one cannot use tripcolors with explicit RGB specification
-        # (see <https://github.com/matplotlib/matplotlib/issues/10265>). As a
-        # workaround, associate range(n) data with the points and create a colormap
-        # that associates the integer values with the respective RGBs.
-        # z = numpy.arange(xyy_vals.shape[1])
-        # rgb = srgb_linear.to_srgb1(rgb_linear)
-        # cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
-        #     "gamut", rgb.T, N=len(rgb.T)
-        # )
+        # Unfortunately, one cannot use tripcolors with explicit RGB specification (see
+        # <https://github.com/matplotlib/matplotlib/issues/10265>). As a workaround,
+        # associate range(n) data with the points and create a colormap that associates
+        # the integer values with the respective RGBs.
+        z = numpy.arange(srgb_vals.shape[0])
+        rgb = srgb_linear.to_srgb1(srgb_linear_vals)
+        cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+            "gamut", rgb, N=len(rgb)
+        )
 
         idx = [0, 1, 2]
         k1, k2 = idx[:k0] + idx[k0 + 1 :]
 
-        # plt.tripcolor(triang, z, shading="gouraud", cmap=cmap)
-        # plt.triplot(self_vals[k0], self_vals[k1], triangles=triangles)
-        plt.triplot(self_vals[:, k1], self_vals[:, k2], triangles=triangles)
+        plt.tripcolor(
+            self_vals[:, k1],
+            self_vals[:, k2],
+            triangles,
+            z,
+            shading="gouraud",
+            cmap=cmap,
+        )
+        # plt.triplot(self_vals[:, k1], self_vals[:, k2], triangles=triangles)
         return
 
     def _bisect(self, xy, k0, level):

@@ -516,10 +516,9 @@ def get_mono_outline_xy(observer, max_stepsize, max_angle=None):
     num_steps = dist / max_stepsize
     num_steps = int(num_steps) + 2
     # connection between lowest and highest frequencies
-    vals_conn = numpy.array([
-        first * (1 - t) + last * t
-        for t in numpy.linspace(0, 1, num_steps)
-    ])
+    vals_conn = numpy.array(
+        [first * (1 - t) + last * t for t in numpy.linspace(0, 1, num_steps)]
+    )
 
     vals_mono = [vals_conn[-1]]
     for k in range(1, m):
