@@ -142,12 +142,7 @@ class ColorSpace:
         return
 
     def plot_macadams(
-        self,
-        k0,
-        level,
-        outline_prec=1.0e-2,
-        plot_srgb_triangle=True,
-        ellipse_scaling=10.0,
+        self, k0, level, outline_prec=1.0e-2, plot_srgb_gamut=True, ellipse_scaling=10.0
     ):
         # Extract ellipse centers and offsets from MacAdams data
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -176,7 +171,7 @@ class ColorSpace:
             k0,
             level,
             outline_prec=outline_prec,
-            plot_srgb_triangle=plot_srgb_triangle,
+            plot_srgb_gamut=plot_srgb_gamut,
             ellipse_scaling=ellipse_scaling,
         )
         return
@@ -192,12 +187,7 @@ class ColorSpace:
         return
 
     def plot_luo_rigg(
-        self,
-        k0,
-        level,
-        outline_prec=1.0e-2,
-        plot_srgb_triangle=True,
-        ellipse_scaling=2.0,
+        self, k0, level, outline_prec=1.0e-2, plot_srgb_gamut=True, ellipse_scaling=2.0
     ):
         # M. R. Luo, B. Rigg,
         # Chromaticity Discrimination Ellipses for Surface Colours,
@@ -238,7 +228,7 @@ class ColorSpace:
             k0,
             level,
             outline_prec=outline_prec,
-            plot_srgb_triangle=plot_srgb_triangle,
+            plot_srgb_gamut=plot_srgb_gamut,
             ellipse_scaling=ellipse_scaling,
         )
         return
@@ -250,24 +240,12 @@ class ColorSpace:
         k0,
         level,
         outline_prec=1.0e-2,
-        plot_srgb_triangle=True,
+        plot_srgb_gamut=True,
         ellipse_scaling=10.0,
     ):
-        # first plot the monochromatic outline
-        mono_xy, conn_xy = get_mono_outline_xy(
-            observer=cie_1931_2(), max_stepsize=outline_prec
+        self.plot_visible_slice(
+            k0, level, outline_prec=outline_prec, plot_srgb_gamut=plot_srgb_gamut
         )
-
-        mono_vals = numpy.array([self._bisect(xy, k0, level) for xy in mono_xy])
-        conn_vals = numpy.array([self._bisect(xy, k0, level) for xy in conn_xy])
-
-        idx = [0, 1, 2]
-        k1, k2 = idx[:k0] + idx[k0 + 1 :]
-        plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
-        plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
-
-        if plot_srgb_triangle:
-            self._plot_srgb_triangle(k0, level)
 
         for center, offset in zip(xy_centers, xy_offsets):
             # get all the approximate ellipse points in xy space
@@ -297,20 +275,16 @@ class ColorSpace:
 
             def jac(a_b_theta):
                 a, b, theta = a_b_theta
-                sin_t = numpy.sin(theta)
-                cos_t = numpy.cos(theta)
+                x0sin = X[0] * numpy.sin(theta)
+                x0cos = X[0] * numpy.cos(theta)
+                x1sin = X[1] * numpy.sin(theta)
+                x1cos = X[1] * numpy.cos(theta)
                 return numpy.array(
                     [
-                        +2 * a * (X[0] * cos_t + X[1] * sin_t) ** 2,
-                        +2 * b * (X[0] * sin_t - X[1] * cos_t) ** 2,
-                        +a ** 2
-                        * 2
-                        * (X[0] * cos_t + X[1] * sin_t)
-                        * (-X[0] * sin_t + X[1] * cos_t)
-                        + b ** 2
-                        * 2
-                        * (X[0] * sin_t - X[1] * cos_t)
-                        * (X[0] * cos_t + X[1] * sin_t),
+                        +2 * a * (x0cos + x1sin) ** 2,
+                        +2 * b * (x0sin - x1cos) ** 2,
+                        +a ** 2 * 2 * (x0cos + x1sin) * (-x0sin + x1cos)
+                        + b ** 2 * 2 * (x0sin - x1cos) * (x0cos + x1sin),
                     ]
                 ).T
 
@@ -331,6 +305,37 @@ class ColorSpace:
             e.set_facecolor("k")
 
             # plt.plot(tvals[:, 0], tvals[:, 1], "xk")
+        return
+
+    def show_visible_slice(self, *args, **kwargs):
+        self.plot_visible_slice(*args, **kwargs)
+        plt.show()
+        return
+
+    def save_visible_slice(self, filename, *args, **kwargs):
+        self.plot_visible_slice(*args, **kwargs)
+        plt.savefig(filename, transparent=True, bbox_inches="tight")
+        return
+
+    def plot_visible_slice(self, k0, level, outline_prec=1.0e-2, plot_srgb_gamut=True):
+        # first plot the monochromatic outline
+        mono_xy, conn_xy = get_mono_outline_xy(
+            observer=cie_1931_2(), max_stepsize=outline_prec
+        )
+
+        mono_vals = numpy.array([self._bisect(xy, k0, level) for xy in mono_xy])
+        conn_vals = numpy.array([self._bisect(xy, k0, level) for xy in conn_xy])
+
+        idx = [0, 1, 2]
+        k1, k2 = idx[:k0] + idx[k0 + 1 :]
+        plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
+        plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
+        #
+        xyz = numpy.vstack([mono_vals, conn_vals[1:]])
+        plt.fill(xyz[:, k1], xyz[:, k2], facecolor="0.8", zorder=0)
+
+        if plot_srgb_gamut:
+            self._plot_srgb_gamut(k0, level)
 
         plt.axis("equal")
         plt.xlabel(self.labels[k1])
@@ -338,7 +343,7 @@ class ColorSpace:
         plt.title(f"{self.labels[k0]} = {level}")
         return
 
-    def _plot_srgb_triangle(self, k0, level, bright=False):
+    def _plot_srgb_gamut(self, k0, level, bright=False):
         import meshzoo
 
         # Get all RGB values that sum up to 1.

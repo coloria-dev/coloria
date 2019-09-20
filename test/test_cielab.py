@@ -48,29 +48,3 @@ def test_reference_xyz_d50(xyz100, ref):
         abs(cielab.from_xyz100(xyz100) - ref) < 1.0e-4 * abs(numpy.array(ref))
     )
     return
-
-
-def test_macadams():
-    # cielab = colorio.CIELAB()
-    # cielab.show_macadams(0, 50)
-    # cieluv = colorio.CIELUV()
-    # cieluv.show_macadams(0, 50)
-    jzazbz = colorio.JzAzBz()
-    # jzazbz.show_macadams(0, 0.1)
-    jzazbz.show_luo_rigg(0, 0.1)
-    # xyy = colorio.XYY()
-    # xyy.show_macadams(1.5, k0=2)
-    #
-    # L_A = 64 / numpy.pi / 5
-    # cam02 = colorio.CAM02("UCS", 0.69, 20, L_A)
-    # cam02.show_macadams(0, 50)
-    #
-    # L_A = 64 / numpy.pi / 5
-    # cam16 = colorio.CAM16UCS(0.69, 20, L_A)
-    # # cam16.show_macadams(0, 60)
-    # cam16.show_luo_rigg(0, 60, ellipse_scaling=2.0)
-    return
-
-
-if __name__ == "__main__":
-    test_macadams()
