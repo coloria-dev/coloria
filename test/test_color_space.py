@@ -1,69 +1,39 @@
-import matplotlib.pyplot as plt
-import numpy
+import pytest
 
 import colorio
 
 
-def test_visible_slice():
-    xyy = colorio.XYY()
-    xyy.save_visible_slice("xyy-visible-slice.png", 2, 0.4)
-    plt.close()
-
-    cielab = colorio.CIELAB()
-    cielab.show_visible_slice(0, 50)
-    plt.close()
-    cielab.save_visible_slice("cielab-visible-slice.png", 0, 50)
-    plt.close()
-
-    L_A = 64 / numpy.pi / 5
-    cam16 = colorio.CAM16UCS(0.69, 20, L_A)
-    cam16.save_visible_slice("cam16ucs-visible-slice.png", 0, 50)
-    plt.close()
+@pytest.mark.parametrize(
+    "cs,k0,level",
+    [
+        [colorio.XYY(), 2, 0.4],
+        [colorio.CIELAB(), 0, 50],
+        [colorio.CAM16UCS(0.69, 20, 4.074), 0, 50],
+    ],
+)
+def test_visible_slice(cs, k0, level):
+    cs.show_visible_slice(k0, level)
+    cs.save_visible_slice("visible-slice.png", k0, level)
     return
 
 
-def test_macadam():
-    xyy = colorio.XYY()
-    xyy.show_macadam(2, 0.4)
-    plt.close()
-    xyy.save_macadam("macadam-xyy.png", 2, 0.4)
-    plt.close()
-
-    cieluv = colorio.CIELUV()
-    cieluv.save_macadam("macadam-cieluv.png", 0, 50)
-    plt.close()
-
-    jzazbz = colorio.JzAzBz()
-    jzazbz.save_macadam("macadam-jzazbz.png", 0, 0.5)
-    plt.close()
-
-    # jzazbz.show_luo_rigg(0, 0.1)
-    #
-    # L_A = 64 / numpy.pi / 5
-    # cam02 = colorio.CAM02("UCS", 0.69, 20, L_A)
-    # cam02.show_macadam(0, 50)
-    #
-    # L_A = 64 / numpy.pi / 5
-    # cam16 = colorio.CAM16UCS(0.69, 20, L_A)
-    # # cam16.show_macadam(0, 60)
-    # cam16.show_luo_rigg(0, 60, ellipse_scaling=2.0)
+@pytest.mark.parametrize(
+    "cs,k0,level",
+    [[colorio.XYY(), 2, 0.4], [colorio.CIELUV(), 0, 50], [colorio.JzAzBz(), 0, 0.5]],
+)
+def test_macadam(cs, k0, level):
+    cs.show_macadam(k0, level)
+    cs.save_macadam("macadam.png", k0, level)
     return
 
 
-def test_luo_rigg():
-    xyy = colorio.XYY()
-    xyy.show_luo_rigg(2, 0.4)
-    plt.close()
-    xyy.save_luo_rigg("luo-rigg-xyy.png", 2, 0.4)
-    plt.close()
-
-    cieluv = colorio.CIELUV()
-    cieluv.save_luo_rigg("luo-rigg-cieluv.png", 0, 50, plot_srgb_gamut=False)
-    plt.close()
-
-    jzazbz = colorio.JzAzBz()
-    jzazbz.save_luo_rigg("luo-rigg-jzazbz.png", 0, 0.5)
-    plt.close()
+@pytest.mark.parametrize(
+    "cs,k0,level",
+    [[colorio.XYY(), 2, 0.4], [colorio.CIELUV(), 0, 50], [colorio.JzAzBz(), 0, 0.5]],
+)
+def test_luo_rigg(cs, k0, level):
+    cs.show_luo_rigg(k0, level)
+    cs.save_luo_rigg("luo-rigg.png", k0, level)
     return
 
 
