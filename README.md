@@ -142,9 +142,9 @@ The xy-gamut is of course simply a slice through the xyY space. Similarly, color
 produces slices through all available color spaces.
 
 
-<img src="https://nschloe.github.io/colorio/xyy-visible-slice.png" width="70%"> |
-<img src="https://nschloe.github.io/colorio/cielab-visible-slice.png" width="70%"> |
-<img src="https://nschloe.github.io/colorio/cam16ucs-visible-slice.png" width="70%">
+<img src="https://nschloe.github.io/colorio/xyy-visible-slice.png" width="90%"> |
+<img src="https://nschloe.github.io/colorio/cielab-visible-slice.png" width="90%"> |
+<img src="https://nschloe.github.io/colorio/cam16ucs-visible-slice.png" width="90%">
 :--------------:|:-------------------:|:---------------------:|
 xyY (at Y=0.4)  |  CIELAB (at L=50)  |  CAM16-UCS (at J'=50) |
 
