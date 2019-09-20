@@ -174,18 +174,27 @@ certain properties of color spaces.
 
 ###### MacAdam
 
-<img src="https://nschloe.github.io/colorio/macadam.png" width="30%">
+<img src="https://nschloe.github.io/colorio/macadam-xyy.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/macadam-cieluv.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/macadam-jzazbz.png" width="100%">
+:--------------:|:------------------:|:---------------------:|
+xyY (at Y=0.4)  |  CIELUV (at L=50)  |  JzAzBz (at Jz=0.5) |
 
 The famous MacAdam ellipses (from [this
 article](https://doi.org/10.1364%2FJOSA.32.000247)) can be plotted with
+
 ```python
 import colorio
 
-colorio.show_macadam(
-    scaling=10,
-    plot_filter_positions=False,
-    plot_standard_deviations=False
-)
+# xyy = colorio.XYY()
+# xyy.show_macadam(2, 0.4)
+# xyy.save_macadam("macadam-xyy.png", 2, 0.4)
+
+# cieluv = colorio.CIELUV()
+# cieluv.show_macadam(0, 50)
+
+jzazbz = colorio.JzAzBz()
+jzazbz.show_macadam(0, 0.5)
 ```
 
 ###### Luo-Rigg

@@ -22,27 +22,34 @@ def test_visible_slice():
     return
 
 
-def test_macadams():
-    # cielab = colorio.CIELAB()
-    # cielab.show_macadams(0, 50)
-    # cieluv = colorio.CIELUV()
-    # cieluv.show_macadams(0, 50)
+def test_macadam():
+    xyy = colorio.XYY()
+    xyy.show_macadam(2, 0.4)
+    plt.close()
+    xyy.save_macadam("macadam-xyy.png", 2, 0.4)
+    plt.close()
+
+    cieluv = colorio.CIELUV()
+    cieluv.save_macadam("macadam-cieluv.png", 0, 50)
+    plt.close()
+
     jzazbz = colorio.JzAzBz()
-    jzazbz.show_macadams(0, 0.5)
+    jzazbz.save_macadam("macadam-jzazbz.png", 0, 0.5)
+    plt.close()
+
     # jzazbz.show_luo_rigg(0, 0.1)
-    # xyy = colorio.XYY()
-    # xyy.show_macadams(1.5, k0=2)
     #
     # L_A = 64 / numpy.pi / 5
     # cam02 = colorio.CAM02("UCS", 0.69, 20, L_A)
-    # cam02.show_macadams(0, 50)
+    # cam02.show_macadam(0, 50)
     #
     # L_A = 64 / numpy.pi / 5
     # cam16 = colorio.CAM16UCS(0.69, 20, L_A)
-    # # cam16.show_macadams(0, 60)
+    # # cam16.show_macadam(0, 60)
     # cam16.show_luo_rigg(0, 60, ellipse_scaling=2.0)
     return
 
 
 if __name__ == "__main__":
-    test_visible_slice()
+    test_macadam()
+    # test_visible_slice()

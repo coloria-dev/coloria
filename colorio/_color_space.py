@@ -131,17 +131,17 @@ class ColorSpace:
         meshio.write_points_cells(filename, pts, {"tetra": mesh.cells["tetra"]})
         return
 
-    def show_macadams(self, *args):
-        self.plot_macadams(*args)
+    def show_macadam(self, *args, **kwargs):
+        self.plot_macadam(*args, **kwargs)
         plt.show()
         return
 
-    def save_macadams(self, filename, *args):
-        self.plot_macadams()
+    def save_macadam(self, filename, *args, **kwargs):
+        self.plot_macadam(*args, **kwargs)
         plt.savefig(filename, transparent=True, bbox_inches="tight")
         return
 
-    def plot_macadams(
+    def plot_macadam(
         self, k0, level, outline_prec=1.0e-2, plot_srgb_gamut=True, ellipse_scaling=10.0
     ):
         # Extract ellipse centers and offsets from MacAdams data
@@ -255,9 +255,10 @@ class ColorSpace:
             tvals = numpy.array([self._bisect(xy, k0, level) for xy in xy_ellipse.T])
 
             # cut off the irrelevant index
-            assert k0 == 0
-            tcenter = tcenter[1:]
-            tvals = tvals[:, 1:]
+            idx = [0, 1, 2]
+            k1, k2 = idx[:k0] + idx[k0 + 1 :]
+            tcenter = tcenter[[k1, k2]]
+            tvals = tvals[:, [k1, k2]]
 
             # Given these new transformed vals, find the ellipse that best fits those
             # points
