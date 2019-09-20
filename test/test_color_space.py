@@ -50,6 +50,24 @@ def test_macadam():
     return
 
 
+def test_luo_rigg():
+    xyy = colorio.XYY()
+    xyy.show_luo_rigg(2, 0.4)
+    plt.close()
+    xyy.save_luo_rigg("luo-rigg-xyy.png", 2, 0.4)
+    plt.close()
+
+    cieluv = colorio.CIELUV()
+    cieluv.save_luo_rigg("luo-rigg-cieluv.png", 0, 50, plot_srgb_gamut=False)
+    plt.close()
+
+    jzazbz = colorio.JzAzBz()
+    jzazbz.save_luo_rigg("luo-rigg-jzazbz.png", 0, 0.5)
+    plt.close()
+    return
+
+
 if __name__ == "__main__":
-    test_macadam()
     # test_visible_slice()
+    # test_macadam()
+    test_luo_rigg()

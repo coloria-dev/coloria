@@ -199,13 +199,26 @@ jzazbz.show_macadam(0, 0.5)
 
 ###### Luo-Rigg
 
-<img src="https://nschloe.github.io/colorio/luo-rigg.png" width="30%">
+<img src="https://nschloe.github.io/colorio/luo-rigg-xyy.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/luo-rigg-cieluv.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/luo-rigg-jzazbz.png" width="100%">
+:--------------:|:------------------:|:---------------------:|
+xyY (at Y=0.4)  |  CIELUV (at L=50)  |  JzAzBz (at Jz=0.5) |
 
 Likewise for [Luo-Rigg](https://doi.org/10.1002/col.5080110107).
+
 ```python
 import colorio
 
-colorio.show_luo_rigg(plot_rgb_triangle=True, ellipse_scaling=1.5)
+# xyy = colorio.XYY()
+# xyy.show_luo_rigg(2, 0.4)
+# xyy.save_luo_rigg("luo-rigg-xyy.png", 2, 0.4)
+
+cieluv = colorio.CIELUV()
+cieluv.show(0, 50)
+
+# jzazbz = colorio.JzAzBz()
+# jzazbz.show_luo_rigg(0, 0.5)
 ```
 
 ###### Ebner-Fairchild
