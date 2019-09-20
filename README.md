@@ -138,6 +138,31 @@ colorio.show_xy_gamut()
 ```
 
 
+The xy-gamut is of course simply a slice through the xyY space. Similarly, colorio can
+produces slices through all available color spaces.
+
+
+<img src="https://nschloe.github.io/colorio/xyy-visible-slice.png" width="70%"> |
+<img src="https://nschloe.github.io/colorio/cielab-visible-slice.png" width="70%"> |
+<img src="https://nschloe.github.io/colorio/cam16ucs-visible-slice.png" width="70%">
+:--------------:|:-------------------:|:---------------------:|
+xyY (at Y=0.4)  |  CIELAB (at L=50)  |  CAM16-UCS (at J'=50) |
+
+```python
+import colorio
+
+# xyy = colorio.XYY()
+# xyy.show_visible_slice("xyy-visible-slice.png", 2, 0.4)
+#
+# cielab = colorio.CIELAB()
+# cielab.show_visible_slice(0, 50)
+
+cam16 = colorio.CAM16UCS(0.69, 20, 4.07)
+cam16.show_visible_slice(0, 50)
+# cam16.save_visible_slice("cam16ucs-visible-slice.png", 0, 50)
+```
+
+
 #### Show experimental data
 
 colorio contains lots of experimental data sets some of which can be used to assess
