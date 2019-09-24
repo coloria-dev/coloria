@@ -350,6 +350,10 @@ class ColorSpace:
         srgb_vals, triangles = meshzoo.triangle(n=50, corners=[[0, 0], [1, 0], [0, 1]])
         srgb_vals = numpy.column_stack([srgb_vals, 1.0 - numpy.sum(srgb_vals, axis=1)])
 
+        # matplotlib is sensitive when it comes to srgb values, so take good care here
+        assert numpy.all(srgb_vals > -1.0e-10)
+        srgb_vals[srgb_vals < 0.0] = 0.0
+
         # Use bisection to
         srgb_linear = SrgbLinear()
         tol = 1.0e-5
