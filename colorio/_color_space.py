@@ -111,7 +111,7 @@ class ColorSpace:
         geom = pygmsh.built_in.Geometry()
 
         max_stepsize = 4.0e-2
-        xy = get_mono_outline_xy(observer, max_stepsize=max_stepsize)
+        xy, _ = get_mono_outline_xy(observer, max_stepsize=max_stepsize)
 
         # append third component
         xy = numpy.column_stack([xy, numpy.full(xy.shape[0], 1.0e-5)])
