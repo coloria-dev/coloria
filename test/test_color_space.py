@@ -13,7 +13,7 @@ import colorio
 )
 def test_visible_slice(cs, k0, level):
     cs.show_visible_slice(k0, level)
-    cs.save_visible_slice("visible-slice.png", k0, level)
+    # cs.save_visible_slice("visible-slice.png", k0, level)
     return
 
 

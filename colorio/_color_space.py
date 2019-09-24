@@ -125,7 +125,6 @@ class ColorSpace:
 
         mesh = pygmsh.generate_mesh(geom, verbose=False)
         # meshio.write(filename, mesh)
-        # print(filename)
 
         pts = self.from_xyz100(_xyy_to_xyz100(mesh.points.T)).T
         meshio.write_points_cells(filename, pts, {"tetra": mesh.cells["tetra"]})
@@ -354,8 +353,10 @@ class ColorSpace:
         # Use bisection to
         srgb_linear = SrgbLinear()
         tol = 1.0e-5
-        self_vals = numpy.empty((srgb_vals.shape[0], 3))
-        srgb_linear_vals = numpy.empty((srgb_vals.shape[0], 3))
+        # Use zeros() instead of empty() here to avoid invalid values when setting up
+        # the cmap below.
+        self_vals = numpy.zeros((srgb_vals.shape[0], 3))
+        srgb_linear_vals = numpy.zeros((srgb_vals.shape[0], 3))
         mask = numpy.ones(srgb_vals.shape[0], dtype=bool)
         for k, val in enumerate(srgb_vals):
             alpha_min = 0.0
@@ -366,6 +367,7 @@ class ColorSpace:
                 continue
 
             alpha_max = 1.0 / numpy.max(val)
+
             xyz100 = srgb_linear.to_xyz100(val * alpha_max)
             self_val_max = self.from_xyz100(xyz100)
             if self_val_max[k0] < level:
@@ -386,7 +388,7 @@ class ColorSpace:
                     alpha_max = alpha
             self_vals[k] = self_val
 
-        # Remove all masked points and all triangles which have masked corner points
+        # Remove all triangles which have masked corner points
         tri_mask = numpy.all(mask[triangles], axis=1)
         if ~numpy.any(tri_mask):
             return
