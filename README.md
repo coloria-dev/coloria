@@ -251,7 +251,7 @@ Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
 :--------------:|:------------------:|:---------------------:|
 CIELAB          |  CAM16             |  JzAzBz |
 
-Note the dark blue distortion in CIELAB.
+Note the dark blue distortion in CIELAB and CAM16.
 
 ```python
 import colorio
@@ -277,10 +277,15 @@ colorspace.show_xiao()
 ```
 
 ##### Munsell
-[Munsell color data](https://www.rit.edu/cos/colorscience/rc_munsell_renotation.php) is visualized with
 
-<img src="https://nschloe.github.io/colorio/munsell_cieluv.png" width="40%">
+<img src="https://nschloe.github.io/colorio/munsell-cielab.svg" width="100%"> |
+<img src="https://nschloe.github.io/colorio/munsell-cam16.svg" width="100%"> |
+<img src="https://nschloe.github.io/colorio/munsell-jzazbz.svg" width="100%">
+:--------------:|:------------------:|:---------------------:|
+CIELAB          |  CAM16             |  JzAzBz |
 
+[Munsell color data](https://www.rit.edu/cos/colorscience/rc_munsell_renotation.php) is
+visualized with
 ```python
 import colorio
 
@@ -288,7 +293,7 @@ colorspace = colorio.CIELUV()
 colorspace.show_munsell(V=5)
 ```
 
-To simply retrieve the Munsell data in xyY format, use
+To retrieve the Munsell data in xyY format, use
 ```python
 import colorio
 
