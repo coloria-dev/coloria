@@ -223,6 +223,12 @@ cieluv.show(0, 50)
 
 ###### Ebner-Fairchild
 
+<img src="https://nschloe.github.io/colorio/luo-rigg-xyy.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/luo-rigg-cieluv.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/luo-rigg-jzazbz.png" width="100%">
+:--------------:|:------------------:|:---------------------:|
+CIELAB          |  CAM165            |  JzAzBz |
+
 <img src="https://nschloe.github.io/colorio/ebner_fairchild_jzazbz.svg" width="40%">
 
 For example

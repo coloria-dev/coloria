@@ -583,15 +583,13 @@ def _plot_color_constancy_data(data, wp, colorspace, approximate_colors_in_srgb=
     srgb = SrgbLinear()
     for xyz in data:
         d = colorspace.from_xyz100(xyz)[1:]
-        xy = (d.T - wp).T
-        x, y = xy
 
         # There are numerous possibilities of defining the "best" approximating line for
         # a bunch of points (x_i, y_i). For example, one could try and minimize the
         # expression
         #    sum_i (-numpy.sin(theta) * x_i + numpy.cos(theta) * y_i) ** 2
-        # over theta, which means to minimize the orthogonal component of of (x_i, y_i)
-        # to (cos(theta), sin(theta)).
+        # over theta, which means to minimize the orthogonal component of (x_i, y_i) to
+        # (cos(theta), sin(theta)).
         #
         # A more simple and effective approach is to use the average of all points,
         #    theta = arctan(sum(y_i) / sum(x_i)).
@@ -602,13 +600,11 @@ def _plot_color_constancy_data(data, wp, colorspace, approximate_colors_in_srgb=
         #    sum_j (y_j bar{x} - x_j bar{y}) ** 2 -> min.
         #
         # Plot it from wp to the outmost point
-        length = numpy.sqrt(numpy.max(numpy.einsum("ij,ij->j", xy, xy)))
-        avg = numpy.sum(xy, axis=1)
-        end_point = length * avg / numpy.sqrt(numpy.sum(avg ** 2))
+        avg = numpy.sum(d, axis=1) / d.shape[1]
+        length = numpy.sqrt(numpy.max(numpy.einsum("ij,ij->i", d.T - wp, d.T - wp)))
+        end_point = wp + length * (avg - wp) / numpy.sqrt(numpy.sum((avg - wp) ** 2))
         plt.plot([wp[0], end_point[0]], [wp[1], end_point[1]], "-", color="0.5")
 
-        # Deliberatly only handle the last two components, e.g., a* b* from L*a*b*. They
-        # typically indicate the chroma.
         for dd, rgb in zip(d.T, srgb.from_xyz100(xyz).T):
             if approximate_colors_in_srgb:
                 is_legal_srgb = True
