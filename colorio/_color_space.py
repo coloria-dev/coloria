@@ -1,14 +1,18 @@
 import os
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy
 import yaml
+from matplotlib.patches import Ellipse
+from scipy.optimize import leastsq
 from scipy.spatial import ConvexHull
 
 from ._hdr import HdrLinear
 from ._srgb import SrgbLinear
 from ._tools import get_mono_outline_xy, get_munsell_data, spectrum_to_xyz100
 from .illuminants import whitepoints_cie1931
+from .observers import cie_1931_2
 
 
 class ColorSpace:
@@ -107,7 +111,7 @@ class ColorSpace:
         geom = pygmsh.built_in.Geometry()
 
         max_stepsize = 4.0e-2
-        xy = get_mono_outline_xy(observer, max_stepsize=max_stepsize)
+        xy, _ = get_mono_outline_xy(observer, max_stepsize=max_stepsize)
 
         # append third component
         xy = numpy.column_stack([xy, numpy.full(xy.shape[0], 1.0e-5)])
@@ -121,11 +125,335 @@ class ColorSpace:
 
         mesh = pygmsh.generate_mesh(geom, verbose=False)
         # meshio.write(filename, mesh)
-        # print(filename)
 
         pts = self.from_xyz100(_xyy_to_xyz100(mesh.points.T)).T
         meshio.write_points_cells(filename, pts, {"tetra": mesh.cells["tetra"]})
         return
+
+    def show_macadam(self, *args, **kwargs):
+        self.plot_macadam(*args, **kwargs)
+        plt.show()
+        return
+
+    def save_macadam(self, filename, *args, **kwargs):
+        self.plot_macadam(*args, **kwargs)
+        plt.savefig(filename, transparent=True, bbox_inches="tight")
+        return
+
+    def plot_macadam(
+        self, k0, level, outline_prec=1.0e-2, plot_srgb_gamut=True, ellipse_scaling=10.0
+    ):
+        # Extract ellipse centers and offsets from MacAdams data
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.join(dir_path, "data/macadam1942/table3.yaml")) as f:
+            data = yaml.safe_load(f)
+        #
+        # collect the ellipse centers and offsets
+        xy_centers = []
+        xy_offsets = []
+        for datak in data:
+            # collect ellipse points
+            _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak["data"]).T
+            offset = (
+                numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
+                / numpy.sqrt(1 + delta_y_delta_x ** 2)
+                * delta_s
+            )
+            if offset.shape[1] < 2:
+                continue
+            xy_centers.append([datak["x"], datak["y"]])
+            xy_offsets.append(numpy.column_stack([+offset, -offset]))
+
+        self._plot_ellipses(
+            xy_centers,
+            xy_offsets,
+            k0,
+            level,
+            outline_prec=outline_prec,
+            plot_srgb_gamut=plot_srgb_gamut,
+            ellipse_scaling=ellipse_scaling,
+        )
+        return
+
+    def show_luo_rigg(self, *args, **kwargs):
+        self.plot_luo_rigg(*args, **kwargs)
+        plt.show()
+        return
+
+    def save_luo_rigg(self, filename, *args, **kwargs):
+        self.plot_luo_rigg(*args, **kwargs)
+        plt.savefig(filename, transparent=True, bbox_inches="tight")
+        return
+
+    def plot_luo_rigg(
+        self, k0, level, outline_prec=1.0e-2, plot_srgb_gamut=True, ellipse_scaling=2.0
+    ):
+        # M. R. Luo, B. Rigg,
+        # Chromaticity Discrimination Ellipses for Surface Colours,
+        # Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25-42,
+        # <https://doi.org/10.1002/col.5080110107>.
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.join(dir_path, "data/luo-rigg/luo-rigg.yaml")) as f:
+            data = yaml.safe_load(f)
+        #
+        xy_centers = []
+        xy_offsets = []
+        # collect the ellipse centers and offsets
+        # Use four offset points of each ellipse, one could take more
+        alpha = 2 * numpy.pi * numpy.linspace(0.0, 1.0, 16, endpoint=False)
+        pts = numpy.array([numpy.cos(alpha), numpy.sin(alpha)])
+        for data_set in data.values():
+            # The set factor is the mean of the R values
+            # set_factor = sum([dat[-1] for dat in data_set.values()]) / len(data_set)
+            for dat in data_set.values():
+                x, y, Y, a, a_div_b, theta_deg, _ = dat
+                theta = theta_deg * 2 * numpy.pi / 360
+                a /= 1.0e4
+                a *= (Y / 30) ** 0.2
+                b = a / a_div_b
+                # plot the ellipse
+                xy_centers.append([x, y])
+                J = numpy.array(
+                    [
+                        [+a * numpy.cos(theta), -b * numpy.sin(theta)],
+                        [+a * numpy.sin(theta), +b * numpy.cos(theta)],
+                    ]
+                )
+                xy_offsets.append(numpy.dot(J, pts))
+
+        self._plot_ellipses(
+            xy_centers,
+            xy_offsets,
+            k0,
+            level,
+            outline_prec=outline_prec,
+            plot_srgb_gamut=plot_srgb_gamut,
+            ellipse_scaling=ellipse_scaling,
+        )
+        return
+
+    def _plot_ellipses(
+        self,
+        xy_centers,
+        xy_offsets,
+        k0,
+        level,
+        outline_prec=1.0e-2,
+        plot_srgb_gamut=True,
+        ellipse_scaling=10.0,
+    ):
+        self.plot_visible_slice(
+            k0, level, outline_prec=outline_prec, plot_srgb_gamut=plot_srgb_gamut
+        )
+
+        for center, offset in zip(xy_centers, xy_offsets):
+            # get all the approximate ellipse points in xy space
+            xy_ellipse = (center + offset.T).T
+
+            tcenter = self._bisect(center, k0, level)
+            tvals = numpy.array([self._bisect(xy, k0, level) for xy in xy_ellipse.T])
+
+            # cut off the irrelevant index
+            idx = [0, 1, 2]
+            k1, k2 = idx[:k0] + idx[k0 + 1 :]
+            tcenter = tcenter[[k1, k2]]
+            tvals = tvals[:, [k1, k2]]
+
+            # Given these new transformed vals, find the ellipse that best fits those
+            # points
+            X = (tvals - tcenter).T
+
+            def f_ellipse(a_b_theta):
+                a, b, theta = a_b_theta
+                sin_t = numpy.sin(theta)
+                cos_t = numpy.cos(theta)
+                return (
+                    +a ** 2 * (X[0] * cos_t + X[1] * sin_t) ** 2
+                    + b ** 2 * (X[0] * sin_t - X[1] * cos_t) ** 2
+                    - 1.0
+                )
+
+            def jac(a_b_theta):
+                a, b, theta = a_b_theta
+                x0sin = X[0] * numpy.sin(theta)
+                x0cos = X[0] * numpy.cos(theta)
+                x1sin = X[1] * numpy.sin(theta)
+                x1cos = X[1] * numpy.cos(theta)
+                return numpy.array(
+                    [
+                        +2 * a * (x0cos + x1sin) ** 2,
+                        +2 * b * (x0sin - x1cos) ** 2,
+                        +a ** 2 * 2 * (x0cos + x1sin) * (-x0sin + x1cos)
+                        + b ** 2 * 2 * (x0sin - x1cos) * (x0cos + x1sin),
+                    ]
+                ).T
+
+            # We need to use some optimization here to find the new ellipses which best
+            # fit the modified data.
+            (a, b, theta), _ = leastsq(f_ellipse, [1.0, 1.0, 0.0], Dfun=jac)
+
+            # plot the scaled ellipse
+            e = Ellipse(
+                xy=tcenter,
+                width=ellipse_scaling * 2 / a,
+                height=ellipse_scaling * 2 / b,
+                angle=theta / numpy.pi * 180,
+                # label=label,
+            )
+            plt.gca().add_artist(e)
+            e.set_alpha(0.5)
+            e.set_facecolor("k")
+
+            # plt.plot(tvals[:, 0], tvals[:, 1], "xk")
+        return
+
+    def show_visible_slice(self, *args, **kwargs):
+        self.plot_visible_slice(*args, **kwargs)
+        plt.show()
+        return
+
+    def save_visible_slice(self, filename, *args, **kwargs):
+        self.plot_visible_slice(*args, **kwargs)
+        plt.savefig(filename, transparent=True, bbox_inches="tight")
+        return
+
+    def plot_visible_slice(self, k0, level, outline_prec=1.0e-2, plot_srgb_gamut=True):
+        # first plot the monochromatic outline
+        mono_xy, conn_xy = get_mono_outline_xy(
+            observer=cie_1931_2(), max_stepsize=outline_prec
+        )
+
+        mono_vals = numpy.array([self._bisect(xy, k0, level) for xy in mono_xy])
+        conn_vals = numpy.array([self._bisect(xy, k0, level) for xy in conn_xy])
+
+        idx = [0, 1, 2]
+        k1, k2 = idx[:k0] + idx[k0 + 1 :]
+        plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
+        plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
+        #
+        xyz = numpy.vstack([mono_vals, conn_vals[1:]])
+        plt.fill(xyz[:, k1], xyz[:, k2], facecolor="0.8", zorder=0)
+
+        if plot_srgb_gamut:
+            self._plot_srgb_gamut(k0, level)
+
+        plt.axis("equal")
+        plt.xlabel(self.labels[k1])
+        plt.ylabel(self.labels[k2])
+        plt.title(f"{self.labels[k0]} = {level}")
+        return
+
+    def _plot_srgb_gamut(self, k0, level, bright=False):
+        import meshzoo
+
+        # Get all RGB values that sum up to 1.
+        srgb_vals, triangles = meshzoo.triangle(n=50, corners=[[0, 0], [1, 0], [0, 1]])
+        srgb_vals = numpy.column_stack([srgb_vals, 1.0 - numpy.sum(srgb_vals, axis=1)])
+
+        # matplotlib is sensitive when it comes to srgb values, so take good care here
+        assert numpy.all(srgb_vals > -1.0e-10)
+        srgb_vals[srgb_vals < 0.0] = 0.0
+
+        # Use bisection to
+        srgb_linear = SrgbLinear()
+        tol = 1.0e-5
+        # Use zeros() instead of empty() here to avoid invalid values when setting up
+        # the cmap below.
+        self_vals = numpy.zeros((srgb_vals.shape[0], 3))
+        srgb_linear_vals = numpy.zeros((srgb_vals.shape[0], 3))
+        mask = numpy.ones(srgb_vals.shape[0], dtype=bool)
+        for k, val in enumerate(srgb_vals):
+            alpha_min = 0.0
+            xyz100 = srgb_linear.to_xyz100(val * alpha_min)
+            self_val_min = self.from_xyz100(xyz100)
+            if self_val_min[k0] > level:
+                mask[k] = False
+                continue
+
+            alpha_max = 1.0 / numpy.max(val)
+
+            xyz100 = srgb_linear.to_xyz100(val * alpha_max)
+            self_val_max = self.from_xyz100(xyz100)
+            if self_val_max[k0] < level:
+                mask[k] = False
+                continue
+
+            while True:
+                alpha = (alpha_max + alpha_min) / 2
+                srgb_linear_vals[k] = val * alpha
+                xyz100 = srgb_linear.to_xyz100(srgb_linear_vals[k])
+                self_val = self.from_xyz100(xyz100)
+                if abs(self_val[k0] - level) < tol:
+                    break
+                elif self_val[k0] < level:
+                    alpha_min = alpha
+                else:
+                    assert self_val[k0] > level
+                    alpha_max = alpha
+            self_vals[k] = self_val
+
+        # Remove all triangles which have masked corner points
+        tri_mask = numpy.all(mask[triangles], axis=1)
+        if ~numpy.any(tri_mask):
+            return
+        triangles = triangles[tri_mask]
+
+        # Unfortunately, one cannot use tripcolors with explicit RGB specification (see
+        # <https://github.com/matplotlib/matplotlib/issues/10265>). As a workaround,
+        # associate range(n) data with the points and create a colormap that associates
+        # the integer values with the respective RGBs.
+        z = numpy.arange(srgb_vals.shape[0])
+        rgb = srgb_linear.to_srgb1(srgb_linear_vals)
+        cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+            "gamut", rgb, N=len(rgb)
+        )
+
+        idx = [0, 1, 2]
+        k1, k2 = idx[:k0] + idx[k0 + 1 :]
+
+        plt.tripcolor(
+            self_vals[:, k1],
+            self_vals[:, k2],
+            triangles,
+            z,
+            shading="gouraud",
+            cmap=cmap,
+        )
+        # plt.triplot(self_vals[:, k1], self_vals[:, k2], triangles=triangles)
+        return
+
+    def _bisect(self, xy, k0, level):
+        tol = 1.0e-5
+        x, y = xy
+        # Use bisection to find a matching Y value that projects the xy into the
+        # given level.
+        min_Y = 0.0
+        xyz100 = numpy.array([min_Y / y * x, min_Y, min_Y / y * (1 - x - y)]) * 100
+        min_val = self.from_xyz100(xyz100)[k0]
+        assert min_val <= level
+
+        # search for an appropriate max_Y to start with
+        max_Y = 1.0
+        while True:
+            xyz100 = numpy.array([max_Y / y * x, max_Y, max_Y / y * (1 - x - y)]) * 100
+            max_val = self.from_xyz100(xyz100)[k0]
+            if max_val >= level:
+                break
+            max_Y *= 2
+
+        while True:
+            Y = (max_Y + min_Y) / 2
+            xyz100 = numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
+            val = self.from_xyz100(xyz100)
+            if abs(val[k0] - level) < tol:
+                break
+            elif val[k0] > level:
+                max_Y = Y
+            else:
+                assert val[k0] < level
+                min_Y = Y
+
+        return val
 
     def show_ebner_fairchild(self):
         self.plot_ebner_fairchild()
@@ -259,15 +587,13 @@ def _plot_color_constancy_data(data, wp, colorspace, approximate_colors_in_srgb=
     srgb = SrgbLinear()
     for xyz in data:
         d = colorspace.from_xyz100(xyz)[1:]
-        xy = (d.T - wp).T
-        x, y = xy
 
         # There are numerous possibilities of defining the "best" approximating line for
         # a bunch of points (x_i, y_i). For example, one could try and minimize the
         # expression
         #    sum_i (-numpy.sin(theta) * x_i + numpy.cos(theta) * y_i) ** 2
-        # over theta, which means to minimize the orthogonal component of of (x_i, y_i)
-        # to (cos(theta), sin(theta)).
+        # over theta, which means to minimize the orthogonal component of (x_i, y_i) to
+        # (cos(theta), sin(theta)).
         #
         # A more simple and effective approach is to use the average of all points,
         #    theta = arctan(sum(y_i) / sum(x_i)).
@@ -278,13 +604,11 @@ def _plot_color_constancy_data(data, wp, colorspace, approximate_colors_in_srgb=
         #    sum_j (y_j bar{x} - x_j bar{y}) ** 2 -> min.
         #
         # Plot it from wp to the outmost point
-        length = numpy.sqrt(numpy.max(numpy.einsum("ij,ij->j", xy, xy)))
-        avg = numpy.sum(xy, axis=1)
-        end_point = length * avg / numpy.sqrt(numpy.sum(avg ** 2))
+        avg = numpy.sum(d, axis=1) / d.shape[1]
+        length = numpy.sqrt(numpy.max(numpy.einsum("ij,ij->i", d.T - wp, d.T - wp)))
+        end_point = wp + length * (avg - wp) / numpy.sqrt(numpy.sum((avg - wp) ** 2))
         plt.plot([wp[0], end_point[0]], [wp[1], end_point[1]], "-", color="0.5")
 
-        # Deliberatly only handle the last two components, e.g., a* b* from L*a*b*. They
-        # typically indicate the chroma.
         for dd, rgb in zip(d.T, srgb.from_xyz100(xyz).T):
             if approximate_colors_in_srgb:
                 is_legal_srgb = True

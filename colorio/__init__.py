@@ -13,6 +13,7 @@ from ._ciehcl import CIEHCL
 from ._cielab import CIELAB
 from ._cielch import CIELCH
 from ._cieluv import CIELUV
+from ._color_space import ColorSpace
 from ._hdr import HdrLinear
 from ._hsl import HSL
 from ._hsv import HSV
@@ -52,6 +53,7 @@ __all__ = [
     "CIELAB",
     "CIELCH",
     "CIELUV",
+    "ColorSpace",
     "HSL",
     "HSV",
     "illuminants",

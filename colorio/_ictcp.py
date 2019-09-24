@@ -44,8 +44,8 @@ class ICtCp(ColorSpace):
         lms_ = solve(self.M2, ictcp)
 
         t = lms_ ** (1 / self.m2) - self.c1
-        # This next line is part of the model, but really it shouldn't occur
-        # for sane input data.
+        # This next line is part of the model, but really it shouldn't occur for sane
+        # input data.
         # t[t < 0] = 0.0
         lms = (t / (self.c2 - self.c3 * lms_ ** (1 / self.m2))) ** (1 / self.m1)
 
