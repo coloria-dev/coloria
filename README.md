@@ -237,9 +237,8 @@ colorspace = colorio.JzAzBz()
 colorspace.show_ebner_fairchild()
 ```
 shows constant-hue data from [the Ebner-Fairchild
-experiments](https://doi.org/10.1117/12.298269) in the a<sub>z</sub>b<sub>z</sub>-plane
-of the J<sub>z</sub>a<sub>z</sub>b<sub>z</sub> color space. (Ideally, all colors in one
-set sit on a line.)
+experiments](https://doi.org/10.1117/12.298269) in the hue-plane of some color spaces.
+(Ideally, all colors in one set sit on a line.)
 
 
 ###### Hung-Berns
