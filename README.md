@@ -223,13 +223,11 @@ cieluv.show(0, 50)
 
 ###### Ebner-Fairchild
 
-<img src="https://nschloe.github.io/colorio/luo-rigg-xyy.png" width="100%"> |
-<img src="https://nschloe.github.io/colorio/luo-rigg-cieluv.png" width="100%"> |
-<img src="https://nschloe.github.io/colorio/luo-rigg-jzazbz.png" width="100%">
+<img src="https://nschloe.github.io/colorio/ebner-fairchild-cielab.svg" width="100%"> |
+<img src="https://nschloe.github.io/colorio/ebner-fairchild-cam16.svg" width="100%"> |
+<img src="https://nschloe.github.io/colorio/ebner-fairchild-jzazbz.svg" width="100%">
 :--------------:|:------------------:|:---------------------:|
-CIELAB          |  CAM165            |  JzAzBz |
-
-<img src="https://nschloe.github.io/colorio/ebner_fairchild_jzazbz.svg" width="40%">
+CIELAB          |  CAM16             |  JzAzBz |
 
 For example
 ```python
@@ -247,7 +245,13 @@ set sit on a line.)
 ###### Hung-Berns
 Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
 
-<img src="https://nschloe.github.io/colorio/hung_berns_jzazbz.svg" width="40%">
+<img src="https://nschloe.github.io/colorio/hung-berns-cielab.svg" width="100%"> |
+<img src="https://nschloe.github.io/colorio/hung-berns-cam16.svg" width="100%"> |
+<img src="https://nschloe.github.io/colorio/hung-berns-jzazbz.svg" width="100%">
+:--------------:|:------------------:|:---------------------:|
+CIELAB          |  CAM16             |  JzAzBz |
+
+Note the dark blue distortion in CIELAB.
 
 ```python
 import colorio
@@ -259,7 +263,11 @@ colorspace.show_hung_berns()
 ###### Xiao et al.
 Likewise for [Xiao et al.](https://doi.org/10.1002/col.20637):
 
-<img src="https://nschloe.github.io/colorio/xiao-cielab.svg" width="40%">
+<img src="https://nschloe.github.io/colorio/xiao-cielab.svg" width="100%"> |
+<img src="https://nschloe.github.io/colorio/xiao-cam16.svg" width="100%"> |
+<img src="https://nschloe.github.io/colorio/xiao-jzazbz.svg" width="100%">
+:--------------:|:------------------:|:---------------------:|
+CIELAB          |  CAM16             |  JzAzBz |
 
 ```python
 import colorio
