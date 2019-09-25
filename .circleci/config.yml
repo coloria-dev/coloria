@@ -20,7 +20,8 @@ jobs:
       - run: pip3 install -r test_requirements.txt --user
       - run: pip3 install .[all] --user
       # The tests
-      - run: pytest --cov colorio
+      - run:
+        command: pytest --cov colorio
         working_directory: test
         environment:
           MPLBACKEND: Agg
