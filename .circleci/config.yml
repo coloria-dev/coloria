@@ -7,18 +7,18 @@ jobs:
     steps:
       - checkout
       - run: pip3 install -U black flake8 --user
-      - run: black --check setup.py colorio/ test/*.py
-      - run: flake8 setup.py colorio/ test/*.py
+      - run: black --check .
+      - run: flake8 .
   build:
     working_directory: ~/work
     docker:
       - image: circleci/python:3
     steps:
       - run: sudo apt-get install -y gmsh python3-lxml
-      - run: pip3 install -U pytest pytest-cov
+      - run: pip3 install -U pytest pytest-cov --user
       - checkout
-      - run: pip3 install -r test_requirements.txt
-      - run: pip3 install .[all]
+      - run: pip3 install -r test_requirements.txt --user
+      - run: pip3 install .[all] --user
       # The tests
       - run: pytest --cov colorio
         working_directory: test
