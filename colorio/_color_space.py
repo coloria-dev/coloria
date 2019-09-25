@@ -534,11 +534,10 @@ class ColorSpace:
             ng_data = numpy.array(yaml.safe_load(f))
 
         ng = numpy.sum(ng_data, axis=0) / numpy.prod(ng_data.shape[:1])
-        ng_cs = self.from_xyz100(ng)[1:]
 
         data = numpy.moveaxis(data, 1, 2)
 
-        _plot_color_constancy_data(data, ng_cs, self)
+        _plot_color_constancy_data(data, ng, self)
         return
 
     def show_munsell(self, V):
