@@ -21,10 +21,10 @@ jobs:
       - run: pip3 install .[all] --user
       # The tests
       - run:
-        command: pytest --cov colorio
-        working_directory: test
-        environment:
-          MPLBACKEND: Agg
+          command: pytest --cov colorio
+          working_directory: test
+          environment:
+            MPLBACKEND: Agg
       # submit to codecov
       - run: bash <(curl -s https://codecov.io/bash)
 
