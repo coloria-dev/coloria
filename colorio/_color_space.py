@@ -470,7 +470,7 @@ class ColorSpace:
         with open(os.path.join(dir_path, "data/ebner_fairchild.yaml")) as f:
             data = yaml.safe_load(f)
 
-        wp = self.from_xyz100(numpy.array(data["white point"]))[1:]
+        wp = numpy.array(data["white point"])
 
         d = [
             numpy.column_stack([dat["reference xyz"], numpy.array(dat["same"]).T])
@@ -495,10 +495,8 @@ class ColorSpace:
         with open(os.path.join(dir_path, "data/hung-berns/table3.yaml")) as f:
             data = yaml.safe_load(f)
 
-        wp = self.from_xyz100(numpy.array(whitepoints_cie1931["C"]))[1:]
-
+        wp = numpy.array(whitepoints_cie1931["C"])
         d = [numpy.array(list(color.values())).T for color in data.values()]
-
         _plot_color_constancy_data(d, wp, self)
         return
 
@@ -536,11 +534,10 @@ class ColorSpace:
             ng_data = numpy.array(yaml.safe_load(f))
 
         ng = numpy.sum(ng_data, axis=0) / numpy.prod(ng_data.shape[:1])
-        ng_cs = self.from_xyz100(ng)[1:]
 
         data = numpy.moveaxis(data, 1, 2)
 
-        _plot_color_constancy_data(data, ng_cs, self)
+        _plot_color_constancy_data(data, ng, self)
         return
 
     def show_munsell(self, V):
@@ -583,9 +580,12 @@ class ColorSpace:
         return
 
 
-def _plot_color_constancy_data(data, wp, colorspace, approximate_colors_in_srgb=False):
+def _plot_color_constancy_data(
+    data_xyz100, wp_xyz100, colorspace, approximate_colors_in_srgb=False
+):
+    wp = colorspace.from_xyz100(wp_xyz100)[1:]
     srgb = SrgbLinear()
-    for xyz in data:
+    for xyz in data_xyz100:
         d = colorspace.from_xyz100(xyz)[1:]
 
         # There are numerous possibilities of defining the "best" approximating line for
@@ -620,6 +620,9 @@ def _plot_color_constancy_data(data, wp, colorspace, approximate_colors_in_srgb=
             ecol = srgb.to_srgb1(rgb) if is_legal_srgb else "black"
             plt.plot(dd[0], dd[1], "o", color=col, markeredgecolor=ecol)
 
+    plt.xlabel(colorspace.labels[1])
+    plt.ylabel(colorspace.labels[2])
+    plt.grid()
     plt.axis("equal")
     return
 
