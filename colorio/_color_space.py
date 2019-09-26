@@ -495,7 +495,7 @@ class ColorSpace:
         with open(os.path.join(dir_path, "data/hung-berns/table3.yaml")) as f:
             data = yaml.safe_load(f)
 
-        wp = numpy.array(whitepoints_cie1931["C"])
+        wp = whitepoints_cie1931["C"]
         d = [numpy.array(list(color.values())).T for color in data.values()]
         _plot_color_constancy_data(d, wp, self)
         return
