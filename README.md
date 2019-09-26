@@ -44,6 +44,8 @@ The following color spaces are implemented:
    for conversion from and to standard RGB.
  * [CIELAB](https://en.wikipedia.org/wiki/Lab_color_space) (`colorio.CIELAB()`)
  * [CIELUV](https://en.wikipedia.org/wiki/CIELUV) (`colorio.CIELUV()`)
+ * [RLAB](https://doi.org/10.1002/(SICI)1520-6378(199610)21:5<338::AID-COL3>3.0.CO;2-Z)
+   (`colorio.RLAB()`)
  * [ICtCp](https://en.wikipedia.org/wiki/ICtCp) (`colorio.ICtCp()`)
  * [IPT](http://www.ingentaconnect.com/content/ist/cic/1998/00001998/00000001/art00003)
    (`colorio.IPT()`)
