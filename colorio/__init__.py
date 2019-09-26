@@ -20,6 +20,7 @@ from ._hsv import HSV
 from ._ictcp import ICtCp
 from ._ipt import IPT
 from ._jzazbz import JzAzBz
+from ._rlab import RLAB
 from ._srgb import SrgbLinear
 from ._tools import (
     delta,
@@ -62,6 +63,7 @@ __all__ = [
     "JzAzBz",
     "observers",
     "HdrLinear",
+    "RLAB",
     "SrgbLinear",
     "XYY",
     "XYZ",

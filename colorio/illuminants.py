@@ -8,23 +8,23 @@ from . import observers
 # The "standard" 2 degree observer (CIE 1931). From
 # <https://github.com/njsmith/colorspacious/blob/master/colorspacious/illuminants.py>
 whitepoints_cie1931 = {
-    "A": (109.850, 100, 35.585),
-    "C": (98.074, 100, 118.232),
-    "D50": (96.422, 100, 82.521),
-    "D55": (95.682, 100, 92.149),
-    "D65": (95.047, 100, 108.883),
-    "D75": (94.972, 100, 122.638),
+    "A": numpy.array([109.850, 100, 35.585]),
+    "C": numpy.array([98.074, 100, 118.232]),
+    "D50": numpy.array([96.422, 100, 82.521]),
+    "D55": numpy.array([95.682, 100, 92.149]),
+    "D65": numpy.array([95.047, 100, 108.883]),
+    "D75": numpy.array([94.972, 100, 122.638]),
 }
 
 # The "supplementary" 10 degree observer (CIE 1964). From
 # <https://github.com/njsmith/colorspacious/blob/master/colorspacious/illuminants.py>
 whitepoints_cie1964 = {
-    "A": (111.144, 100, 35.200),
-    "C": (97.285, 100, 116.145),
-    "D50": (96.720, 100, 81.427),
-    "D55": (95.799, 100, 90.926),
-    "D65": (94.811, 100, 107.304),
-    "D75": (94.416, 100, 120.641),
+    "A": numpy.array([111.144, 100, 35.200]),
+    "C": numpy.array([97.285, 100, 116.145]),
+    "D50": numpy.array([96.720, 100, 81.427]),
+    "D55": numpy.array([95.799, 100, 90.926]),
+    "D65": numpy.array([94.811, 100, 107.304]),
+    "D75": numpy.array([94.416, 100, 120.641]),
 }
 
 
