@@ -28,7 +28,7 @@ class RLAB(ColorSpace):
     for the original RLAB. (This implementation uses the "refined RLAB" scheme.)
     """
 
-    def __init__(self, Y_n=318.0, D=0.0):
+    def __init__(self, Y_n=318.0, D=0.0, whitepoint=whitepoints_cie1931["D65"], sigma=1.0 / 2.3):
         # One purpose of RLAB is to account for the adaptation in the human visual
         # system. That is, the visual system sees a red apple no matter if it is looked
         # at in bright daylight, at dawn, or in the light of a fire.  To achieve this,
@@ -41,6 +41,12 @@ class RLAB(ColorSpace):
         self.M = numpy.array(
             [[0.3897, 0.6890, -0.0787], [-0.2298, 1.1834, 0.0464], [0.0, 0.0, 1.0]]
         )
+
+        lms_n = self.M @ whitepoint
+        lms_e = 3.0 * lms_n / numpy.sum(lms_n)
+        Yn3 = Y_n ** (1 / 3)
+        p_lms = (1.0 + Yn3 + lms_e) / (1.0 + Yn3 + 1.0 / lms_e)
+        self.a_lms = (p_lms + D * (1 - p_lms)) / lms_n
 
         # reference stimul
         # The matrix R below can be computed explicitly with
@@ -72,6 +78,8 @@ class RLAB(ColorSpace):
             [[1.9569, -1.1882, 0.2313], [0.3612, 0.6388, 0.0], [0.0, 0.0, 1.0]]
         )
 
+        self.sigma = sigma
+
         self.labels = ["LR", "aR", "bR"]
         return
 
@@ -87,19 +95,13 @@ class RLAB(ColorSpace):
     # The exponents in Equations 13.15–13.17 vary, depending on the relative luminance
     # of the surround. For an average surround sigma = 1/2.3, for a dim surround sigma =
     # 1/2.9, and for a dark surround sigma = 1/3.5.
-    def from_xyz100(self, xyz, lms_n=None, Y_n=318.0, D=0.0, sigma=1.0 / 2.3):
-        lms_n = lms_n if lms_n is not None else self.M @ whitepoints_cie1931["D65"]
-
+    def from_xyz100(self, xyz):
         # First, the stimuli xyz are translated into reference stimuli xyz_ref to
         # account for the environment adaptation of the human visual system.
-        lms_e = 3.0 * lms_n / numpy.sum(lms_n)
-        Yn3 = Y_n ** (1 / 3)
-        p_lms = (1.0 + Yn3 + lms_e) / (1.0 + Yn3 + 1.0 / lms_e)
-        a_lms = (p_lms + D * (1 - p_lms)) / lms_n
-        lms_dash = (a_lms * dot(self.M, xyz).T).T
+        lms_dash = (self.a_lms * dot(self.M, xyz).T).T
         xyz_ref = dot(self.R, lms_dash)
 
-        x_ref_s, y_ref_s, z_ref_s = xyz_ref ** sigma
+        x_ref_s, y_ref_s, z_ref_s = xyz_ref ** self.sigma
 
         # LR represents an achromatic response analogous to CIELAB L*. The redgreen
         # chromatic response is given by a R (analogous to CIELAB a*) and the
@@ -110,21 +112,12 @@ class RLAB(ColorSpace):
 
         return numpy.array([L_R, a_R, b_R])
 
-    def to_xyz100(self, lab, lms_n=None, Y_n=318.0, D=0.0, sigma=1.0 / 2.3):
-        lms_n = lms_n if lms_n is not None else self.M @ whitepoints_cie1931["D65"]
-
+    def to_xyz100(self, lab):
         L_R, a_R, b_R = lab
 
         y_ref_s = L_R / 100
         x_ref_s = a_R / 430 + y_ref_s
         z_ref_s = y_ref_s - b_R / 170
 
-        xyz_ref = numpy.array([x_ref_s, y_ref_s, z_ref_s]) ** (1.0 / sigma)
-
-        lms_e = 3.0 * lms_n / numpy.sum(lms_n)
-        Yn3 = Y_n ** (1 / 3)
-        p_lms = (1.0 + Yn3 + lms_e) / (1.0 + Yn3 + 1.0 / lms_e)
-        a_lms = (p_lms + D * (1 - p_lms)) / lms_n
-
-        xyz = solve(self.M, (solve(self.R, xyz_ref).T / a_lms).T)
-        return xyz
+        xyz_ref = numpy.array([x_ref_s, y_ref_s, z_ref_s]) ** (1.0 / self.sigma)
+        return solve(self.M, (solve(self.R, xyz_ref).T / self.a_lms).T)
