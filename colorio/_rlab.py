@@ -1,6 +1,7 @@
 import numpy
 
 from ._color_space import ColorSpace
+from ._linalg import dot, solve
 from .illuminants import whitepoints_cie1931
 
 
@@ -95,8 +96,8 @@ class RLAB(ColorSpace):
         Yn3 = Y_n ** (1 / 3)
         p_lms = (1.0 + Yn3 + lms_e) / (1.0 + Yn3 + 1.0 / lms_e)
         a_lms = (p_lms + D * (1 - p_lms)) / lms_n
-        lms_dash = a_lms * (self.M @ xyz)
-        xyz_ref = self.R @ lms_dash
+        lms_dash = (a_lms * dot(self.M, xyz).T).T
+        xyz_ref = dot(self.R, lms_dash)
 
         x_ref_s, y_ref_s, z_ref_s = xyz_ref ** sigma
 
@@ -107,7 +108,7 @@ class RLAB(ColorSpace):
         a_R = 430 * (x_ref_s - y_ref_s)
         b_R = 170 * (y_ref_s - z_ref_s)
 
-        return L_R, a_R, b_R
+        return numpy.array([L_R, a_R, b_R])
 
     def to_xyz100(self, lab, lms_n=None, Y_n=318.0, D=0.0, sigma=1.0 / 2.3):
         lms_n = lms_n if lms_n is not None else self.M @ whitepoints_cie1931["D65"]
@@ -125,5 +126,5 @@ class RLAB(ColorSpace):
         p_lms = (1.0 + Yn3 + lms_e) / (1.0 + Yn3 + 1.0 / lms_e)
         a_lms = (p_lms + D * (1 - p_lms)) / lms_n
 
-        xyz = numpy.linalg.solve(self.M, numpy.linalg.solve(self.R, xyz_ref) / a_lms)
+        xyz = solve(self.M, (solve(self.R, xyz_ref).T / a_lms).T)
         return xyz
