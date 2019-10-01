@@ -12,8 +12,6 @@
 [![GitHub stars](https://img.shields.io/github/stars/nschloe/colorio.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/nschloe/colorio)
 [![PyPi downloads](https://img.shields.io/pypi/dm/colorio.svg?style=flat-square)](https://pypistats.org/packages/colorio)
 
-All methods in colorio are fully vectorized.
-
 ### Color spaces
 
 All color spaces implement the two methods
@@ -72,6 +70,7 @@ The following color spaces are implemented:
  * [J<sub>z</sub>a<sub>z</sub>b<sub>z</sub>](https://doi.org/10.1364/OE.25.015131)
    (`colorio.JzAzBz()`)
 
+All methods in colorio are fully vectorized, i.e., computation is _really_ fast.
 
 ### Tools
 
