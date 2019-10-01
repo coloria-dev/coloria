@@ -43,6 +43,7 @@ class JzAzBz(ColorSpace):
         )
 
         self.labels = ["J_z", "a_z", "b_z"]
+        self.k0 = 0  # the index that corresponds to luminosity
         return
 
     def from_xyz100(self, xyz):

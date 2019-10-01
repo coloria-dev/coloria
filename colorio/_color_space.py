@@ -141,7 +141,7 @@ class ColorSpace:
         return
 
     def plot_macadam(
-        self, k0, level, outline_prec=1.0e-2, plot_srgb_gamut=True, ellipse_scaling=10.0
+        self, level, outline_prec=1.0e-2, plot_srgb_gamut=True, ellipse_scaling=10.0
     ):
         # Extract ellipse centers and offsets from MacAdams data
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -167,7 +167,6 @@ class ColorSpace:
         self._plot_ellipses(
             xy_centers,
             xy_offsets,
-            k0,
             level,
             outline_prec=outline_prec,
             plot_srgb_gamut=plot_srgb_gamut,
@@ -186,7 +185,7 @@ class ColorSpace:
         return
 
     def plot_luo_rigg(
-        self, k0, level, outline_prec=1.0e-2, plot_srgb_gamut=True, ellipse_scaling=2.0
+        self, level, outline_prec=1.0e-2, plot_srgb_gamut=True, ellipse_scaling=2.0
     ):
         # M. R. Luo, B. Rigg,
         # Chromaticity Discrimination Ellipses for Surface Colours,
@@ -224,7 +223,6 @@ class ColorSpace:
         self._plot_ellipses(
             xy_centers,
             xy_offsets,
-            k0,
             level,
             outline_prec=outline_prec,
             plot_srgb_gamut=plot_srgb_gamut,
@@ -236,26 +234,26 @@ class ColorSpace:
         self,
         xy_centers,
         xy_offsets,
-        k0,
         level,
         outline_prec=1.0e-2,
         plot_srgb_gamut=True,
         ellipse_scaling=10.0,
     ):
         self.plot_visible_slice(
-            k0, level, outline_prec=outline_prec, plot_srgb_gamut=plot_srgb_gamut
+            level, outline_prec=outline_prec, plot_srgb_gamut=plot_srgb_gamut
         )
 
         for center, offset in zip(xy_centers, xy_offsets):
             # get all the approximate ellipse points in xy space
             xy_ellipse = (center + offset.T).T
 
-            tcenter = self._bisect(center, k0, level)
-            tvals = numpy.array([self._bisect(xy, k0, level) for xy in xy_ellipse.T])
+            tcenter = self._bisect(center, self.k0, level)
+            tvals = numpy.array(
+                [self._bisect(xy, self.k0, level) for xy in xy_ellipse.T]
+            )
 
             # cut off the irrelevant index
-            idx = [0, 1, 2]
-            k1, k2 = idx[:k0] + idx[k0 + 1 :]
+            k1, k2 = [k for k in [0, 1, 2] if k != self.k0]
             tcenter = tcenter[[k1, k2]]
             tvals = tvals[:, [k1, k2]]
 
@@ -317,17 +315,16 @@ class ColorSpace:
         plt.savefig(filename, transparent=True, bbox_inches="tight")
         return
 
-    def plot_visible_slice(self, k0, level, outline_prec=1.0e-2, plot_srgb_gamut=True):
+    def plot_visible_slice(self, level, outline_prec=1.0e-2, plot_srgb_gamut=True):
         # first plot the monochromatic outline
         mono_xy, conn_xy = get_mono_outline_xy(
             observer=cie_1931_2(), max_stepsize=outline_prec
         )
 
-        mono_vals = numpy.array([self._bisect(xy, k0, level) for xy in mono_xy])
-        conn_vals = numpy.array([self._bisect(xy, k0, level) for xy in conn_xy])
+        mono_vals = numpy.array([self._bisect(xy, self.k0, level) for xy in mono_xy])
+        conn_vals = numpy.array([self._bisect(xy, self.k0, level) for xy in conn_xy])
 
-        idx = [0, 1, 2]
-        k1, k2 = idx[:k0] + idx[k0 + 1 :]
+        k1, k2 = [k for k in [0, 1, 2] if k != self.k0]
         plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
         plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
         #
@@ -335,12 +332,12 @@ class ColorSpace:
         plt.fill(xyz[:, k1], xyz[:, k2], facecolor="0.8", zorder=0)
 
         if plot_srgb_gamut:
-            self._plot_srgb_gamut(k0, level)
+            self._plot_srgb_gamut(self.k0, level)
 
         plt.axis("equal")
         plt.xlabel(self.labels[k1])
         plt.ylabel(self.labels[k2])
-        plt.title(f"{self.labels[k0]} = {level}")
+        plt.title(f"{self.labels[self.k0]} = {level}")
         return
 
     def _plot_srgb_gamut(self, k0, level, bright=False):
@@ -408,8 +405,7 @@ class ColorSpace:
             "gamut", rgb, N=len(rgb)
         )
 
-        idx = [0, 1, 2]
-        k1, k2 = idx[:k0] + idx[k0 + 1 :]
+        k1, k2 = [k for k in [0, 1, 2] if k != k0]
 
         plt.tripcolor(
             self_vals[:, k1],
@@ -564,18 +560,25 @@ class ColorSpace:
         rgb = srgb.from_xyz100(xyz100)
         is_legal_srgb = numpy.all((0 <= rgb) & (rgb <= 1), axis=0)
 
+        idx = [0, 1, 2]
+        k1, k2 = idx[: self.k0] + idx[self.k0 + 1 :]
+
         # plot the ones that cannot be represented in SRGB
         plt.plot(
-            vals[1, ~is_legal_srgb],
-            vals[2, ~is_legal_srgb],
+            vals[k1, ~is_legal_srgb],
+            vals[k2, ~is_legal_srgb],
             "o",
             color="white",
             markeredgecolor="black",
         )
         # plot the srgb dots
         for val, rgb_ in zip(vals[:, is_legal_srgb].T, rgb[:, is_legal_srgb].T):
-            plt.plot(val[1], val[2], "o", color=srgb.to_srgb1(rgb_))
+            plt.plot(val[k1], val[k2], "o", color=srgb.to_srgb1(rgb_))
 
+        plt.grid()
+        plt.title("V={}".format(V))
+        plt.xlabel(self.labels[k1])
+        plt.ylabel(self.labels[k2])
         plt.axis("equal")
         return
 
@@ -583,10 +586,15 @@ class ColorSpace:
 def _plot_color_constancy_data(
     data_xyz100, wp_xyz100, colorspace, approximate_colors_in_srgb=False
 ):
-    wp = colorspace.from_xyz100(wp_xyz100)[1:]
+    # k0 is the coordinate that corresponds to "lightness"
+    k0 = colorspace.k0
+
+    k1, k2 = [k for k in [0, 1, 2] if k != k0]
+
+    wp = colorspace.from_xyz100(wp_xyz100)[[k1, k2]]
     srgb = SrgbLinear()
     for xyz in data_xyz100:
-        d = colorspace.from_xyz100(xyz)[1:]
+        d = colorspace.from_xyz100(xyz)[[k1, k2]]
 
         # There are numerous possibilities of defining the "best" approximating line for
         # a bunch of points (x_i, y_i). For example, one could try and minimize the
@@ -620,8 +628,8 @@ def _plot_color_constancy_data(
             ecol = srgb.to_srgb1(rgb) if is_legal_srgb else "black"
             plt.plot(dd[0], dd[1], "o", color=col, markeredgecolor=ecol)
 
-    plt.xlabel(colorspace.labels[1])
-    plt.ylabel(colorspace.labels[2])
+    plt.xlabel(colorspace.labels[k1])
+    plt.ylabel(colorspace.labels[k2])
     plt.grid()
     plt.axis("equal")
     return

@@ -83,6 +83,7 @@ class RLAB(ColorSpace):
         self.sigma = sigma
 
         self.labels = ["LR", "aR", "bR"]
+        self.k0 = 0  # the index that corresponds to luminosity
         return
 
     # Y_n is the absolute luminance of the adapting stimulus (typically a stimulus that

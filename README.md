@@ -12,8 +12,6 @@
 [![GitHub stars](https://img.shields.io/github/stars/nschloe/colorio.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/nschloe/colorio)
 [![PyPi downloads](https://img.shields.io/pypi/dm/colorio.svg?style=flat-square)](https://pypistats.org/packages/colorio)
 
-All methods in colorio are fully vectorized.
-
 ### Color spaces
 
 All color spaces implement the two methods
@@ -72,6 +70,7 @@ The following color spaces are implemented:
  * [J<sub>z</sub>a<sub>z</sub>b<sub>z</sub>](https://doi.org/10.1364/OE.25.015131)
    (`colorio.JzAzBz()`)
 
+All methods in colorio are fully vectorized, i.e., computation is _really_ fast.
 
 ### Tools
 
@@ -79,7 +78,11 @@ colorio provides a number of useful tools for analyzing and visualizing color sp
 
 #### Visualizing the SRGB gamut
 
-<img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="40%">
+<img src="https://nschloe.github.io/colorio/srgb-gamut-xyz.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/srgb-gamut-cam16.png" width="100%">
+:---:|:-------:|:----------:|
+XYZ  |  CIELAB |  CAM16-UCS |
 
 The SRGB gamut is a perfect cube in SRGB space, and takes curious shapes when translated
 into other color spaces. The above image shows the SRGB gamut in XYZ space. The image
@@ -88,10 +91,10 @@ data was created with
 import colorio
 
 colorspace = colorio.CIELAB()
-colorspace.save_srgb_gamut(colorspace, "srgb.vtk", n=50, cut_000=False)
+colorspace.save_srgb_gamut( "srgb.vtk", n=50, cut_000=False)
 
 # The HDR (Rec.2100, Rec.2020) gamut works the same way
-colorspace.save_hdr_gamut(colorspace, "hdr.vtk", n=50, cut_000=False)
+colorspace.save_hdr_gamut("hdr.vtk", n=50, cut_000=False)
 ```
 The [VTK](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
 in, e.g., ParaView, where the following instructions apply:
@@ -112,15 +115,20 @@ packages for some formats.)
 
 #### Visualizing the visible gamut
 
-<img src="https://nschloe.github.io/colorio/visible-d65-xyz.png" width="20%">
+<img src="https://nschloe.github.io/colorio/visible-gamut-xyz.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/visible-gamut-cielab.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/visible-gamut-cam16.png" width="100%">
+:---:|:-------:|:----------:|
+XYZ  |  CIELAB |  CAM16-UCS |
 
 Same as above, but with the gamut visible under a given illuminant.
 ```python
 import colorio
 
-colorspace = colorio.XYZ()
 illuminant = colorio.illuminants.d65()
 observer = colorio.observers.cie_1931_2()
+
+colorspace = colorio.XYZ()
 colorspace.save_visible_gamut(observer, illuminant, "visible.vtk")
 ```
 The gamut is shown in grey since SRGB screens are not able to display the colors anyway.
@@ -159,7 +167,7 @@ For convenience, it is also possible to show the classical visible gamut in xy w
 [Planckian locus](https://en.wikipedia.org/wiki/Planckian_locus) and the SRGB colors (at
 maximum luminosity).
 
-<img src="https://nschloe.github.io/colorio/xy-gamut.png" width="40%">
+<img src="https://nschloe.github.io/colorio/xy-gamut.png" width="30%">
 
 ```python
 import colorio
@@ -177,10 +185,10 @@ certain properties of color spaces.
 ###### MacAdam
 
 <img src="https://nschloe.github.io/colorio/macadam-xyy.png" width="100%"> |
-<img src="https://nschloe.github.io/colorio/macadam-cieluv.png" width="100%"> |
-<img src="https://nschloe.github.io/colorio/macadam-jzazbz.png" width="100%">
-:--------------:|:------------------:|:---------------------:|
-xyY (at Y=0.4)  |  CIELUV (at L=50)  |  JzAzBz (at Jz=0.5) |
+<img src="https://nschloe.github.io/colorio/macadam-cielab.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/macadam-cam16.png" width="100%">
+:--------------:|:------------------:|:----------------:|
+xyY (at Y=0.4)  |  CIELAB (at L=50)  |  CAM16 (at L=50) |
 
 The famous MacAdam ellipses (from [this
 article](https://doi.org/10.1364%2FJOSA.32.000247)) can be plotted with
@@ -189,23 +197,20 @@ article](https://doi.org/10.1364%2FJOSA.32.000247)) can be plotted with
 import colorio
 
 # xyy = colorio.XYY()
-# xyy.show_macadam(2, 0.4)
-# xyy.save_macadam("macadam-xyy.png", 2, 0.4)
+# xyy.show_macadam(0.4)
+# xyy.save_macadam("macadam-xyy.png", 0.4)
 
-# cieluv = colorio.CIELUV()
-# cieluv.show_macadam(0, 50)
-
-jzazbz = colorio.JzAzBz()
-jzazbz.show_macadam(0, 0.5)
+cieluv = colorio.CIELUV()
+cieluv.show_macadam(50)
 ```
 
 ###### Luo-Rigg
 
 <img src="https://nschloe.github.io/colorio/luo-rigg-xyy.png" width="100%"> |
-<img src="https://nschloe.github.io/colorio/luo-rigg-cieluv.png" width="100%"> |
-<img src="https://nschloe.github.io/colorio/luo-rigg-jzazbz.png" width="100%">
-:--------------:|:------------------:|:---------------------:|
-xyY (at Y=0.4)  |  CIELUV (at L=50)  |  JzAzBz (at Jz=0.5) |
+<img src="https://nschloe.github.io/colorio/luo-rigg-cielab.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/luo-rigg-cam16.png" width="100%">
+:--------------:|:------------------:|:----------------:|
+xyY (at Y=0.4)  |  CIELAB (at L=50)  |  CAM16 (at L=50) |
 
 Likewise for [Luo-Rigg](https://doi.org/10.1002/col.5080110107).
 
@@ -213,23 +218,20 @@ Likewise for [Luo-Rigg](https://doi.org/10.1002/col.5080110107).
 import colorio
 
 # xyy = colorio.XYY()
-# xyy.show_luo_rigg(2, 0.4)
-# xyy.save_luo_rigg("luo-rigg-xyy.png", 2, 0.4)
+# xyy.show_luo_rigg(0.4)
+# xyy.save_luo_rigg("luo-rigg-xyy.png", 0.4)
 
 cieluv = colorio.CIELUV()
-cieluv.show(0, 50)
-
-# jzazbz = colorio.JzAzBz()
-# jzazbz.show_luo_rigg(0, 0.5)
+cieluv.show(50)
 ```
 
 ###### Ebner-Fairchild
 
+<img src="https://nschloe.github.io/colorio/ebner-fairchild-xyy.svg" width="100%"> |
 <img src="https://nschloe.github.io/colorio/ebner-fairchild-cielab.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/ebner-fairchild-cam16.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/ebner-fairchild-jzazbz.svg" width="100%">
-:--------------:|:------------------:|:---------------------:|
-CIELAB          |  CAM16             |  JzAzBz |
+<img src="https://nschloe.github.io/colorio/ebner-fairchild-cam16.svg" width="100%">
+:--------------:|:---------------:|:---------------------:|
+xyY             | CIELAB          |  CAM16             |
 
 For example
 ```python
@@ -246,11 +248,11 @@ experiments](https://doi.org/10.1117/12.298269) in the hue-plane of some color s
 ###### Hung-Berns
 Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
 
+<img src="https://nschloe.github.io/colorio/hung-berns-xyy.svg" width="100%"> |
 <img src="https://nschloe.github.io/colorio/hung-berns-cielab.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/hung-berns-cam16.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/hung-berns-jzazbz.svg" width="100%">
-:--------------:|:------------------:|:---------------------:|
-CIELAB          |  CAM16             |  JzAzBz |
+<img src="https://nschloe.github.io/colorio/hung-berns-cam16.svg" width="100%">
+:--------------:|:---------------:|:---------------------:|
+xyY             | CIELAB          |  CAM16             |
 
 Note the dark blue distortion in CIELAB and CAM16.
 
@@ -264,11 +266,11 @@ colorspace.show_hung_berns()
 ###### Xiao et al.
 Likewise for [Xiao et al.](https://doi.org/10.1002/col.20637):
 
+<img src="https://nschloe.github.io/colorio/xiao-xyy.svg" width="100%"> |
 <img src="https://nschloe.github.io/colorio/xiao-cielab.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/xiao-cam16.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/xiao-jzazbz.svg" width="100%">
-:--------------:|:------------------:|:---------------------:|
-CIELAB          |  CAM16             |  JzAzBz |
+<img src="https://nschloe.github.io/colorio/xiao-cam16.svg" width="100%">
+:--------------:|:---------------:|:---------------------:|
+xyY             | CIELAB          |  CAM16             |
 
 ```python
 import colorio
@@ -279,11 +281,11 @@ colorspace.show_xiao()
 
 ##### Munsell
 
+<img src="https://nschloe.github.io/colorio/munsell-xyy.svg" width="100%"> |
 <img src="https://nschloe.github.io/colorio/munsell-cielab.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/munsell-cam16.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/munsell-jzazbz.svg" width="100%">
-:--------------:|:------------------:|:---------------------:|
-CIELAB          |  CAM16             |  JzAzBz |
+<img src="https://nschloe.github.io/colorio/munsell-cam16.svg" width="100%">
+:--------------:|:---------------:|:---------------------:|
+xyY             | CIELAB          |  CAM16             |
 
 [Munsell color data](https://www.rit.edu/cos/colorscience/rc_munsell_renotation.php) is
 visualized with
