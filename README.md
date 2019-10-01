@@ -279,11 +279,11 @@ colorspace.show_xiao()
 
 ##### Munsell
 
+<img src="https://nschloe.github.io/colorio/munsell-xyy.svg" width="100%"> |
 <img src="https://nschloe.github.io/colorio/munsell-cielab.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/munsell-cam16.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/munsell-jzazbz.svg" width="100%">
-:--------------:|:------------------:|:---------------------:|
-CIELAB          |  CAM16             |  JzAzBz |
+<img src="https://nschloe.github.io/colorio/munsell-cam16.svg" width="100%">
+:--------------:|:---------------:|:---------------------:|
+xyY             | CIELAB          |  CAM16             |
 
 [Munsell color data](https://www.rit.edu/cos/colorscience/rc_munsell_renotation.php) is
 visualized with
