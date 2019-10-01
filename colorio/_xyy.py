@@ -6,6 +6,7 @@ from ._color_space import ColorSpace
 class XYY(ColorSpace):
     def __init__(self):
         self.labels = ["x", "y", "Y"]
+        self.k0 = 2  # which index corresponds to luminosity
         return
 
     def from_xyz100(self, xyz100):

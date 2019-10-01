@@ -25,6 +25,7 @@ class IPT(ColorSpace):
             ]
         )
         self.labels = ["I", "P", "T"]
+        self.k0 = 0  # the index that corresponds to luminosity
         return
 
     def from_xyz100(self, xyz):

@@ -112,6 +112,7 @@ class CAM16UCS(ColorSpace):
         self.c2 = 0.0228
         self.cam16 = CAM16(c, Y_b, L_A, exact_inversion, whitepoint)
         self.labels = ["J'", "a'", "b'"]
+        self.k0 = 0  # the index that corresponds to luminosity
         return
 
     def from_xyz100(self, xyz):
