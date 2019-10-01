@@ -225,11 +225,11 @@ cieluv.show(0, 50)
 
 ###### Ebner-Fairchild
 
+<img src="https://nschloe.github.io/colorio/ebner-fairchild-xyy.svg" width="100%"> |
 <img src="https://nschloe.github.io/colorio/ebner-fairchild-cielab.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/ebner-fairchild-cam16.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/ebner-fairchild-jzazbz.svg" width="100%">
-:--------------:|:------------------:|:---------------------:|
-CIELAB          |  CAM16             |  JzAzBz |
+<img src="https://nschloe.github.io/colorio/ebner-fairchild-cam16.svg" width="100%">
+:--------------:|:---------------:|:---------------------:|
+xyY             | CIELAB          |  CAM16             |
 
 For example
 ```python
@@ -246,11 +246,11 @@ experiments](https://doi.org/10.1117/12.298269) in the hue-plane of some color s
 ###### Hung-Berns
 Likewise for [Hung-Berns](https://doi.org/10.1002/col.5080200506):
 
+<img src="https://nschloe.github.io/colorio/hung-berns-xyy.svg" width="100%"> |
 <img src="https://nschloe.github.io/colorio/hung-berns-cielab.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/hung-berns-cam16.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/hung-berns-jzazbz.svg" width="100%">
-:--------------:|:------------------:|:---------------------:|
-CIELAB          |  CAM16             |  JzAzBz |
+<img src="https://nschloe.github.io/colorio/hung-berns-cam16.svg" width="100%">
+:--------------:|:---------------:|:---------------------:|
+xyY             | CIELAB          |  CAM16             |
 
 Note the dark blue distortion in CIELAB and CAM16.
 
@@ -264,11 +264,11 @@ colorspace.show_hung_berns()
 ###### Xiao et al.
 Likewise for [Xiao et al.](https://doi.org/10.1002/col.20637):
 
+<img src="https://nschloe.github.io/colorio/xiao-xyy.svg" width="100%"> |
 <img src="https://nschloe.github.io/colorio/xiao-cielab.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/xiao-cam16.svg" width="100%"> |
-<img src="https://nschloe.github.io/colorio/xiao-jzazbz.svg" width="100%">
-:--------------:|:------------------:|:---------------------:|
-CIELAB          |  CAM16             |  JzAzBz |
+<img src="https://nschloe.github.io/colorio/xiao-cam16.svg" width="100%">
+:--------------:|:---------------:|:---------------------:|
+xyY             | CIELAB          |  CAM16             |
 
 ```python
 import colorio
