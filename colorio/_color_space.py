@@ -564,18 +564,25 @@ class ColorSpace:
         rgb = srgb.from_xyz100(xyz100)
         is_legal_srgb = numpy.all((0 <= rgb) & (rgb <= 1), axis=0)
 
+        idx = [0, 1, 2]
+        k1, k2 = idx[:self.k0] + idx[self.k0 + 1 :]
+
         # plot the ones that cannot be represented in SRGB
         plt.plot(
-            vals[1, ~is_legal_srgb],
-            vals[2, ~is_legal_srgb],
+            vals[k1, ~is_legal_srgb],
+            vals[k2, ~is_legal_srgb],
             "o",
             color="white",
             markeredgecolor="black",
         )
         # plot the srgb dots
         for val, rgb_ in zip(vals[:, is_legal_srgb].T, rgb[:, is_legal_srgb].T):
-            plt.plot(val[1], val[2], "o", color=srgb.to_srgb1(rgb_))
+            plt.plot(val[k1], val[k2], "o", color=srgb.to_srgb1(rgb_))
 
+        plt.grid()
+        plt.title("V={}".format(V))
+        plt.xlabel(self.labels[k1])
+        plt.ylabel(self.labels[k2])
         plt.axis("equal")
         return
 
