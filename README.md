@@ -168,7 +168,7 @@ For convenience, it is also possible to show the classical visible gamut in xy w
 [Planckian locus](https://en.wikipedia.org/wiki/Planckian_locus) and the SRGB colors (at
 maximum luminosity).
 
-<img src="https://nschloe.github.io/colorio/xy-gamut.png" width="40%">
+<img src="https://nschloe.github.io/colorio/xy-gamut.png" width="30%">
 
 ```python
 import colorio
