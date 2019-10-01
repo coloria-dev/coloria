@@ -116,15 +116,20 @@ packages for some formats.)
 
 #### Visualizing the visible gamut
 
-<img src="https://nschloe.github.io/colorio/visible-d65-xyz.png" width="20%">
+<img src="https://nschloe.github.io/colorio/visible-gamut-xyz.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/visible-gamut-cielab.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/visible-gamut-cam16.png" width="100%">
+:---:|:-------:|:----------:|
+XYZ  |  CIELAB |  CAM16-UCS |
 
 Same as above, but with the gamut visible under a given illuminant.
 ```python
 import colorio
 
-colorspace = colorio.XYZ()
 illuminant = colorio.illuminants.d65()
 observer = colorio.observers.cie_1931_2()
+
+colorspace = colorio.XYZ()
 colorspace.save_visible_gamut(observer, illuminant, "visible.vtk")
 ```
 The gamut is shown in grey since SRGB screens are not able to display the colors anyway.
