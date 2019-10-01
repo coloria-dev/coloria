@@ -167,7 +167,6 @@ class ColorSpace:
         self._plot_ellipses(
             xy_centers,
             xy_offsets,
-            self.k0,
             level,
             outline_prec=outline_prec,
             plot_srgb_gamut=plot_srgb_gamut,
@@ -224,7 +223,6 @@ class ColorSpace:
         self._plot_ellipses(
             xy_centers,
             xy_offsets,
-            self.k0,
             level,
             outline_prec=outline_prec,
             plot_srgb_gamut=plot_srgb_gamut,
@@ -236,7 +234,6 @@ class ColorSpace:
         self,
         xy_centers,
         xy_offsets,
-        k0,
         level,
         outline_prec=1.0e-2,
         plot_srgb_gamut=True,
@@ -250,12 +247,13 @@ class ColorSpace:
             # get all the approximate ellipse points in xy space
             xy_ellipse = (center + offset.T).T
 
-            tcenter = self._bisect(center, k0, level)
-            tvals = numpy.array([self._bisect(xy, k0, level) for xy in xy_ellipse.T])
+            tcenter = self._bisect(center, self.k0, level)
+            tvals = numpy.array(
+                [self._bisect(xy, self.k0, level) for xy in xy_ellipse.T]
+            )
 
             # cut off the irrelevant index
-            idx = [0, 1, 2]
-            k1, k2 = idx[:k0] + idx[k0 + 1 :]
+            k1, k2 = [k for k in [0, 1, 2] if k != self.k0]
             tcenter = tcenter[[k1, k2]]
             tvals = tvals[:, [k1, k2]]
 
@@ -326,8 +324,7 @@ class ColorSpace:
         mono_vals = numpy.array([self._bisect(xy, self.k0, level) for xy in mono_xy])
         conn_vals = numpy.array([self._bisect(xy, self.k0, level) for xy in conn_xy])
 
-        idx = [0, 1, 2]
-        k1, k2 = idx[:self.k0] + idx[self.k0 + 1 :]
+        k1, k2 = [k for k in [0, 1, 2] if k != self.k0]
         plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
         plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
         #
@@ -408,8 +405,7 @@ class ColorSpace:
             "gamut", rgb, N=len(rgb)
         )
 
-        idx = [0, 1, 2]
-        k1, k2 = idx[:k0] + idx[k0 + 1 :]
+        k1, k2 = [k for k in [0, 1, 2] if k != k0]
 
         plt.tripcolor(
             self_vals[:, k1],
@@ -565,7 +561,7 @@ class ColorSpace:
         is_legal_srgb = numpy.all((0 <= rgb) & (rgb <= 1), axis=0)
 
         idx = [0, 1, 2]
-        k1, k2 = idx[:self.k0] + idx[self.k0 + 1 :]
+        k1, k2 = idx[: self.k0] + idx[self.k0 + 1 :]
 
         # plot the ones that cannot be represented in SRGB
         plt.plot(
@@ -593,8 +589,7 @@ def _plot_color_constancy_data(
     # k0 is the coordinate that corresponds to "lightness"
     k0 = colorspace.k0
 
-    idx = [0, 1, 2]
-    k1, k2 = idx[:k0] + idx[k0 + 1 :]
+    k1, k2 = [k for k in [0, 1, 2] if k != k0]
 
     wp = colorspace.from_xyz100(wp_xyz100)[[k1, k2]]
     srgb = SrgbLinear()
