@@ -79,7 +79,11 @@ colorio provides a number of useful tools for analyzing and visualizing color sp
 
 #### Visualizing the SRGB gamut
 
-<img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="40%">
+<img src="https://nschloe.github.io/colorio/srgb-gamut-xyz.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="100%"> |
+<img src="https://nschloe.github.io/colorio/srgb-gamut-cam16.png" width="100%">
+:---:|:-------:|:----------:|
+XYZ  |  CIELAB |  CAM16-UCS |
 
 The SRGB gamut is a perfect cube in SRGB space, and takes curious shapes when translated
 into other color spaces. The above image shows the SRGB gamut in XYZ space. The image
@@ -88,10 +92,10 @@ data was created with
 import colorio
 
 colorspace = colorio.CIELAB()
-colorspace.save_srgb_gamut(colorspace, "srgb.vtk", n=50, cut_000=False)
+colorspace.save_srgb_gamut( "srgb.vtk", n=50, cut_000=False)
 
 # The HDR (Rec.2100, Rec.2020) gamut works the same way
-colorspace.save_hdr_gamut(colorspace, "hdr.vtk", n=50, cut_000=False)
+colorspace.save_hdr_gamut("hdr.vtk", n=50, cut_000=False)
 ```
 The [VTK](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
 in, e.g., ParaView, where the following instructions apply:
