@@ -141,7 +141,12 @@ class ColorSpace:
         return
 
     def plot_macadam(
-        self, level, outline_prec=1.0e-2, plot_srgb_gamut=True, ellipse_scaling=10.0
+        self,
+        level,
+        outline_prec=1.0e-2,
+        plot_srgb_gamut=True,
+        ellipse_scaling=10.0,
+        visible_gamut_fill_color="0.8",
     ):
         # Extract ellipse centers and offsets from MacAdams data
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -171,6 +176,7 @@ class ColorSpace:
             outline_prec=outline_prec,
             plot_srgb_gamut=plot_srgb_gamut,
             ellipse_scaling=ellipse_scaling,
+            visible_gamut_fill_color=visible_gamut_fill_color,
         )
         return
 
@@ -238,9 +244,13 @@ class ColorSpace:
         outline_prec=1.0e-2,
         plot_srgb_gamut=True,
         ellipse_scaling=10.0,
+        visible_gamut_fill_color="0.8",
     ):
         self.plot_visible_slice(
-            level, outline_prec=outline_prec, plot_srgb_gamut=plot_srgb_gamut
+            level,
+            outline_prec=outline_prec,
+            plot_srgb_gamut=plot_srgb_gamut,
+            fill_color=visible_gamut_fill_color,
         )
 
         for center, offset in zip(xy_centers, xy_offsets):
@@ -315,7 +325,9 @@ class ColorSpace:
         plt.savefig(filename, transparent=True, bbox_inches="tight")
         return
 
-    def plot_visible_slice(self, level, outline_prec=1.0e-2, plot_srgb_gamut=True):
+    def plot_visible_slice(
+        self, level, outline_prec=1.0e-2, plot_srgb_gamut=True, fill_color="0.8"
+    ):
         # first plot the monochromatic outline
         mono_xy, conn_xy = get_mono_outline_xy(
             observer=cie_1931_2(), max_stepsize=outline_prec
@@ -328,8 +340,9 @@ class ColorSpace:
         plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
         plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
         #
-        xyz = numpy.vstack([mono_vals, conn_vals[1:]])
-        plt.fill(xyz[:, k1], xyz[:, k2], facecolor="0.8", zorder=0)
+        if fill_color is not None:
+            xyz = numpy.vstack([mono_vals, conn_vals[1:]])
+            plt.fill(xyz[:, k1], xyz[:, k2], facecolor=fill_color, zorder=0)
 
         if plot_srgb_gamut:
             self._plot_srgb_gamut(self.k0, level)
