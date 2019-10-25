@@ -17,7 +17,7 @@ class ICtCp(ColorSpace):
 
         # From <https://doi.org/10.5594/SMPTE.ST2084.2014>
         self.m1 = 2610 / 4096 / 4
-        self.m2 = 2523 / 4096 / 128
+        self.m2 = 2523 / 4096 * 128
         self.c1 = 3424 / 4096
         self.c2 = 2413 / 4096 * 32
         self.c3 = 2392 / 4096 * 32
