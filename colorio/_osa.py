@@ -1,7 +1,7 @@
 import numpy
 
 from ._color_space import ColorSpace
-from ._linalg import dot, solve
+from ._linalg import dot
 from .illuminants import whitepoints_cie1931
 
 
@@ -59,13 +59,12 @@ class Osa(ColorSpace):
 
         return numpy.array([L, g, j])
 
-    def to_xyz100(self, lgj, tol=1.0e-13):
+    def to_xyz100(self, lgj, tol=1.0e-13, max_num_newton_steps=100):
         # Renbo Cao, H. Joel Trussell, and Renzo Shamey,
         # Comparison of the performance of inverse transformation methods from OSA-UCS
         # to CIEXYZ,
         # J Opt Soc Am A Opt Image Sci Vis., 2013 Aug 1,30(8):1508-15,
         # <https://doi.org/10.1364/JOSAA.30.001508>.
-
         L, g, j = lgj
 
         L_prime = L * numpy.sqrt(2) + 14.3993
@@ -74,14 +73,20 @@ class Osa(ColorSpace):
         # f(t) = (L' / 5.9 + 2/3 - t) ** 3 - 0.042**3 * (t**3 - 30)
         # df/dt = -3 * (L' / 5.9 + 2/3 - t) ** 2 - 0.042**3 * 3 * t**2
         #
-        # This might be a good initial guess since 0.042 ** 3 * (t ** 3 - 30) is small.
-        # An alternative is simply t=0.
+        # The following might be a good initial guess since 0.042 ** 3 * (t ** 3 - 30)
+        # is small. An alternative is simply t=0.
         t = L_prime / 5.9 + 2 / 3
         ft = (L_prime / 5.9 + 2 / 3 - t) ** 3 - 0.042 ** 3 * (t ** 3 - 30)
+        k = 0
         while numpy.any(numpy.abs(ft) > tol):
+            if k >= max_num_newton_steps:
+                raise RuntimeError(
+                    "OSA-USC.to_xyz100 exceeded max number of Newton steps"
+                )
             dfdt = -3 * (L_prime / 5.9 + 2 / 3 - t) ** 2 - 0.042 ** 3 * 3 * t ** 2
             t -= ft / dfdt
             ft = (L_prime / 5.9 + 2 / 3 - t) ** 3 - 0.042 ** 3 * (t ** 3 - 30)
+            k += 1
 
         Y0 = t ** 3
         C = L_prime / (5.9 * (t - 2 / 3))
@@ -94,7 +99,7 @@ class Osa(ColorSpace):
         det = -17.7 * 9.7 + 4 * 8
         # inv = [[-9.7, 4], [-8, 17.7]] / det
 
-        def f(omega):
+        def f_df(omega):
             cbrt_R = omega
             ap = (a + 13.7 * omega) / det
             bp = (b - 1.7 * omega) / det
@@ -118,46 +123,27 @@ class Osa(ColorSpace):
                 - 2.5643 * y
                 + 1.8103
             )
-            return Y * K - Y0
 
-        def dfdomega(omega):
-            cbrt_R = omega
-            ap = (a + 13.7 * omega) / det
-            bp = (b - 1.7 * omega) / det
-            cbrt_G = -9.7 * ap + 4 * bp
-            cbrt_B = -8 * ap + 17.7 * bp
-
+            # df/domega
             dcbrt_R = 1.0
             dap = 13.7 / det
             dbp = -1.7 / det
             dcbrt_G = -9.7 * dap + 4 * dbp
             dcbrt_B = -8 * dap + 17.7 * dbp
 
-            RGB = numpy.array([cbrt_R, cbrt_G, cbrt_B]) ** 3
-            dRGB = numpy.array([
-                3 * cbrt_R**2 * dcbrt_R,
-                3 * cbrt_G**2 * dcbrt_G,
-                3 * cbrt_B**2 * dcbrt_B,
-            ])
-            xyz100 = dot(self.Minv, RGB)
+            dRGB = numpy.array(
+                [
+                    3 * cbrt_R ** 2 * dcbrt_R,
+                    3 * cbrt_G ** 2 * dcbrt_G,
+                    3 * cbrt_B ** 2 * dcbrt_B,
+                ]
+            )
             dxyz100 = dot(self.Minv, dRGB)
 
-            X, Y, Z = xyz100
             dX, dY, dZ = dxyz100
-            sum_xyz = numpy.sum(xyz100, axis=0)
             dsum_xyz = numpy.sum(dxyz100, axis=0)
-            x = X / sum_xyz
-            y = Y / sum_xyz
             dx = (dX * sum_xyz - X * dsum_xyz) / sum_xyz ** 2
             dy = (dY * sum_xyz - Y * dsum_xyz) / sum_xyz ** 2
-            K = (
-                4.4934 * x ** 2
-                + 4.3034 * y ** 2
-                - 4.276 * x * y
-                - 1.3744 * x
-                - 2.5643 * y
-                + 1.8103
-            )
             dK = (
                 4.4934 * 2 * x * dx
                 + 4.3034 * 2 * y * dy
@@ -165,7 +151,7 @@ class Osa(ColorSpace):
                 - 1.3744 * dx
                 - 2.5643 * dy
             )
-            return dY * K + Y * dK
+            return Y * K - Y0, dY * K + Y * dK, xyz100
 
         # singular value of f: omega = 0.16865940093
         # this happens if x+y+z approx 0, some of them being negative
@@ -187,21 +173,15 @@ class Osa(ColorSpace):
         # omega = 3.9981595815071427
         # omega = 3.99
         omega = 0.0
-        fomega = f(omega)
+        fomega, dfdomega_val, xyz100 = f_df(omega)
+        k = 0
         while numpy.any(numpy.abs(fomega) > tol):
-            dfdomega_val = dfdomega(omega)
+            if k >= max_num_newton_steps:
+                raise RuntimeError(
+                    "OSA-USC.to_xyz100 exceeded max number of Newton steps"
+                )
             omega -= fomega / dfdomega_val
-            fomega = f(omega)
-
-        # a + 13.7 * omega = + 17.7 * numpy.cbrt(G) - 4 * numpy.cbrt(B)
-        # b - 1.7 * omega = 8 * numpy.cbrt(G) - 9.7 * numpy.cbrt(B)
-        cbrt_R = omega
-        ap = (a + 13.7 * omega) / det
-        bp = (b - 1.7 * omega) / det
-        cbrt_G = -9.7 * ap + 4 * bp
-        cbrt_B = -8 * ap + 17.7 * bp
-
-        RGB = numpy.array([cbrt_R, cbrt_G, cbrt_B]) ** 3
-        xyz100 = dot(self.Minv, RGB)
+            fomega, dfdomega_val, xyz100 = f_df(omega)
+            k += 1
 
         return xyz100
