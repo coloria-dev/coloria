@@ -111,10 +111,7 @@ follows:
 \begin{itemize}
   \item Compute $x$, $y$ coordinates via
     \[
-      \begin{split}
-        x &= \frac{X}{X + Y + Z},\\
-        y &= \frac{Y}{X + Y + Z}.
-      \end{split}
+      x = \frac{X}{X + Y + Z},\quad y = \frac{Y}{X + Y + Z}.
     \]
   \item Compute $K$ and $Y_0$ as
     \[
@@ -125,12 +122,12 @@ follows:
     \]
 
   \item Compute $L'$ and $C$ as
-    \[
+    \begin{equation}\label{eq:lc}
       \begin{split}
-        L' &= 5.9 \left(\sqrt[3]{Y_0} - \frac{2}{3} + 0.042 \sqrt[3]{Y0 - 30}\right)\\
-        C &= \frac{L'}{5.9 (\sqrt[3]{Y_0} - \frac{2}{3})}.
+        L' &= 5.9 \left(\sqrt[3]{Y_0} - \frac{2}{3} + 0.042 \sqrt[3]{Y_0 - 30}\right)\\
+        C &= \frac{L'}{5.9 \left(\sqrt[3]{Y_0} - \frac{2}{3}\right)}.
       \end{split}
-    \]
+    \end{equation}
     Note that $L'$ is $L$ in the original article~\cite{macadam}.
 
   \item Compute RGB as
@@ -189,6 +186,40 @@ follows:
     \]
 \end{itemize}
 
+\section{The backward conversion}
+
+This section describes the conversion from the  $L$, $g$, $j$ to the $X$, $Y$, $Z$
+coordinates and mostly sticks to Kobayasi~\cite{kobayasi} here.
+
+Given $L$, we can first compute
+\[
+  L' = L \sqrt{2} + 14.3993.
+\]
+Equation~\ref{eq:lc} gives the nonlinear relationship between $L'$ and $Y_0$ from which
+we will retrieve $Y_0$. First set $t\coloneqq \sqrt[3]{Y_0}$ and solve $f(t)=0$ for $t$
+using Newton's method with
+\[
+  \begin{split}
+    f(t) &\coloneqq {\left(\frac{L'}{5.9} + \frac{2}{3} - t\right)}^3 - 0.042^3 (t^3 - 30)\\
+    f'(t) &= -3 {\left(\frac{L'}{5.9} + \frac{2}{3} - t\right)}^2 - 0.042^3 3 t^2.
+  \end{split}
+\]
+It is reasonable to assume that
+\[
+  t_0 = \frac{L'}{5.9} + \frac{2}{3}
+\]
+is a good initial guess for $t$ since the second term in $f(t)$ with $0.042^3$ is
+probably small.
+Indeed, in practical application it takes less than 10 Newton iterations to achieve
+convergence up to a tolerance of $10^{-13}$.
+
+From here, one can compute
+\[
+  Y_0 = t^3,\quad
+  C = \frac{L'}{5.9 \left(t - \frac{2}{3}\right)},\quad
+  a = \frac{g}{C},\quad
+  b = \frac{j}{C}.
+\]
 
 
 \begin{figure}
