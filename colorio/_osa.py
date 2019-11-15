@@ -5,7 +5,7 @@ from ._linalg import dot
 from .illuminants import whitepoints_cie1931
 
 
-class Osa(ColorSpace):
+class OsaUcs(ColorSpace):
     """
     David L. MacAdam,
     Uniform color scales,

@@ -17,6 +17,6 @@ numpy.random.seed(0)
     ],
 )
 def test_conversion(xyz):
-    osa = colorio.Osa()
+    osa = colorio.OsaUcs()
     out = osa.to_xyz100(osa.from_xyz100(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-10)

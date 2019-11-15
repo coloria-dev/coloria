@@ -40,6 +40,7 @@ The following color spaces are implemented:
    to_srgb1()
    ```
    for conversion from and to standard RGB.
+ * [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS) (`colorio.OsaUcs()`)
  * [CIELAB](https://en.wikipedia.org/wiki/Lab_color_space) (`colorio.CIELAB()`)
  * [CIELUV](https://en.wikipedia.org/wiki/CIELUV) (`colorio.CIELUV()`)
  * [RLAB](https://doi.org/10.1002/(SICI)1520-6378(199610)21:5<338::AID-COL3>3.0.CO;2-Z)
