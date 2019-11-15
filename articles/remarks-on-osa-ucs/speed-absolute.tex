@@ -1,0 +1,54 @@
+% This file was created by tikzplotlib v0.8.5.
+\begin{tikzpicture}
+\small
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+
+\begin{axis}[
+width=0.5\textwidth,
+height=0.4\textwidth,
+log basis x={10},
+log basis y={10},
+tick align=outside,
+tick pos=left,
+x grid style={white!69.01960784313725!black},
+xmajorgrids,
+xmin=0.466516495768404, xmax=8990687.44201965,
+xmode=log,
+xtick style={color=black},
+y grid style={white!69.01960784313725!black},
+xlabel={Size of the OSA-UCS array},
+ylabel={Runtime [s]},
+ymajorgrids,
+ymin=1.0e-05, ymax=3.0946896171257,
+ymode=log,
+ytick style={color=black}
+]
+\addplot [semithick, color0]
+table {%
+1 4.6026e-05
+2 4.8656e-05
+4 4.8798e-05
+8 4.9518e-05
+16 5.1298e-05
+32 5.406e-05
+64 6.1218e-05
+128 7.4422e-05
+256 0.000100108
+512 0.00014922
+1024 0.000244824
+2048 0.000432382
+4096 0.000798368
+8192 0.00154504
+16384 0.003041107
+32768 0.015252678
+65536 0.03102277
+131072 0.062590365
+262144 0.121108512
+524288 0.214264196
+1048576 0.339891653
+2097152 0.697448122
+4194304 1.476815604
+};
+\end{axis}
+
+\end{tikzpicture}

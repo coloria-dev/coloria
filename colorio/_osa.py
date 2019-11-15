@@ -149,9 +149,9 @@ class OsaUcs(ColorSpace):
             f = Y * K - Y0
 
             # df/domega
-            dcbrt_RGB = numpy.ones_like(cbrt_RGB)
-
-            dRGB = 3 * cbrt_RGB ** 2 * dcbrt_RGB
+            # dcbrt_RGB = 1.0
+            # dRGB = 3 * cbrt_RGB ** 2 * dcbrt_RGB
+            dRGB = 3 * cbrt_RGB ** 2
             dxyz100 = dot(self.Minv, dRGB)
 
             dX, dY, dZ = dxyz100
