@@ -97,24 +97,46 @@ class Osa(ColorSpace):
         # b = 1.7 * numpy.cbrt(R) + 8 * numpy.cbrt(G) - 9.7 * numpy.cbrt(B)
         # A = [[17.7, -4], [8, -9.7]]
         det = -17.7 * 9.7 + 4 * 8
+        ap = (-9.7 * a + 4 * b) / det
+        bp = (-8 * a + 17.7 * b) / det
         # inv = [[-9.7, 4], [-8, 17.7]] / det
 
         def f_df(omega):
-            cbrt_R = omega
-            ap = (a + 13.7 * omega) / det
-            bp = (b - 1.7 * omega) / det
-            cbrt_G = -9.7 * ap + 4 * bp
-            cbrt_B = -8 * ap + 17.7 * bp
-            # cbrt_G = (-9.7 * a + 4 * b) / det + (-9.7 * 13.7 - 4 * 1.7) / det * omega
-            # cbrt_B = (-8 * a + 17.7 * b) / det + (-8 * 13.7 - 17.7 * 1.7) / det * omega
+            cbrt_RGB = numpy.array([omega, omega + ap, omega + bp])
+            # print(cbrt_RGB)
+            # cbrt_R = omega
+            # ap = (a + 13.7 * omega) / det
+            # bp = (b - 1.7 * omega) / det
+            # cbrt_G = -9.7 * ap + 4 * bp
+            # cbrt_B = -8 * ap + 17.7 * bp
 
-            RGB = numpy.array([cbrt_R, cbrt_G, cbrt_B]) ** 3
+            # A = numpy.array([[-13.7, 17.7, -4], [1.7, 8, -9.7], [0.0, 1.0, 0.0]])
+            # Ainv = numpy.linalg.inv(A)
+            # rhs = numpy.array(
+            #     [numpy.full(omega.shape, a), numpy.full(omega.shape, b), omega]
+            # )
+            # cbrt_RGB = dot(Ainv, rhs)
+            # # a = -13.7 * numpy.cbrt(R) + 17.7 * numpy.cbrt(G) - 4 * numpy.cbrt(B)
+            # # b = 1.7 * numpy.cbrt(R) + 8 * numpy.cbrt(G) - 9.7 * numpy.cbrt(B)
+
+            # print(cbrt_RGB)
+            RGB = cbrt_RGB ** 3
+            # print(RGB)
             xyz100 = dot(self.Minv, RGB)
+
+            # evil = dot(self.Minv.T, [1, 1, 1])
+            # print("evil", evil, numpy.sum(evil))
+            # print(dot(evil, RGB))
+            # print()
+
+            # print(xyz100)
 
             X, Y, Z = xyz100
             sum_xyz = numpy.sum(xyz100, axis=0)
+            # print(sum_xyz)
             x = X / sum_xyz
             y = Y / sum_xyz
+            # print(x, y)
             K = (
                 4.4934 * x ** 2
                 + 4.3034 * y ** 2
@@ -123,21 +145,13 @@ class Osa(ColorSpace):
                 - 2.5643 * y
                 + 1.8103
             )
+            # print(K)
+            f = Y * K - Y0
 
             # df/domega
-            dcbrt_R = 1.0
-            dap = 13.7 / det
-            dbp = -1.7 / det
-            dcbrt_G = -9.7 * dap + 4 * dbp
-            dcbrt_B = -8 * dap + 17.7 * dbp
+            dcbrt_RGB = numpy.ones_like(cbrt_RGB)
 
-            dRGB = numpy.array(
-                [
-                    3 * cbrt_R ** 2 * dcbrt_R,
-                    3 * cbrt_G ** 2 * dcbrt_G,
-                    3 * cbrt_B ** 2 * dcbrt_B,
-                ]
-            )
+            dRGB = 3 * cbrt_RGB ** 2 * dcbrt_RGB
             dxyz100 = dot(self.Minv, dRGB)
 
             dX, dY, dZ = dxyz100
@@ -151,7 +165,8 @@ class Osa(ColorSpace):
                 - 1.3744 * dx
                 - 2.5643 * dy
             )
-            return Y * K - Y0, dY * K + Y * dK, xyz100
+            df = dY * K + Y * dK
+            return f, df, xyz100
 
         # singular value of f: omega = 0.16865940093
         # this happens if x+y+z approx 0, some of them being negative
@@ -159,20 +174,44 @@ class Osa(ColorSpace):
         # bijective. :(
         #
         # print()
-        # print("{:.6e}".format(f(0.16865940093)))
+        # val, _, _ = f_df(numpy.array(1.747160437))
+        # print("{:.6e}".format(val))
         # exit(1)
         #
-        # x = numpy.linspace(0.0, 5.0, 10000)
-        # y = f(x)
+        # x = numpy.linspace(-1.0, 20.0, 10000)
+        # y, _, _ = f_df(x)
         # import matplotlib.pyplot as plt
+
         # plt.plot(x, y)
         # plt.grid()
+        # # plt.ylim(-25, 500)
+        # # plt.axes().set_aspect('equal')
         # plt.show()
-        # exit(1)
 
-        # omega = 3.9981595815071427
-        # omega = 3.99
-        omega = 0.0
+        # KOBAYASI, Mituo* and YosIKI, Kayoko*
+        # An Effective Conversion Algorithm from OSA-UCS to CIEXYZ,
+        # one reads:
+        #
+        # > Examining the property of phi(w) for many (L,j,g)'s, it is found that the
+        # > function (w) is monotone increasing, convex downward, and smooth.
+        #
+        # None of this is correct. Unfortunately, phi has a singularity and more than
+        # one zeros. It is thus very important to have a reasonable initial guess.
+        # Indeed, one reads further:
+        #
+        # > When Newton-Raphson method is applied to solve the equation (11) or (12), it
+        # > is important to find a good estimation of an initial approximation of the
+        # > solution. We utilize the analytical characteristics of the equation (e.g.
+        # > smoothness, monotony, and convexity of a function) to find a good
+        # > approximation for the exact solution, and to garantee the global convergence
+        # > of the iteration. (Details are omitted.)
+        #
+        # Ah, the good old omittted details.
+        # We find that it is crucial to start the Newton iteration to the right of the
+        # solution; there, the function seems well-behaved. Hence, chose the value
+        # cbrt_R max, with X=Y=100, Z=0.
+        #
+        omega = numpy.cbrt((0.7990 + 0.4194) * 100)
         fomega, dfdomega_val, xyz100 = f_df(omega)
         k = 0
         while numpy.any(numpy.abs(fomega) > tol):
