@@ -114,24 +114,24 @@ follows:
       x = \frac{X}{X + Y + Z},\quad y = \frac{Y}{X + Y + Z}.
     \]
   \item Compute $K$ and $Y_0$ as
-    \[
+    \begin{equation}\label{eq:KY0}
       \begin{split}
         K &= 4.4934 x^2 + 4.3034 y^2 - 4.276 x y - 1.3744 x - 2.5643 y + 1.8103,\\
         Y_0 &= Y K
       \end{split}
-    \]
+    \end{equation}
 
   \item Compute $L'$ and $C$ as
-    \begin{equation}\label{eq:lc}
-      \begin{split}
+    \begin{align}
+        \label{eq:lc}
         L' &= 5.9 \left(\sqrt[3]{Y_0} - \frac{2}{3} + 0.042 \sqrt[3]{Y_0 - 30}\right)\\
+        \nonumber
         C &= \frac{L'}{5.9 \left(\sqrt[3]{Y_0} - \frac{2}{3}\right)}.
-      \end{split}
-    \end{equation}
+    \end{align}
     Note that $L'$ is $L$ in the original article~\cite{macadam}.
 
   \item Compute RGB as
-    \[
+    \begin{equation}\label{eq:m}
       \begin{bmatrix}
         R\\
         G\\
@@ -144,18 +144,16 @@ follows:
         Y\\
         Z
       \end{bmatrix}
-    \]
-    with
-    \[
+      \quad\text{with}\quad
       M=\begin{bmatrix}
         +0.7990 & 0.4194 & -0.1648\\
         -0.4493 & 1.3265 & +0.0927\\
         -0.1149 & 0.3394 & +0.7170
       \end{bmatrix}.
-    \]
+    \end{equation}
 
   \item Compute $a$, $b$ as
-    \[
+    \begin{equation}\label{eq:ab}
       \begin{bmatrix}
         a\\
         b
@@ -167,22 +165,16 @@ follows:
         \sqrt[3]{G}\\
         \sqrt[3]{B}
       \end{bmatrix}
-    \]
-    with
-    \[
+      \quad\text{with}\quad
       A = \begin{bmatrix}
         -13.7 & +17.7 & -4\\
         1.7 & +8 & -9.7
       \end{bmatrix}.
-    \]
+    \end{equation}
 
-  \item Compute Lgj as
+  \item Compute $L$, $g$, $j$ as
     \[
-      \begin{split}
-        L &= \frac{L' - 14.3993}{\sqrt{2}},\\
-        g &= Ca,\\
-        j &= Cb.
-      \end{split}
+      L = \frac{L' - 14.3993}{\sqrt{2}},\quad g = Ca,\quad j = Cb.
     \]
 \end{itemize}
 
@@ -195,9 +187,9 @@ Given $L$, we can first compute
 \[
   L' = L \sqrt{2} + 14.3993.
 \]
-Equation~\ref{eq:lc} gives the nonlinear relationship between $L'$ and $Y_0$ from which
-we will retrieve $Y_0$. First set $t\coloneqq \sqrt[3]{Y_0}$ and solve $f(t)=0$ for $t$
-using Newton's method with
+Equation~\eqref{eq:lc} gives the nonlinear relationship between $L'$ and $Y_0$ from
+which we will retrieve $Y_0$. First set $t\coloneqq \sqrt[3]{Y_0}$ and solve $f(t)=0$
+for $t$ using Newton's method with
 \[
   \begin{split}
     f(t) &\coloneqq {\left(\frac{L'}{5.9} + \frac{2}{3} - t\right)}^3 - 0.042^3 (t^3 - 30)\\
@@ -214,13 +206,60 @@ Indeed, in practical application it takes less than 10 Newton iterations to achi
 convergence up to a tolerance of $10^{-13}$.
 
 From here, one can compute
-\[
+\begin{equation}\label{eq:gather}
   Y_0 = t^3,\quad
   C = \frac{L'}{5.9 \left(t - \frac{2}{3}\right)},\quad
   a = \frac{g}{C},\quad
   b = \frac{j}{C}.
-\]
+\end{equation}
+With $a$ and $b$ at hand, it is now possible via equation~\eqref{eq:ab} to pin down
+$(\sqrt[3]{R}, \sqrt[3]{G}, \sqrt[3]{B})$ to only one degree of freedom, $w$.
 
+The exact value will be found by another Newton iteration. The function $\phi(w)$
+of which a root needs to be found is defined as follows.
+\begin{quotation}
+  Append the matrix $A$~\eqref{eq:ab} with a row such that the new $3\times3$-matrix
+  $\tilde{A}$ is nonsingular and solve
+  \[
+    \begin{bmatrix}
+      a\\
+      b\\
+      w
+    \end{bmatrix}
+    =
+    \tilde{A}
+    \begin{bmatrix}
+      \sqrt[3]{R}\\
+      \sqrt[3]{G}\\
+      \sqrt[3]{B}
+    \end{bmatrix}
+  \]
+  (Kobayasi, for instance, appends $[1, 0, 0]$.) Then compute the tentative $X$, $Y$,
+  $Z$ via~\eqref{eq:m} and further get the corresponding $Y_0$ from~\eqref{eq:KY0}. If
+  the difference between the computed value and the one from~\eqref{eq:gather} is 0, the
+  correct $w$ has been found.
+\end{quotation}
+
+Kobayasi states the function $\phi$ is ``monotone increasing, convex downward, and
+smooth''. Unfortunately, none of this is true (see figure~\ref{fig:singularity}). In
+fact, the function has a singularity at $w$ chosen such that the computed tentative
+$X$, $Y$, $Z$ sum up to 0 while the individual values of $|X|, |Y|, |Z| > 0$. This
+happens if the tentative $[R, G, B]$ is orthogonal on $[1,1,1] M^{-1}$.
+
+Fortunately, it seems that the function is indeed convex right of the singularity such
+that Newton's method will find the correct (largest) root if the initial guess $w_0$ is
+chosen larger than the root. Since $w$ corresponds to $\sqrt[3]{R}$, it is
+reasonable to chose $w_0$ to be the maximum possible value that $\sqrt[3]{R}$ can take,
+namely that corresponding to $X=Y=100$, $Z=0$ (see~\ref{eq:m}), $w_0=\sqrt[3]{79.9 +
+41.94}\approx 4.9575$.
+
+\begin{figure}
+  \centering
+  \input{singularity.tex}
+  \caption{Graph of the function $\phi$ for $L$, $g$, $j$ computed from $X=12$, $Y=67$,
+  $Z=20$. The singularity is as $w\approx 0.59652046418$. Note that the function as
+  three roots.}\label{fig:singularity}
+\end{figure}
 
 \begin{figure}
   \centering
@@ -229,7 +268,11 @@ From here, one can compute
   \hfill
   \input{speed-relative.tex}
   \hfill
-  \caption{This is a caption.}
+  \caption{Computation speed for arrays of $Lgj$ values measured with
+  colorio~\cite{colorio}. Left: Comparison with CIELAB (faster) and CIECAM02 (slower).
+  The conversion of several million $Lgj$ values takes about 1 second. Right:
+  Computation speed relative to the evaluation of the cubic root. For large arrays, the
+  conversion to $XYZ$ is about as costly as the evaluation of 6 cubic roots.}
 \end{figure}
 
 % \printbibliography{}
