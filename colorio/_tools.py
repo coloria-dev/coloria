@@ -380,7 +380,7 @@ def _plot_ellipses(
             sin_t = numpy.sin(theta)
             cos_t = numpy.cos(theta)
             return (
-                +a ** 2 * (x[0] * cos_t + x[1] * sin_t) ** 2
+                +(a ** 2) * (x[0] * cos_t + x[1] * sin_t) ** 2
                 + b ** 2 * (x[0] * sin_t - x[1] * cos_t) ** 2
                 - 1.0
             )
@@ -393,7 +393,7 @@ def _plot_ellipses(
                 [
                     +2 * a * (x[0] * cos_t + x[1] * sin_t) ** 2,
                     +2 * b * (x[0] * sin_t - x[1] * cos_t) ** 2,
-                    +a ** 2
+                    +(a ** 2)
                     * 2
                     * (x[0] * cos_t + x[1] * sin_t)
                     * (-x[0] * sin_t + x[1] * cos_t)

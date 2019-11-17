@@ -36,7 +36,7 @@ def f_ellipse(a_b_theta, x):
     cos = numpy.cos(theta)
     sin = numpy.sin(theta)
     return (
-        +a ** 2 * (x[0] * cos + x[1] * sin) ** 2
+        +(a ** 2) * (x[0] * cos + x[1] * sin) ** 2
         + b ** 2 * (x[0] * sin - x[1] * cos) ** 2
         - 1.0
     )
@@ -52,7 +52,7 @@ def jac_ellipse(a_b_theta, x):
             #
             +2 * b * (x[0] * sin - x[1] * cos) ** 2,
             #
-            +a ** 2 * 2 * (x[0] * cos + x[1] * sin) * (-x[0] * sin + x[1] * cos)
+            +(a ** 2) * 2 * (x[0] * cos + x[1] * sin) * (-x[0] * sin + x[1] * cos)
             + b ** 2 * 2 * (x[0] * sin - x[1] * cos) * (+x[0] * cos + x[1] * sin),
         ]
     ).T

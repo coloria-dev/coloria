@@ -276,7 +276,7 @@ class ColorSpace:
                 sin_t = numpy.sin(theta)
                 cos_t = numpy.cos(theta)
                 return (
-                    +a ** 2 * (X[0] * cos_t + X[1] * sin_t) ** 2
+                    +(a ** 2) * (X[0] * cos_t + X[1] * sin_t) ** 2
                     + b ** 2 * (X[0] * sin_t - X[1] * cos_t) ** 2
                     - 1.0
                 )
@@ -291,7 +291,7 @@ class ColorSpace:
                     [
                         +2 * a * (x0cos + x1sin) ** 2,
                         +2 * b * (x0sin - x1cos) ** 2,
-                        +a ** 2 * 2 * (x0cos + x1sin) * (-x0sin + x1cos)
+                        +(a ** 2) * 2 * (x0cos + x1sin) * (-x0sin + x1cos)
                         + b ** 2 * 2 * (x0sin - x1cos) * (x0cos + x1sin),
                     ]
                 ).T

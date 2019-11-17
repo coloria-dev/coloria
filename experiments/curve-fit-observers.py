@@ -11,19 +11,23 @@ import colorio
 
 def f(x, *p):
     return (
-        p[0] / numpy.sqrt(2 * numpy.pi) * numpy.exp(-(x - p[1]) ** 2 / (2 * p[2] ** 2))
+        p[0]
+        / numpy.sqrt(2 * numpy.pi)
+        * numpy.exp(-((x - p[1]) ** 2) / (2 * p[2] ** 2))
     )
 
 
 def f3(x, *p):
     return (
-        +p[0] / numpy.sqrt(2 * numpy.pi) * numpy.exp(-(x - p[1]) ** 2 / (2 * p[2] ** 2))
+        +p[0]
+        / numpy.sqrt(2 * numpy.pi)
+        * numpy.exp(-((x - p[1]) ** 2) / (2 * p[2] ** 2))
         + p[3]
         / numpy.sqrt(2 * numpy.pi)
-        * numpy.exp(-(x - p[4]) ** 2 / (2 * p[5] ** 2))
+        * numpy.exp(-((x - p[4]) ** 2) / (2 * p[5] ** 2))
         + p[6]
         / numpy.sqrt(2 * numpy.pi)
-        * numpy.exp(-(x - p[7]) ** 2 / (2 * p[8] ** 2))
+        * numpy.exp(-((x - p[7]) ** 2) / (2 * p[8] ** 2))
     )
 
 
@@ -33,7 +37,7 @@ def g(x, *p):
         p[0]
         * 1
         / numpy.sqrt(2 * numpy.pi)
-        * numpy.exp(-(x - p[1]) ** 2 / (2 * p[2] ** 2))
+        * numpy.exp(-((x - p[1]) ** 2) / (2 * p[2] ** 2))
         * (1 + scipy.special.erf(p[3] * (x - p[1]) / 2 / p[2]))
     )
 
