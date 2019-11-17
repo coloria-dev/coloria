@@ -1,8 +1,8 @@
 # import colour
+import colorspacious
 import numpy
 
 import colorio
-import colorspacious
 from cam16_legacy import CAM16Legacy
 
 numpy.random.seed(0)

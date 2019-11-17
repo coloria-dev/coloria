@@ -13,6 +13,10 @@ class OsaUcs(ColorSpace):
     Volume 64, Number 12, December 1974,
     <https://doi.org/10.1364/JOSAA.24.001823>,
     <https://en.wikipedia.org/wiki/OSA-UCS>.
+
+    Nico Schlömer,
+    On the conversion from OSA-UCS to CIEXYZ,
+    arxiv.org.
     """
 
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
@@ -103,13 +107,6 @@ class OsaUcs(ColorSpace):
 
         def f_df(omega):
             cbrt_RGB = numpy.array([omega, omega + ap, omega + bp])
-            # print(cbrt_RGB)
-            # cbrt_R = omega
-            # ap = (a + 13.7 * omega) / det
-            # bp = (b - 1.7 * omega) / det
-            # cbrt_G = -9.7 * ap + 4 * bp
-            # cbrt_B = -8 * ap + 17.7 * bp
-
             # A = numpy.array([[-13.7, 17.7, -4], [1.7, 8, -9.7], [0.0, 1.0, 0.0]])
             # Ainv = numpy.linalg.inv(A)
             # rhs = numpy.array(
@@ -123,13 +120,6 @@ class OsaUcs(ColorSpace):
             RGB = cbrt_RGB ** 3
             # print(RGB)
             xyz100 = dot(self.Minv, RGB)
-
-            # evil = dot(self.Minv.T, [1, 1, 1])
-            # print("evil", evil, numpy.sum(evil))
-            # print(dot(evil, RGB))
-            # print()
-
-            # print(xyz100)
 
             X, Y, Z = xyz100
             sum_xyz = numpy.sum(xyz100, axis=0)
@@ -167,26 +157,6 @@ class OsaUcs(ColorSpace):
             )
             df = dY * K + Y * dK
             return f, df, xyz100
-
-        # singular value of f: omega = 0.16865940093
-        # this happens if x+y+z approx 0, some of them being negative
-        # This means that the inverse function is not well-defined since it is not
-        # bijective. :(
-        #
-        # print()
-        # val, _, _ = f_df(numpy.array(1.747160437))
-        # print("{:.6e}".format(val))
-        # exit(1)
-        #
-        # x = numpy.linspace(-1.0, 20.0, 10000)
-        # y, _, _ = f_df(x)
-        # import matplotlib.pyplot as plt
-
-        # plt.plot(x, y)
-        # plt.grid()
-        # # plt.ylim(-25, 500)
-        # # plt.axes().set_aspect('equal')
-        # plt.show()
 
         # KOBAYASI, Mituo* and YosIKI, Kayoko*
         # An Effective Conversion Algorithm from OSA-UCS to CIEXYZ,
