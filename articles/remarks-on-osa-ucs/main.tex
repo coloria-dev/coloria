@@ -24,7 +24,7 @@
 
 \usepackage{siunitx}
 
-\newcommand\mytitle{Remarks on the conversion from OSA-UCS to CIEXYZ}
+\newcommand\mytitle{On the conversion from OSA-UCS to CIEXYZ}
 \newcommand\myauthor{Nico Schlömer}
 
 \usepackage[
@@ -72,31 +72,29 @@
 \usepackage{bm}
 \newcommand\rgb{\bm{R}}
 
-\title{\mytitle\footnote{The LaTeX sources of this article are on \url{https://github.com/nschloe/colorio}}}
+\title{\mytitle\footnote{The LaTeX sources as well as the source code for all
+experiments in this article are available on \url{https://github.com/nschloe/colorio}}}
 \author{\myauthor}
 
 \begin{document}
 
 \maketitle
-\begin{abstract}
-  This
-\end{abstract}
 
-In 1974, MacAdam published the definition of the OSA-UCS colorspace~\cite{macadam} that
-tries to adhere particularly well to experimentally measured color distances, and
-represents work that had been going on since the late 1940s.  One aspect of OSA-UCS is
-the fact that the conversion from CIEXYZ coordinates into OSA-UCS Lgj coordinates is
+In 1974, MacAdam published the definition of the OSA-UCS color space~\cite{macadam} that
+tries to adhere particularly well to experimentally measured color distances. It
+combines work that had been going on since the late 1940s.  One aspect of OSA-UCS is
+the fact that the conversion from CIEXYZ coordinates into OSA-UCS $Lgj$ coordinates is
 straightforward, but the conversion the other way around is not. In fact, there is no
-conversion method that works purely in elementary functions. Apparently, this had not
-been a design goal of OSA-UCS.
+conversion method that works solely in elementary functions. Apparently, this had not
+been a design goal of OSA-UCS although is severely limits the usability of OSA-UCS.
 
-In 2002, Kobayasi and Yosiki presented an OSA-UCS-to-CIEXYZ algorithm that leverages
-Newton's method for solving nonlinear equation systems~\cite{kobayasi}. While the
-algorithm is mostly in order, the article remains vague at important points and also
-contains false assertions about the nature of the involved functions.
+In 2002, Kobayasi and Yosiki presented an algorithm for conversion from $Lgj$ to $XYZ$
+coordinates  that leverages Newton's method for solving nonlinear equation
+systems~\cite{kobayasi}. Unfortunately, the article remains vague at important points
+and also contains false assertions about the nature of the involved functions.
 
-In 2013, Cao et al.\ compared Kobayasi's approach with some other, more complicated
-methods based on artificial neural networks and found the latter to be
+In 2013, Cao et al.\ compared Kobayasi's and Yosiki's approach with some other, more
+complex methods based on artificial neural networks and found the latter to be
 superior~\cite{cao}.
 
 In the present note, the author aims to iron out the inaccuracies in Kobayasi's article
@@ -105,7 +103,7 @@ from OSA-UCS to CIEXYZ.
 
 \section{The forward conversion}
 
-The conversion from CIEXYZ coordinates to OSA-UCS Lgj coordinates is definied as
+The conversion from CIEXYZ coordinates to OSA-UCS $Lgj$ coordinates is defined as
 follows:
 
 \begin{itemize}
@@ -117,7 +115,7 @@ follows:
     \begin{equation}\label{eq:KY0}
       \begin{split}
         K &= 4.4934 x^2 + 4.3034 y^2 - 4.276 x y - 1.3744 x - 2.5643 y + 1.8103,\\
-        Y_0 &= Y K
+        Y_0 &= Y K.
       \end{split}
     \end{equation}
 
@@ -128,7 +126,7 @@ follows:
         \nonumber
         C &= \frac{L'}{5.9 \left(\sqrt[3]{Y_0} - \frac{2}{3}\right)}.
     \end{align}
-    Note that $L'$ is $L$ in the original article~\cite{macadam}.
+    (Note that $L'$ is $L$ in the original article~\cite{macadam}.)
 
   \item Compute RGB as
     \begin{equation}\label{eq:m}
@@ -180,30 +178,41 @@ follows:
 
 \section{The backward conversion}
 
-This section describes the conversion from the  $L$, $g$, $j$ to the $X$, $Y$, $Z$
-coordinates and mostly sticks to Kobayasi~\cite{kobayasi} here.
+This section describes the conversion from the  $Lgj$ to the $XYZ$ coordinates and
+mostly sticks to Kobayasi~\cite{kobayasi} here.
 
 Given $L$, we can first compute
 \[
   L' = L \sqrt{2} + 14.3993.
 \]
 Equation~\eqref{eq:lc} gives the nonlinear relationship between $L'$ and $Y_0$ from
-which we will retrieve $Y_0$. First set $t\coloneqq \sqrt[3]{Y_0}$ and solve $f(t)=0$
-for $t$ using Newton's method with
+which we will retrieve $Y_0$. First set $t\coloneqq \sqrt[3]{Y_0}$ and solve
 \[
-  \begin{split}
-    f(t) &\coloneqq {\left(\frac{L'}{5.9} + \frac{2}{3} - t\right)}^3 - 0.042^3 (t^3 - 30)\\
-    f'(t) &= -3 {\left(\frac{L'}{5.9} + \frac{2}{3} - t\right)}^2 - 0.042^3 3 t^2.
-  \end{split}
+  0 = f(t) \coloneqq {\left(\frac{L'}{5.9} + \frac{2}{3} - t\right)}^3 - 0.042^3 (t^3 - 30)
+  % \begin{split}
+  %   f'(t) &= -3 {\left(\frac{L'}{5.9} + \frac{2}{3} - t\right)}^2 - 0.042^3 3 t^2.
+  % \end{split}
 \]
-It is reasonable to assume that
-\[
-  t_0 = \frac{L'}{5.9} + \frac{2}{3}
-\]
+for $t$ using Newton's method. It is clear that $f$ is smooth and monotonically
+decreasing (see figure~\ref{fig:singularity}), so it has only one root.
+It is reasonable to assume that $t_0 = \frac{L'}{5.9} + \frac{2}{3}$
 is a good initial guess for $t$ since the second term in $f(t)$ with $0.042^3$ is
-probably small.
+usually small.
 Indeed, in practical application it takes less than 10 Newton iterations to achieve
 convergence up to a tolerance of $10^{-13}$.
+
+\begin{figure}
+  \centering
+  \hfill
+  \input{f.tex}
+  \hfill
+  \input{phi.tex}
+  \hfill
+  \caption{Left: Graph of $f(t)$ for $L'=25$. Right: Graph of the function $\phi$ for $L$, $g$, $j$
+  computed from $X=12$, $Y=67$, $Z=20$. The singularity is at $w\approx 0.59652046418$.
+  Note that the function as three roots only the largest of which is of
+  interest.}\label{fig:singularity}
+\end{figure}
 
 From here, one can compute
 \begin{equation}\label{eq:gather}
@@ -214,8 +223,7 @@ From here, one can compute
 \end{equation}
 With $a$ and $b$ at hand, it is now possible via equation~\eqref{eq:ab} to pin down
 $(\sqrt[3]{R}, \sqrt[3]{G}, \sqrt[3]{B})$ to only one degree of freedom, $w$.
-
-The exact value will be found by another Newton iteration. The function $\phi(w)$
+The exact value of $w$ will be found by another Newton iteration. The function $\phi(w)$
 of which a root needs to be found is defined as follows.
 \begin{quotation}
   Append the matrix $A$~\eqref{eq:ab} with a row such that the new $3\times3$-matrix
@@ -234,32 +242,45 @@ of which a root needs to be found is defined as follows.
       \sqrt[3]{B}
     \end{bmatrix}
   \]
-  (Kobayasi, for instance, appends $[1, 0, 0]$.) Then compute the tentative $X$, $Y$,
-  $Z$ via~\eqref{eq:m} and further get the corresponding $Y_0$ from~\eqref{eq:KY0}. If
-  the difference between the computed value and the one from~\eqref{eq:gather} is 0, the
-  correct $w$ has been found.
+  (Kobayasi, for instance, appends $[1, 0, 0]$ which means setting $w=\sqrt[3]{R}$.)
+  Then compute the tentative $\tilde{X}$, $\tilde{Y}$, $\tilde{Z}$ via~\eqref{eq:m} and
+  further get the corresponding tentative $\tilde{Y}_0$ from~\eqref{eq:KY0}. Then
+  $\phi(w) = \tilde{Y}_0(w) - Y_0$.
 \end{quotation}
 
-Kobayasi states the function $\phi$ is ``monotone increasing, convex downward, and
-smooth''. Unfortunately, none of this is true (see figure~\ref{fig:singularity}). In
-fact, the function has a singularity at $w$ chosen such that the computed tentative
-$X$, $Y$, $Z$ sum up to 0 while the individual values of $|X|, |Y|, |Z| > 0$. This
-happens if the tentative $[R, G, B]$ is orthogonal on $[1,1,1] M^{-1}$.
+If the difference between $\tilde{Y}_0(w)$ and $Y_0$ from~\eqref{eq:gather} is 0, the
+correct $w$ has been found.  Kobayasi states the function $\phi$ is ``monotone
+increasing, convex downward, and smooth''. Unfortunately, none of this is true (see
+figure~\ref{fig:singularity}). In fact, the function has a singularity at $w$ chosen
+such that the computed tentative $\tilde{X}$, $\tilde{Y}$, $\tilde{Z}$ sum up to 0 while
+the individual values of $|\tilde{X}|, |\tilde{Y}|, |\tilde{Z}| > 0$. This happens if
+the tentative $[R, G, B]$ is orthogonal on $[1,1,1] M^{-1}$.
 
-Fortunately, it seems that the function is indeed convex right of the singularity such
-that Newton's method will find the correct (largest) root if the initial guess $w_0$ is
-chosen larger than the root. Since $w$ corresponds to $\sqrt[3]{R}$, it is
-reasonable to chose $w_0$ to be the maximum possible value that $\sqrt[3]{R}$ can take,
-namely that corresponding to $X=Y=100$, $Z=0$ (see~\ref{eq:m}), $w_0=\sqrt[3]{79.9 +
-41.94}\approx 4.9575$.
+Fortunately, it seems that the function is indeed convex to the right of the
+singularity.  Newton's method will hence find the correct (largest) root if the initial
+guess $w_0$ is chosen larger than the root. Since $w$ corresponds to $\sqrt[3]{R}$, it
+is reasonable to chose $w_0$ to be the maximum possible value that $\sqrt[3]{R}$ can
+take, namely that corresponding to $X=Y=100$, $Z=0$ (see~\ref{eq:m}), $w_0=\sqrt[3]{79.9
++ 41.94}\approx 4.9575$.
 
-\begin{figure}
-  \centering
-  \input{singularity.tex}
-  \caption{Graph of the function $\phi$ for $L$, $g$, $j$ computed from $X=12$, $Y=67$,
-  $Z=20$. The singularity is as $w\approx 0.59652046418$. Note that the function as
-  three roots.}\label{fig:singularity}
-\end{figure}
+\begin{remark}
+  Cao et al.~\cite{cao} found that the conversion to from $Lgj$ to $XYZ$ takes so long
+  that alternative methods needs to be researched. They even find that the Newton
+  iterations sometimes do not converge, or find the correct result only to few digits of
+  accuracy.  The author cannot confirm these observations. On the contrary: The
+  conversion is faster than CIECAM02's, and the computation of millions of coordinates
+  at once merely takes a second of computation time on a recent computer
+  (figure~\ref{fig:speed}).
+
+  To achieve this speed, it is important to vectorize all computation, i.e., not to
+  perform the conversion for each $Lgj$-tuple individually one after another, but to
+  perform all steps on the array. This also means to perform the Newton iteration on all
+  tuples until all tuples have converged successfully, even if some already
+  converge in the first step. The redundant work inflicted by this approach is far
+  outweighed by the advantages of vectorization.
+
+  All code is published as open-source in~\cite{colorio}.
+\end{remark}
 
 \begin{figure}
   \centering
@@ -272,7 +293,7 @@ namely that corresponding to $X=Y=100$, $Z=0$ (see~\ref{eq:m}), $w_0=\sqrt[3]{79
   colorio~\cite{colorio}. Left: Comparison with CIELAB (faster) and CIECAM02 (slower).
   The conversion of several million $Lgj$ values takes about 1 second. Right:
   Computation speed relative to the evaluation of the cubic root. For large arrays, the
-  conversion to $XYZ$ is about as costly as the evaluation of 6 cubic roots.}
+  conversion to $XYZ$ is about as costly as the evaluation of 6 cubic roots.}\label{fig:speed}
 \end{figure}
 
 % \printbibliography{}
