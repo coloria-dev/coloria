@@ -308,6 +308,12 @@ h, V, C, xyy = colorio.get_munsell_data()
 
 Color differences in any space can be computed with `colorio.delta(a, b)`.
 
+### Articles
+
+ * [Algorithmic improvements for the CIECAM02 and CAM16 color appearance models, Nico
+   Schlömer, 2018](https://arxiv.org/abs/1802.06067)
+ * On the conversion from OSA-UCS to CIEXYZ, Nico Schlömer, 2019
+
 ### Installation
 
 colorio is [available from the Python Package Index](https://pypi.org/project/colorio/),
