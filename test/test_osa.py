@@ -46,9 +46,8 @@ def test_speed(N=2):
         logy=True,
         # relative_to=4
     )
-    import tikzplotlib as tpl
-
-    tpl.save("out.tex")
+    # import tikzplotlib as tpl
+    # tpl.save("out.tex")
 
 
 if __name__ == "__main__":
