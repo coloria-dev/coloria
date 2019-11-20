@@ -16,7 +16,7 @@ class OsaUcs(ColorSpace):
 
     Nico Schlömer,
     On the conversion from OSA-UCS to CIEXYZ,
-    arxiv.org.
+    <https://arxiv.org/abs/1911.08323>.
     """
 
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):

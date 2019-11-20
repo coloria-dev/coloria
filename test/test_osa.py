@@ -19,7 +19,7 @@ numpy.random.seed(0)
 )
 def test_conversion(xyz):
     osa = colorio.OsaUcs()
-    out = osa.to_xyz100_newton(osa.from_xyz100(xyz))
+    out = osa.to_xyz100(osa.from_xyz100(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-9)
 
 
@@ -45,11 +45,11 @@ def test_speed(N=2):
         n_range=[2 ** n for n in range(N)],
         logx=True,
         logy=True,
-        # relative_to=4
+        # relative_to=3
     )
     # import tikzplotlib as tpl
     # tpl.save("out.tex")
 
 
 if __name__ == "__main__":
-    test_speed(N=23)
+    test_speed(N=2)

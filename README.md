@@ -312,7 +312,8 @@ Color differences in any space can be computed with `colorio.delta(a, b)`.
 
  * [Algorithmic improvements for the CIECAM02 and CAM16 color appearance models, Nico
    Schlömer, 2018](https://arxiv.org/abs/1802.06067)
- * On the conversion from OSA-UCS to CIEXYZ, Nico Schlömer, 2019
+ * [On the conversion from OSA-UCS to CIEXYZ, Nico Schlömer,
+   2019](https://arxiv.org/abs/1911.08323)
 
 ### Installation
 
