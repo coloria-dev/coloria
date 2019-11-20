@@ -16,7 +16,7 @@ class OsaUcs(ColorSpace):
 
     Nico Schlömer,
     On the conversion from OSA-UCS to CIEXYZ,
-    arxiv.org.
+    <https://arxiv.org/abs/1911.08323>.
     """
 
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
@@ -73,24 +73,32 @@ class OsaUcs(ColorSpace):
 
         L_prime = L * numpy.sqrt(2) + 14.3993
 
-        # Use Newton to find cbrt(Y0) =: t
-        # f(t) = (L' / 5.9 + 2/3 - t) ** 3 - 0.042**3 * (t**3 - 30)
-        # df/dt = -3 * (L' / 5.9 + 2/3 - t) ** 2 - 0.042**3 * 3 * t**2
+        # Use Cardano to find cbrt(Y0) =: t
+        # 0 = (L' / 5.9 + 2/3 - t) ** 3 - 0.042**3 * (t**3 - 30)
+        # Note that the above function is monotonically decreasing and of third order,
+        # hence has exactly one root.
         #
-        # The following might be a good initial guess since 0.042 ** 3 * (t ** 3 - 30)
-        # is small. An alternative is simply t=0.
-        t = L_prime / 5.9 + 2 / 3
-        ft = (L_prime / 5.9 + 2 / 3 - t) ** 3 - 0.042 ** 3 * (t ** 3 - 30)
-        k = 0
-        while numpy.any(numpy.abs(ft) > tol):
-            if k >= max_num_newton_steps:
-                raise RuntimeError(
-                    "OSA-USC.to_xyz100 exceeded max number of Newton steps"
-                )
-            dfdt = -3 * (L_prime / 5.9 + 2 / 3 - t) ** 2 - 0.042 ** 3 * 3 * t ** 2
-            t -= ft / dfdt
-            ft = (L_prime / 5.9 + 2 / 3 - t) ** 3 - 0.042 ** 3 * (t ** 3 - 30)
-            k += 1
+        u = L_prime / 5.9 + 2 / 3
+        v = 0.042 ** 3
+        # Polynomial coefficients
+        a = -(v + 1)
+        b = 3 * u
+        c = -3 * u ** 2
+        d = u ** 3 + v * 30
+        # val = a * t ** 3 + b * t ** 2 + c * t + d
+        #
+        # x = t + b / (3 * a)
+        p = (3 * a * c - b ** 2) / (3 * a ** 2)
+        q = (2 * b ** 3 - 9 * a * b * c + 27 * a ** 2 * d) / (27 * a ** 3)
+        # val = (x ** 3 + p * x + q) * a
+        #
+        # No need to assert this: We already know from the original expression that the
+        # equation has exactly one solution, so this must be >0.
+        # assert numpy.all((p / 3) ** 3 + (q / 2) ** 2 > 0)
+        #
+        s = numpy.sqrt((q / 2) ** 2 + (p / 3) ** 3)
+        t = numpy.cbrt(-q / 2 + s) + numpy.cbrt(-q / 2 - s)
+        t -= b / (3 * a)
 
         Y0 = t ** 3
         C = L_prime / (5.9 * (t - 2 / 3))
@@ -116,17 +124,13 @@ class OsaUcs(ColorSpace):
             # # a = -13.7 * numpy.cbrt(R) + 17.7 * numpy.cbrt(G) - 4 * numpy.cbrt(B)
             # # b = 1.7 * numpy.cbrt(R) + 8 * numpy.cbrt(G) - 9.7 * numpy.cbrt(B)
 
-            # print(cbrt_RGB)
             RGB = cbrt_RGB ** 3
-            # print(RGB)
             xyz100 = dot(self.Minv, RGB)
 
             X, Y, Z = xyz100
             sum_xyz = numpy.sum(xyz100, axis=0)
-            # print(sum_xyz)
             x = X / sum_xyz
             y = Y / sum_xyz
-            # print(x, y)
             K = (
                 4.4934 * x ** 2
                 + 4.3034 * y ** 2
@@ -135,7 +139,6 @@ class OsaUcs(ColorSpace):
                 - 2.5643 * y
                 + 1.8103
             )
-            # print(K)
             f = Y * K - Y0
 
             # df/domega
@@ -158,8 +161,9 @@ class OsaUcs(ColorSpace):
             df = dY * K + Y * dK
             return f, df, xyz100
 
-        # KOBAYASI, Mituo* and YosIKI, Kayoko*
-        # An Effective Conversion Algorithm from OSA-UCS to CIEXYZ,
+        # In
+        #   Kobayasi, Mituo and Yosiki, Kayoko
+        #   An Effective Conversion Algorithm from OSA-UCS to CIEXYZ,
         # one reads:
         #
         # > Examining the property of phi(w) for many (L,j,g)'s, it is found that the
