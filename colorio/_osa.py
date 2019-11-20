@@ -83,18 +83,20 @@ class OsaUcs(ColorSpace):
         # Polynomial coefficients
         a = -(v + 1)
         b = 3 * u
-        c = - 3 * u ** 2
+        c = -3 * u ** 2
         d = u ** 3 + v * 30
         # val = a * t ** 3 + b * t ** 2 + c * t + d
         #
         # x = t + b / (3 * a)
         p = (3 * a * c - b ** 2) / (3 * a ** 2)
-        q = (2 * b ** 3 - 9 * a * b * c + 27 * a**2 * d) / (27 * a ** 3)
+        q = (2 * b ** 3 - 9 * a * b * c + 27 * a ** 2 * d) / (27 * a ** 3)
         # val = (x ** 3 + p * x + q) * a
         #
-        assert numpy.all(4 * p ** 3 + 27 * q ** 2 > 0)
+        # No need to assert this: We already know from the original expression that the
+        # equation has exactly one solution, so this must be >0.
+        # assert numpy.all((p / 3) ** 3 + (q / 2) ** 2 > 0)
         #
-        s = numpy.sqrt(q ** 2 / 4 + p ** 3 / 27)
+        s = numpy.sqrt((q / 2) ** 2 + (p / 3) ** 3)
         t = numpy.cbrt(-q / 2 + s) + numpy.cbrt(-q / 2 - s)
         t -= b / (3 * a)
 
@@ -159,8 +161,9 @@ class OsaUcs(ColorSpace):
             df = dY * K + Y * dK
             return f, df, xyz100
 
-        # KOBAYASI, Mituo* and YosIKI, Kayoko*
-        # An Effective Conversion Algorithm from OSA-UCS to CIEXYZ,
+        # In
+        #   Kobayasi, Mituo and Yosiki, Kayoko
+        #   An Effective Conversion Algorithm from OSA-UCS to CIEXYZ,
         # one reads:
         #
         # > Examining the property of phi(w) for many (L,j,g)'s, it is found that the

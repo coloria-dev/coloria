@@ -41,12 +41,7 @@ def test_speed(N=2):
             lambda Jsh: ciecam02.to_xyz100(Jsh, "Jsh"),
             numpy.cbrt,
         ],
-        labels=[
-            "OSA-UCS",
-            "CIELAB",
-            "CIECAM02",
-            "cbrt"
-        ],
+        labels=["OSA-UCS", "CIELAB", "CIECAM02", "cbrt"],
         n_range=[2 ** n for n in range(N)],
         logx=True,
         logy=True,
