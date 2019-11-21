@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 import numpy
 import yaml
 from matplotlib.patches import Ellipse
-from scipy.optimize import leastsq
-from scipy.spatial import ConvexHull
 
 from ._hdr import HdrLinear
 from ._srgb import SrgbLinear
@@ -20,6 +18,7 @@ class ColorSpace:
         return
 
     def save_visible_gamut(self, observer, illuminant, filename, cut_000=False):
+        from scipy.spatial import ConvexHull
         import meshio
 
         lmbda, illu = illuminant
@@ -246,6 +245,8 @@ class ColorSpace:
         ellipse_scaling=10.0,
         visible_gamut_fill_color="0.8",
     ):
+        from scipy.optimize import leastsq
+
         self.plot_visible_slice(
             level,
             outline_prec=outline_prec,

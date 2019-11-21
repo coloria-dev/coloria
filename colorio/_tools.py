@@ -5,9 +5,6 @@ import matplotlib.pyplot as plt
 import numpy
 import yaml
 from matplotlib.patches import Ellipse
-from scipy.optimize import leastsq
-
-import meshzoo
 
 from . import observers
 from ._srgb import SrgbLinear
@@ -332,6 +329,8 @@ def _plot_ellipse_data(
     ellipse_color="k",
     mesh_resolution=None,
 ):
+    import meshzoo
+
     plot_flat_gamut(
         plot_planckian_locus=False,
         xy_to_2d=xy_to_2d,
@@ -365,6 +364,8 @@ def _plot_ellipse_data(
 def _plot_ellipses(
     centers, offsets, xy_to_2d, ellipse_scaling, alpha=0.5, facecolor="k", label=None
 ):
+    from scipy.optimize import leastsq
+
     ax = plt.gca()
 
     for center, offset in zip(centers, offsets):
