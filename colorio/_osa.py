@@ -34,19 +34,20 @@ class OsaUcs(ColorSpace):
 
     def from_xyz100(self, xyz100):
         X, Y, Z = xyz100
-        sum_xyz = numpy.sum(xyz100, axis=0)
-        x = X / sum_xyz
-        y = Y / sum_xyz
+        s = numpy.sum(xyz100, axis=0)
 
-        K = (
-            4.4934 * x ** 2
-            + 4.3034 * y ** 2
-            - 4.276 * x * y
-            - 1.3744 * x
-            - 2.5643 * y
-            + 1.8103
+        # Avoid division by s, could be 0.
+        YKs2 = (
+            4.4934 * Y * X ** 2
+            + 4.3034 * Y ** 3
+            - 4.276 * X * Y ** 2
+            - 1.3744 * X * Y * s
+            - 2.5643 * Y ** 2 * s
+            + 1.8103 * Y * s ** 2
         )
-        Y0 = Y * K
+        Y0 = numpy.zeros_like(Y)
+        idx = numpy.abs(s) > 1.0e-15
+        Y0[idx] = YKs2[idx] / s[idx] ** 2
 
         #  L' is L in original article
         L_prime = 5.9 * (numpy.cbrt(Y0) - 2 / 3 + 0.042 * numpy.cbrt(Y0 - 30))

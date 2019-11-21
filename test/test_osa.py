@@ -10,6 +10,7 @@ numpy.random.seed(0)
 @pytest.mark.parametrize(
     "xyz",
     [
+        [0.0, 0.0, 0.0],
         # difficult case that fails if the initial values aren't chosen carefully
         [12.0, 67.0, 20.0],
         100 * numpy.random.rand(3),
