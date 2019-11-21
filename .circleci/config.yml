@@ -18,7 +18,7 @@ jobs:
       - run: pip3 install -U pytest pytest-cov lxml --user
       - checkout
       - run: pip3 install -r test_requirements.txt --user
-      - run: pip3 install . --user
+      - run: pip3 install .[all] --user
       # The tests
       - run:
           command: pytest --cov colorio
