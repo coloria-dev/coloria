@@ -16,7 +16,7 @@ def test_conversion(vals):
     out = srgb_linear.to_srgb1(srgb_linear.from_srgb1(vals))
     assert numpy.all(abs(vals - out) < 1.0e-14)
 
-    out = srgb_linear.to_srgb256(srgb_linear.from_srgb256(vals))
+    out = srgb_linear.to_srgb255(srgb_linear.from_srgb255(vals))
     assert numpy.all(abs(vals - out) < 1.0e-14)
     return
 
