@@ -70,3 +70,9 @@ class SrgbLinear:
         srgb[is_smaller] *= 12.92
         srgb[~is_smaller] = (1 + a) * srgb[~is_smaller] ** (1 / 2.4) - a
         return srgb
+
+    def from_srgb256(self, srgb256):
+        return self.from_srgb1(numpy.asarray(srgb256) / 256.0)
+
+    def to_srgb256(self, srgb_linear):
+        return 256 * self.to_srgb1(srgb_linear)
