@@ -32,14 +32,8 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install gmsh
-    - name: Install package
-      run: |
-        pip install --upgrade pip
-        pip install .
-    - name: Test with pytest
-      run: |
-        pip install pytest pytest-cov
-        pip install -r test_requirements.txt
-        cd test/ && MPLBACKEND=Agg pytest --cov colorio
+        pip install tox
+    - name: Test with tox
+      run: tox
     # - name: Submit to codecov
     #   run: bash <(curl -s https://codecov.io/bash)
