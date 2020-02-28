@@ -1,12 +1,5 @@
 from . import illuminants, observers
-from .__about__ import (
-    __author__,
-    __copyright__,
-    __email__,
-    __license__,
-    __status__,
-    __version__,
-)
+from .__about__ import __version__
 from ._cam16 import CAM16, CAM16UCS
 from ._ciecam02 import CAM02, CIECAM02, NegativeAError
 from ._ciehcl import CIEHCL
@@ -39,12 +32,7 @@ from ._xyy import XYY
 from ._xyz import XYZ
 
 __all__ = [
-    "__author__",
-    "__email__",
-    "__copyright__",
-    "__license__",
     "__version__",
-    "__status__",
     #
     "CAM16",
     "CAM16UCS",

@@ -1,6 +1,6 @@
 name: ci
 
-on: [push]
+on: [pull_request]
 
 jobs:
   lint:
@@ -9,10 +9,9 @@ jobs:
     - uses: actions/setup-python@v1
       with:
         python-version: "3.x"
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Lint with flake8
       run: |
-        pip install --upgrade pip
         pip install flake8
         flake8 .
     - name: Lint with black
@@ -22,23 +21,19 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.5, 3.6, 3.7, 3.8]
     steps:
     - uses: actions/setup-python@v1
       with:
         python-version: "3.x"
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Install dependencies
       run: |
-        sudo apt-get install python3-lxml gmsh
-        pip install lxml
-    - name: Install package
-      run: |
-        pip install --upgrade pip
-        pip install .
-    - name: Test with pytest
-      run: |
-        pip install pytest pytest-cov
-        pip install -r test_requirements.txt
-        cd test/ && MPLBACKEND=Agg pytest --cov colorio
+        sudo apt-get install gmsh
+        pip install tox
+    - name: Test with tox
+      run: tox
     # - name: Submit to codecov
     #   run: bash <(curl -s https://codecov.io/bash)

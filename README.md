@@ -7,6 +7,7 @@
 [![codecov](https://img.shields.io/codecov/c/github/nschloe/colorio.svg?style=flat-square)](https://codecov.io/gh/nschloe/colorio)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
 [![colorful](https://img.shields.io/badge/colorful-very-ff69b4.svg?style=flat-square)](https://github.com/nschloe/colorio)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/colorio.svg?style=flat-square)](https://pypi.org/pypi/colorio/)
 [![PyPi Version](https://img.shields.io/pypi/v/colorio.svg?style=flat-square)](https://pypi.org/project/colorio)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1172995.svg?style=flat-square)](https://doi.org/10.5281/zenodo.1172995)
 [![GitHub stars](https://img.shields.io/github/stars/nschloe/colorio.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/nschloe/colorio)
@@ -173,7 +174,7 @@ maximum luminosity).
 ```python
 import colorio
 
-colorio.show_xy_gamut()
+colorio.show_flat_gamut()
 ```
 
 
@@ -320,7 +321,7 @@ Color differences in any space can be computed with `colorio.delta(a, b)`.
 colorio is [available from the Python Package Index](https://pypi.org/project/colorio/),
 so just use
 ```
-pip3 install colorio --user
+pip install colorio
 ```
 to install.
 
@@ -328,7 +329,7 @@ to install.
 
 To run the tests, simply check out this repository and run
 ```
-pytest
+tox
 ```
 
 ### License
