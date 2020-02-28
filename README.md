@@ -329,7 +329,7 @@ to install.
 
 To run the tests, simply check out this repository and run
 ```
-pytest
+tox
 ```
 
 ### License
