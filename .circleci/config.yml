@@ -6,7 +6,7 @@ jobs:
       - image: circleci/python:3
     steps:
       - checkout
-      - run: pip3 install -U black flake8 --user
+      - run: pip install -U black flake8 --user
       - run: black --check .
       - run: flake8 .
   build:
@@ -15,6 +15,7 @@ jobs:
       - image: circleci/python:3
     steps:
       - run: sudo apt-get install -y gmsh
+      - run: pip install tox
       - checkout
       # the test
       - run: tox
