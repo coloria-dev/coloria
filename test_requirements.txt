@@ -1,4 +1,0 @@
-colorspacious
-colour-science
-perfplot
-pygmsh
