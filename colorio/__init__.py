@@ -32,7 +32,7 @@ from ._xyy import XYY
 from ._xyz import XYZ
 
 __all__ = [
-    "__status__",
+    "__version__",
     #
     "CAM16",
     "CAM16UCS",
