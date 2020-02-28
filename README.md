@@ -320,7 +320,7 @@ Color differences in any space can be computed with `colorio.delta(a, b)`.
 colorio is [available from the Python Package Index](https://pypi.org/project/colorio/),
 so just use
 ```
-pip3 install colorio --user
+pip install colorio
 ```
 to install.
 
