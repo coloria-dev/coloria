@@ -29,10 +29,10 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - uses: actions/checkout@v2
-    - name: Install dependencies
+    - name: Install system dependencies
       run: sudo apt-get install gmsh
     - name: Test with tox
-      run:
+      run: |
         pip install tox
         tox
     - name: Submit to codecov
