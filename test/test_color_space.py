@@ -14,7 +14,6 @@ import colorio
 def test_visible_slice(cs, k0, level):
     cs.show_visible_slice(k0, level)
     # cs.save_visible_slice("visible-slice.png", k0, level)
-    return
 
 
 @pytest.mark.parametrize(
@@ -24,7 +23,6 @@ def test_visible_slice(cs, k0, level):
 def test_macadam(cs, k0, level):
     cs.show_macadam(k0, level)
     cs.save_macadam("macadam.png", k0, level)
-    return
 
 
 @pytest.mark.parametrize(
@@ -34,7 +32,6 @@ def test_macadam(cs, k0, level):
 def test_luo_rigg(cs, k0, level):
     cs.show_luo_rigg(k0, level)
     cs.save_luo_rigg("luo-rigg.png", k0, level)
-    return
 
 
 if __name__ == "__main__":

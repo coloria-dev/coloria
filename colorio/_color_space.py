@@ -358,7 +358,9 @@ class ColorSpace:
         import meshzoo
 
         # Get all RGB values that sum up to 1.
-        srgb_vals, triangles = meshzoo.triangle(n=50, corners=[[0, 0], [1, 0], [0, 1]])
+        bary, triangles = meshzoo.triangle(n=50)
+        corners = numpy.array([[0, 0], [1, 0], [0, 1]]).T
+        srgb_vals = numpy.dot(corners, bary).T
         srgb_vals = numpy.column_stack([srgb_vals, 1.0 - numpy.sum(srgb_vals, axis=1)])
 
         # matplotlib is sensitive when it comes to srgb values, so take good care here
