@@ -3,7 +3,7 @@
   <p align="center">Tools for color models.</p>
 </p>
 
-[![CircleCI](https://img.shields.io/circleci/project/github/nschloe/colorio/master.svg?style=flat-square)](https://circleci.com/gh/nschloe/colorio/tree/master)
+[![gh-actions](https://img.shields.io/github/workflow/status/nschloe/colorio/ci?style=flat-square)](https://github.com/nschloe/colorio/actions?query=workflow%3Aci)
 [![codecov](https://img.shields.io/codecov/c/github/nschloe/colorio.svg?style=flat-square)](https://codecov.io/gh/nschloe/colorio)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
 [![colorful](https://img.shields.io/badge/colorful-very-ff69b4.svg?style=flat-square)](https://github.com/nschloe/colorio)
