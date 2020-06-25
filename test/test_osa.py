@@ -33,6 +33,7 @@ def test_speed(N=2):
 
     # This close probably means that another figure hasn't been properly closed.
     import matplotlib.pyplot as plt
+
     plt.close()
 
     perfplot.show(

@@ -2,10 +2,11 @@ import os
 
 import matplotlib
 import matplotlib.pyplot as plt
-import meshzoo
 import numpy
 import yaml
 from matplotlib.patches import Ellipse
+
+import meshzoo
 
 from . import observers
 from ._srgb import SrgbLinear
