@@ -31,9 +31,6 @@ def test_speed(N=2):
     # cam16 = colorio.CAM16(0.69, 20, L_A=64 / numpy.pi / 5)
     ciecam02 = colorio.CIECAM02(0.69, 20, L_A=64 / numpy.pi / 5)
 
-    import matplotlib.pyplot as plt
-    plt.close()
-
     perfplot.show(
         # Don't use numpy.random.rand(3, n) to avoid the CIECAM breakdown
         setup=lambda n: numpy.outer(numpy.random.rand(3), numpy.ones(n)) * 10,

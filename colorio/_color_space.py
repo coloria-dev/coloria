@@ -60,7 +60,6 @@ class ColorSpace:
         pts = self.from_xyz100(values.T).T
 
         meshio.write_points_cells(filename, pts, cells={"triangle": cells})
-        return
 
     def save_srgb_gamut(self, filename, n=50, cut_000=False):
         import meshio
@@ -81,7 +80,6 @@ class ColorSpace:
         meshio.write_points_cells(
             filename, pts, {"tetra": cells}, point_data={"srgb": rgb}
         )
-        return
 
     def save_hdr_gamut(self, filename, n=50, cut_000=False):
         import meshio
@@ -101,7 +99,6 @@ class ColorSpace:
         meshio.write_points_cells(
             filename, pts, {"tetra": cells}, point_data={"hdr-rgb": rgb}
         )
-        return
 
     def save_cone_gamut(self, filename, observer, max_Y):
         import meshio
@@ -127,17 +124,18 @@ class ColorSpace:
 
         pts = self.from_xyz100(_xyy_to_xyz100(mesh.points.T)).T
         meshio.write_points_cells(filename, pts, {"tetra": mesh.cells["tetra"]})
-        return
 
     def show_macadam(self, *args, **kwargs):
+        plt.figure()
         self.plot_macadam(*args, **kwargs)
         plt.show()
-        return
+        plt.close()
 
     def save_macadam(self, filename, *args, **kwargs):
+        plt.figure()
         self.plot_macadam(*args, **kwargs)
         plt.savefig(filename, transparent=True, bbox_inches="tight")
-        return
+        plt.close()
 
     def plot_macadam(
         self,
@@ -177,17 +175,18 @@ class ColorSpace:
             ellipse_scaling=ellipse_scaling,
             visible_gamut_fill_color=visible_gamut_fill_color,
         )
-        return
 
     def show_luo_rigg(self, *args, **kwargs):
+        plt.figure()
         self.plot_luo_rigg(*args, **kwargs)
         plt.show()
-        return
+        plt.close()
 
     def save_luo_rigg(self, filename, *args, **kwargs):
+        plt.figure()
         self.plot_luo_rigg(*args, **kwargs)
         plt.savefig(filename, transparent=True, bbox_inches="tight")
-        return
+        plt.close()
 
     def plot_luo_rigg(
         self, level, outline_prec=1.0e-2, plot_srgb_gamut=True, ellipse_scaling=2.0
@@ -233,7 +232,6 @@ class ColorSpace:
             plot_srgb_gamut=plot_srgb_gamut,
             ellipse_scaling=ellipse_scaling,
         )
-        return
 
     def _plot_ellipses(
         self,
@@ -314,17 +312,18 @@ class ColorSpace:
             e.set_facecolor("k")
 
             # plt.plot(tvals[:, 0], tvals[:, 1], "xk")
-        return
 
     def show_visible_slice(self, *args, **kwargs):
+        plt.figure()
         self.plot_visible_slice(*args, **kwargs)
         plt.show()
-        return
+        plt.close()
 
     def save_visible_slice(self, filename, *args, **kwargs):
+        plt.figure()
         self.plot_visible_slice(*args, **kwargs)
         plt.savefig(filename, transparent=True, bbox_inches="tight")
-        return
+        plt.close()
 
     def plot_visible_slice(
         self, level, outline_prec=1.0e-2, plot_srgb_gamut=True, fill_color="0.8"
@@ -352,7 +351,6 @@ class ColorSpace:
         plt.xlabel(self.labels[k1])
         plt.ylabel(self.labels[k2])
         plt.title(f"{self.labels[self.k0]} = {level}")
-        return
 
     def _plot_srgb_gamut(self, k0, level, bright=False):
         import meshzoo
@@ -432,7 +430,6 @@ class ColorSpace:
             cmap=cmap,
         )
         # plt.triplot(self_vals[:, k1], self_vals[:, k2], triangles=triangles)
-        return
 
     def _bisect(self, xy, k0, level):
         tol = 1.0e-5
@@ -468,14 +465,16 @@ class ColorSpace:
         return val
 
     def show_ebner_fairchild(self):
+        plt.figure()
         self.plot_ebner_fairchild()
         plt.show()
-        return
+        plt.close()
 
     def save_ebner_fairchild(self, filename):
+        plt.figure()
         self.plot_ebner_fairchild()
         plt.savefig(filename, transparent=True, bbox_inches="tight")
-        return
+        plt.close()
 
     def plot_ebner_fairchild(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -490,17 +489,18 @@ class ColorSpace:
         ]
 
         _plot_color_constancy_data(d, wp, self)
-        return
 
     def show_hung_berns(self):
+        plt.figure()
         self.plot_hung_berns()
         plt.show()
-        return
+        plt.close()
 
     def save_hung_berns(self, filename):
+        plt.figure()
         self.plot_hung_berns()
         plt.savefig(filename, transparent=True, bbox_inches="tight")
-        return
+        plt.close()
 
     def plot_hung_berns(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -510,17 +510,18 @@ class ColorSpace:
         wp = whitepoints_cie1931["C"]
         d = [numpy.array(list(color.values())).T for color in data.values()]
         _plot_color_constancy_data(d, wp, self)
-        return
 
     def show_xiao(self):
+        plt.figure()
         self.plot_xiao()
         plt.show()
-        return
+        plt.close()
 
     def save_xiao(self, filename):
+        plt.figure()
         self.plot_xiao()
         plt.savefig(filename, transparent=True, bbox_inches="tight")
-        return
+        plt.close()
 
     def plot_xiao(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -550,17 +551,18 @@ class ColorSpace:
         data = numpy.moveaxis(data, 1, 2)
 
         _plot_color_constancy_data(data, ng, self)
-        return
 
     def show_munsell(self, V):
+        plt.figure()
         self.plot_munsell(V)
         plt.show()
-        return
+        plt.close()
 
     def save_munsell(self, filename, V):
+        plt.figure()
         self.plot_munsell(V)
         plt.savefig(filename, transparent=True, bbox_inches="tight")
-        return
+        plt.close()
 
     def plot_munsell(self, V):
         _, v, _, xyy = get_munsell_data()
@@ -596,7 +598,6 @@ class ColorSpace:
         plt.xlabel(self.labels[k1])
         plt.ylabel(self.labels[k2])
         plt.axis("equal")
-        return
 
 
 def _plot_color_constancy_data(
@@ -648,7 +649,6 @@ def _plot_color_constancy_data(
     plt.ylabel(colorspace.labels[k2])
     plt.grid()
     plt.axis("equal")
-    return
 
 
 def _xyy_from_xyz100(xyz):
