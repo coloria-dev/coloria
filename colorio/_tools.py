@@ -6,6 +6,8 @@ import numpy
 import yaml
 from matplotlib.patches import Ellipse
 
+import meshzoo
+
 from . import observers
 from ._srgb import SrgbLinear
 from .illuminants import planckian_radiator, spectrum_to_xyz100
@@ -17,19 +19,6 @@ def delta(a, b):
     """
     diff = a - b
     return numpy.einsum("i...,i...->...", diff, diff)
-
-
-def partition(boxes, balls):
-    # <https://stackoverflow.com/a/36748940/353337>
-    def rec(boxes, balls, parent=tuple()):
-        if boxes > 1:
-            for i in range(balls + 1):
-                for x in rec(boxes - 1, i, parent + (balls - i,)):
-                    yield x
-        else:
-            yield parent + (balls,)
-
-    return list(rec(boxes, balls))
 
 
 def _xyy_from_xyz100(xyz):
@@ -77,7 +66,7 @@ def _plot_rgb_triangle(xy_to_2d, bright=True):
     n = 50
 
     # Get all RGB values that sum up to 1.
-    rgb_linear = numpy.array(partition(3, n)).T / n
+    rgb_linear, _ = meshzoo.triangle(n)
     if bright:
         # For the x-y-diagram, it doesn't matter if the values are scaled in any way.
         # After all, the tranlation to XYZ is linear, and then to xyY it's (X/(X+Y+Z),

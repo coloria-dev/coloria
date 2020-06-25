@@ -596,7 +596,7 @@ class ColorSpace:
             plt.plot(val[k1], val[k2], "o", color=srgb.to_srgb1(rgb_))
 
         plt.grid()
-        plt.title("V={}".format(V))
+        plt.title(f"V={V}")
         plt.xlabel(self.labels[k1])
         plt.ylabel(self.labels[k2])
         plt.axis("equal")

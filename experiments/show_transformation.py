@@ -87,7 +87,7 @@ def _main():
     )
     # plt.xlim(-0.2, 0.9)
     # plt.ylim(+0.0, 0.7)
-    plt.savefig("macadam-{:03d}.png".format(n))
+    plt.savefig(f"macadam-{n:03d}.png")
     return
 
 

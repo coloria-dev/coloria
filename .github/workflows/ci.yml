@@ -23,16 +23,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8]
     steps:
     - uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
     - uses: actions/checkout@v2
-    - name: Install dependencies
+    - name: Install system dependencies
       run: sudo apt-get install gmsh
     - name: Test with tox
-      run:
+      run: |
         pip install tox
         tox
     - name: Submit to codecov
