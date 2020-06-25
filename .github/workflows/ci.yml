@@ -30,11 +30,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - uses: actions/checkout@v2
     - name: Install dependencies
-      run: |
-        sudo apt-get install gmsh
-        pip install tox
+      run: sudo apt-get install gmsh
     - name: Test with tox
-      run: tox
+      run:
+        pip install tox
+        tox
     - name: Submit to codecov
       if: ${{ matrix.python-version == '3.8' }}
       run: bash <(curl -s https://codecov.io/bash)
