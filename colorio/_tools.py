@@ -175,14 +175,14 @@ def show_macadam(*args, **kwargs):
     """
     plot_macadam(*args, **kwargs)
     plt.show()
-    return
+    plt.close()
 
 
 def save_macadam(filename, *args, **kwargs):
     plt.figure()
     plot_macadam(*args, **kwargs)
     plt.savefig(filename, bbox_inches="tight", transparent=True)
-    return
+    plt.close()
 
 
 def plot_macadam(
@@ -245,16 +245,17 @@ def plot_macadam(
 
 
 def show_luo_rigg(*args, **kwargs):
+    plt.figure()
     plot_luo_rigg(*args, **kwargs)
     plt.show()
-    return
+    plt.close()
 
 
 def save_luo_rigg(filename, *args, **kwargs):
     plt.figure()
     plot_luo_rigg(*args, **kwargs)
     plt.savefig(filename, bbox_inches="tight", transparent=True)
-    return
+    plt.close()
 
 
 def plot_luo_rigg(
@@ -316,7 +317,6 @@ def plot_luo_rigg(
     )
     plt.xlim(0.0)
     plt.ylim(0.0)
-    return
 
 
 def _plot_ellipse_data(
@@ -346,11 +346,9 @@ def _plot_ellipse_data(
         # points = numpy.array(data['points'])
         # cells = numpy.array(data['cells'])
 
-        points, cells = meshzoo.triangle(
-            mesh_resolution,
-            corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]),
-        )
-        points = points[:, :2]
+        bary, cells = meshzoo.triangle(mesh_resolution)
+        corners = numpy.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]).T
+        points = numpy.dot(corners, bary).T
 
         edges, _ = meshzoo.create_edges(cells)
         pts = xy_to_2d(points.T).T
@@ -358,7 +356,6 @@ def _plot_ellipse_data(
         plt.plot(*lines, color="0.8", zorder=0)
 
     _plot_ellipses(centers, offsets, xy_to_2d, ellipse_scaling, facecolor=ellipse_color)
-    return
 
 
 def _plot_ellipses(
@@ -427,7 +424,6 @@ def _plot_ellipses(
         ax.add_artist(e)
         e.set_alpha(alpha)
         e.set_facecolor(facecolor)
-    return
 
 
 def show_straights(cs):
@@ -460,7 +456,6 @@ def show_straights(cs):
     ax.set_zlabel(cs.labels[2])
 
     plt.show()
-    return
 
 
 def xy_gamut_mesh(lcar):
@@ -490,7 +485,7 @@ def xy_gamut_mesh(lcar):
 
     mesh = pygmsh.generate_mesh(geom)
     points, cells = optimesh.cvt.quasi_newton_uniform_lloyd(
-        mesh.points, mesh.cells["triangle"], 1.0e-2, 100, omega=2.0
+        mesh.points, mesh.get_cells_type("triangle"), 1.0e-2, 100, omega=2.0
     )
     return points, cells
 

@@ -14,7 +14,6 @@ import colorio
 )
 def test_srgb_gamut(colorspace, cut_000, n=10):
     colorspace.save_srgb_gamut("srgb.vtu", n=n, cut_000=cut_000)
-    return
 
 
 @pytest.mark.parametrize(
@@ -28,7 +27,6 @@ def test_srgb_gamut(colorspace, cut_000, n=10):
 def test_cone_gamut(colorspace, n=10):
     observer = colorio.observers.cie_1931_2()
     colorspace.save_cone_gamut("cone.vtu", observer, max_Y=1)
-    return
 
 
 @pytest.mark.parametrize(
@@ -36,7 +34,6 @@ def test_cone_gamut(colorspace, n=10):
 )
 def test_hdr_gamut(colorspace, n=10):
     colorspace.save_hdr_gamut("hdr.vtu", n=n)
-    return
 
 
 @pytest.mark.parametrize(
@@ -51,12 +48,10 @@ def test_visible_gamut(colorspace, cut_000):
     illuminant = colorio.illuminants.d65()
     observer = colorio.observers.cie_1931_2()
     colorspace.save_visible_gamut(observer, illuminant, "visible.vtu", cut_000=cut_000)
-    return
 
 
 def test_flat_gamut(xy_to_2d=lambda xy: xy):
     colorio.show_flat_gamut()
-    return
 
 
 @pytest.mark.parametrize(
@@ -66,7 +61,6 @@ def test_conversion_variants(a):
     b = a + 1.0e-3 * numpy.random.rand(*a.shape)
     diff = colorio.delta(a, b)
     assert diff.shape == a.shape[1:]
-    return
 
 
 @pytest.mark.parametrize(
@@ -74,7 +68,6 @@ def test_conversion_variants(a):
 )
 def test_ebner_fairchild(colorspace):
     colorspace.show_ebner_fairchild()
-    return
 
 
 @pytest.mark.parametrize(
@@ -82,19 +75,16 @@ def test_ebner_fairchild(colorspace):
 )
 def test_hung_berns(colorspace):
     colorspace.show_hung_berns()
-    return
 
 
 @pytest.mark.parametrize("colorspace", [colorio.CIELAB()])
 def test_xiao(colorspace):
     colorspace.show_xiao()
-    return
 
 
 @pytest.mark.parametrize("colorspace", [colorio.CIELAB()])
 def test_munsell(colorspace):
     colorspace.show_munsell(V=5)
-    return
 
 
 def test_macadam():
@@ -111,17 +101,14 @@ def test_macadam():
         # plot_standard_deviations=True,
         # axes_labels=['u\'', 'v\'']
     )
-    return
 
 
 def test_luo_rigg():
     colorio.show_luo_rigg(ellipse_scaling=1.5)
-    return
 
 
 def test_show_straights(cs=colorio.CIELAB()):
     colorio.show_straights(cs)
-    return
 
 
 def test_xy_gamut_mesh():
@@ -130,7 +117,6 @@ def test_xy_gamut_mesh():
     # import meshio
     # meshio.write_points_cells("test.vtu", points, {"triangle": cells})
     # exit(1)
-    return
 
 
 if __name__ == "__main__":

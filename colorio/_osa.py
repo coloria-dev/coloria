@@ -115,6 +115,7 @@ class OsaUcs(ColorSpace):
         # inv = [[-9.7, 4], [-8, 17.7]] / det
 
         def f_df(omega):
+            omega = numpy.full_like(ap, omega)
             cbrt_RGB = numpy.array([omega, omega + ap, omega + bp])
             # A = numpy.array([[-13.7, 17.7, -4], [1.7, 8, -9.7], [0.0, 1.0, 0.0]])
             # Ainv = numpy.linalg.inv(A)
