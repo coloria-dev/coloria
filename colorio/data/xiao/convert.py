@@ -13,17 +13,17 @@ filename = "unique_blue.yaml"
 
 # first worksheet
 ws = wb.worksheets[index]
-session1_x = [str(ws["C{}".format(k)].value) for k in range(4, 1669)]
-session1_y = [str(ws["D{}".format(k)].value) for k in range(4, 1669)]
-session1_z = [str(ws["E{}".format(k)].value) for k in range(4, 1669)]
+session1_x = [str(ws[f"C{k}"].value) for k in range(4, 1669)]
+session1_y = [str(ws[f"D{k}"].value) for k in range(4, 1669)]
+session1_z = [str(ws[f"E{k}"].value) for k in range(4, 1669)]
 
-session2_x = [str(ws["G{}".format(k)].value) for k in range(4, 1669)]
-session2_y = [str(ws["H{}".format(k)].value) for k in range(4, 1669)]
-session2_z = [str(ws["I{}".format(k)].value) for k in range(4, 1669)]
+session2_x = [str(ws[f"G{k}"].value) for k in range(4, 1669)]
+session2_y = [str(ws[f"H{k}"].value) for k in range(4, 1669)]
+session2_z = [str(ws[f"I{k}"].value) for k in range(4, 1669)]
 
-session3_x = [str(ws["K{}".format(k)].value) for k in range(4, 1669)]
-session3_y = [str(ws["L{}".format(k)].value) for k in range(4, 1669)]
-session3_z = [str(ws["M{}".format(k)].value) for k in range(4, 1669)]
+session3_x = [str(ws[f"K{k}"].value) for k in range(4, 1669)]
+session3_y = [str(ws[f"L{k}"].value) for k in range(4, 1669)]
+session3_z = [str(ws[f"M{k}"].value) for k in range(4, 1669)]
 
 data = numpy.array(
     [

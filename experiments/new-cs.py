@@ -297,7 +297,7 @@ class PadeEllipse:
         self.num_f_eval += 1
         if self.num_f_eval % 10000 == 0:
             cost = numpy.sum(out ** 2)
-            print("{:7d}     {}".format(self.num_f_eval, cost))
+            print(f"{self.num_f_eval:7d}     {cost}")
         return out
 
 
@@ -850,7 +850,7 @@ def _main():
         problem = PiecewiseEllipse(centers, J.copy(), n)
 
         print()
-        print("n = {}".format(n))
+        print(f"n = {n}")
         print("num parameters: {}".format(len(problem.alpha)))
 
         alpha0 = problem.alpha.copy()
@@ -901,8 +901,8 @@ def _main():
         d2v = dof_to_vertex_map(problem.V)
         alpha = numpy.concatenate(coords[d2v].T)
 
-        filename = "optimal-{:03d}.npy".format(n)
-        print("Writing data to {}".format(filename))
+        filename = f"optimal-{n:03d}.npy"
+        print(f"Writing data to {filename}")
         numpy.save(filename, {"n": n, "data": alpha})
 
     return
