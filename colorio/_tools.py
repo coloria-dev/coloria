@@ -346,11 +346,9 @@ def _plot_ellipse_data(
         # points = numpy.array(data['points'])
         # cells = numpy.array(data['cells'])
 
-        points, cells = meshzoo.triangle(
-            mesh_resolution,
-            corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]),
-        )
-        points = points[:, :2]
+        bary, cells = meshzoo.triangle(mesh_resolution)
+        corners = numpy.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]).T
+        points = numpy.dot(corners, bary).T
 
         edges, _ = meshzoo.create_edges(cells)
         pts = xy_to_2d(points.T).T

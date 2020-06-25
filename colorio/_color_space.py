@@ -123,7 +123,7 @@ class ColorSpace:
         # meshio.write(filename, mesh)
 
         pts = self.from_xyz100(_xyy_to_xyz100(mesh.points.T)).T
-        meshio.write_points_cells(filename, pts, {"tetra": mesh.cells["tetra"]})
+        meshio.write_points_cells(filename, pts, {"tetra": mesh.get_cells_type("tetra")})
 
     def show_macadam(self, *args, **kwargs):
         plt.figure()
