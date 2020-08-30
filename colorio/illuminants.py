@@ -209,26 +209,22 @@ def d(nominal_temperature):
 
 
 def d50():
-    """CIE illuminant D50, mid-morning/mid-afternoon daylight, at 10nm resolution.
-    """
+    """CIE illuminant D50, mid-morning/mid-afternoon daylight, at 10nm resolution."""
     return d(5000)
 
 
 def d55():
-    """CIE illuminant D55, mid-morning/mid-afternoon daylight, at 10nm resolution.
-    """
+    """CIE illuminant D55, mid-morning/mid-afternoon daylight, at 10nm resolution."""
     return d(5500)
 
 
 def d65():
-    """CIE standard illuminant D65, sampled at 10nm intervals.
-    """
+    """CIE standard illuminant D65, sampled at 10nm intervals."""
     return d(6500)
 
 
 def d75():
-    """CIE illuminant D75
-    """
+    """CIE illuminant D75"""
     return d(7500)
 
 

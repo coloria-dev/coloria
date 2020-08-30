@@ -1,8 +1,8 @@
 import numpy
+import perfplot
 import pytest
 
 import colorio
-import perfplot
 
 numpy.random.seed(0)
 

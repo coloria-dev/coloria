@@ -1,6 +1,5 @@
 import numpy
 import pytest
-
 from cam16_legacy import CAM16Legacy
 
 numpy.random.seed(0)

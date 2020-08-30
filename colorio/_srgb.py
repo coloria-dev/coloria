@@ -10,8 +10,7 @@ def _xyy_to_xyz100(xyy):
 
 
 class SrgbLinear:
-    """Rec. 709 SRGB.
-    """
+    """Rec. 709 SRGB."""
 
     def __init__(self, whitepoint_correction=True):
         # The standard actually gives the values in terms of M, but really inv(M) is a

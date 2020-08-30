@@ -93,8 +93,7 @@ class CAM16:
         return compute_from(rgb_c, self)
 
     def to_xyz100(self, data, description):
-        """Input: J or Q; C, M or s; H or h
-        """
+        """Input: J or Q; C, M or s; H or h"""
         rgb_c = compute_to(data, description, self)
         # Step 6: Calculate R, G and B
         # rgb = (rgb_c.T / self.D_RGB).T

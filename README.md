@@ -55,7 +55,7 @@ The following color spaces are implemented:
 
    L_A = 64 / numpy.pi / 5
    ciecam02 = colorio.CIECAM02(0.69, 20, L_A)
-   cam02 = colorio.CAM02('UCS', 0.69, 20, L_A)
+   cam02 = colorio.CAM02("UCS", 0.69, 20, L_A)
    ```
    The implementation contains a few improvements over the CIECAM02 specification (see
    [here](https://arxiv.org/abs/1802.06067)).
@@ -91,7 +91,7 @@ data was created with
 import colorio
 
 colorspace = colorio.CIELAB()
-colorspace.save_srgb_gamut( "srgb.vtk", n=50, cut_000=False)
+colorspace.save_srgb_gamut("srgb.vtk", n=50, cut_000=False)
 
 # The HDR (Rec.2100, Rec.2020) gamut works the same way
 colorspace.save_hdr_gamut("hdr.vtk", n=50, cut_000=False)

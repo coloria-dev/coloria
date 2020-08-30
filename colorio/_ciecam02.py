@@ -276,8 +276,7 @@ class CIECAM02:
         return compute_from(rgb_, self)
 
     def to_xyz100(self, data, description):
-        """Input: J or Q; C, M or s; H or h
-        """
+        """Input: J or Q; C, M or s; H or h"""
         # Steps 1-5
         rgb_ = compute_to(data, description, self)
 

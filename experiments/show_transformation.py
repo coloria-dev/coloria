@@ -1,11 +1,11 @@
 import argparse
 
 import matplotlib.pyplot as plt
+import meshzoo
 import numpy
 from dolfin import Function, FunctionSpace, Mesh, MeshEditor
 
 import colorio
-import meshzoo
 
 
 def _main():
