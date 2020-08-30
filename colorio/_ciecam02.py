@@ -106,7 +106,7 @@ def compute_to(data, description, cs):
     else:
         assert description[1] == "s"
         s = data[1] / 100
-        C = s * s * Q / cs.F_L ** 0.25
+        # C = s * s * Q / cs.F_L ** 0.25
         alpha = 4 * s * s * (cs.A_w + 4) / cs.c
 
     t = (alpha / (1.64 - 0.29 ** cs.n) ** 0.73) ** (1 / 0.9)

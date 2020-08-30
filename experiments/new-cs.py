@@ -387,7 +387,6 @@ class PiecewiseEllipse:
 
         # Use F(x, y) = (x, y) as starting guess
         self.ux0 = project(Expression("x[0]", degree=1), self.V)
-        ax = self.ux0.vector().get_local()
         self.uy0 = project(Expression("x[1]", degree=1), self.V)
         ax = self.ux0.vector().get_local()
         ay = self.uy0.vector().get_local()
@@ -678,10 +677,8 @@ class PiecewiseEllipse:
         self.num_f_eval += 1
         return numpy.sum(out)
 
-    def grad_min(self, alpha):
+    def grad_min(self, alpha, assert_equality=False):
         n = self.V.dim()
-
-        assert_equality = False
 
         if assert_equality:
             M = []
