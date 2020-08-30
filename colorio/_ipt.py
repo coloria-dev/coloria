@@ -10,6 +10,7 @@ class IPT(ColorSpace):
     """
 
     def __init__(self):
+        super().__init__()
         self.M1 = numpy.array(
             [
                 [0.4002, 0.7075, -0.0807],
@@ -26,7 +27,6 @@ class IPT(ColorSpace):
         )
         self.labels = ["I", "P", "T"]
         self.k0 = 0  # the index that corresponds to luminosity
-        return
 
     def from_xyz100(self, xyz):
         lms = dot(self.M1, xyz)

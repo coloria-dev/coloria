@@ -11,6 +11,7 @@ class ICtCp(ColorSpace):
     """
 
     def __init__(self):
+        super().__init__()
         self.M1 = (
             numpy.array([[1688, 2146, 262], [683, 2951, 462], [99, 309, 3688]]) / 4096
         )

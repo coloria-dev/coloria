@@ -83,7 +83,7 @@ def _main():
         # xy_to_2d=problem.pade2d.eval,
         xy_to_2d=transform,
         plot_rgb_triangle=False,
-        n=n,
+        mesh_resolution=n,
     )
     # plt.xlim(-0.2, 0.9)
     # plt.ylim(+0.0, 0.7)
