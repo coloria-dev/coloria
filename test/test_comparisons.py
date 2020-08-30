@@ -1,9 +1,9 @@
 # import colour
 import colorspacious
 import numpy
+from cam16_legacy import CAM16Legacy
 
 import colorio
-from cam16_legacy import CAM16Legacy
 
 numpy.random.seed(0)
 
@@ -32,8 +32,7 @@ def test_0():
 
 
 def test_from():
-    """Compare colorio with colorspacius and colour.
-    """
+    """Compare colorio with colorspacius and colour."""
     xyz = 100 * numpy.random.rand(3)
 
     Y_b = 20

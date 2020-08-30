@@ -123,8 +123,7 @@ class CAM16Legacy:
         return numpy.array([J, C, H, h, M, s, Q])
 
     def to_xyz100(self, data, description):
-        """Input: J or Q; C, M or s; H or h
-        """
+        """Input: J or Q; C, M or s; H or h"""
         if description[0] == "J":
             J = data[0]
             # Q perhaps needed for C

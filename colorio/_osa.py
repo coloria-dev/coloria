@@ -20,6 +20,7 @@ class OsaUcs(ColorSpace):
     """
 
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
+        super().__init__()
         self.labels = ["L", "g", "j"]
 
         self.M = numpy.array(
@@ -30,7 +31,6 @@ class OsaUcs(ColorSpace):
             ]
         )
         self.Minv = numpy.linalg.inv(self.M)
-        return
 
     def from_xyz100(self, xyz100):
         X, Y, Z = xyz100

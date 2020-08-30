@@ -29,11 +29,11 @@ def _get_xy_tree(xy, degree):
 
 def _get_dx_tree(xy, degree):
     """
-                                      0
-                            1*(0, 0)  0
-                  2*(1, 0)  1*(0, 1)  0
-        3*(2, 0)  2*(1, 1)  1*(0, 2)  0
-          ...       ...      ...     ...
+                                  0
+                        1*(0, 0)  0
+              2*(1, 0)  1*(0, 1)  0
+    3*(2, 0)  2*(1, 1)  1*(0, 2)  0
+      ...       ...      ...     ...
     """
     x, y = xy
 
@@ -60,11 +60,11 @@ def _get_dx_tree(xy, degree):
 
 def _get_dy_tree(xy, degree):
     """
-        0
-        0  1*(0, 0)
-        0  1*(1, 0)  2*(0, 1)
-        0  1*(2, 0)  2*(1, 1)  3*(0, 2)
-       ...   ...       ...       ...
+     0
+     0  1*(0, 0)
+     0  1*(1, 0)  2*(0, 1)
+     0  1*(2, 0)  2*(1, 1)  3*(0, 2)
+    ...   ...       ...       ...
     """
     x, y = xy
 
@@ -138,8 +138,7 @@ class Pade2d:
         return numpy.array([ux / vx, uy / vy])
 
     def jac(self, xy=None):
-        """Get the Jacobian at (x, y).
-        """
+        """Get the Jacobian at (x, y)."""
         if xy is not None:
             self.set_xy(xy)
 

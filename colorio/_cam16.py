@@ -93,8 +93,7 @@ class CAM16:
         return compute_from(rgb_c, self)
 
     def to_xyz100(self, data, description):
-        """Input: J or Q; C, M or s; H or h
-        """
+        """Input: J or Q; C, M or s; H or h"""
         rgb_c = compute_to(data, description, self)
         # Step 6: Calculate R, G and B
         # rgb = (rgb_c.T / self.D_RGB).T
@@ -107,13 +106,13 @@ class CAM16UCS(ColorSpace):
     def __init__(
         self, c, Y_b, L_A, exact_inversion=True, whitepoint=whitepoints_cie1931["D65"]
     ):
+        super().__init__()
         self.K_L = 1.0
         self.c1 = 0.007
         self.c2 = 0.0228
         self.cam16 = CAM16(c, Y_b, L_A, exact_inversion, whitepoint)
         self.labels = ["J'", "a'", "b'"]
         self.k0 = 0  # the index that corresponds to luminosity
-        return
 
     def from_xyz100(self, xyz):
         J, C, H, h, M, s, Q = self.cam16.from_xyz100(xyz)

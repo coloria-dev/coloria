@@ -15,6 +15,7 @@ class JzAzBz(ColorSpace):
     """
 
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
+        super().__init__()
         self.whitepoint = whitepoint
 
         self.b = 1.15

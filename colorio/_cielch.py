@@ -7,10 +7,10 @@ from .illuminants import whitepoints_cie1931
 
 class CIELCH(ColorSpace):
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
+        super().__init__()
         self.cielab = CIELAB(whitepoint=whitepoint)
         self.labels = ["L", "C", "h"]
         self.k0 = 0  # the index that corresponds to luminosity
-        return
 
     def from_xyz100(self, xyz):
         L, u, v = self.cielab.from_xyz100(xyz)

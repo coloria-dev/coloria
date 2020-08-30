@@ -18,8 +18,8 @@ class ColorSpace:
         return
 
     def save_visible_gamut(self, observer, illuminant, filename, cut_000=False):
-        from scipy.spatial import ConvexHull
         import meshio
+        from scipy.spatial import ConvexHull
 
         lmbda, illu = illuminant
         values = []

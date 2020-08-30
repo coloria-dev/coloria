@@ -1,5 +1,6 @@
 import os
 
+import meshzoo
 import numpy
 import yaml
 from dolfin import (
@@ -23,12 +24,10 @@ from dolfin import (
     project,
     vertex_to_dof_map,
 )
+from pade2d import Pade2d
 from scipy import sparse
 from scipy.optimize import leastsq
 from scipy.sparse.linalg import LinearOperator
-
-import meshzoo
-from pade2d import Pade2d
 
 
 def f_ellipse(a_b_theta, x):
@@ -388,7 +387,6 @@ class PiecewiseEllipse:
 
         # Use F(x, y) = (x, y) as starting guess
         self.ux0 = project(Expression("x[0]", degree=1), self.V)
-        ax = self.ux0.vector().get_local()
         self.uy0 = project(Expression("x[1]", degree=1), self.V)
         ax = self.ux0.vector().get_local()
         ay = self.uy0.vector().get_local()
@@ -416,8 +414,7 @@ class PiecewiseEllipse:
         return
 
     def apply_M(self, ax, ay):
-        """Linear operator that converts ax, ay to abcd.
-        """
+        """Linear operator that converts ax, ay to abcd."""
         jac = numpy.array(
             [[self.dx.dot(ax), self.dy.dot(ax)], [self.dx.dot(ay), self.dy.dot(ay)]]
         )
@@ -680,10 +677,8 @@ class PiecewiseEllipse:
         self.num_f_eval += 1
         return numpy.sum(out)
 
-    def grad_min(self, alpha):
+    def grad_min(self, alpha, assert_equality=False):
         n = self.V.dim()
-
-        assert_equality = False
 
         if assert_equality:
             M = []
@@ -750,8 +745,7 @@ class PiecewiseEllipse:
         return numpy.concatenate(out)
 
     def cost_min2(self, alpha):
-        """Residual formulation, Hessian is a low-rank update of the identity.
-        """
+        """Residual formulation, Hessian is a low-rank update of the identity."""
         n = self.V.dim()
         ax = alpha[:n]
         ay = alpha[n:]
@@ -808,8 +802,7 @@ class PiecewiseEllipse:
 
 
 def test_invariance():
-    """Asserts invariance of cost functional w.r.t. translation and rotation
-    """
+    """Asserts invariance of cost functional w.r.t. translation and rotation"""
     centers, J = _get_macadam()
     n = 1
     problem = PiecewiseEllipse(centers, J.copy(), n)
