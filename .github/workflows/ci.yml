@@ -30,7 +30,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - uses: actions/checkout@v2
     - name: Install system dependencies
-      run: sudo apt-get install gmsh
+      run: sudo apt-get install python3-gmsh
     - name: Test with tox
       run: |
         pip install tox
