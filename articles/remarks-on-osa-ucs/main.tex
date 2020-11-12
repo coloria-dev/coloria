@@ -105,11 +105,11 @@ complex methods based on artificial neural networks and found the latter to be
 superior~\cite{cao}.
 
 In the present note, the author aims to iron out the inaccuracies in Kobayasi's article
-and improves the overall efficiency of the algorithm.
+and improves the efficiency of the algorithm.
 
 \section{The forward conversion}
 
-The conversion from CIEXYZ coordinates to OSA-UCS $Lgj$ coordinates is defined as
+The conversion from CIEXYZ-100 coordinates to OSA-UCS $Lgj$ coordinates is defined as
 follows:
 
 \begin{itemize}
@@ -230,7 +230,7 @@ Hence, it has exactly one root that can be found using the classical Cardano for
 \begin{remark}
   Kobayasi and Yosiki find the root of $f$ it using Newton's method.  A good initial
   guess here is $t = \frac{L'}{5.9} + \frac{2}{3}$ since the second term in $f(t)$,
-  containing $0.042^3$, is usually small. Indeed it typically only takes around 10
+  containing $0.042^3$, is comparatively small. Indeed it typically only takes around 10
   iterations to converge to machine precision.
 
   Cardano's method finds the root at once at the expense of computing one square root
@@ -304,10 +304,10 @@ take, namely that corresponding to $X=Y=100$, $Z=0$ (see~\eqref{eq:m}), $w_0=\sq
 \begin{remark}
   Cao et al.~\cite{cao} found that the conversion to from $Lgj$ to $XYZ$ takes so long
   that alternative methods needs to be researched. They even find that the Newton
-  iterations sometimes do not converge, or find the correct result only to few digits of
-  accuracy.  The author cannot confirm these observations. The computation of hundreds
-  of thousands of coordinates at once merely takes a second of computation time on a
-  recent computer (figure~\ref{fig:speed}).
+  iterations sometimes do not converge, or find the correct result only to a few digits
+  of accuracy.  The author cannot confirm these observations. The computation of
+  hundreds of thousands of coordinates at once merely takes a second of computation time
+  on a recent computer (figure~\ref{fig:speed}).
 
   To achieve this speed, it is important to vectorize all computation, i.e., not to
   perform the conversion for each $Lgj$-tuple individually one after another, but to
