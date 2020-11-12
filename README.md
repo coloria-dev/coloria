@@ -17,6 +17,7 @@
 ### Color spaces
 
 All color spaces implement the two methods
+<!--exdown-skip-->
 ```python
 vals = colorspace.from_xyz100(xyz)
 xyz = colorspace.to_xyz100(vals)
@@ -52,9 +53,10 @@ The following color spaces are implemented:
    (`colorio.IPT()`)
  * [CIECAM02 / CAM02-UCS](https://en.wikipedia.org/wiki/CIECAM02)
    ```python
+   import math
    import colorio
 
-   L_A = 64 / numpy.pi / 5
+   L_A = 64 / math.pi / 5
    ciecam02 = colorio.CIECAM02(0.69, 20, L_A)
    cam02 = colorio.CAM02("UCS", 0.69, 20, L_A)
    ```
@@ -62,9 +64,10 @@ The following color spaces are implemented:
    [here](https://arxiv.org/abs/1802.06067)).
  * [CAM16 / CAM16-UCS](https://doi.org/10.1002/col.22131)
    ```python
+   import math
    import colorio
 
-   L_A = 64 / numpy.pi / 5
+   L_A = 64 / math.pi / 5
    cam16 = colorio.CAM16(0.69, 20, L_A)
    cam16ucs = colorio.CAM16UCS(0.69, 20, L_A)
    ```
@@ -215,7 +218,7 @@ import colorio
 # xyy.save_luo_rigg("luo-rigg-xyy.png", 0.4)
 
 cieluv = colorio.CIELUV()
-cieluv.show(50)
+cieluv.show_luo_rigg(50)
 ```
 
 ###### Ebner-Fairchild
