@@ -104,22 +104,21 @@ class ColorSpace:
         import meshio
         import pygmsh
 
-        geom = pygmsh.built_in.Geometry()
+        with pygmsh.geo.Geometry() as geom:
+            max_stepsize = 4.0e-2
+            xy, _ = get_mono_outline_xy(observer, max_stepsize=max_stepsize)
 
-        max_stepsize = 4.0e-2
-        xy, _ = get_mono_outline_xy(observer, max_stepsize=max_stepsize)
+            # append third component
+            xy = numpy.column_stack([xy, numpy.full(xy.shape[0], 1.0e-5)])
 
-        # append third component
-        xy = numpy.column_stack([xy, numpy.full(xy.shape[0], 1.0e-5)])
+            # Draw a cross.
+            poly = geom.add_polygon(xy, mesh_size=max_stepsize)
 
-        # Draw a cross.
-        poly = geom.add_polygon(xy, lcar=max_stepsize)
+            axis = [0, 0, max_Y]
 
-        axis = [0, 0, max_Y]
+            geom.extrude(poly, translation_axis=axis)
 
-        geom.extrude(poly, translation_axis=axis, point_on_axis=[0, 0, 0])
-
-        mesh = pygmsh.generate_mesh(geom, verbose=False)
+            mesh = geom.generate_mesh(verbose=False)
         # meshio.write(filename, mesh)
 
         pts = self.from_xyz100(_xyy_to_xyz100(mesh.points.T)).T
