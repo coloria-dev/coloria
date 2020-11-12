@@ -112,13 +112,13 @@ class ColorSpace:
             xy = numpy.column_stack([xy, numpy.full(xy.shape[0], 1.0e-5)])
 
             # Draw a cross.
-            poly = geom.add_polygon(xy, lcar=max_stepsize)
+            poly = geom.add_polygon(xy, mesh_size=max_stepsize)
 
             axis = [0, 0, max_Y]
 
-            geom.extrude(poly, translation_axis=axis, point_on_axis=[0, 0, 0])
+            geom.extrude(poly, translation_axis=axis)
 
-            mesh = pygmsh.generate_mesh(geom, verbose=False)
+            mesh = geom.generate_mesh(verbose=False)
         # meshio.write(filename, mesh)
 
         pts = self.from_xyz100(_xyy_to_xyz100(mesh.points.T)).T

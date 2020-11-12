@@ -468,12 +468,14 @@ def xy_gamut_mesh(lcar):
         gmsh_points = [geom.add_point(pt, lcar) for pt in all_points]
         s1 = geom.add_spline(gmsh_points)
         s2 = geom.add_line(gmsh_points[-1], gmsh_points[0])
-        ll = geom.add_line_loop([s1, s2])
+        ll = geom.add_curve_loop([s1, s2])
         geom.add_plane_surface(ll)
-        mesh = pygmsh.generate_mesh(geom)
+        mesh = geom.generate_mesh()
 
+    # Work around numpy bug <https://github.com/numpy/numpy/issues/17760>
+    cells = mesh.get_cells_type("triangle").astype(int)
     points, cells = optimesh.cvt.quasi_newton_uniform_lloyd(
-        mesh.points, mesh.get_cells_type("triangle"), 1.0e-2, 100, omega=2.0
+        mesh.points, cells, 1.0e-2, 100, omega=2.0
     )
     return points, cells
 
