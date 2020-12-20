@@ -54,7 +54,7 @@ class HSL:
         R1 = numpy.empty(C.shape)
         G1 = numpy.empty(C.shape)
         B1 = numpy.empty(C.shape)
-        i = (0 < H_dash) & (H_dash <= 1)
+        i = (0 <= H_dash) & (H_dash <= 1)
         R1[i], G1[i], B1[i] = C[i], X[i], Z[i]
         i = (1 < H_dash) & (H_dash <= 2)
         R1[i], G1[i], B1[i] = X[i], C[i], Z[i]
