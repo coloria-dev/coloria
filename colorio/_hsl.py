@@ -15,20 +15,24 @@ class HSL:
 
         diff = max_val - min_val
 
+        is_diff_0 = diff == 0.0
+
         H = numpy.empty(srgb.shape[1:], dtype=float)
-        H[max_val == min_val] = 0
-        i = argmax == 0
+        # Set hue to 0.0 for grey values. Could do anything here, nan would be
+        # reasonable too.
+        H[is_diff_0] = 0.0
+        i = (argmax == 0) & ~is_diff_0
         H[i] = 60 * (0 + (srgb[1][i] - srgb[2][i]) / diff[i])
-        i = argmax == 1
+        i = (argmax == 1) & ~is_diff_0
         H[i] = 60 * (2 + (srgb[2][i] - srgb[0][i]) / diff[i])
-        i = argmax == 2
+        i = (argmax == 2) & ~is_diff_0
         H[i] = 60 * (4 + (srgb[0][i] - srgb[1][i]) / diff[i])
         H = numpy.mod(H, 360)
 
         S = numpy.empty(srgb.shape[1:], dtype=float)
-        S[max_val == 0] = 0
-        S[min_val == 1] = 0
-        S[(max_val > 0) & (min_val < 1)] = diff / (1 - numpy.abs(max_val + min_val - 1))
+        idx = (max_val > 0) & (min_val < 1)
+        S[idx] = diff[idx] / (1 - numpy.abs(max_val[idx] + min_val[idx] - 1))
+        S[~idx] = 0.0
 
         L = (max_val + min_val) / 2
 
