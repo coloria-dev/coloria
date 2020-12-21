@@ -14,9 +14,6 @@ from .observers import cie_1931_2
 
 
 class ColorSpace:
-    def __init__(self):
-        return
-
     def save_visible_gamut(self, observer, illuminant, filename, cut_000=False):
         import meshio
         from scipy.spatial import ConvexHull

@@ -474,8 +474,8 @@ def xy_gamut_mesh(lcar):
 
     # Work around numpy bug <https://github.com/numpy/numpy/issues/17760>
     cells = mesh.get_cells_type("triangle").astype(int)
-    points, cells = optimesh.cvt.quasi_newton_uniform_lloyd(
-        mesh.points, cells, 1.0e-2, 100, omega=2.0
+    points, cells = optimesh.optimize_points_cells(
+        mesh.points, cells, "lloyd", 1.0e-2, 100, omega=2.0
     )
     return points, cells
 
