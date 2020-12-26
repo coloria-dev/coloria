@@ -11,4 +11,3 @@ def test_conversion(xyz):
     cs = colorio.IPT()
     out = cs.to_xyz100(cs.from_xyz100(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-13)
-    return

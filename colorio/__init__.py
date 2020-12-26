@@ -13,6 +13,7 @@ from ._hsv import HSV
 from ._ictcp import ICtCp
 from ._ipt import IPT
 from ._jzazbz import JzAzBz
+from ._oklab import OKLAB
 from ._osa import OsaUcs
 from ._rlab import RLAB
 from ._srgb import SrgbLinear
@@ -52,6 +53,7 @@ __all__ = [
     "IPT",
     "JzAzBz",
     "observers",
+    "OKLAB",
     "OsaUcs",
     "HdrLinear",
     "RLAB",
