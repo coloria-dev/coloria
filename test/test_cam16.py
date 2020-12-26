@@ -28,7 +28,6 @@ def test_conversion(xyz):
 
     out = cam16.to_xyz100(numpy.array([J, s, h]), "Jsh")
     assert numpy.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
-    return
 
 
 @pytest.mark.parametrize("xyz", [numpy.zeros(3), numpy.zeros((3, 4, 5))])
@@ -52,7 +51,6 @@ def test_zero(xyz):
 
     out = cam16.to_xyz100(numpy.array([J, s, h]), "Jsh")
     assert numpy.all(abs(out) < 1.0e-13)
-    return
 
 
 @pytest.mark.parametrize(
@@ -64,7 +62,6 @@ def test_conversion_variants(xyz):
     cam16 = colorio.CAM16UCS(0.69, 20, L_A)
     out = cam16.to_xyz100(cam16.from_xyz100(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
-    return
 
 
 @pytest.mark.parametrize(

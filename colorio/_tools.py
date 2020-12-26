@@ -56,7 +56,6 @@ def _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=True):
     )
     # plot dotted connector
     plt.plot(connect[0], connect[1], ":k")
-    return
 
 
 def _plot_rgb_triangle(xy_to_2d, bright=True):
