@@ -45,4 +45,6 @@ def test_reference_xyz(xyz100, ref):
 
 
 if __name__ == "__main__":
-    colorio.OKLAB().save_srgb_gamut("oklab.vtk", n=50)
+    cs = colorio.OKLAB()
+    # cs.save_srgb_gamut("oklab.vtk", n=50)
+    cs.show_ebner_fairchild()

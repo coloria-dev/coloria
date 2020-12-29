@@ -25,6 +25,7 @@ class OKLAB(ColorSpace):
         )
         self.M2inv = numpy.linalg.inv(self.M2)
         self.labels = ["L", "a", "b"]
+        self.k0 = 0
 
     def from_xyz100(self, xyz):
         return dot(self.M2, numpy.cbrt(dot(self.M1, xyz)))

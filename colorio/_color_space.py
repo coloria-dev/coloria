@@ -487,6 +487,12 @@ class ColorSpace:
         ]
 
         _plot_color_constancy_data(d, wp, self)
+        plt.grid(False)
+        ax = plt.gca()
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
 
     def show_hung_berns(self):
         plt.figure()
