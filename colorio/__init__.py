@@ -1,4 +1,4 @@
-from . import illuminants, observers
+from . import illuminants, observers, data
 from .__about__ import __version__
 from ._cam16 import CAM16, CAM16UCS
 from ._ciecam02 import CAM02, CIECAM02, NegativeAError
@@ -35,6 +35,8 @@ from ._xyz import XYZ
 
 __all__ = [
     "__version__",
+    #
+    "data",
     #
     "CAM16",
     "CAM16UCS",

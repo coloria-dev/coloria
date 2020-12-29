@@ -12,3 +12,4 @@ build/
 *.egg-info/
 .pytest_cache/
 *.png
+coverage.xml

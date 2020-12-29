@@ -233,7 +233,7 @@ For example
 import colorio
 
 colorspace = colorio.JzAzBz()
-colorspace.show_ebner_fairchild()
+colorio.data.ebner_fairchild.show(colorspace)
 ```
 shows constant-hue data from [the Ebner-Fairchild
 experiments](https://doi.org/10.1117/12.298269) in the hue-plane of some color spaces.
