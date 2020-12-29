@@ -13,7 +13,6 @@ def test_conversion(xyz):
     rlab = colorio.RLAB()
     out = rlab.to_xyz100(rlab.from_xyz100(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
-    return
 
 
 @pytest.mark.parametrize(
@@ -30,4 +29,3 @@ def test_reference_xyz(xyz100, ref):
     assert numpy.all(
         abs(rlab.from_xyz100(xyz100) - ref) < 1.0e-4 * abs(numpy.array(ref))
     )
-    return
