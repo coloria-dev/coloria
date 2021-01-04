@@ -4,19 +4,17 @@ import matplotlib.pyplot as plt
 import numpy
 import yaml
 
+from ...illuminants import whitepoints_cie1931
 from ..helpers import _plot_color_constancy_data, _compute_straight_line_residuals
 
 
 def _load_data():
     this_dir = pathlib.Path(__file__).resolve().parent
-    with open(this_dir / "ebner_fairchild.yaml") as f:
+    with open(this_dir / "table3.yaml") as f:
         data = yaml.safe_load(f)
 
-    wp = numpy.array(data["white point"])
-    d = [
-        numpy.column_stack([dat["reference xyz"], numpy.array(dat["same"]).T])
-        for dat in data["data"]
-    ]
+    wp = whitepoints_cie1931["C"]
+    d = [numpy.array(list(color.values())).T for color in data.values()]
     return wp, d
 
 
@@ -34,9 +32,9 @@ def savefig(cs, filename):
     plt.close()
 
 
-def plot(cs):
+def plot(self):
     wp, d = _load_data()
-    _plot_color_constancy_data(d, wp, cs)
+    _plot_color_constancy_data(d, wp, self)
 
 
 def residuals(cs):
