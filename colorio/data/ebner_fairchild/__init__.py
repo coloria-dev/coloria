@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy
 import yaml
 
-from ..helpers import _plot_color_constancy_data, _compute_straight_line_residuals
+from ..helpers import _compute_straight_line_residuals, _plot_color_constancy_data
 
 
 def _load_data():

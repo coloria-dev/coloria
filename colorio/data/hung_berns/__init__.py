@@ -5,7 +5,7 @@ import numpy
 import yaml
 
 from ...illuminants import whitepoints_cie1931
-from ..helpers import _plot_color_constancy_data, _compute_straight_line_residuals
+from ..helpers import _compute_straight_line_residuals, _plot_color_constancy_data
 
 
 def _load_data():
