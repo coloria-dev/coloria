@@ -462,27 +462,6 @@ class ColorSpace:
 
         return val
 
-    def show_hung_berns(self):
-        plt.figure()
-        self.plot_hung_berns()
-        plt.show()
-        plt.close()
-
-    def save_hung_berns(self, filename):
-        plt.figure()
-        self.plot_hung_berns()
-        plt.savefig(filename, transparent=True, bbox_inches="tight")
-        plt.close()
-
-    def plot_hung_berns(self):
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        with open(os.path.join(dir_path, "data/hung-berns/table3.yaml")) as f:
-            data = yaml.safe_load(f)
-
-        wp = whitepoints_cie1931["C"]
-        d = [numpy.array(list(color.values())).T for color in data.values()]
-        _plot_color_constancy_data(d, wp, self)
-
     def show_xiao(self):
         plt.figure()
         self.plot_xiao()

@@ -7,6 +7,19 @@ import yaml
 from ..helpers import _plot_color_constancy_data
 
 
+def _load_data():
+    this_dir = pathlib.Path(__file__).resolve().parent
+    with open(this_dir / "ebner_fairchild.yaml") as f:
+        data = yaml.safe_load(f)
+
+    wp = numpy.array(data["white point"])
+    d = [
+        numpy.column_stack([dat["reference xyz"], numpy.array(dat["same"]).T])
+        for dat in data["data"]
+    ]
+    return wp, d
+
+
 def show(cs):
     plt.figure()
     plot(cs)
@@ -22,17 +35,7 @@ def savefig(cs, filename):
 
 
 def plot(cs):
-    this_dir = pathlib.Path(__file__).resolve().parent
-    with open(this_dir / "ebner_fairchild.yaml") as f:
-        data = yaml.safe_load(f)
-
-    wp = numpy.array(data["white point"])
-
-    d = [
-        numpy.column_stack([dat["reference xyz"], numpy.array(dat["same"]).T])
-        for dat in data["data"]
-    ]
-
+    wp, d = _load_data()
     _plot_color_constancy_data(d, wp, cs)
     plt.grid(False)
     ax = plt.gca()
@@ -44,15 +47,7 @@ def plot(cs):
 
 def residuals(cs):
     """Compute the TLS residuals for each of the arms."""
-    this_dir = pathlib.Path(__file__).resolve().parent
-    with open(this_dir / "ebner_fairchild.yaml") as f:
-        data = yaml.safe_load(f)
-
-    wp = numpy.array(data["white point"])
-    d = [
-        numpy.column_stack([dat["reference xyz"], numpy.array(dat["same"]).T])
-        for dat in data["data"]
-    ]
+    wp, d = _load_data()
 
     # remove the row corresponding to lightness
     idx = [0, 1, 2]
