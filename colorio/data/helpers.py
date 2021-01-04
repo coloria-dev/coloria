@@ -1,5 +1,5 @@
-import numpy
 import matplotlib.pyplot as plt
+import numpy
 
 from .._srgb import SrgbLinear
 
@@ -24,7 +24,7 @@ def _plot_color_constancy_data(
         # over theta, which means to minimize the orthogonal component of (x_i, y_i) to
         # (cos(theta), sin(theta)).
         #
-        # A more simple and effective approach is to use the average of all points,
+        # A simpler and more effective approach is to use the average of all points,
         #    theta = arctan(sum(y_i) / sum(x_i)).
         # This also fits in nicely with minimization problems which move around the
         # points to minimize the difference from the average,

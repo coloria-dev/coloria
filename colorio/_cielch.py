@@ -13,9 +13,9 @@ class CIELCH(ColorSpace):
         self.k0 = 0  # the index that corresponds to luminosity
 
     def from_xyz100(self, xyz):
-        L, u, v = self.cielab.from_xyz100(xyz)
-        C = numpy.hypot(u, v)
-        h = numpy.mod(numpy.arctan2(v, u), 2 * numpy.pi) / numpy.pi * 180
+        L, a, b = self.cielab.from_xyz100(xyz)
+        C = numpy.hypot(a, b)
+        h = numpy.mod(numpy.arctan2(b, a), 2 * numpy.pi) / numpy.pi * 180
         return numpy.array([L, C, h])
 
     def to_xyz100(self, lch):

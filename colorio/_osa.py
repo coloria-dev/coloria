@@ -22,6 +22,7 @@ class OsaUcs(ColorSpace):
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
         super().__init__()
         self.labels = ["L", "g", "j"]
+        self.k0 = 0
 
         self.M = numpy.array(
             [

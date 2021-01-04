@@ -43,4 +43,33 @@ def plot(cs):
 
 
 def residuals(cs):
-    a -
+    """Compute the TLS residuals for each of the arms."""
+    this_dir = pathlib.Path(__file__).resolve().parent
+    with open(this_dir / "ebner_fairchild.yaml") as f:
+        data = yaml.safe_load(f)
+
+    wp = numpy.array(data["white point"])
+    d = [
+        numpy.column_stack([dat["reference xyz"], numpy.array(dat["same"]).T])
+        for dat in data["data"]
+    ]
+
+    # remove the row corresponding to lightness
+    idx = [0, 1, 2]
+    idx.pop(cs.k0)
+    wp_cs = cs.from_xyz100(wp)[idx]
+    s2 = []
+    for dd in d:
+        vals = cs.from_xyz100(dd)[idx]
+        # move values such that whitepoint is in the origin
+        vals = (vals.T - wp_cs).T
+        # scale by average to achieve scale invariance
+        avg = numpy.sum(vals, axis=1) / vals.shape[1]
+        vals /= numpy.linalg.norm(avg)
+        # could also be computed explicitly
+        s2.append(numpy.linalg.svd(vals, compute_uv=False)[-1])
+        # plt.plot(vals[0], vals[1], "x")
+        # plt.gca().set_aspect("equal")
+        # plt.show()
+
+    return s2

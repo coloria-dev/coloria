@@ -259,7 +259,6 @@ class CIECAM02:
         # Alternative: LU decomposition. That introduces a scipy dependency
         # though and lusolve is slower than dot() as well.
         self.invM_ = numpy.linalg.inv(self.M_)
-        return
 
     def from_xyz100(self, xyz):
         # Step 1: Calculate (sharpened) cone responses (transfer
@@ -271,7 +270,6 @@ class CIECAM02:
         #
         # Step 3: Calculate the Hunt-Pointer-Estevez response
         rgb_ = dot(self.M_, xyz)
-
         # Steps 4-10
         return compute_from(rgb_, self)
 

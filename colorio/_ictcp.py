@@ -30,7 +30,6 @@ class ICtCp(ColorSpace):
 
         self.labels = ["I", "C_T", "C_P"]
         self.k0 = 0  # the index that corresponds to luminosity
-        return
 
     def from_rec2100(self, rgb):
         lms = dot(self.M1, rgb)

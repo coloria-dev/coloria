@@ -10,6 +10,7 @@ class CIEHCL(ColorSpace):
         super().__init__()
         self.cieluv = CIELUV(whitepoint=whitepoint)
         self.labels = ["L", "C", "h"]
+        self.k0 = 0
 
     def from_xyz100(self, xyz):
         L, u, v = self.cieluv.from_xyz100(xyz)
