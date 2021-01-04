@@ -41,3 +41,6 @@ def plot(cs):
     ax.spines["bottom"].set_visible(False)
     ax.spines["left"].set_visible(False)
 
+
+def residuals(cs):
+    a -
