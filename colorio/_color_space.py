@@ -3,10 +3,9 @@ import pathlib
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy
-import yaml
 
 from ._hdr import HdrLinear
-from ._helpers import _find_Y, _plot_ellipses
+from ._helpers import _find_Y
 from ._srgb import SrgbLinear
 from ._tools import get_mono_outline_xy, get_munsell_data, spectrum_to_xyz100
 from .observers import cie_1931_2

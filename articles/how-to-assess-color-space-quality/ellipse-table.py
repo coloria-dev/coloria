@@ -16,5 +16,9 @@ color_spaces = [
 ]
 
 for cs in color_spaces:
-    val = colorio.data.macadam_1942.residuals(cs, 0.5)
-    print(f"{cs.name} & {val:.3f}\\\\")
+    vals = [
+        colorio.data.macadam_1942.residuals(cs, 0.5),
+        colorio.data.luo_rigg.residuals(cs, 0.5),
+    ]
+    s = sum(vals)
+    print(f"{cs.name} & {vals[0]:.3f} & {vals[1]:.3f} & {s:.3f}\\\\")

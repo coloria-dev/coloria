@@ -70,4 +70,4 @@ def plot(*args, **kwargs):
 
 def residuals(cs, Y: float):
     xy_centers, xy_offsets = _load_data(num_offset_points=8)
-    _compute_ellipse_residual(cs, xy_centers, xy_offsets, Y)
+    return _compute_ellipse_residual(cs, xy_centers, xy_offsets, Y)

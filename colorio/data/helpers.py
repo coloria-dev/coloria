@@ -15,7 +15,7 @@ def _compute_straight_line_residuals(cs, wp, d):
         vals = cs.from_xyz100(dd)[idx]
         # move values such that whitepoint is in the origin
         vals = (vals.T - wp_cs).T
-        # scale by average to achieve scale invariance
+        # scale invariance by normalizing by average
         avg = numpy.sum(vals, axis=1) / vals.shape[1]
         vals /= numpy.linalg.norm(avg)
         # could also be computed explicitly
@@ -76,17 +76,10 @@ def _plot_color_constancy_data(
 
 
 def _compute_ellipse_residual(cs, xy_centers, xy_offsets, Y):
-    # scale invariance by normalizing on center average
-    xy_centers = numpy.array(xy_centers).T
-    xyy_centers = numpy.array([*xy_centers, numpy.full(xy_centers.shape[1], Y)])
-    xyz_centers = _xyy_to_xyz100(xyy_centers)
-    cs_centers = cs.from_xyz100(xyz_centers)
-    cs_centers = numpy.delete(cs_centers, cs.k0, axis=0)
-    avg = numpy.average(cs_centers, axis=1)
-    alpha = numpy.linalg.norm(avg)
+    xy_centers = numpy.asarray(xy_centers)
 
     distances = []
-    for xy_center, xy_offsets in zip(xy_centers.T, xy_offsets):
+    for xy_center, xy_offsets in zip(xy_centers, xy_offsets):
         xy_ellips = (xy_center + xy_offsets.T).T
         # append Y
         xyy_center = numpy.array([*xy_center, Y])
@@ -107,14 +100,14 @@ def _compute_ellipse_residual(cs, xy_centers, xy_offsets, Y):
         # plt.plot(cs_ellips[0], cs_ellips[1], "o")
         # plt.show()
         #
-        # scale and compute distances to center
-        cs_center /= alpha
-        cs_ellips /= alpha
+        # compute distances to ellipse center
         diff = (cs_center - cs_ellips.T).T
         distances.append(numpy.sqrt(diff[0] ** 2 + diff[1] ** 2))
 
     distances = numpy.concatenate(distances)
-    avg = numpy.average(distances)
+    # scale invariance by normalizing on distance average
+    distances /= numpy.average(distances)
+    avg = 1.0
     return numpy.sqrt(numpy.sum((distances - avg) ** 2))
 
 
