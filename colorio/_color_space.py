@@ -1,4 +1,4 @@
-import os
+import pathlib
 
 import matplotlib.pyplot as plt
 import numpy
@@ -179,8 +179,8 @@ class ColorSpace:
         # Chromaticity Discrimination Ellipses for Surface Colours,
         # Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25-42,
         # <https://doi.org/10.1002/col.5080110107>.
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        with open(os.path.join(dir_path, "data/luo-rigg/luo-rigg.yaml")) as f:
+        this_dir = pathlib.Path(__file__).resolve().parent
+        with open(this_dir / "data/luo-rigg/luo-rigg.yaml") as f:
             data = yaml.safe_load(f)
         #
         xy_centers = []

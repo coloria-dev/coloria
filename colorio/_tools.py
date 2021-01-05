@@ -12,6 +12,8 @@ from . import observers
 from ._srgb import SrgbLinear
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
+this_dir = pathlib.Path(__file__).resolve().parent
+
 
 def delta(a, b):
     """Computes the distances between two colors or color sets. The shape of
@@ -141,8 +143,7 @@ def show_flat_gamut(*args, **kwargs):
 
 
 def get_munsell_data():
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, "data/munsell/real.yaml")) as f:
+    with open(this_dir / "data/munsell/real.yaml") as f:
         data = yaml.safe_load(f)
 
     h = numpy.array(data["h"])
@@ -253,8 +254,7 @@ def plot_luo_rigg(
     # Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25-42,
     # <https://doi.org/10.1002/col.5080110107>.
 
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, "data/luo-rigg/luo-rigg.yaml")) as f:
+    with open(this_dir / "data/luo-rigg/luo-rigg.yaml") as f:
         data = yaml.safe_load(f)
 
     centers = []
