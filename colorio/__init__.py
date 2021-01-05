@@ -27,7 +27,6 @@ from ._tools import (
     show_flat_gamut,
     show_luo_rigg,
     show_macadam,
-    show_straights,
     xy_gamut_mesh,
 )
 from ._xyy import XYY
@@ -72,6 +71,5 @@ __all__ = [
     "plot_macadam",
     "show_luo_rigg",
     "plot_luo_rigg",
-    "show_straights",
     "xy_gamut_mesh",
 ]

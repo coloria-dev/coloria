@@ -88,10 +88,6 @@ def test_luo_rigg():
     colorio.show_luo_rigg(ellipse_scaling=1.5)
 
 
-def test_show_straights(cs=colorio.CIELAB()):
-    colorio.show_straights(cs)
-
-
 def test_xy_gamut_mesh():
     points, cells = colorio.xy_gamut_mesh(0.05)
 
@@ -107,19 +103,19 @@ if __name__ == "__main__":
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.Hdr()
     # colorspace_ = colorio.XYZ()
-    colorspace_ = colorio.XYY()
+    # colorspace_ = colorio.XYY()
     # colorspace_ = colorio.IPT()
     # colorspace_ = colorio.JzAzBz()
     # colorspace_ = colorio.CIELUV()
-    # colorspace_ = colorio.CIELAB()
+    colorspace_ = colorio.CIELAB()
     # colorspace_ = colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5)
     # colorspace_ = colorio.CAM16UCS(0.69, 20, 64 / numpy.pi / 5)
     # test_hdr_gamut(colorspace_, n=10)
     # test_visible_gamut(colorspace_, cut_000=False)
     # test_srgb_gamut(colorspace_, cut_000=False)
     # test_xiao(colorspace_)
-    # test_show_straights(colorspace_)
-    test_munsell(colorspace_)
+    test_show_straights(colorspace_)
+    # test_munsell(colorspace_)
     # test_cone_gamut(colorio.XYY())
     # test_cone_gamut(colorio.XYZ())
     # test_cone_gamut(colorio.CIELAB())
