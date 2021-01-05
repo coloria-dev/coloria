@@ -11,13 +11,14 @@ def test_show():
     # colorio.data.macadam.savefig(cs)
 
 
-def test_residuals(cs):
+def test_residuals():
     cs = colorio.CIELAB()
-    ref = 4.095516235268518
-    res = sum(colorio.data.macadam_1942.residuals(cs))
+    ref = 0.4140811777348482
+    res = colorio.data.macadam_1942.residuals(cs, 0.5)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 
 
 if __name__ == "__main__":
-    test_show()
+    # test_show()
+    test_residuals()

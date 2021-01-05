@@ -225,15 +225,3 @@ class ColorSpace:
         plt.xlabel(self.labels[k1])
         plt.ylabel(self.labels[k2])
         plt.axis("equal")
-
-
-def _xyy_from_xyz100(xyz):
-    sum_xyz = numpy.sum(xyz, axis=0)
-    x = xyz[0]
-    y = xyz[1]
-    return numpy.array([x / sum_xyz, y / sum_xyz, y / 100])
-
-
-def _xyy_to_xyz100(xyy):
-    x, y, Y = xyy
-    return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
