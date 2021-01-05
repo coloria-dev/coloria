@@ -2,7 +2,6 @@ import numpy
 
 from ._color_space import ColorSpace
 from ._linalg import dot
-from .illuminants import whitepoints_cie1931
 
 
 class OsaUcs(ColorSpace):
@@ -35,7 +34,7 @@ class OsaUcs(ColorSpace):
         self.Minv = numpy.linalg.inv(self.M)
 
     def from_xyz100(self, xyz100):
-        X, Y, Z = xyz100
+        X, Y, _ = xyz100
         s = numpy.sum(xyz100, axis=0)
 
         # Avoid division by s, could be 0.
@@ -131,7 +130,7 @@ class OsaUcs(ColorSpace):
             RGB = cbrt_RGB ** 3
             xyz100 = dot(self.Minv, RGB)
 
-            X, Y, Z = xyz100
+            X, Y, _ = xyz100
             sum_xyz = numpy.sum(xyz100, axis=0)
             x = X / sum_xyz
             y = Y / sum_xyz
@@ -151,7 +150,7 @@ class OsaUcs(ColorSpace):
             dRGB = 3 * cbrt_RGB ** 2
             dxyz100 = dot(self.Minv, dRGB)
 
-            dX, dY, dZ = dxyz100
+            dX, dY, _ = dxyz100
             dsum_xyz = numpy.sum(dxyz100, axis=0)
             dx = (dX * sum_xyz - X * dsum_xyz) / sum_xyz ** 2
             dy = (dY * sum_xyz - Y * dsum_xyz) / sum_xyz ** 2
