@@ -27,7 +27,7 @@ class ICtCp(ColorSpace):
             numpy.array([[2048, 2048, 0], [6610, -13613, 7003], [17933, -17390, -543]])
             / 4096
         )
-
+        self.name = "$IC_TC_P"
         self.labels = ["I", "C_T", "C_P"]
         self.k0 = 0  # the index that corresponds to luminosity
 

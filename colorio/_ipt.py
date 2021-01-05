@@ -6,7 +6,10 @@ from ._linalg import dot, solve
 
 class IPT(ColorSpace):
     """
-    IPT color model.
+    IPT color model from
+
+    Ebner, Fairchild,
+    Development and Testing of a Color Space (IPT) with Improved Hue Uniformity.
     """
 
     def __init__(self):
@@ -25,6 +28,7 @@ class IPT(ColorSpace):
                 [0.8056, 0.3572, -1.1628],
             ]
         )
+        self.name = "IPT"
         self.labels = ["I", "P", "T"]
         self.k0 = 0  # the index that corresponds to luminosity
 

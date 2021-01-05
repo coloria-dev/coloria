@@ -247,7 +247,7 @@ In short:
 \begin{equation}\label{eq:s}
 s_2 \coloneqq
 \min_{\|\alpha\|_2=1}
-  \sum_{i=1}^n \sqrt{(\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2}
+  \sqrt{\sum_{i=1}^n (\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2}
 \end{equation}
 with the translated and scaled sample points
 \[
@@ -288,6 +288,9 @@ The value is given explicitly by
       \right)
     }.
 \end{equation}
+The expression under the outer root is always nonnegative by the Cauchy-Schwarz
+inequality $(x^Ty)^2 \le (x^Tx) (y^Ty)$. It is 0 if and only if $x$ and $y$ are linearly
+dependent, i.e., if the points $(x_i, y_i)$ are on a straight line.
 
 
 \begin{remark}
@@ -317,23 +320,24 @@ s_p
 
 \begin{table}
   \centering
-  \begin{tabular}{lrrr}
+  \begin{tabular}{lrrrr}
     \toprule
-    & Hung-Berns & Ebner-Fairchild & Xiao et al.\\
+    & Hung--Berns & Ebner--Fairchild & Xiao et al. & sum\\
     \midrule
-    CAM16UCS    &         1.020  &         3.738  & 0.719\\
-    CAM02UCS    &         0.826  &         3.493  & 0.780\\
-    CIELAB      &         1.178  &         4.096  & 0.553\\
-    CIELUV      &         1.113  &         3.723  & 0.652\\
-    IPT         &         0.779  &         2.984  & 0.893\\
-    $J_zA_zB_z$ &         0.708  &         3.124  & 0.754\\
-    OKLAB       &         0.699  &         3.098  & 0.758\\
-    OSA (UCS)   & \textbf{0.666} & \textbf{2.949} & 0.835\\
-    RLAB        &         1.141  &         4.177  & 0.709\\
-    xyY         &         0.897  &         3.555  & \textbf{0.441}\\
+CAM02 (UCS)   &         0.826  &         3.493  &         0.780  &         5.099\\
+CAM16 (UCS)   &         1.020  &         3.738  &         0.719  &         5.477\\
+CIELAB        &         1.178  &         4.096  &         0.553  &         5.827\\
+CIELUV        &         1.113  &         3.723  &         0.652  &         5.488\\
+IPT           &         0.779  &         2.984  &         0.893  &         4.656\\
+$J_z a_z b_z$ &         0.708  &         3.124  &         0.754  &         4.585\\
+OKLAB         &         0.699  &         3.098  &         0.758  &         4.555\\
+OSA-UCS       & \textbf{0.666} & \textbf{2.949} &         0.835  & \textbf{4.449}\\
+RLAB          &         1.141  &         4.177  &         0.709  &         6.027\\
+xyY           &         0.897  &         3.555  & \textbf{0.441} &         4.893\\
     \bottomrule
   \end{tabular}
-  \caption{The sum the $s_2$ values for all arms.}
+  \caption{The sum the $s_2$ values for all arms. The best value is highlighted in bold.
+  OSA-UCS is the overall best color space for hue constancy.}
 \end{table}
 
 

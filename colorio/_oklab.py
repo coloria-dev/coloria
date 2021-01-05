@@ -24,6 +24,7 @@ class OKLAB(ColorSpace):
             ]
         )
         self.M2inv = numpy.linalg.inv(self.M2)
+        self.name = "OKLAB"
         self.labels = ["L", "a", "b"]
         self.k0 = 0
 

@@ -83,9 +83,9 @@ class RLAB(ColorSpace):
 
         self.sigma = sigma
 
+        self.name = "RLAB"
         self.labels = ["LR", "aR", "bR"]
         self.k0 = 0  # the index that corresponds to luminosity
-        return
 
     # Y_n is the absolute luminance of the adapting stimulus (typically a stimulus that
     # appears white in the image) in cd/m2 (=nit). Most laptop displays have a

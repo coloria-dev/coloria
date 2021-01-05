@@ -19,8 +19,9 @@ class OsaUcs(ColorSpace):
     <https://arxiv.org/abs/1911.08323>.
     """
 
-    def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
+    def __init__(self):
         super().__init__()
+        self.name = "OSA-UCS"
         self.labels = ["L", "g", "j"]
         self.k0 = 0
 
