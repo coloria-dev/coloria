@@ -227,8 +227,19 @@ a colorspace, one almost always means the transformation $T$ and its inverse.
 %   \item translation.
 % \end{itemize}
 
+Let $(X_i, Y_i, Z_i)\in\R^3$ be a given set of points in XYZ space which, according to
+some experiment, are of equal perceived hue. Consider the two non-lightness coordinates
+of their image $(x_i, y_i) \coloneqq T(X_i, Y_i, Z_i)$ (see figure TODO). What is
+measure of how well the points $(x_i, y_i)$ sit on a straight line? The general idea
+here is to cast a line through ``the middle'' of the point cloud and sum up the
+distances of all points to that line. There are multiple meaningful ways in which
+``the middle'' and ``distance'' can be defined. Remember that in $\R^n$, the distance
+between two points $a$ and $b$ can be defined by a \emph{norm}.
+
+
 
 \subsection{Cost functional for hue constancy data}
+
 
 There are multiple experiments which data about which colors are perceived to be of
 equal hue~\cite{ebner,xiao,hung} (see figure~\ref{}). Color spaces are considered good
@@ -251,8 +262,8 @@ s_2 \coloneqq
 \end{equation}
 with the translated and scaled sample points
 \[
-  \tilde{x}_i = \frac{x_i-w_x}{\frac{1}{n}\sum_{j=1}^n (x_j-w_x)},\qquad
-  \tilde{y}_i = \frac{y_i-w_y}{\frac{1}{n}\sum_{j=1}^n (y_j-w_y)}.
+  \tilde{x}_i \coloneqq \frac{x_i-w_x}{\frac{1}{n}\sum_{j=1}^n (x_j-w_x)},\qquad
+  \tilde{y}_i \coloneqq \frac{y_i-w_y}{\frac{1}{n}\sum_{j=1}^n (y_j-w_y)}.
 \]
 
 The value of $s_2$ can be approximated with any appropriate optimization method. A
@@ -309,12 +320,11 @@ s_p
 = \min_{\|\alpha\|_2=1}
   \left(\sum_{i=1}^n |\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i|^p\right)^{1/p}
 \]
-  with $1\le p \le \infty$. The corner cases $p=1$ and $p=\infty$ (for which
-  $s_{\infty}=\min_{\|\alpha\|_2=1} \max_i |\alpha_1 \tilde{x}_i + \alpha_2
-  \tilde{y}_i|$) may be interesting. The value $s_2$ remains of prominent importance,
-  though, because of its smooth dependence on the point set.
-  Note also that, unlike often seen, in neither case the center of gravity
-  $(\overline{x}, \overline{y})$ of the point set is of particular significance.
+  with $1\le p \le \infty$.
+  The value $s_2$ remains of prominent importance, though, because of its smooth
+  dependence on the point set.
+  Note also that, unlike often seen, in no case the center of gravity $(\overline{x},
+  \overline{y})$ of the point set is of particular significance.
 \end{remark}
 
 
@@ -339,18 +349,6 @@ xyY           &         0.897  &         3.555  & \textbf{0.441} &         4.893
   \caption{The sum the $s_2$ values for all arms. The best value is highlighted in bold.
   OSA-UCS is the overall best color space for hue constancy.}
 \end{table}
-
-
-\appendix
-
-Let $(X_i, Y_i, Z_i)\in\R^3$ be a given set of points in XYZ space which, according to
-some experiment, are of equal perceived hue. Consider the two non-lightness coordinates
-of their image $(x_i, y_i) \coloneqq T(X_i, Y_i, Z_i)$ (see figure TODO). What is
-measure of how well the points $(x_i, y_i)$ sit on a straight line? The general idea
-here is to cast a line through ``the middle'' of the point cloud and sum up the
-distances of all points to that line. There are multiple meaningful ways in which
-``the middle'' and ``distance'' can be defined. Remember that in $\R^n$, the distance
-between two points $a$ and $b$ can be defined by a \emph{norm}.
 
 
 

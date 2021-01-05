@@ -19,7 +19,7 @@ default: main
 
 main:
 	@$(LATEX) $(LATEX_OPTIONS) $(TARGET)
-	qpdf --linearize $(TARGET).pdf out.pdf
+	# qpdf --linearize $(TARGET).pdf out.pdf
 
 .PHONY: clean
 
