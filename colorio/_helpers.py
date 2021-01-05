@@ -41,9 +41,9 @@ def _plot_ellipses(
     xy_offsets,
     cs,
     lightness,
+    ellipse_scaling=1.0,
     outline_prec=1.0e-2,
     plot_srgb_gamut=True,
-    ellipse_scaling=10.0,
     visible_gamut_fill_color="0.8",
 ):
     from matplotlib.patches import Ellipse

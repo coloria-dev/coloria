@@ -7,7 +7,10 @@ def test_show():
     # cs = colorio.CIELCH()
     # cs = colorio.OsaUcs()
     # cs = colorio.IPT()
+    # cs = colorio.OKLAB()
+    # cs = colorio.CAM02("UCS", 0.69, 20, 4.074)
     # cs = colorio.CAM16UCS(0.69, 20, 4.074)
+    # cs = colorio.JzAzBz()  # TODO
     colorio.data.macadam_1942.show(cs, 50)
     colorio.data.macadam_1942.savefig("out.png", cs, 50)
 

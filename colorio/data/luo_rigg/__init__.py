@@ -63,9 +63,9 @@ def savefig(filename, *args, **kwargs):
     plt.close()
 
 
-def plot(*args, **kwargs):
+def plot(*args, ellipse_scaling=2.0, **kwargs):
     xy_centers, xy_offsets = _load_data(num_offset_points=8)
-    _plot_ellipses(xy_centers, xy_offsets, *args, **kwargs)
+    _plot_ellipses(xy_centers, xy_offsets, *args, ellipse_scaling, **kwargs)
 
 
 def residuals(cs, Y: float):
