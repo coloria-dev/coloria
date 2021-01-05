@@ -12,6 +12,7 @@ import numpy
 import yaml
 
 from ..._helpers import _plot_ellipses
+from ..helpers import _compute_ellipse_residual
 
 
 def _load_data():
@@ -58,50 +59,5 @@ def plot(*args, **kwargs):
 
 
 def residuals(cs, Y: float):
-    distances = []
     xy_centers, xy_offsets = _load_data()
-
-    # scale invariance by normalizing on center average
-    xy_centers = numpy.array(xy_centers).T
-    xyy_centers = numpy.array([*xy_centers, numpy.full(xy_centers.shape[1], Y)])
-    xyz_centers = _xyy_to_xyz100(xyy_centers)
-    cs_centers = cs.from_xyz100(xyz_centers)
-    cs_centers = numpy.delete(cs_centers, cs.k0, axis=0)
-    avg = numpy.average(cs_centers, axis=1)
-    alpha = numpy.linalg.norm(avg)
-
-    for xy_center, xy_offsets in zip(xy_centers.T, xy_offsets):
-        xy_ellips = (xy_center + xy_offsets.T).T
-        # append Y
-        xyy_center = numpy.array([*xy_center, Y])
-        xyy_ellips = numpy.array([*xy_ellips, numpy.full(xy_ellips.shape[1], Y)])
-        xyz_center = _xyy_to_xyz100(xyy_center)
-        assert numpy.all(xyz_center >= 0.0)
-        xyz_ellips = _xyy_to_xyz100(xyy_ellips)
-        assert numpy.all(xyz_ellips >= 0.0)
-        # plt.plot(xyz_center[0], xyz_center[2], "x")
-        # plt.plot(xyz_ellips[0], xyz_ellips[2], "o")
-        # plt.show()
-        cs_center = cs.from_xyz100(xyz_center)
-        cs_ellips = cs.from_xyz100(xyz_ellips)
-        # remove lightness data
-        cs_center = numpy.delete(cs_center, cs.k0, axis=0)
-        cs_ellips = numpy.delete(cs_ellips, cs.k0, axis=0)
-        # plt.plot(cs_center[0], cs_center[1], "x")
-        # plt.plot(cs_ellips[0], cs_ellips[1], "o")
-        # plt.show()
-        #
-        # scale and compute distances to center
-        cs_center /= alpha
-        cs_ellips /= alpha
-        diff = (cs_center - cs_ellips.T).T
-        distances.append(numpy.sqrt(diff[0] ** 2 + diff[1] ** 2))
-
-    distances = numpy.concatenate(distances)
-    avg = numpy.average(distances)
-    return numpy.sqrt(numpy.sum((distances - avg) ** 2))
-
-
-def _xyy_to_xyz100(xyy):
-    x, y, Y = xyy
-    return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
+    _compute_ellipse_residual(cs, xy_centers, xy_offsets, Y)

@@ -17,10 +17,11 @@ class HdrLinear:
     """
 
     def __init__(self):
-        # The Y-coordinate is guessed, it does not explicitly appear in the spec.
+        # TODO The Y-coordinate is guessed, it does not explicitly appear in the spec.
         primaries_xyy = numpy.array(
             [[0.708, 0.292, 1 / 3], [0.170, 0.797, 1 / 3], [0.131, 0.046, 1 / 3]]
         )
+
         self.invM = _xyy_to_xyz100(primaries_xyy.T) / 100
 
         self.alpha = 1.09929682680944

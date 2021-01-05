@@ -57,9 +57,15 @@ class ColorSpace:
 
         meshio.write_points_cells(filename, pts, cells={"triangle": cells})
 
-    def save_srgb_gamut(self, filename, n=50, cut_000=False):
+    def save_rgb_gamut(self, filename, variant, n=50, cut_000=False):
         import meshio
         import meshzoo
+
+        if variant.lower() in ["srgb", "rec709"]:
+            rgb_linear = SrgbLinear()
+        else:
+            assert variant.lower() in ["rec709", "rec2020", "rec2100"]
+            rgb_linear = HdrLinear()
 
         points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
 
@@ -69,31 +75,11 @@ class ColorSpace:
             cells = cells[~numpy.any(cells == 0, axis=1)]
             cells -= 1
 
-        srgb_linear = SrgbLinear()
-        pts = self.from_xyz100(srgb_linear.to_xyz100(points.T)).T
+        pts = self.from_xyz100(rgb_linear.to_xyz100(points.T)).T
         assert pts.shape[1] == 3
-        rgb = srgb_linear.to_srgb1(points)
+        rgb = rgb_linear.to_srgb1(points)
         meshio.write_points_cells(
             filename, pts, {"tetra": cells}, point_data={"srgb": rgb}
-        )
-
-    def save_hdr_gamut(self, filename, n=50, cut_000=False):
-        import meshio
-        import meshzoo
-
-        points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
-
-        if cut_000:
-            # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
-            points = points[1:]
-            cells = cells[~numpy.any(cells == 0, axis=1)]
-            cells -= 1
-
-        hdr_linear = HdrLinear()
-        pts = self.from_xyz100(hdr_linear.to_xyz100(points.T)).T
-        rgb = hdr_linear.to_hdr1(points)
-        meshio.write_points_cells(
-            filename, pts, {"tetra": cells}, point_data={"hdr-rgb": rgb}
         )
 
     def save_cone_gamut(self, filename, observer, max_Y):
@@ -134,9 +120,7 @@ class ColorSpace:
         plt.savefig(filename, transparent=True, bbox_inches="tight")
         plt.close()
 
-    def plot_visible_slice(
-        self, lightness, outline_prec=1.0e-2, fill_color="0.8"
-    ):
+    def plot_visible_slice(self, lightness, outline_prec=1.0e-2, fill_color="0.8"):
         # first plot the monochromatic outline
         mono_xy, conn_xy = get_mono_outline_xy(
             observer=cie_1931_2(), max_stepsize=outline_prec
@@ -158,20 +142,24 @@ class ColorSpace:
         plt.ylabel(self.labels[k2])
         plt.title(f"{self.labels[self.k0]} = {lightness}")
 
-    def show_srgb_slice(self, *args, **kwargs):
+    def show_rgb_slice(self, *args, **kwargs):
         plt.figure()
-        self.plot_srgb_slice(*args, **kwargs)
+        self.plot_rgb_slice(*args, **kwargs)
         plt.show()
         plt.close()
 
-    def save_srgb_slice(self, filename, *args, **kwargs):
+    def save_rgb_slice(self, filename, *args, **kwargs):
         plt.figure()
-        self.plot_srgb_slice(*args, **kwargs)
+        self.plot_rgb_slice(*args, **kwargs)
         plt.savefig(filename, transparent=True, bbox_inches="tight")
         plt.close()
 
-    def plot_srgb_slice(self, lightness, n=50):
+    def plot_rgb_slice(self, variant, lightness, n=50):
         import meshzoo
+
+        assert variant in ["srgb", "hdr", "rec709", "rec2020", "rec2100"]
+
+        # TODO etc
 
         # Get all RGB values that sum up to 1.
         bary, triangles = meshzoo.triangle(n=n)
@@ -248,64 +236,6 @@ class ColorSpace:
             cmap=cmap,
         )
         # plt.triplot(self_vals[:, k1], self_vals[:, k2], triangles=triangles)
-
-    def show_luo_rigg(self, *args, **kwargs):
-        plt.figure()
-        self.plot_luo_rigg(*args, **kwargs)
-        plt.show()
-        plt.close()
-
-    def save_luo_rigg(self, filename, *args, **kwargs):
-        plt.figure()
-        self.plot_luo_rigg(*args, **kwargs)
-        plt.savefig(filename, transparent=True, bbox_inches="tight")
-        plt.close()
-
-    def plot_luo_rigg(
-        self, level, outline_prec=1.0e-2, plot_srgb_gamut=True, ellipse_scaling=2.0
-    ):
-        # M. R. Luo, B. Rigg,
-        # Chromaticity Discrimination Ellipses for Surface Colours,
-        # Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25-42,
-        # <https://doi.org/10.1002/col.5080110107>.
-        this_dir = pathlib.Path(__file__).resolve().parent
-        with open(this_dir / "data/luo-rigg/luo-rigg.yaml") as f:
-            data = yaml.safe_load(f)
-        #
-        xy_centers = []
-        xy_offsets = []
-        # collect the ellipse centers and offsets
-        # Use four offset points of each ellipse, one could take more
-        alpha = 2 * numpy.pi * numpy.linspace(0.0, 1.0, 16, endpoint=False)
-        pts = numpy.array([numpy.cos(alpha), numpy.sin(alpha)])
-        for data_set in data.values():
-            # The set factor is the mean of the R values
-            # set_factor = sum([dat[-1] for dat in data_set.values()]) / len(data_set)
-            for dat in data_set.values():
-                x, y, Y, a, a_div_b, theta_deg, _ = dat
-                theta = theta_deg * 2 * numpy.pi / 360
-                a /= 1.0e4
-                a *= (Y / 30) ** 0.2
-                b = a / a_div_b
-                # plot the ellipse
-                xy_centers.append([x, y])
-                J = numpy.array(
-                    [
-                        [+a * numpy.cos(theta), -b * numpy.sin(theta)],
-                        [+a * numpy.sin(theta), +b * numpy.cos(theta)],
-                    ]
-                )
-                xy_offsets.append(numpy.dot(J, pts))
-
-        _plot_ellipses(
-            xy_centers,
-            xy_offsets,
-            self,
-            level,
-            outline_prec=outline_prec,
-            plot_srgb_gamut=plot_srgb_gamut,
-            ellipse_scaling=ellipse_scaling,
-        )
 
     def show_munsell(self, V):
         plt.figure()
