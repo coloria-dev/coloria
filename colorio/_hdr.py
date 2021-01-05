@@ -17,7 +17,7 @@ class HdrLinear:
     """
 
     def __init__(self):
-        # The Y-coordinate the guessed, it does not explicitly appear in the spec.
+        # The Y-coordinate is guessed, it does not explicitly appear in the spec.
         primaries_xyy = numpy.array(
             [[0.708, 0.292, 1 / 3], [0.170, 0.797, 1 / 3], [0.131, 0.046, 1 / 3]]
         )
@@ -25,7 +25,6 @@ class HdrLinear:
 
         self.alpha = 1.09929682680944
         self.beta = 0.018053968510807
-        return
 
     def from_xyz100(self, xyz100):
         # TODO NaN the values smaller than 0 and larger than 1

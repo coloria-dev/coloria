@@ -38,7 +38,6 @@ class SrgbLinear:
         # ])
         # self.invM = numpy.linalg.inv(M)
         self.labels = ["R", "G", "B"]
-        return
 
     def from_xyz100(self, xyz):
         # https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)

@@ -1,6 +1,7 @@
 import numpy
 
 from ._color_space import ColorSpace
+from ._hdr import HdrLinear
 from ._linalg import dot, solve
 
 
@@ -12,6 +13,10 @@ class ICtCp(ColorSpace):
 
     def __init__(self):
         super().__init__()
+        self.name = "I C_T C_P"
+        self.labels = ["I", "C_T", "C_P"]
+        self.k0 = 0  # the index that corresponds to luminosity
+
         self.M1 = (
             numpy.array([[1688, 2146, 262], [683, 2951, 462], [99, 309, 3688]]) / 4096
         )
@@ -27,9 +32,8 @@ class ICtCp(ColorSpace):
             numpy.array([[2048, 2048, 0], [6610, -13613, 7003], [17933, -17390, -543]])
             / 4096
         )
-        self.name = "$IC_TC_P"
-        self.labels = ["I", "C_T", "C_P"]
-        self.k0 = 0  # the index that corresponds to luminosity
+
+        self._hdr = HdrLinear()
 
     def from_rec2100(self, rgb):
         lms = dot(self.M1, rgb)
@@ -52,3 +56,9 @@ class ICtCp(ColorSpace):
 
         rgb = solve(self.M1, lms)
         return rgb
+
+    def from_xyz100(self, xyz100):
+        return self.from_rec2100(self._hdr.from_xyz100(xyz100))
+
+    def to_xyz100(self, ictcp):
+        return self._hdr.to_xyz100(self.to_rec2100(ictcp))

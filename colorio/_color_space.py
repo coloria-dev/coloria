@@ -1,6 +1,5 @@
 import os
 
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy
 import yaml
@@ -8,7 +7,6 @@ import yaml
 from ._hdr import HdrLinear
 from ._srgb import SrgbLinear
 from ._tools import get_mono_outline_xy, get_munsell_data, spectrum_to_xyz100
-from .illuminants import whitepoints_cie1931
 from .observers import cie_1931_2
 
 
@@ -121,6 +119,45 @@ class ColorSpace:
         meshio.write_points_cells(
             filename, pts, {"tetra": mesh.get_cells_type("tetra")}
         )
+
+    def show_visible_slice(self, *args, **kwargs):
+        plt.figure()
+        self.plot_visible_slice(*args, **kwargs)
+        plt.show()
+        plt.close()
+
+    def save_visible_slice(self, filename, *args, **kwargs):
+        plt.figure()
+        self.plot_visible_slice(*args, **kwargs)
+        plt.savefig(filename, transparent=True, bbox_inches="tight")
+        plt.close()
+
+    def plot_visible_slice(
+        self, lightness, outline_prec=1.0e-2, plot_srgb_gamut=True, fill_color="0.8"
+    ):
+        # first plot the monochromatic outline
+        mono_xy, conn_xy = get_mono_outline_xy(
+            observer=cie_1931_2(), max_stepsize=outline_prec
+        )
+
+        mono_vals = numpy.array([_find_Y(cs, xy, lightness) for xy in mono_xy])
+        conn_vals = numpy.array([_find_Y(cs, xy, lightness) for xy in conn_xy])
+
+        k1, k2 = [k for k in [0, 1, 2] if k != cs.k0]
+        plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
+        plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
+        #
+        if fill_color is not None:
+            xyz = numpy.vstack([mono_vals, conn_vals[1:]])
+            plt.fill(xyz[:, k1], xyz[:, k2], facecolor=fill_color, zorder=0)
+
+        if plot_srgb_gamut:
+            _plot_srgb_gamut(cs, lightness)
+
+        plt.axis("equal")
+        plt.xlabel(self.labels[k1])
+        plt.ylabel(self.labels[k2])
+        plt.title(f"{self.labels[self.k0]} = {lightness}")
 
     def show_luo_rigg(self, *args, **kwargs):
         plt.figure()

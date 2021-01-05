@@ -91,8 +91,7 @@ def _plot_ellipses(
     from matplotlib.patches import Ellipse
     from scipy.optimize import leastsq
 
-    plot_visible_slice(
-        cs,
+    cs.plot_visible_slice(
         lightness,
         outline_prec=outline_prec,
         plot_srgb_gamut=plot_srgb_gamut,
@@ -157,48 +156,6 @@ def _plot_ellipses(
         e.set_facecolor("k")
 
         # plt.plot(tvals[:, 0], tvals[:, 1], "xk")
-
-
-def show_visible_slice(*args, **kwargs):
-    plt.figure()
-    plot_visible_slice(*args, **kwargs)
-    plt.show()
-    plt.close()
-
-
-def save_visible_slice(filename, *args, **kwargs):
-    plt.figure()
-    plot_visible_slice(*args, **kwargs)
-    plt.savefig(filename, transparent=True, bbox_inches="tight")
-    plt.close()
-
-
-def plot_visible_slice(
-    cs, lightness, outline_prec=1.0e-2, plot_srgb_gamut=True, fill_color="0.8"
-):
-    # first plot the monochromatic outline
-    mono_xy, conn_xy = get_mono_outline_xy(
-        observer=cie_1931_2(), max_stepsize=outline_prec
-    )
-
-    mono_vals = numpy.array([_find_Y(cs, xy, lightness) for xy in mono_xy])
-    conn_vals = numpy.array([_find_Y(cs, xy, lightness) for xy in conn_xy])
-
-    k1, k2 = [k for k in [0, 1, 2] if k != cs.k0]
-    plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
-    plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
-    #
-    if fill_color is not None:
-        xyz = numpy.vstack([mono_vals, conn_vals[1:]])
-        plt.fill(xyz[:, k1], xyz[:, k2], facecolor=fill_color, zorder=0)
-
-    if plot_srgb_gamut:
-        _plot_srgb_gamut(cs, lightness)
-
-    plt.axis("equal")
-    plt.xlabel(cs.labels[k1])
-    plt.ylabel(cs.labels[k2])
-    plt.title(f"{cs.labels[cs.k0]} = {lightness}")
 
 
 def _find_Y(cs, xy, level, tol=1.0e-5):
