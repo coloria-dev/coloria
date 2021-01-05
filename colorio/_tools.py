@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -89,7 +90,6 @@ def _plot_rgb_triangle(xy_to_2d, bright=True):
 
     triang = matplotlib.tri.Triangulation(xyy_vals[0], xyy_vals[1])
     plt.tripcolor(triang, z, shading="gouraud", cmap=cmap)
-    return
 
 
 def _plot_planckian_locus(observer, xy_to_2d):
@@ -102,7 +102,6 @@ def _plot_planckian_locus(observer, xy_to_2d):
         values.append(xyy_vals)
     values = numpy.array(values)
     plt.plot(values[:, 0], values[:, 1], ":k", label="Planckian locus")
-    return
 
 
 def plot_flat_gamut(
@@ -134,13 +133,11 @@ def plot_flat_gamut(
     # plt.legend()
     plt.xlabel(axes_labels[0])
     plt.ylabel(axes_labels[1])
-    return
 
 
 def show_flat_gamut(*args, **kwargs):
     plot_flat_gamut(*args, **kwargs)
     plt.show()
-    return
 
 
 def get_munsell_data():
@@ -184,8 +181,8 @@ def plot_macadam(
     """See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
     <https://doi.org/10.1364%2FJOSA.32.000247>.
     """
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, "data/macadam1942/table3.yaml")) as f:
+    this_dir = pathlib.Path(__file__).resolve().parent
+    with open(this_dir / "data/macadam_1942/table3.yaml") as f:
         data = yaml.safe_load(f)
 
     # if plot_filter_positions:

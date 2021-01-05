@@ -63,25 +63,6 @@ def test_conversion_variants(a):
     assert diff.shape == a.shape[1:]
 
 
-@pytest.mark.parametrize(
-    "colorspace", [colorio.CIELAB(), colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5)]
-)
-def test_ebner_fairchild(colorspace):
-    colorspace.show_ebner_fairchild()
-
-
-@pytest.mark.parametrize(
-    "colorspace", [colorio.CIELAB(), colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5)]
-)
-def test_hung_berns(colorspace):
-    colorspace.show_hung_berns()
-
-
-@pytest.mark.parametrize("colorspace", [colorio.CIELAB()])
-def test_xiao(colorspace):
-    colorspace.show_xiao()
-
-
 @pytest.mark.parametrize("colorspace", [colorio.CIELAB()])
 def test_munsell(colorspace):
     colorspace.show_munsell(V=5)
@@ -136,11 +117,9 @@ if __name__ == "__main__":
     # test_hdr_gamut(colorspace_, n=10)
     # test_visible_gamut(colorspace_, cut_000=False)
     # test_srgb_gamut(colorspace_, cut_000=False)
-    # test_ebner_fairchild(colorspace_)
-    test_hung_berns(colorspace_)
     # test_xiao(colorspace_)
     # test_show_straights(colorspace_)
-    # test_munsell(colorspace_)
+    test_munsell(colorspace_)
     # test_cone_gamut(colorio.XYY())
     # test_cone_gamut(colorio.XYZ())
     # test_cone_gamut(colorio.CIELAB())

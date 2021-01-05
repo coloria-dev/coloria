@@ -7,8 +7,9 @@ def test_show():
     # cs = colorio.CIELCH()
     # cs = colorio.OsaUcs()
     # cs = colorio.IPT()
+    # cs = colorio.CAM16UCS(0.69, 20, 4.074)
     colorio.data.macadam_1942.show(cs, 50)
-    # colorio.data.macadam.savefig(cs)
+    colorio.data.macadam_1942.savefig("out.png", cs, 50)
 
 
 def test_residuals():
@@ -20,5 +21,5 @@ def test_residuals():
 
 
 if __name__ == "__main__":
-    # test_show()
-    test_residuals()
+    test_show()
+    # test_residuals()

@@ -5,6 +5,7 @@ import numpy
 import yaml
 
 from ._hdr import HdrLinear
+from ._helpers import _find_Y, _plot_ellipses, _plot_srgb_slice
 from ._srgb import SrgbLinear
 from ._tools import get_mono_outline_xy, get_munsell_data, spectrum_to_xyz100
 from .observers import cie_1931_2
@@ -87,9 +88,9 @@ class ColorSpace:
             cells = cells[~numpy.any(cells == 0, axis=1)]
             cells -= 1
 
-        hdr = HdrLinear()
-        pts = self.from_xyz100(hdr.to_xyz100(points.T)).T
-        rgb = hdr.to_hdr1(points)
+        hdr_linear = HdrLinear()
+        pts = self.from_xyz100(hdr_linear.to_xyz100(points.T)).T
+        rgb = hdr_linear.to_hdr1(points)
         meshio.write_points_cells(
             filename, pts, {"tetra": cells}, point_data={"hdr-rgb": rgb}
         )
@@ -140,10 +141,10 @@ class ColorSpace:
             observer=cie_1931_2(), max_stepsize=outline_prec
         )
 
-        mono_vals = numpy.array([_find_Y(cs, xy, lightness) for xy in mono_xy])
-        conn_vals = numpy.array([_find_Y(cs, xy, lightness) for xy in conn_xy])
+        mono_vals = numpy.array([_find_Y(self, xy, lightness) for xy in mono_xy])
+        conn_vals = numpy.array([_find_Y(self, xy, lightness) for xy in conn_xy])
 
-        k1, k2 = [k for k in [0, 1, 2] if k != cs.k0]
+        k1, k2 = [k for k in [0, 1, 2] if k != self.k0]
         plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
         plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
         #
@@ -152,7 +153,7 @@ class ColorSpace:
             plt.fill(xyz[:, k1], xyz[:, k2], facecolor=fill_color, zorder=0)
 
         if plot_srgb_gamut:
-            _plot_srgb_gamut(cs, lightness)
+            _plot_srgb_slice(self, lightness)
 
         plt.axis("equal")
         plt.xlabel(self.labels[k1])
@@ -207,9 +208,10 @@ class ColorSpace:
                 )
                 xy_offsets.append(numpy.dot(J, pts))
 
-        self._plot_ellipses(
+        _plot_ellipses(
             xy_centers,
             xy_offsets,
+            self,
             level,
             outline_prec=outline_prec,
             plot_srgb_gamut=plot_srgb_gamut,
@@ -262,3 +264,8 @@ class ColorSpace:
         plt.xlabel(self.labels[k1])
         plt.ylabel(self.labels[k2])
         plt.axis("equal")
+
+
+def _xyy_to_xyz100(xyy):
+    x, y, Y = xyy
+    return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100

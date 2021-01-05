@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy
 import yaml
 
-from ..helpers import _plot_ellipses
+from ..._helpers import _plot_ellipses
 
 
 def _load_data():

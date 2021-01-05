@@ -196,11 +196,11 @@ article](https://doi.org/10.1364%2FJOSA.32.000247)) can be plotted with
 import colorio
 
 # xyy = colorio.XYY()
-# xyy.show_macadam(0.4)
-# xyy.save_macadam("macadam-xyy.png", 0.4)
+# colorio.data.macadam_1942.show(xyy, 0.4)
+# colorio.data.macadam_1942.savefig("macadam-xyy.png", xyy, 0.4)
 
 cieluv = colorio.CIELUV()
-cieluv.show_macadam(50)
+colorio.data.macadam_1942.show(cieluv, 50.0)
 ```
 
 ###### Luo-Rigg
@@ -253,7 +253,7 @@ Note the dark blue distortion in CIELAB and CAM16.
 import colorio
 
 colorspace = colorio.JzAzBz()
-colorspace.show_hung_berns()
+colorio.data.hung_berns.show(colorspace)
 ```
 
 ###### Xiao et al.
@@ -267,7 +267,7 @@ xyY             | CIELAB          |  CAM16             |
 import colorio
 
 colorspace = colorio.CIELAB()
-colorspace.show_xiao()
+colorio.data.xiao.show(colorspace)
 ```
 
 ##### Munsell
