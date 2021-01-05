@@ -1,11 +1,12 @@
 import pathlib
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy
 import yaml
 
 from ._hdr import HdrLinear
-from ._helpers import _find_Y, _plot_ellipses, _plot_srgb_slice
+from ._helpers import _find_Y, _plot_ellipses
 from ._srgb import SrgbLinear
 from ._tools import get_mono_outline_xy, get_munsell_data, spectrum_to_xyz100
 from .observers import cie_1931_2
@@ -134,7 +135,7 @@ class ColorSpace:
         plt.close()
 
     def plot_visible_slice(
-        self, lightness, outline_prec=1.0e-2, plot_srgb_gamut=True, fill_color="0.8"
+        self, lightness, outline_prec=1.0e-2, fill_color="0.8"
     ):
         # first plot the monochromatic outline
         mono_xy, conn_xy = get_mono_outline_xy(
@@ -152,13 +153,101 @@ class ColorSpace:
             xyz = numpy.vstack([mono_vals, conn_vals[1:]])
             plt.fill(xyz[:, k1], xyz[:, k2], facecolor=fill_color, zorder=0)
 
-        if plot_srgb_gamut:
-            _plot_srgb_slice(self, lightness)
-
         plt.axis("equal")
         plt.xlabel(self.labels[k1])
         plt.ylabel(self.labels[k2])
         plt.title(f"{self.labels[self.k0]} = {lightness}")
+
+    def show_srgb_slice(self, *args, **kwargs):
+        plt.figure()
+        self.plot_srgb_slice(*args, **kwargs)
+        plt.show()
+        plt.close()
+
+    def save_srgb_slice(self, filename, *args, **kwargs):
+        plt.figure()
+        self.plot_srgb_slice(*args, **kwargs)
+        plt.savefig(filename, transparent=True, bbox_inches="tight")
+        plt.close()
+
+    def plot_srgb_slice(self, lightness, n=50):
+        import meshzoo
+
+        # Get all RGB values that sum up to 1.
+        bary, triangles = meshzoo.triangle(n=n)
+        corners = numpy.array([[0, 0], [1, 0], [0, 1]]).T
+        srgb_vals = numpy.dot(corners, bary).T
+        srgb_vals = numpy.column_stack([srgb_vals, 1.0 - numpy.sum(srgb_vals, axis=1)])
+
+        # matplotlib is sensitive when it comes to srgb values, so take good care here
+        assert numpy.all(srgb_vals > -1.0e-10)
+        srgb_vals[srgb_vals < 0.0] = 0.0
+
+        # Use bisection to
+        srgb_linear = SrgbLinear()
+        tol = 1.0e-5
+        # Use zeros() instead of empty() here to avoid invalid values when setting up
+        # the cmap below.
+        self_vals = numpy.zeros((srgb_vals.shape[0], 3))
+        srgb_linear_vals = numpy.zeros((srgb_vals.shape[0], 3))
+        mask = numpy.ones(srgb_vals.shape[0], dtype=bool)
+        for k, val in enumerate(srgb_vals):
+            alpha_min = 0.0
+            xyz100 = srgb_linear.to_xyz100(val * alpha_min)
+            self_val_min = self.from_xyz100(xyz100)[self.k0]
+            if self_val_min > lightness:
+                mask[k] = False
+                continue
+
+            alpha_max = 1.0 / numpy.max(val)
+
+            xyz100 = srgb_linear.to_xyz100(val * alpha_max)
+            self_val_max = self.from_xyz100(xyz100)[self.k0]
+            if self_val_max < lightness:
+                mask[k] = False
+                continue
+
+            while True:
+                alpha = (alpha_max + alpha_min) / 2
+                srgb_linear_vals[k] = val * alpha
+                xyz100 = srgb_linear.to_xyz100(srgb_linear_vals[k])
+                self_val = self.from_xyz100(xyz100)
+                if abs(self_val[self.k0] - lightness) < tol:
+                    break
+                elif self_val[self.k0] < lightness:
+                    alpha_min = alpha
+                else:
+                    assert self_val[self.k0] > lightness
+                    alpha_max = alpha
+            self_vals[k] = self_val
+
+        # Remove all triangles which have masked corner points
+        tri_mask = numpy.all(mask[triangles], axis=1)
+        if ~numpy.any(tri_mask):
+            return
+        triangles = triangles[tri_mask]
+
+        # Unfortunately, one cannot use tripcolors with explicit RGB specification (see
+        # <https://github.com/matplotlib/matplotlib/issues/10265>). As a workaround,
+        # associate range(n) data with the points and create a colormap that associates
+        # the integer values with the respective RGBs.
+        z = numpy.arange(srgb_vals.shape[0])
+        rgb = srgb_linear.to_srgb1(srgb_linear_vals)
+        cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+            "gamut", rgb, N=len(rgb)
+        )
+
+        k1, k2 = [k for k in [0, 1, 2] if k != self.k0]
+
+        plt.tripcolor(
+            self_vals[:, k1],
+            self_vals[:, k2],
+            triangles,
+            z,
+            shading="gouraud",
+            cmap=cmap,
+        )
+        # plt.triplot(self_vals[:, k1], self_vals[:, k2], triangles=triangles)
 
     def show_luo_rigg(self, *args, **kwargs):
         plt.figure()
