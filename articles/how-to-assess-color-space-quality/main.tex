@@ -69,7 +69,9 @@
 \DeclareMathOperator*{\argmin}{arg\,min}
 
 % \usepackage{amsfonts}
+\usepackage{bm}
 \newcommand\R{\ensuremath{\mathbb{R}}}
+\newcommand\x{\ensuremath{\bm{x}}}
 
 \title{\mytitle\footnote{The LaTeX sources of this article are on
 \url{https://github.com/nschloe/colorio}}}
@@ -95,7 +97,7 @@ experimental data: Hue constancy \cite{ebner,xiao,hung} and color difference ell
 \cite{macadam,luo}.
 
 Almost every color space is defined by a transformation $T$ that maps the CIE-1931-XYZ
-coordinates into a three-dimansional new coordinate space (e.g., LAB). The
+coordinates into a three-dimensional new coordinate space (e.g., LAB). The
 transformation is usually continuously differentiable and bijective. When talking about
 a colorspace, one almost always means the transformation $T$ and its inverse.
 
@@ -350,116 +352,6 @@ xyY           &         0.897  &         3.555  & \textbf{0.441} &         4.893
   OSA-UCS is the overall best color space for hue constancy.}
 \end{table}
 
-
-
-% \subsection{The ellipse-circulator}
-%
-% It might look surprising that the first experiments about color
-% perception by MacAdam~\cite{macadam} produced, of all possible shapes, rather regular
-% ellipses around their averages. This discovery, however, is less surprising if one
-% considers the fact that every continuously differentiable transformation from the
-% perceptually uniform space to xy will locally produce ellipses. That is because every
-% differentiable function $f:\R^n\to\R^n$ can be approximated locally by
-% \[
-%   f(\x) \approx f(\x_0) + J_{\x_0} (\x - \x_0).
-% \]
-% for any given point $\x_0$. The local behavior is thus determined by the $n\times n$
-% Jacobian matrix $J_{\x_0}$ at that point. In two dimensions, every linear transformation
-% maps circles into ellipses. Hence, the fact that we see ellipses hints toards there
-% being a continuously differentiable transformation from the perceptually uniform space
-% $S$ to $xy$.
-%
-% This now also makes clear that the reverse transformation $t$ must \emph{undo} the
-% action of $J$, i.e., the transformation
-% \begin{equation}\label{eq:JJ}
-%   M_{\x_0} \coloneqq \tilde{J}_{t(\x_0)}^{-1} J_{\x_0}
-% \end{equation}
-% must map circles back into circles.
-% Demanding $M_{\x_0}$ to be the unit matrix is too
-% strict since we do not care about rotations. Rather consider its singular value
-% decomposition
-% \[
-%   M_{\x_0} =
-%   \begin{bmatrix}
-%     \cos \phi & \sin\phi\\
-%     -\sin \phi & \cos\phi
-%   \end{bmatrix}
-%   \begin{bmatrix}
-%     \sigma_1 & 0\\
-%     0 & \sigma_2
-%   \end{bmatrix}
-%   \begin{bmatrix}
-%     \cos \psi & \sin\psi\\
-%     -\sin \psi & \cos\psi
-%   \end{bmatrix}
-% \]
-% and note that the singular values $\sigma_1$, $\sigma_2$ are the magnitudes of the
-% semiaxes of the corresponding ellipses. Hence the cost functional should be small
-% if the values $\sigma_1$ and $\sigma_2$ are close to each other. Since there are
-% multiple ellipses involved and we would like all of them to map to circles of the same
-% size, all $\sigma$ across all ellipses should be of equal magnitude.
-%
-% \begin{remark}
-%   Note that in equation~\ref{eq:JJ}, we could have switched the order of the matrices to
-%   \[
-%   \tilde{M}_{\x_0} \coloneqq J_{\x_0} \tilde{J}_{t(\x_0)}^{-1}
-%   \]
-%   The singular values of $\tilde{M}_{\x_0}$ do not equal those of $M_{\x_0}$.
-%   However, if the singular values of on the matrices are close to 1, so are those of the
-%   other.
-%
-%   % s(t(x))
-%   %
-%   % J_st = J_s J_t ?
-%   % J_{s^-1} = (J_s)^{-1} ?
-% \end{remark}
-%
-% Interestingly, the singular values of a $2\times 2$ matrix can be computed explicitly
-% via
-% \[
-%   \begin{split}
-%     &a,b = \frac{m_{1, 1} \pm m_{2, 2}}{2},\quad c,d = \frac{m_{2, 1} \pm m_{1, 2}}{2},\\
-%     &q = \sqrt{a^2 + d^2},\quad r = \sqrt{b^2 + c^2},\\
-%     &\sigma_{1/2} = q \pm r.
-%   \end{split}
-% \]
-% A reasonable cost functional would thus be
-% \[
-%   \begin{split}
-%   F &=
-%   \frac{1}{2} \sum_i {\left(\frac{q_i}{\overline{q}} - 1\right)}^2
-%   + \frac{1}{2} \sum_i {\left(\frac{r_i}{\overline{q}}\right)}^2\\
-%   % &= \frac{1}{2} \sum_i {\left(\frac{q_i}{\overline{q}} - 1\right)}^2
-%   % + \frac{1}{2} \sum_i {\left(\frac{b_i}{\overline{q}}\right)}^2
-%   % + \frac{1}{2} \sum_i {\left(\frac{c_i}{\overline{q}}\right)}^2
-%   \end{split}
-% \]
-% with $\overline{q} = \frac{1}{n} \sum_{j=1}^n q_j$. It is easy to verify that this
-% function fulfills the invariance conditions.
-%
-% \section{}
-%
-% For illustration, the efficiency of the cost functionals in sections~\ref{} and~\ref{}
-% will now be demonstrated with the few-parameter ansatz
-% \[
-%   t(x, y) = bla
-% \]
-%
-%
-%
-%
-% \subsection{The Laplacian}
-% \[
-%   |t(\Omega)|^{-1} \|\Delta t(x, y)\|
-% \]
-%
-% The computation has been carried out with the help of FEniCS~\cite{fenics}.
-%
-% \appendix
-%
-% \section{Polynomial and Padé approximations and Runge's phenomenon}\label{polyfail}
-%
-% See figure~\ref{} for the classical Runge example.
 
 
 % \printbibliography{}

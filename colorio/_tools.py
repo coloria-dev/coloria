@@ -228,7 +228,6 @@ def plot_macadam(
         mesh_resolution=mesh_resolution,
         plot_rgb_triangle=plot_rgb_triangle,
     )
-    return
 
 
 def show_luo_rigg(*args, **kwargs):

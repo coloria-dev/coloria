@@ -32,9 +32,9 @@ def savefig(cs, filename):
     plt.close()
 
 
-def plot(self):
+def plot(cs):
     wp, d = _load_data()
-    _plot_color_constancy_data(d, wp, self)
+    _plot_color_constancy_data(d, wp, cs)
 
 
 def residuals(cs):
