@@ -31,7 +31,7 @@ class RLAB(ColorSpace):
     def __init__(
         self, Y_n=318.0, D=0.0, whitepoint=whitepoints_cie1931["D65"], sigma=1.0 / 2.3
     ):
-        super().__init__()
+        super().__init__("RLAB", ("LR", "aR", "bR"), 0)
         # One purpose of RLAB is to account for the adaptation in the human visual
         # system. That is, the visual system sees a red apple no matter if it is looked
         # at in bright daylight, at dawn, or in the light of a fire.  To achieve this,
@@ -82,10 +82,6 @@ class RLAB(ColorSpace):
         )
 
         self.sigma = sigma
-
-        self.name = "RLAB"
-        self.labels = ["LR", "aR", "bR"]
-        self.k0 = 0  # the index that corresponds to luminosity
 
     # Y_n is the absolute luminance of the adapting stimulus (typically a stimulus that
     # appears white in the image) in cd/m2 (=nit). Most laptop displays have a

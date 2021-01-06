@@ -5,20 +5,6 @@ import colorio
 
 
 @pytest.mark.parametrize(
-    "xyz",
-    [
-        numpy.random.rand(3) * 100,
-        numpy.random.rand(3, 7) * 100,
-        numpy.random.rand(3, 4, 5) * 100,
-    ],
-)
-def test_conversion(xyz):
-    cielab = colorio.cs.CIELAB()
-    out = cielab.to_xyz100(cielab.from_xyz100(xyz))
-    assert numpy.all(abs(xyz - out) < 1.0e-14 * abs(xyz))
-
-
-@pytest.mark.parametrize(
     "xyz100,ref",
     [
         ([10, 20, 30], [51.8372, -56.3591, -13.1812]),

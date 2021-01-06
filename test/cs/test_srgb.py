@@ -8,7 +8,7 @@ import colorio
     "vals", [numpy.random.rand(3), numpy.random.rand(3, 7), numpy.random.rand(3, 4, 5)]
 )
 def test_conversion(vals):
-    srgb_linear = colorio.SrgbLinear()
+    srgb_linear = colorio.cs.SrgbLinear()
 
     out = srgb_linear.to_xyz100(srgb_linear.from_xyz100(vals))
     assert numpy.all(abs(vals - out) < 1.0e-14)
@@ -32,7 +32,7 @@ def test_conversion(vals):
     ],
 )
 def test_reference_srgb(vals, ref):
-    srgb_linear = colorio.SrgbLinear()
+    srgb_linear = colorio.cs.SrgbLinear()
     assert numpy.all(
         abs(srgb_linear.from_rgb1(vals) - ref) < 1.0e-14 * numpy.array(ref)
     )
@@ -46,12 +46,12 @@ def test_reference_srgb(vals, ref):
     ],
 )
 def test_reference_xyz(vals, ref):
-    srgb_linear = colorio.SrgbLinear()
+    srgb_linear = colorio.cs.SrgbLinear()
     assert numpy.all(abs(srgb_linear.to_xyz100(vals) - ref) < 1.0e-3 * numpy.array(ref))
 
 
 def test_whitepoint():
-    srgb_linear = colorio.SrgbLinear()
+    srgb_linear = colorio.cs.SrgbLinear()
     val = srgb_linear.to_xyz100([1.0, 1.0, 1.0])
     d65_whitepoint = colorio.illuminants.whitepoints_cie1931["D65"]
     assert numpy.all(numpy.abs(val - d65_whitepoint) < 1.0e-12)

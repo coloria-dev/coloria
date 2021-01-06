@@ -3,22 +3,6 @@ import pytest
 
 import colorio
 
-numpy.random.seed(0)
-
-
-@pytest.mark.parametrize(
-    "xyz",
-    [
-        100 * numpy.random.rand(3),
-        100 * numpy.random.rand(3, 7),
-        100 * numpy.random.rand(3, 4, 5),
-    ],
-)
-def test_conversion(xyz):
-    cs = colorio.OKLAB()
-    out = cs.to_xyz100(cs.from_xyz100(xyz))
-    assert numpy.all(numpy.abs(xyz - out) < 1.0e-12)
-
 
 @pytest.mark.parametrize(
     "xyz100,ref",
@@ -37,7 +21,7 @@ def test_conversion(xyz):
     ],
 )
 def test_reference_xyz(xyz100, ref):
-    cs = colorio.OKLAB()
+    cs = colorio.cs.OKLAB()
     xyz100 = numpy.asarray(xyz100)
     assert numpy.all(
         numpy.abs(cs.from_xyz100(xyz100) - ref) < 1.0e-4 * numpy.abs(ref) + 1.0e-4
@@ -45,6 +29,6 @@ def test_reference_xyz(xyz100, ref):
 
 
 if __name__ == "__main__":
-    cs = colorio.OKLAB()
+    cs = colorio.cs.OKLAB()
     # cs.save_srgb_gamut("oklab.vtk", n=50)
     cs.show_ebner_fairchild()

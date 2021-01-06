@@ -78,7 +78,6 @@ def test_reference_values(xyz, ref):
     out = cam16.from_xyz100(xyz)
     ref = numpy.array(ref)
     assert numpy.all(abs(ref - out) < 1.0e-14 * ref)
-    return
 
 
 def test_whitepoint():
@@ -88,7 +87,6 @@ def test_whitepoint():
     cam16 = colorio.cs.CAM16UCS(0.69, 20, L_A)
     out = cam16.from_xyz100(colorio.illuminants.whitepoints_cie1931["D65"])
     assert numpy.all(out == [100, 0, 0])
-    return
 
 
 if __name__ == "__main__":

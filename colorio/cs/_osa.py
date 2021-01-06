@@ -19,10 +19,7 @@ class OsaUcs(ColorSpace):
     """
 
     def __init__(self):
-        super().__init__()
-        self.name = "OSA-UCS"
-        self.labels = ["L", "g", "j"]
-        self.k0 = 0
+        super().__init__("OSA-UCS", ("L", "g", "j"), 0)
 
         self.M = numpy.array(
             [

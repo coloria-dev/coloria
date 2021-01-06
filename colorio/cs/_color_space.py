@@ -17,6 +17,9 @@ class ColorSpace:
         self.labels = labels
         self.k0 = k0  # the index that corresponds to luminosity
 
+    def __repr__(self):
+        return f"<colorio color space {self.name}>"
+
     def save_visible_gamut(self, observer, illuminant, filename, cut_000=False):
         import meshio
         from scipy.spatial import ConvexHull

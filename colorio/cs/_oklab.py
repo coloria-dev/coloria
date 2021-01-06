@@ -7,7 +7,7 @@ from ._color_space import ColorSpace
 
 class OKLAB(ColorSpace):
     def __init__(self):
-        super().__init__()
+        super().__init__("Oklab", ("L", "a", "b"), 0)
         self.M1 = numpy.array(
             [
                 [0.8189330101, 0.3618667424, -0.1288597137],
@@ -24,9 +24,6 @@ class OKLAB(ColorSpace):
             ]
         )
         self.M2inv = numpy.linalg.inv(self.M2)
-        self.name = "Oklab"
-        self.labels = ["L", "a", "b"]
-        self.k0 = 0
 
     def from_xyz100(self, xyz):
         return dot(self.M2, numpy.cbrt(dot(self.M1, xyz)))

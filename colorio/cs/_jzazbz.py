@@ -15,7 +15,7 @@ class JzAzBz(ColorSpace):
     """
 
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
-        super().__init__()
+        super().__init__("J_z a_z b_z", ("J_z", "a_z", "b_z"), 0)
         self.whitepoint = whitepoint
 
         self.b = 1.15
@@ -42,10 +42,6 @@ class JzAzBz(ColorSpace):
                 [0.199076, +1.096799, -1.295875],
             ]
         )
-
-        self.name = "J_z a_z b_z"
-        self.labels = ["J_z", "a_z", "b_z"]
-        self.k0 = 0  # the index that corresponds to luminosity
 
     def from_xyz100(self, xyz):
         # x, y, z = (xyz.T / self.whitepoint).T

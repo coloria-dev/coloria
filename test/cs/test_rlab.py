@@ -3,17 +3,6 @@ import pytest
 
 import colorio
 
-numpy.random.seed(0)
-
-
-@pytest.mark.parametrize(
-    "xyz", [numpy.random.rand(3), numpy.random.rand(3, 7), numpy.random.rand(3, 4, 5)]
-)
-def test_conversion(xyz):
-    rlab = colorio.RLAB()
-    out = rlab.to_xyz100(rlab.from_xyz100(xyz))
-    assert numpy.all(abs(xyz - out) < 1.0e-14)
-
 
 @pytest.mark.parametrize(
     "xyz100,ref",
@@ -24,8 +13,8 @@ def test_conversion(xyz):
     ],
 )
 def test_reference_xyz(xyz100, ref):
-    rlab = colorio.RLAB()
+    rlab = colorio.cs.RLAB()
     xyz100 = numpy.array(xyz100)
     assert numpy.all(
-        abs(rlab.from_xyz100(xyz100) - ref) < 1.0e-4 * abs(numpy.array(ref))
+        numpy.abs(rlab.from_xyz100(xyz100) - ref) < 1.0e-4 * numpy.abs(ref)
     )
