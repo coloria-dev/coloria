@@ -165,7 +165,6 @@ class ColorSpace:
         import meshzoo
 
         assert variant in ["srgb", "hdr", "rec709", "rec2020", "rec2100"]
-
         # TODO etc
 
         # Get all RGB values that sum up to 1.

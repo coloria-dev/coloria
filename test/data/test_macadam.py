@@ -13,7 +13,7 @@ def test_show():
     # cs = colorio.cs.JzAzBz()
     cs = colorio.cs.XYY()
     colorio.data.macadam_1942.show(cs, 50)
-    colorio.data.macadam_1942.savefig("out.png", cs, 50)
+    # colorio.data.macadam_1942.savefig("out.png", cs, 50)
 
 
 def test_residuals():
