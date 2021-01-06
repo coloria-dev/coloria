@@ -135,7 +135,7 @@ def _plot_ellipses(
         fill_color=visible_gamut_fill_color,
     )
     if plot_srgb_gamut:
-        cs.plot_rgb_slice("srgb", lightness)
+        cs.plot_rgb_slice(lightness)
 
     for center, offset in zip(xy_centers, xy_offsets):
         # get all the approximate ellipse points in xy space

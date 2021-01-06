@@ -168,11 +168,11 @@ class ColorSpace:
         plt.savefig(filename, transparent=True, bbox_inches="tight")
         plt.close()
 
-    def plot_rgb_slice(self, lightness, variant="srgb", n=50):
+    def plot_rgb_slice(self, lightness: float, n: int = 50, variant: str = "srgb"):
         import meshzoo
 
-        assert variant in ["srgb", "rec709"]
         # TODO HDR
+        assert variant in ["srgb", "rec709"]
 
         # Get all RGB values that sum up to 1.
         srgb_vals, triangles = meshzoo.triangle(n=n)
