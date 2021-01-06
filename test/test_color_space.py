@@ -1,3 +1,4 @@
+import numpy
 import pytest
 
 import colorio
@@ -16,25 +17,41 @@ def test_visible_slice(cs, k0, level):
     # cs.save_visible_slice("visible-slice.png", k0, level)
 
 
+@pytest.mark.parametrize("variant", ["srgb", "hdr"])
 @pytest.mark.parametrize(
-    "cs,k0,level",
-    [[colorio.XYY(), 2, 0.4], [colorio.CIELUV(), 0, 50], [colorio.JzAzBz(), 0, 0.5]],
+    "colorspace, cut_000",
+    [
+        (colorio.CIELAB(), False),
+        # (colorio.XYY(), True),
+        (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False),
+    ],
 )
-def test_macadam(cs, k0, level):
-    cs.show_macadam(k0, level)
-    cs.save_macadam("macadam.png", k0, level)
+def test_srgb_gamut(variant, colorspace, cut_000, n=10):
+    colorspace.save_rgb_gamut("srgb.vtu", variant, n=n, cut_000=cut_000)
 
 
 @pytest.mark.parametrize(
-    "cs,k0,level",
-    [[colorio.XYY(), 2, 0.4], [colorio.CIELUV(), 0, 50], [colorio.JzAzBz(), 0, 0.5]],
+    "colorspace",
+    [
+        colorio.CIELAB(),
+        colorio.XYY(),
+        colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
+    ],
 )
-def test_luo_rigg(cs, k0, level):
-    cs.show_luo_rigg(k0, level)
-    cs.save_luo_rigg("luo-rigg.png", k0, level)
+def test_cone_gamut(colorspace, n=10):
+    observer = colorio.observers.cie_1931_2()
+    colorspace.save_cone_gamut("cone.vtu", observer, max_Y=1)
 
 
-if __name__ == "__main__":
-    # test_visible_slice()
-    # test_macadam()
-    test_luo_rigg()
+@pytest.mark.parametrize(
+    "colorspace,cut_000",
+    [
+        # (colorio.CIELAB(), False),
+        # (colorio.XYY(), True),
+        (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False)
+    ],
+)
+def test_visible_gamut(colorspace, cut_000):
+    illuminant = colorio.illuminants.d65()
+    observer = colorio.observers.cie_1931_2()
+    colorspace.save_visible_gamut(observer, illuminant, "visible.vtu", cut_000=cut_000)

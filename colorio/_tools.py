@@ -1,4 +1,4 @@
-import os
+import pathlib
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -10,6 +10,8 @@ from matplotlib.patches import Ellipse
 from . import observers
 from ._srgb import SrgbLinear
 from .illuminants import planckian_radiator, spectrum_to_xyz100
+
+this_dir = pathlib.Path(__file__).resolve().parent
 
 
 def delta(a, b):
@@ -82,14 +84,13 @@ def _plot_rgb_triangle(xy_to_2d, bright=True):
     # workaround, associate range(n) data with the points and create a colormap
     # that associates the integer values with the respective RGBs.
     z = numpy.arange(xyy_vals.shape[1])
-    rgb = srgb_linear.to_srgb1(rgb_linear)
+    rgb = srgb_linear.to_rgb1(rgb_linear)
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
         "gamut", rgb.T, N=len(rgb.T)
     )
 
     triang = matplotlib.tri.Triangulation(xyy_vals[0], xyy_vals[1])
     plt.tripcolor(triang, z, shading="gouraud", cmap=cmap)
-    return
 
 
 def _plot_planckian_locus(observer, xy_to_2d):
@@ -102,7 +103,6 @@ def _plot_planckian_locus(observer, xy_to_2d):
         values.append(xyy_vals)
     values = numpy.array(values)
     plt.plot(values[:, 0], values[:, 1], ":k", label="Planckian locus")
-    return
 
 
 def plot_flat_gamut(
@@ -134,26 +134,11 @@ def plot_flat_gamut(
     # plt.legend()
     plt.xlabel(axes_labels[0])
     plt.ylabel(axes_labels[1])
-    return
 
 
 def show_flat_gamut(*args, **kwargs):
     plot_flat_gamut(*args, **kwargs)
     plt.show()
-    return
-
-
-def get_munsell_data():
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, "data/munsell/real.yaml")) as f:
-        data = yaml.safe_load(f)
-
-    h = numpy.array(data["h"])
-    V = numpy.array(data["V"])
-    C = numpy.array(data["C"])
-    xyy = numpy.array([data["x"], data["y"], data["Y"]])
-
-    return h, V, C, xyy
 
 
 def show_macadam(*args, **kwargs):
@@ -184,8 +169,8 @@ def plot_macadam(
     """See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
     <https://doi.org/10.1364%2FJOSA.32.000247>.
     """
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, "data/macadam1942/table3.yaml")) as f:
+    this_dir = pathlib.Path(__file__).resolve().parent
+    with open(this_dir / "data/macadam_1942/table3.yaml") as f:
         data = yaml.safe_load(f)
 
     # if plot_filter_positions:
@@ -228,7 +213,6 @@ def plot_macadam(
         mesh_resolution=mesh_resolution,
         plot_rgb_triangle=plot_rgb_triangle,
     )
-    return
 
 
 def show_luo_rigg(*args, **kwargs):
@@ -257,8 +241,7 @@ def plot_luo_rigg(
     # Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25-42,
     # <https://doi.org/10.1002/col.5080110107>.
 
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, "data/luo-rigg/luo-rigg.yaml")) as f:
+    with open(this_dir / "data/luo_rigg/luo-rigg.yaml") as f:
         data = yaml.safe_load(f)
 
     centers = []
@@ -411,38 +394,6 @@ def _plot_ellipses(
         ax.add_artist(e)
         e.set_alpha(alpha)
         e.set_facecolor(facecolor)
-
-
-def show_straights(cs):
-    from mpl_toolkits.mplot3d import Axes3D
-
-    # Some straight lines in XYZ
-    t = numpy.linspace(0.0, 1.0, 101)
-    n = 10
-
-    fig = plt.figure()
-    ax = fig.gca(projection=Axes3D.name)
-    # ax.set_aspect('equal')
-
-    for _ in range(n):
-        s1 = numpy.random.rand(3)
-        s1 /= numpy.linalg.norm(s1)
-        s1 *= 100
-        line = numpy.outer(s1, t)
-        cs_line = cs.from_xyz100(line)
-        # ax.plot(
-        #     [cs_line[0][0], cs_line[0][-1]],
-        #     [cs_line[1][0], cs_line[1][-1]],
-        #     [cs_line[2][0], cs_line[2][-1]],
-        #     color='0.5'
-        #     )
-        ax.plot(*cs_line)
-
-    ax.set_xlabel(cs.labels[0])
-    ax.set_ylabel(cs.labels[1])
-    ax.set_zlabel(cs.labels[2])
-
-    plt.show()
 
 
 def xy_gamut_mesh(lcar):

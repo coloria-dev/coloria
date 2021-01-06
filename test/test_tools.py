@@ -4,52 +4,6 @@ import pytest
 import colorio
 
 
-@pytest.mark.parametrize(
-    "colorspace, cut_000",
-    [
-        (colorio.CIELAB(), False),
-        # (colorio.XYY(), True),
-        (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False),
-    ],
-)
-def test_srgb_gamut(colorspace, cut_000, n=10):
-    colorspace.save_srgb_gamut("srgb.vtu", n=n, cut_000=cut_000)
-
-
-@pytest.mark.parametrize(
-    "colorspace",
-    [
-        colorio.CIELAB(),
-        colorio.XYY(),
-        colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
-    ],
-)
-def test_cone_gamut(colorspace, n=10):
-    observer = colorio.observers.cie_1931_2()
-    colorspace.save_cone_gamut("cone.vtu", observer, max_Y=1)
-
-
-@pytest.mark.parametrize(
-    "colorspace", [colorio.CIELAB(), colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5)]
-)
-def test_hdr_gamut(colorspace, n=10):
-    colorspace.save_hdr_gamut("hdr.vtu", n=n)
-
-
-@pytest.mark.parametrize(
-    "colorspace,cut_000",
-    [
-        # (colorio.CIELAB(), False),
-        # (colorio.XYY(), True),
-        (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False)
-    ],
-)
-def test_visible_gamut(colorspace, cut_000):
-    illuminant = colorio.illuminants.d65()
-    observer = colorio.observers.cie_1931_2()
-    colorspace.save_visible_gamut(observer, illuminant, "visible.vtu", cut_000=cut_000)
-
-
 def test_flat_gamut(xy_to_2d=lambda xy: xy):
     colorio.show_flat_gamut()
 
@@ -61,30 +15,6 @@ def test_conversion_variants(a):
     b = a + 1.0e-3 * numpy.random.rand(*a.shape)
     diff = colorio.delta(a, b)
     assert diff.shape == a.shape[1:]
-
-
-@pytest.mark.parametrize(
-    "colorspace", [colorio.CIELAB(), colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5)]
-)
-def test_ebner_fairchild(colorspace):
-    colorspace.show_ebner_fairchild()
-
-
-@pytest.mark.parametrize(
-    "colorspace", [colorio.CIELAB(), colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5)]
-)
-def test_hung_berns(colorspace):
-    colorspace.show_hung_berns()
-
-
-@pytest.mark.parametrize("colorspace", [colorio.CIELAB()])
-def test_xiao(colorspace):
-    colorspace.show_xiao()
-
-
-@pytest.mark.parametrize("colorspace", [colorio.CIELAB()])
-def test_munsell(colorspace):
-    colorspace.show_munsell(V=5)
 
 
 def test_macadam():
@@ -107,10 +37,6 @@ def test_luo_rigg():
     colorio.show_luo_rigg(ellipse_scaling=1.5)
 
 
-def test_show_straights(cs=colorio.CIELAB()):
-    colorio.show_straights(cs)
-
-
 def test_xy_gamut_mesh():
     points, cells = colorio.xy_gamut_mesh(0.05)
 
@@ -126,7 +52,7 @@ if __name__ == "__main__":
     # colorspace_ = colorio.SrgbLinear()
     # colorspace_ = colorio.Hdr()
     # colorspace_ = colorio.XYZ()
-    colorspace_ = colorio.XYY()
+    # colorspace_ = colorio.XYY()
     # colorspace_ = colorio.IPT()
     # colorspace_ = colorio.JzAzBz()
     # colorspace_ = colorio.CIELUV()
@@ -136,11 +62,4 @@ if __name__ == "__main__":
     # test_hdr_gamut(colorspace_, n=10)
     # test_visible_gamut(colorspace_, cut_000=False)
     # test_srgb_gamut(colorspace_, cut_000=False)
-    # test_ebner_fairchild(colorspace_)
-    test_hung_berns(colorspace_)
-    # test_xiao(colorspace_)
-    # test_show_straights(colorspace_)
-    # test_munsell(colorspace_)
-    # test_cone_gamut(colorio.XYY())
-    # test_cone_gamut(colorio.XYZ())
-    # test_cone_gamut(colorio.CIELAB())
+    test_luo_rigg()

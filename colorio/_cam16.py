@@ -111,6 +111,7 @@ class CAM16UCS(ColorSpace):
         self.c1 = 0.007
         self.c2 = 0.0228
         self.cam16 = CAM16(c, Y_b, L_A, exact_inversion, whitepoint)
+        self.name = "CAM16 (UCS)"
         self.labels = ["J'", "a'", "b'"]
         self.k0 = 0  # the index that corresponds to luminosity
 

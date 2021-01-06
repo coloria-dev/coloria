@@ -13,6 +13,5 @@ def test_conversion(vals):
     out = cs.to_xyz100(cs.from_xyz100(vals))
     assert numpy.all(abs(vals - out) < 1.0e-14)
 
-    out = cs.to_hdr1(cs.from_hdr1(vals))
+    out = cs.to_rgb1(cs.from_rgb1(vals))
     assert numpy.all(abs(vals - out) < 1.0e-14)
-    return

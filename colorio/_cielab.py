@@ -8,6 +8,7 @@ class CIELAB(ColorSpace):
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
         super().__init__()
         self.whitepoint = whitepoint
+        self.name = "CIELAB"
         self.labels = ["L*", "a*", "b*"]
         self.k0 = 0  # the index that corresponds to luminosity
 

@@ -1,0 +1,406 @@
+\documentclass{scrartcl}
+
+\usepackage{fixltx2e}
+
+% Step environment
+% <https://tex.stackexchange.com/a/12943/13262>
+\usepackage{amsthm}
+\newtheorem*{remark}{Remark}
+%
+\newtheoremstyle{named}{}{}{\itshape}{}{\bfseries}{.}{.5em}{\thmnote{#1 }#3}
+\theoremstyle{named}
+\newtheorem*{step}{Step}
+
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{tabularx}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+
+\usepackage{siunitx}
+
+\newcommand\mytitle{How to evaluate and optimize color spaces against experimental data}
+\newcommand\myauthor{Nico Schlömer}
+
+\usepackage[
+  pdfencoding=unicode,
+  ]{hyperref}
+\hypersetup{
+  pdfauthor={\myauthor},
+  pdftitle={\mytitle}
+}
+
+% <https://tex.stackexchange.com/a/43009/13262>
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+
+% degree symbol
+\usepackage{gensymb}
+
+% % <https://tex.stackexchange.com/a/413899/13262>
+% \usepackage{etoolbox}
+% \makeatletter
+% \long\def\etb@listitem#1#2{%
+%   \expandafter\ifblank\expandafter{\@gobble#2}
+%     {}
+%     {\expandafter\etb@listitem@i
+%      \expandafter{\@secondoftwo#2}{#1}}}
+% \long\def\etb@listitem@i#1#2{#2{#1}}
+% \makeatother
+
+% Okay. Don't use biblatex/biber for now. There are breaking changes in every
+% revision, and we'd have to stick to the exact version that arxiv.org has,
+% otherwise it's error messages like
+% ```
+% Package biblatex Warning: File 'main.bbl' is wrong format version
+% - expected 2.8.
+% ```
+% \usepackage[sorting=none]{biblatex}
+% \bibliography{bib}
+
+\usepackage{amsmath}
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+% \usepackage{amsfonts}
+\usepackage{bm}
+\newcommand\R{\ensuremath{\mathbb{R}}}
+\newcommand\x{\ensuremath{\bm{x}}}
+
+\title{\mytitle\footnote{The LaTeX sources of this article are on
+\url{https://github.com/nschloe/colorio}}}
+\author{\myauthor}
+
+\begin{document}
+
+\maketitle
+\begin{abstract}
+  todo
+\end{abstract}
+
+\section{Introduction}
+
+Every year, articles on new color spaces are created, claiming that they comply to
+certain experimental data better than other color spaces. In many cases, numbers are
+provided in form of a table showing that the new color space is indeed better.
+Unfortunately, it is hardly ever explained how those numbers are computed.
+
+This article describes in detail how to assess the experimental compliance of color
+space with experimental data. The article focuses on the two most used types of
+experimental data: Hue constancy \cite{ebner,xiao,hung} and color difference ellipses
+\cite{macadam,luo}.
+
+Almost every color space is defined by a transformation $T$ that maps the CIE-1931-XYZ
+coordinates into a three-dimensional new coordinate space (e.g., LAB). The
+transformation is usually continuously differentiable and bijective. When talking about
+a colorspace, one almost always means the transformation $T$ and its inverse.
+
+
+% There are numerous experiments~\cite{ebner,xiao,hung,macadam,macadam,luo} which try to
+% gauge perceptual distances between colors or to determine which colors of different
+% luminosity are perceived as the same chroma.
+%
+% These experimental data have been used in the past to approximate a perceptually uniform
+% colorspace, i.e., a color space in which the Euclidean distance represents the perceived
+% distance, and in which colors of same chroma all sit in one line. (These two goals are
+% mutually inclusive.) So far, the general approach was to assume that the transformation
+% from XYZ space takes a certain mathematical form with a number of free parameters, e.g.,
+% the parameters $e$, $\alpha_{i,j}$, and $\omega_{i,j}$.
+% \begin{equation}\label{eq:safdar}
+%   \begin{split}
+%     \begin{bmatrix}
+%       L\\M\\S
+%     \end{bmatrix}
+%     =
+%     \begin{bmatrix}
+%       \alpha_{1,1} & \alpha_{1,2} & 1 - \alpha_{1,1} - \alpha_{1,2}\\
+%       \alpha_{2,1} & \alpha_{2,2} & 1 - \alpha_{2,1} - \alpha_{2,2}\\
+%       \alpha_{3,1} & \alpha_{3,2} & 1 - \alpha_{3,1} - \alpha_{3,2}
+%     \end{bmatrix}
+%     \begin{bmatrix}
+%       X_{D65}\\Y_{D65}\\Z_{D65}
+%     \end{bmatrix}\\
+%     \{L',M',S'\} = \left(\frac{c_1 + c_2\left(\frac{\{L,M,S\}}{10000}\right)^n}{1 + c_3\left(\frac{\{L,M,S\}}{10000}\right)^n}\right)^{pe}\\
+%     \begin{bmatrix}
+%       I_z\\a_z\\b_z
+%     \end{bmatrix}
+%     =
+%     \begin{bmatrix}
+%       \omega_{1,1} & \omega_{1,2} & 1 - \omega_{1,1} - \omega_{1,2}\\
+%       \omega_{2,1} & \omega_{2,2} &   - \omega_{2,1} - \omega_{2,2}\\
+%       \omega_{3,1} & \omega_{3,2} &   - \omega_{3,1} - \omega_{3,2}
+%     \end{bmatrix}
+%     \begin{bmatrix}
+%       L'\\M'\\S'
+%     \end{bmatrix}\\
+%   \end{split}
+% \end{equation}
+% in~\cite{safdar}. Then, an optimization algorithm was applied to retrieve those
+% parameters which best match the given experimental data. The resulting color space has
+% then been declared ``optimal'', which held true until a new article with a different
+% assumption was published which, almost by chance, achieved even better accordance with
+% the data.
+%
+% The assumption that the transformation of XYZ to the perceptually uniform color space
+% takes a particular form is of course of practical nature: A low-dimensional parameter
+% space is easy to search. However, to put it mildly, it is quite optimistic to assume
+% that the visual system of the brain (see figure~\ref{fig:monkey}) does a transformation that
+% can be expressed in terms of some linear transformations and elementary mathematical
+% functions.
+%
+% TODO why doesn't polynomial approximation, pade not work? runge!
+%
+% \begin{figure}
+%   \centering
+%   \includegraphics[width=0.3\textwidth]{images/monkey.png}
+%   \caption{Wiring diagram of the visual system of the macaque monkey, reproduced
+%   from~\cite{felleman}.}
+%   \label{fig:monkey}
+% \end{figure}
+%
+% This article describes a much more general approach and succeeds in finding a color
+% space that is far more perceptually uniform that everything that has been found so far.
+% Even more, there can be no color space matching the given experimental data even better.
+%
+% \section{Optimization problem}
+%
+% There are many ideas that generalize the few-parameter approaches like~\ref{eq:safdar}.
+% What comes to mind are polynomial approximations
+% \begin{equation}\label{eq:poly}
+%   p_{\alpha}(x, y) = \sum_{i+j\le n} \alpha_{i,j} x^i y^j
+% \end{equation}
+% where optimization happens over the coefficients $\alpha_{i,j}$, or even fractional
+% polynomials,
+% \[
+%   r_{\alpha, \beta}(x, y) = \frac{p_\alpha(x,y)}{q_\beta(x, y)}
+% \]
+% where both numerator and denominator are of the form~\ref{eq:poly} (Padé approximant).
+% Both of the approaches offer the advantage that -- given an infinite source of
+% experimental data -- the actual transformation $t$ can be approximated arbitrarily well
+% with increased polynomial degrees. Unfortunately, polynomial approximations suffer from
+% Runge's phenomenon, meaning that naively chosen reference points for the optimization
+% can lead solutions which approximate $t$ well at those points, but very badly everywhere
+% else. See section~\ref{sec:polyfail}.
+%
+% This article takes a more robust approach. The key idea is to divide the domain into
+% many small triangles (see figure~\ref{fig:triangles}) and to allow each of the nodes to
+% move around more or less freely such that the resulting shape matches the experimental
+% data well. All continuous transformations can be approximated by this approach so it is
+% reasonable to assume that we do not restrict ourselves too much here.
+%
+% The mathematical concept
+% \[
+%   F(x, y) = \begin{bmatrix}a(x,y)\\b(x,y)\end{bmatrix}
+% \]
+% where both $a:\Omega\to\R^2$ and $b:\Omega\to\R^2$ are piecewise linear functions on the
+% triangles.
+%
+% Each of the two
+% \[
+% fl
+% \]
+% \[
+%   \begin{split}
+%   F(a_x, a_y) &=\\
+%   &F_{\text{Hung--Berns}}(a_x, a_y) +
+%   F_{\text{Ebner--Fairchild}}(a_x, a_y) +
+%   F_{\text{Xiao}}(a_x, a_y) +\\
+%   &F_{\text{MacAdam}}(a_x, a_y) +
+%   F_{\text{Luo--Rigg}}(a_x, a_y) +\\
+%   &F_{\Delta}(a_x, a_y)
+%   \end{split}
+% \]
+%
+% % This is achieved by dividing the xy-triangle into many smaller triangles, i.e., nodes
+% % and cells, and allowing each of the nodes to move around freely to match the
+% % experimental data. This is the most general approach possible; all smooth
+% % transformations can be expressed in this way.
+%
+% TODO all cost functions must be invariant to
+% \begin{itemize}
+%   \item rotation,
+%   \item scaling, and
+%   \item translation.
+% \end{itemize}
+
+Let $(X_i, Y_i, Z_i)\in\R^3$ be a given set of points in XYZ space which, according to
+some experiment, are of equal perceived hue. Consider the two non-lightness coordinates
+of their image $(x_i, y_i) \coloneqq T(X_i, Y_i, Z_i)$ (see figure TODO). What is
+measure of how well the points $(x_i, y_i)$ sit on a straight line? The general idea
+here is to cast a line through ``the middle'' of the point cloud and sum up the
+distances of all points to that line. There are multiple meaningful ways in which
+``the middle'' and ``distance'' can be defined. Remember that in $\R^n$, the distance
+between two points $a$ and $b$ can be defined by a \emph{norm}.
+
+
+\subsection{Cost functional for hue constancy data}
+
+There are multiple experiments which data about which colors are perceived to be of
+equal hue~\cite{ebner,xiao,hung} (see figure~\ref{}). Color spaces are considered good
+if the transformation maps points of equal perceived hue onto a straight line.
+
+What is a good measure of how well points sit on a straight line?
+A common idea is to find the straight line that mimizes the sum of squared distances to
+all points. This general approach is usually referred to as \emph{total least squares
+(TLS)}.
+The line is typically given implicitly by $\alpha_1 x + \alpha_2 y
+= 0$ with $\alpha_1,\alpha_2\in\R$, $\|\alpha\|_2^2 = \alpha_1^2 + \alpha_2^2 = 1$.
+To make sure the functional is scale-invariant and the line goes indeed through the
+origin, translate it by the white point $w$ of the color space first and scale the
+translated point cloud by its norm average.
+In short:
+\begin{equation}\label{eq:s}
+s_2 \coloneqq
+\min_{\|\alpha\|_2=1}
+  \sqrt{\sum_{i=1}^n (\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2}
+\end{equation}
+with the translated and scaled sample points
+\[
+  \tilde{x}_i \coloneqq \frac{x_i-w_x}{\frac{1}{n}\sum_{j=1}^n (x_j-w_x)},\qquad
+  \tilde{y}_i \coloneqq \frac{y_i-w_y}{\frac{1}{n}\sum_{j=1}^n (y_j-w_y)}.
+\]
+
+The value of $s_2$ can be approximated with any appropriate optimization method. A
+faster, more explicit, and more accurate representation however is retrieved as follows.
+With the $n$-by-2 coordinate matrix
+\[
+  A \coloneqq \begin{pmatrix}
+    \tilde{x}_1 & \tilde{y}_1\\
+    \vdots & \vdots\\
+    \tilde{x}_n & \tilde{y}_n
+  \end{pmatrix},
+\]
+\eqref{eq:s} can be written as
+\[
+  s_2
+  = \min_{\|\alpha\|_2=1} \sqrt{(A \alpha)^T (A \alpha)}
+  = \min_{\|\alpha\|_2=1} \sqrt{\alpha^T A^T A \alpha}
+\]
+This makes clear that $s_2$ is exactly the square root of smaller of two eigenvalues of
+$A^TA$ or equivalently the smaller of the two singular values of $A$,
+\[
+s_2
+= \sqrt{\lambda_{\min}(A^T A)}
+= \sigma_{\min}(A).
+\]
+The value is given explicitly by
+\begin{equation}\label{eq:s2}
+  s_2 = \sqrt{
+    \frac{1}{2} \left(
+      \tilde{x}^T\tilde{x}
+      + \tilde{y}^T\tilde{y}
+      - \sqrt{(\tilde{x}^T\tilde{x} - \tilde{y}^T\tilde{y})^2 + 4 (\tilde{x}^T\tilde{y})^2}
+      \right)
+    }.
+\end{equation}
+The expression under the outer root is always nonnegative by the Cauchy-Schwarz
+inequality $(x^Ty)^2 \le (x^Tx) (y^Ty)$. It is 0 if and only if $x$ and $y$ are linearly
+dependent, i.e., if the points $(x_i, y_i)$ are on a straight line.
+
+
+\begin{remark}
+  The representation \eqref{eq:s2} is suitable for optimization purposes. Since a value
+  $\sqrt{t}$ is small if and only if $t$ is small, one would in the interest of
+  simplicity disregard the outer square root.
+\end{remark}
+
+\begin{remark}
+Besides \eqref{eq:s}, there are other meaningful ways in which the distance of a point
+cloud to a line can be defined. Instead of summing the squared distances, one could take
+the $p$-norm,
+\[
+s_p
+  \coloneqq \min_{\|\alpha\|_2=1} \|\alpha_1 \tilde{x} + \alpha_2\tilde{y}\|_p
+= \min_{\|\alpha\|_2=1}
+  \left(\sum_{i=1}^n |\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i|^p\right)^{1/p}
+\]
+  with $1\le p \le \infty$.
+  The value $s_2$ remains of prominent importance, though, because of its smooth
+  dependence on the point set.
+  Note also that, unlike often seen, in no case the center of gravity $(\overline{x},
+  \overline{y})$ of the point set is of particular significance.
+\end{remark}
+
+
+\begin{table}
+  \centering
+  \begin{tabular}{lrrrr}
+    \toprule
+    & Hung--Berns & Ebner--Fairchild & Xiao et al. & sum\\
+    \midrule
+CAM02 (UCS)   &         0.826  &         3.493  &         0.780  &         5.099\\
+CAM16 (UCS)   &         1.020  &         3.738  &         0.719  &         5.477\\
+CIELAB        &         1.178  &         4.096  &         0.553  &         5.827\\
+CIELUV        &         1.113  &         3.723  &         0.652  &         5.488\\
+IPT           &         0.779  &         2.984  &         0.893  &         4.656\\
+$J_z a_z b_z$ &         0.708  &         3.124  &         0.754  &         4.585\\
+OKLAB         &         0.699  &         3.098  &         0.758  &         4.555\\
+OSA-UCS       & \textbf{0.666} & \textbf{2.949} &         0.835  & \textbf{4.449}\\
+RLAB          &         1.141  &         4.177  &         0.709  &         6.027\\
+xyY           &         0.897  &         3.555  & \textbf{0.441} &         4.893\\
+    \bottomrule
+  \end{tabular}
+  \caption{The sum the $s_2$ values for all arms. The best value is highlighted in bold.
+  OSA-UCS is the overall best color space for hue constancy.}
+\end{table}
+
+
+\subsection{Cost functional for ellipse data}
+
+There are multiple experiments concerning color distances producing ellipses in
+the $xy$-plane.
+When small, the ellipses indicate that the test subjects where able to the distinguish
+the center chroma from its surroundings well. When large, the center chroma blends with
+its environment. A perceptually uniform color space transforms the $xy$-plane such that
+the ellipses are transformed into circles of equal size. This goal is cast into a
+functional by
+\[
+  e_2
+  = \sqrt{\min_{R\in\R^+} \sum_{i=1}^n \sum_{j=1}^{m_i} \left(
+  \sqrt{\left(x_{i,j} - x^{(c)}_i\right)^2 + \left(y_{i,j} - y^{(c)}_i\right)^2} - R
+  \right)^2}
+\]
+where $(x^{(c)}_i, y^{(c)}_i$ are the centers of the ellipses and $(x_{i,j}, y_{i,j})$
+are the points on or near their boundaries. It is easy to see that the minimizing common
+radius is the average of all distances, i.e.,
+\[
+  R = \frac{1}{\sum_{i=1}^n m_i} \sum_{i=1}^n \sum_{j=1}^{m_i} \sqrt{\left(x_{i,j} -
+  x^{(c)}_i\right)^2 + \left(y_{i,j} - y^{(c)}_i\right)^2}.
+\]
+
+
+\begin{table}
+  \centering
+  \begin{tabular}{lrrr}
+    \toprule
+    & MacAdam & Luo-Rigg(8) & sum\\
+    \midrule
+CAM02 (UCS)   & \textbf{7.175} &         9.068  & \textbf{16.243}\\
+CAM16 (UCS)   &         7.738  & \textbf{8.788} &         16.526\\
+CIELAB        &        10.419  &        18.379  &         28.798\\
+CIELUV        &         8.130  &        18.033  &         26.163\\
+IPT           &         8.595  &        17.496  &         26.091\\
+$J_z a_z b_z$ &         7.312  &        14.449  &         21.761\\
+Oklab         &         8.375  &        15.747  &         24.121\\
+OSA-UCS       &         9.771  &        17.143  &         26.914\\
+RLAB          &        10.916  &        18.156  &         29.072\\
+xyY           &        13.218  &        15.569  &         28.787\\
+    \bottomrule
+  \end{tabular}
+  \caption{$e_2$ for a number of color spaces. CAM02 and its close relative CAM16
+  far outperform the other color spaces, particularly for the Luo-Rigg data set.}
+\end{table}
+
+
+
+% \printbibliography{}
+% \bibliography{pucs}{}
+\bibliographystyle{plain}
+
+\end{document}

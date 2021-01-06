@@ -11,8 +11,7 @@ numpy.random.seed(0)
 )
 def test_conversion(xyz):
     # test with srgb conditions
-    L_A = 64 / numpy.pi / 5
-    ciecam02 = colorio.CIECAM02(0.69, 20, L_A)
+    ciecam02 = colorio.CIECAM02(0.69, 20, 64 / numpy.pi / 5)
     J, C, H, h, M, s, Q = ciecam02.from_xyz100(xyz)
 
     out = ciecam02.to_xyz100(numpy.array([J, C, H]), "JCH")
@@ -23,7 +22,6 @@ def test_conversion(xyz):
 
     out = ciecam02.to_xyz100(numpy.array([J, s, h]), "Jsh")
     assert numpy.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
-    return
 
 
 def test_breakdown():
@@ -31,7 +29,6 @@ def test_breakdown():
     ciecam02 = colorio.CIECAM02(0.69, 20, L_A=64 / numpy.pi / 5)
     with pytest.raises(colorio.NegativeAError):
         ciecam02.from_xyz100(bad_xyz)
-    return
 
 
 @pytest.mark.parametrize("variant", ["LCD", "SCD", "UCS"])
@@ -44,7 +41,6 @@ def test_conversion_variants(variant, xyz):
     cam02 = colorio.CAM02(variant, 0.69, 20, L_A)
     out = cam02.to_xyz100(cam02.from_xyz100(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
-    return
 
 
 @pytest.mark.parametrize("xyz", [numpy.zeros(3), numpy.zeros((3, 4, 5))])
@@ -68,7 +64,6 @@ def test_zero(xyz):
 
     out = cs.to_xyz100(numpy.array([J, s, h]), "Jsh")
     assert numpy.all(abs(out) < 1.0e-13)
-    return
 
 
 def test_gold():
@@ -148,7 +143,6 @@ def test_gold():
         ]
     )
     assert numpy.all(abs(values - reference_values) < 1.0e-6 * reference_values)
-    return
 
 
 # @pytest.mark.parametrize('variant, xyz100, ref', [
@@ -169,7 +163,6 @@ def test_gold():
 #     assert numpy.all(
 #         abs(cs.from_xyz100(xyz) - ref) < 1.0e-6 * abs(numpy.array(ref))
 #         )
-#     return
 
 
 if __name__ == "__main__":

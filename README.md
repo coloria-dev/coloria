@@ -32,8 +32,8 @@ The following color spaces are implemented:
  * [Linear SRGB](https://en.wikipedia.org/wiki/SRGB)  (`colorio.SrgbLinear()`)
    This class has the two additional methods
    ```
-   from_srgb1()
-   to_srgb1()
+   from_rgb1()
+   to_rgb1()
    ```
    for conversion from and to standard RGB.
  * [HSL and HSV](https://en.wikipedia.org/wiki/HSL_and_HSV)  (`colorio.HSL()`, `colorio.HSV()`)
@@ -96,10 +96,10 @@ data was created with
 import colorio
 
 colorspace = colorio.CIELAB()
-colorspace.save_srgb_gamut("srgb.vtk", n=50, cut_000=False)
+colorspace.save_rgb_gamut("srgb.vtk", "srgb", n=50, cut_000=False)
 
 # The HDR (Rec.2100, Rec.2020) gamut works the same way
-colorspace.save_hdr_gamut("hdr.vtk", n=50, cut_000=False)
+colorspace.save_rgb_gamut("hdr.vtk", "hdr", n=50, cut_000=False)
 ```
 The [VTK](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
 in, e.g., ParaView, where the following instructions apply:
@@ -196,11 +196,11 @@ article](https://doi.org/10.1364%2FJOSA.32.000247)) can be plotted with
 import colorio
 
 # xyy = colorio.XYY()
-# xyy.show_macadam(0.4)
-# xyy.save_macadam("macadam-xyy.png", 0.4)
+# colorio.data.macadam_1942.show(xyy, 0.4)
+# colorio.data.macadam_1942.savefig("macadam-xyy.png", xyy, 0.4)
 
 cieluv = colorio.CIELUV()
-cieluv.show_macadam(50)
+colorio.data.macadam_1942.show(cieluv, 50.0)
 ```
 
 ###### Luo-Rigg
@@ -215,11 +215,11 @@ Likewise for [Luo-Rigg](https://doi.org/10.1002/col.5080110107).
 import colorio
 
 # xyy = colorio.XYY()
-# xyy.show_luo_rigg(0.4)
-# xyy.save_luo_rigg("luo-rigg-xyy.png", 0.4)
+# colorio.data.luo_rigg.show(xyy, 0.4)
+# colorio.data.luo_rigg.savefig("luo-rigg-xyy.png", xyy, 0.4)
 
 cieluv = colorio.CIELUV()
-cieluv.show_luo_rigg(50)
+colorio.data.luo_rigg.show(cieluv, 50)
 ```
 
 ###### Ebner-Fairchild
@@ -233,7 +233,7 @@ For example
 import colorio
 
 colorspace = colorio.JzAzBz()
-colorspace.show_ebner_fairchild()
+colorio.data.ebner_fairchild.show(colorspace)
 ```
 shows constant-hue data from [the Ebner-Fairchild
 experiments](https://doi.org/10.1117/12.298269) in the hue-plane of some color spaces.
@@ -253,7 +253,7 @@ Note the dark blue distortion in CIELAB and CAM16.
 import colorio
 
 colorspace = colorio.JzAzBz()
-colorspace.show_hung_berns()
+colorio.data.hung_berns.show(colorspace)
 ```
 
 ###### Xiao et al.
@@ -267,7 +267,7 @@ xyY             | CIELAB          |  CAM16             |
 import colorio
 
 colorspace = colorio.CIELAB()
-colorspace.show_xiao()
+colorio.data.xiao.show(colorspace)
 ```
 
 ##### Munsell
@@ -281,15 +281,15 @@ visualized with
 ```python
 import colorio
 
-colorspace = colorio.CIELUV()
-colorspace.show_munsell(V=5)
+cs = colorio.CIELUV()
+colorio.data.munsell.show(cs, V=5)
 ```
 
 To retrieve the Munsell data in xyY format, use
 ```python
 import colorio
 
-h, V, C, xyy = colorio.get_munsell_data()
+h, V, C, xyy = colorio.data.munsell.load()
 ```
 
 #### Color differences

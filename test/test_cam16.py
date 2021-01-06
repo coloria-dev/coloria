@@ -32,8 +32,7 @@ def test_conversion(xyz):
 
 @pytest.mark.parametrize("xyz", [numpy.zeros(3), numpy.zeros((3, 4, 5))])
 def test_zero(xyz):
-    L_A = 64 / numpy.pi / 5
-    cam16 = colorio.CAM16(0.69, 20, L_A)
+    cam16 = colorio.CAM16(0.69, 20, 64 / numpy.pi / 5)
     J, C, H, h, M, s, Q = cam16.from_xyz100(xyz)
 
     assert numpy.all(J == 0.0)

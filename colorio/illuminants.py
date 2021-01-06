@@ -1,4 +1,4 @@
-import os
+import pathlib
 
 import numpy
 import yaml
@@ -197,8 +197,8 @@ def d(nominal_temperature):
     m1 = numpy.around(m1, decimals=3)
     m2 = numpy.around(m2, decimals=3)
 
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, "data/illuminants/d.yaml")) as f:
+    this_dir = pathlib.Path(__file__).resolve().parent
+    with open(this_dir / "data/illuminants/d.yaml") as f:
         data = yaml.safe_load(f)
     data = numpy.array(data).T
 
@@ -238,7 +238,7 @@ def e():
 
 
 def f2():
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, "data/illuminants/f2.yaml")) as f:
+    this_dir = pathlib.Path(__file__).resolve().parent
+    with open(this_dir / "data/illuminants/f2.yaml") as f:
         data = yaml.safe_load(f)
     return numpy.array(data["lambda"]), numpy.array(data["values"])

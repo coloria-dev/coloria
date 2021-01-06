@@ -8,6 +8,7 @@ class CIELUV(ColorSpace):
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
         super().__init__()
         self.whitepoint = whitepoint
+        self.name = "CIELUV"
         self.labels = ["L*", "u*", "v*"]
         self.k0 = 0  # the index that corresponds to luminosity
 
