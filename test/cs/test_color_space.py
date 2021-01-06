@@ -1,3 +1,6 @@
+import tempfile
+from pathlib import Path
+
 import numpy
 import pytest
 
@@ -27,7 +30,10 @@ def test_visible_slice(cs, k0, level):
     ],
 )
 def test_srgb_gamut(variant, colorspace, cut_000, n=10):
-    colorspace.save_rgb_gamut("srgb.vtu", variant, n=n, cut_000=cut_000)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        colorspace.save_rgb_gamut(
+            Path(tmpdir) / "srgb.vtu", variant, n=n, cut_000=cut_000
+        )
 
 
 @pytest.mark.parametrize(
@@ -40,7 +46,8 @@ def test_srgb_gamut(variant, colorspace, cut_000, n=10):
 )
 def test_cone_gamut(colorspace, n=10):
     observer = colorio.observers.cie_1931_2()
-    colorspace.save_cone_gamut("cone.vtu", observer, max_Y=1)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        colorspace.save_cone_gamut(Path(tmpdir) / "cone.vtu", observer, max_Y=1)
 
 
 @pytest.mark.parametrize(
@@ -54,4 +61,7 @@ def test_cone_gamut(colorspace, n=10):
 def test_visible_gamut(colorspace, cut_000):
     illuminant = colorio.illuminants.d65()
     observer = colorio.observers.cie_1931_2()
-    colorspace.save_visible_gamut(observer, illuminant, "visible.vtu", cut_000=cut_000)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        colorspace.save_visible_gamut(
+            observer, illuminant, Path(tmpdir) / "visible.vtu", cut_000=cut_000
+        )

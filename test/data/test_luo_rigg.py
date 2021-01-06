@@ -1,3 +1,6 @@
+import tempfile
+from pathlib import Path
+
 import colorio
 
 
@@ -9,7 +12,8 @@ def test_show():
     # cs = colorio.cs.IPT()
     cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     colorio.data.luo_rigg.show(cs, 50)
-    colorio.data.luo_rigg.savefig("out.png", cs, 50)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        colorio.data.luo_rigg.savefig(Path(tmpdir) / "out.png", cs, 50)
 
 
 def test_residuals():
