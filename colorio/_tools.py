@@ -142,18 +142,6 @@ def show_flat_gamut(*args, **kwargs):
     plt.show()
 
 
-def get_munsell_data():
-    with open(this_dir / "data/munsell/real.yaml") as f:
-        data = yaml.safe_load(f)
-
-    h = numpy.array(data["h"])
-    V = numpy.array(data["V"])
-    C = numpy.array(data["C"])
-    xyy = numpy.array([data["x"], data["y"], data["Y"]])
-
-    return h, V, C, xyy
-
-
 def show_macadam(*args, **kwargs):
     """See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
     <https://doi.org/10.1364%2FJOSA.32.000247>.

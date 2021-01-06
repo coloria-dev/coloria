@@ -7,7 +7,7 @@ import numpy
 from ._hdr import HdrLinear
 from ._helpers import _find_Y
 from ._srgb import SrgbLinear
-from ._tools import get_mono_outline_xy, get_munsell_data, spectrum_to_xyz100
+from ._tools import get_mono_outline_xy, spectrum_to_xyz100
 from .observers import cie_1931_2
 
 
@@ -235,53 +235,6 @@ class ColorSpace:
             cmap=cmap,
         )
         # plt.triplot(self_vals[:, k1], self_vals[:, k2], triangles=triangles)
-
-    def show_munsell(self, V):
-        plt.figure()
-        self.plot_munsell(V)
-        plt.show()
-        plt.close()
-
-    def save_munsell(self, filename, V):
-        plt.figure()
-        self.plot_munsell(V)
-        plt.savefig(filename, transparent=True, bbox_inches="tight")
-        plt.close()
-
-    def plot_munsell(self, V):
-        _, v, _, xyy = get_munsell_data()
-
-        # pick the data from the given munsell level
-        xyy = xyy[:, v == V]
-
-        x, y, Y = xyy
-        xyz100 = numpy.array([Y / y * x, Y, Y / y * (1 - x - y)])
-        vals = self.from_xyz100(xyz100)
-
-        srgb = SrgbLinear()
-        rgb = srgb.from_xyz100(xyz100)
-        is_legal_srgb = numpy.all((0 <= rgb) & (rgb <= 1), axis=0)
-
-        idx = [0, 1, 2]
-        k1, k2 = idx[: self.k0] + idx[self.k0 + 1 :]
-
-        # plot the ones that cannot be represented in SRGB
-        plt.plot(
-            vals[k1, ~is_legal_srgb],
-            vals[k2, ~is_legal_srgb],
-            "o",
-            color="white",
-            markeredgecolor="black",
-        )
-        # plot the srgb dots
-        for val, rgb_ in zip(vals[:, is_legal_srgb].T, rgb[:, is_legal_srgb].T):
-            plt.plot(val[k1], val[k2], "o", color=srgb.to_srgb1(rgb_))
-
-        plt.grid()
-        plt.title(f"V={V}")
-        plt.xlabel(self.labels[k1])
-        plt.ylabel(self.labels[k2])
-        plt.axis("equal")
 
 
 def _xyy_to_xyz100(xyy):

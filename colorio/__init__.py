@@ -19,7 +19,6 @@ from ._rlab import RLAB
 from ._srgb import SrgbLinear
 from ._tools import (
     delta,
-    get_munsell_data,
     plot_luo_rigg,
     plot_macadam,
     save_luo_rigg,
@@ -64,7 +63,6 @@ __all__ = [
     #
     "show_flat_gamut",
     "delta",
-    "get_munsell_data",
     "show_macadam",
     "save_macadam",
     "save_luo_rigg",

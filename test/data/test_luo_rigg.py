@@ -2,12 +2,12 @@ import colorio
 
 
 def test_show():
-    cs = colorio.CIELAB()
+    # cs = colorio.CIELAB()
     # cs = colorio.CIEHCL()
     # cs = colorio.CIELCH()
     # cs = colorio.OsaUcs()
     # cs = colorio.IPT()
-    # cs = colorio.CAM16UCS(0.69, 20, 4.074)
+    cs = colorio.CAM16UCS(0.69, 20, 4.074)
     colorio.data.luo_rigg.show(cs, 50)
     colorio.data.luo_rigg.savefig("out.png", cs, 50)
 

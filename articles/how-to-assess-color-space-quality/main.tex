@@ -22,7 +22,7 @@
 
 \usepackage{siunitx}
 
-\newcommand\mytitle{How to assess color space quality}
+\newcommand\mytitle{How to evaluate and optimize color spaces against experimental data}
 \newcommand\myauthor{Nico Schlömer}
 
 \usepackage[
@@ -239,9 +239,7 @@ distances of all points to that line. There are multiple meaningful ways in whic
 between two points $a$ and $b$ can be defined by a \emph{norm}.
 
 
-
 \subsection{Cost functional for hue constancy data}
-
 
 There are multiple experiments which data about which colors are perceived to be of
 equal hue~\cite{ebner,xiao,hung} (see figure~\ref{}). Color spaces are considered good
@@ -350,6 +348,53 @@ xyY           &         0.897  &         3.555  & \textbf{0.441} &         4.893
   \end{tabular}
   \caption{The sum the $s_2$ values for all arms. The best value is highlighted in bold.
   OSA-UCS is the overall best color space for hue constancy.}
+\end{table}
+
+
+\subsection{Cost functional for ellipse data}
+
+There are multiple experiments concerning color distances producing ellipses in
+the $xy$-plane.
+When small, the ellipses indicate that the test subjects where able to the distinguish
+the center chroma from its surroundings well. When large, the center chroma blends with
+its environment. A perceptually uniform color space transforms the $xy$-plane such that
+the ellipses are transformed into circles of equal size. This goal is cast into a
+functional by
+\[
+  e_2
+  = \sqrt{\min_{R\in\R^+} \sum_{i=1}^n \sum_{j=1}^{m_i} \left(
+  \sqrt{\left(x_{i,j} - x^{(c)}_i\right)^2 + \left(y_{i,j} - y^{(c)}_i\right)^2} - R
+  \right)^2}
+\]
+where $(x^{(c)}_i, y^{(c)}_i$ are the centers of the ellipses and $(x_{i,j}, y_{i,j})$
+are the points on or near their boundaries. It is easy to see that the minimizing common
+radius is the average of all distances, i.e.,
+\[
+  R = \frac{1}{\sum_{i=1}^n m_i} \sum_{i=1}^n \sum_{j=1}^{m_i} \sqrt{\left(x_{i,j} -
+  x^{(c)}_i\right)^2 + \left(y_{i,j} - y^{(c)}_i\right)^2}.
+\]
+
+
+\begin{table}
+  \centering
+  \begin{tabular}{lrrr}
+    \toprule
+    & MacAdam & Luo-Rigg(8) & sum\\
+    \midrule
+CAM02 (UCS)   & \textbf{7.175} &         9.068  & \textbf{16.243}\\
+CAM16 (UCS)   &         7.738  & \textbf{8.788} &         16.526\\
+CIELAB        &        10.419  &        18.379  &         28.798\\
+CIELUV        &         8.130  &        18.033  &         26.163\\
+IPT           &         8.595  &        17.496  &         26.091\\
+$J_z a_z b_z$ &         7.312  &        14.449  &         21.761\\
+Oklab         &         8.375  &        15.747  &         24.121\\
+OSA-UCS       &         9.771  &        17.143  &         26.914\\
+RLAB          &        10.916  &        18.156  &         29.072\\
+xyY           &        13.218  &        15.569  &         28.787\\
+    \bottomrule
+  \end{tabular}
+  \caption{$e_2$ for a number of color spaces. CAM02 and its close relative CAM16
+  far outperform the other color spaces, particularly for the Luo-Rigg data set.}
 \end{table}
 
 

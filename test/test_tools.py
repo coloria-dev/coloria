@@ -63,11 +63,6 @@ def test_conversion_variants(a):
     assert diff.shape == a.shape[1:]
 
 
-@pytest.mark.parametrize("colorspace", [colorio.CIELAB()])
-def test_munsell(colorspace):
-    colorspace.show_munsell(V=5)
-
-
 def test_macadam():
     def xy_to_2d(xy):
         x, y = xy
