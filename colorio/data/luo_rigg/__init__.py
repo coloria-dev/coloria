@@ -10,8 +10,7 @@ import matplotlib.pyplot as plt
 import numpy
 import yaml
 
-from ..._helpers import _plot_ellipses
-from ..helpers import _compute_ellipse_residual
+from ..helpers import _compute_ellipse_residual, _plot_ellipses
 
 
 def load(num_offset_points):

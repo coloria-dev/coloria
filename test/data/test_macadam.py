@@ -2,7 +2,7 @@ import colorio
 
 
 def test_show():
-    cs = colorio.cs.CIELAB()
+    # cs = colorio.cs.CIELAB()
     # cs = colorio.cs.CIEHCL()
     # cs = colorio.cs.CIELCH()
     # cs = colorio.cs.OsaUcs()
@@ -10,7 +10,8 @@ def test_show():
     # cs = colorio.cs.OKLAB()
     # cs = colorio.cs.CAM02("UCS", 0.69, 20, 4.074)
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
-    # cs = colorio.cs.JzAzBz()  # TODO
+    # cs = colorio.cs.JzAzBz()
+    cs = colorio.cs.XYY()
     colorio.data.macadam_1942.show(cs, 50)
     colorio.data.macadam_1942.savefig("out.png", cs, 50)
 

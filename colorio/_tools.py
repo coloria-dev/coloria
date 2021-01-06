@@ -8,8 +8,6 @@ from matplotlib.patches import Ellipse
 from . import observers
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
-this_dir = pathlib.Path(__file__).resolve().parent
-
 
 def delta(a, b):
     """Computes the distances between two colors or color sets. The shape of
@@ -69,6 +67,11 @@ def _plot_planckian_locus(observer, xy_to_2d):
     plt.plot(values[:, 0], values[:, 1], ":k", label="Planckian locus")
 
 
+def show_flat_gamut(*args, **kwargs):
+    plot_flat_gamut(*args, **kwargs)
+    plt.show()
+
+
 def plot_flat_gamut(
     xy_to_2d=lambda xy: xy,
     axes_labels=("x", "y"),
@@ -99,85 +102,6 @@ def plot_flat_gamut(
     plt.ylabel(axes_labels[1])
 
 
-def show_flat_gamut(*args, **kwargs):
-    plot_flat_gamut(*args, **kwargs)
-    plt.show()
-
-
-def show_macadam(*args, **kwargs):
-    """See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
-    <https://doi.org/10.1364%2FJOSA.32.000247>.
-    """
-    plot_macadam(*args, **kwargs)
-    plt.show()
-    plt.close()
-
-
-def save_macadam(filename, *args, **kwargs):
-    plt.figure()
-    plot_macadam(*args, **kwargs)
-    plt.savefig(filename, bbox_inches="tight", transparent=True)
-    plt.close()
-
-
-def plot_macadam(
-    ellipse_scaling=10,
-    plot_filter_positions=False,
-    plot_standard_deviations=False,
-    plot_rgb_triangle=True,
-    mesh_resolution=1,
-    xy_to_2d=lambda xy: xy,
-    axes_labels=("x", "y"),
-):
-    """See <https://en.wikipedia.org/wiki/MacAdam_ellipse>,
-    <https://doi.org/10.1364%2FJOSA.32.000247>.
-    """
-    this_dir = pathlib.Path(__file__).resolve().parent
-    with open(this_dir / "data/macadam_1942/table3.yaml") as f:
-        data = yaml.safe_load(f)
-
-    # if plot_filter_positions:
-    #     with open(os.path.join(dir_path, 'data/macadam1942/table1.yaml')) as f:
-    #         filters_xyz = yaml.safe_load(f)
-    #     filters_xyz = {
-    #         key: 100 * numpy.array(value) for key, value in filters_xyz.items()
-    #         }
-    #     for key, xyz in filters_xyz.items():
-    #         x, y = xyz100_to_2d(xyz)
-    #         plt.plot(x, y, 'xk')
-    #         ax.annotate(key, (x, y))
-
-    # collect the ellipse centers and offsets
-    centers = []
-    offsets = []
-    for datak in data:
-        # collect ellipse points
-        _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak["data"]).T
-
-        offset = (
-            numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
-            / numpy.sqrt(1 + delta_y_delta_x ** 2)
-            * delta_s
-        )
-
-        if offset.shape[1] < 2:
-            continue
-
-        centers.append([datak["x"], datak["y"]])
-        offsets.append(numpy.column_stack([+offset, -offset]))
-
-    centers = numpy.array(centers)
-
-    _plot_ellipse_data(
-        centers,
-        offsets,
-        ellipse_scaling=ellipse_scaling,
-        xy_to_2d=xy_to_2d,
-        mesh_resolution=mesh_resolution,
-        # plot_rgb_triangle=plot_rgb_triangle,
-    )
-
-
 def show_luo_rigg(*args, **kwargs):
     plt.figure()
     plot_luo_rigg(*args, **kwargs)
@@ -203,7 +127,7 @@ def plot_luo_rigg(
     # Chromaticity Discrimination Ellipses for Surface Colours,
     # Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25-42,
     # <https://doi.org/10.1002/col.5080110107>.
-
+    this_dir = pathlib.Path(__file__).resolve().parent
     with open(this_dir / "data/luo_rigg/luo-rigg.yaml") as f:
         data = yaml.safe_load(f)
 

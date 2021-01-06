@@ -15,7 +15,12 @@ class CAM16:
     """
 
     def __init__(
-        self, c, Y_b, L_A, exact_inversion=True, whitepoint=whitepoints_cie1931["D65"]
+        self,
+        c: float,
+        Y_b: float,
+        L_A: float,
+        exact_inversion: bool = True,
+        whitepoint=whitepoints_cie1931["D65"],
     ):
         # step0: Calculate all values/parameters which are independent of input
         #        samples
@@ -104,7 +109,12 @@ class CAM16:
 
 class CAM16UCS(ColorSpace):
     def __init__(
-        self, c, Y_b, L_A, exact_inversion=True, whitepoint=whitepoints_cie1931["D65"]
+        self,
+        c: float,
+        Y_b: float,
+        L_A: float,
+        exact_inversion: bool = True,
+        whitepoint=whitepoints_cie1931["D65"],
     ):
         super().__init__("CAM16 (UCS)", ("J'", "a'", "b'"), 0)
         self.K_L = 1.0
