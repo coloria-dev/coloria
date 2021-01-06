@@ -1,5 +1,5 @@
 from ._cam16 import CAM16, CAM16UCS
-from ._ciecam02 import CAM02, CIECAM02, NegativeAError
+from ._ciecam02 import CAM02, CIECAM02
 from ._ciehcl import CIEHCL
 from ._cielab import CIELAB
 from ._cielch import CIELCH
@@ -23,7 +23,6 @@ __all__ = [
     "CAM16UCS",
     "CIECAM02",
     "CAM02",
-    "NegativeAError",
     "CIEHCL",
     "CIELAB",
     "CIELCH",

@@ -1,5 +1,6 @@
 import numpy
 
+from .._exceptions import ColorioError
 from .._linalg import dot
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
@@ -38,7 +39,7 @@ def compute_from(rgb_, cs):
 
     A = p2_ * cs.N_bb
     if numpy.any(A < 0):
-        raise NegativeAError("CIECAM02 breakdown")
+        raise ColorioError("CIECAM02 breakdown")
 
     # Make sure that h is in [0, 360]
     h = numpy.rad2deg(numpy.arctan2(b, a)) % 360
@@ -163,10 +164,6 @@ def compute_to(data, description, cs):
     rgb_ = numpy.sign(rgb_a_) * 100 * t
 
     return rgb_
-
-
-class NegativeAError(ValueError):
-    pass
 
 
 class CIECAM02:

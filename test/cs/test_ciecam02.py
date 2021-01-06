@@ -27,7 +27,7 @@ def test_conversion(xyz):
 def test_breakdown():
     bad_xyz = [8.71292997, 2.02183974, 83.26198455]
     ciecam02 = colorio.cs.CIECAM02(0.69, 20, L_A=64 / numpy.pi / 5)
-    with pytest.raises(colorio.NegativeAError):
+    with pytest.raises(colorio.ColorioError):
         ciecam02.from_xyz100(bad_xyz)
 
 
@@ -38,7 +38,7 @@ def test_breakdown():
 def test_conversion_variants(variant, xyz):
     # test with srgb conditions
     L_A = 64 / numpy.pi / 5
-    cam02 = colorio.CAM02(variant, 0.69, 20, L_A)
+    cam02 = colorio.cs.CAM02(variant, 0.69, 20, L_A)
     out = cam02.to_xyz100(cam02.from_xyz100(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
 

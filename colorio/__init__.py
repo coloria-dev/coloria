@@ -1,5 +1,6 @@
 from . import cs, data, illuminants, observers
 from .__about__ import __version__
+from ._exceptions import ColorioError
 from ._tools import (
     delta,
     plot_luo_rigg,
@@ -18,6 +19,7 @@ __all__ = [
     "cs",
     "illuminants",
     "observers",
+    "ColorioError",
     #
     "show_flat_gamut",
     "delta",

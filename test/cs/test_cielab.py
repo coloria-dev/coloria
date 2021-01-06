@@ -5,12 +5,17 @@ import colorio
 
 
 @pytest.mark.parametrize(
-    "xyz", [numpy.random.rand(3), numpy.random.rand(3, 7), numpy.random.rand(3, 4, 5)]
+    "xyz",
+    [
+        numpy.random.rand(3) * 100,
+        numpy.random.rand(3, 7) * 100,
+        numpy.random.rand(3, 4, 5) * 100,
+    ],
 )
 def test_conversion(xyz):
-    cielab = colorio.CIELAB()
+    cielab = colorio.cs.CIELAB()
     out = cielab.to_xyz100(cielab.from_xyz100(xyz))
-    assert numpy.all(abs(xyz - out) < 1.0e-14)
+    assert numpy.all(abs(xyz - out) < 1.0e-14 * abs(xyz))
 
 
 @pytest.mark.parametrize(
@@ -24,7 +29,7 @@ def test_conversion(xyz):
     ],
 )
 def test_reference_xyz(xyz100, ref):
-    cielab = colorio.CIELAB()
+    cielab = colorio.cs.CIELAB()
     xyz100 = numpy.array(xyz100)
     assert numpy.all(
         numpy.abs(cielab.from_xyz100(xyz100) - ref) < 1.0e-4 * numpy.abs(ref) + 1.0e-15
@@ -42,7 +47,9 @@ def test_reference_xyz(xyz100, ref):
     ],
 )
 def test_reference_xyz_d50(xyz100, ref):
-    cielab = colorio.CIELAB(whitepoint=colorio.illuminants.whitepoints_cie1931["D50"])
+    cielab = colorio.cs.CIELAB(
+        whitepoint=colorio.illuminants.whitepoints_cie1931["D50"]
+    )
     xyz100 = numpy.array(xyz100)
     assert numpy.all(
         numpy.abs(cielab.from_xyz100(xyz100) - ref) < 1.0e-4 * numpy.abs(ref) + 1.0e-15
