@@ -97,10 +97,10 @@ data was created with
 import colorio
 
 colorspace = colorio.cs.CIELAB()
-colorspace.save_rgb_gamut("srgb.vtk", "srgb", n=50, cut_000=False)
+colorspace.save_rgb_gamut("srgb.vtk", "srgb", n=50)
 
 # The HDR (Rec.2100, Rec.2020) gamut works the same way
-colorspace.save_rgb_gamut("hdr.vtk", "hdr", n=50, cut_000=False)
+colorspace.save_rgb_gamut("hdr.vtk", "hdr", n=50)
 ```
 The [VTK](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
 in, e.g., ParaView, where the following instructions apply:

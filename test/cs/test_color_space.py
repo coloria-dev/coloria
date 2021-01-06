@@ -22,18 +22,16 @@ def test_visible_slice(cs, k0, level):
 
 @pytest.mark.parametrize("variant", ["srgb", "hdr"])
 @pytest.mark.parametrize(
-    "colorspace, cut_000",
+    "colorspace",
     [
-        (colorio.cs.CIELAB(), False),
-        # (colorio.cs.XYY1(), True),
-        (colorio.cs.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False),
+        colorio.cs.CIELAB(),
+        # colorio.cs.XYY1(),
+        colorio.cs.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
     ],
 )
-def test_srgb_gamut(variant, colorspace, cut_000, n=10):
+def test_srgb_gamut(variant, colorspace, n=10):
     with tempfile.TemporaryDirectory() as tmpdir:
-        colorspace.save_rgb_gamut(
-            Path(tmpdir) / "srgb.vtu", variant, n=n, cut_000=cut_000
-        )
+        colorspace.save_rgb_gamut(Path(tmpdir) / "srgb.vtu", variant, n=n)
 
 
 @pytest.mark.parametrize(
@@ -51,17 +49,17 @@ def test_cone_gamut(colorspace, n=10):
 
 
 @pytest.mark.parametrize(
-    "colorspace,cut_000",
+    "colorspace",
     [
-        # (colorio.cs.CIELAB(), False),
-        # (colorio.cs.XYY1(), True),
-        (colorio.cs.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False)
+        # colorio.cs.CIELAB(),
+        # colorio.cs.XYY1(),
+        colorio.cs.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
     ],
 )
-def test_visible_gamut(colorspace, cut_000):
+def test_visible_gamut(colorspace):
     illuminant = colorio.illuminants.d65()
     observer = colorio.observers.cie_1931_2()
     with tempfile.TemporaryDirectory() as tmpdir:
         colorspace.save_visible_gamut(
-            observer, illuminant, Path(tmpdir) / "visible.vtu", cut_000=cut_000
+            observer, illuminant, Path(tmpdir) / "visible.vtu"
         )

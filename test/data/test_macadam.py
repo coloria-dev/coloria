@@ -15,7 +15,7 @@ def test_show():
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     # cs = colorio.cs.JzAzBz()
     cs = colorio.cs.XYY1()
-    colorio.data.macadam_1942.show(cs, 0.5)
+    colorio.data.macadam_1942.show(cs, 0.1)
     with tempfile.TemporaryDirectory() as tmpdir:
         colorio.data.macadam_1942.savefig(Path(tmpdir) / "out.png", cs, 50)
 

@@ -12,15 +12,22 @@ from ._srgb import SrgbLinear
 
 
 class ColorSpace:
-    def __init__(self, name: str, labels: Tuple[str, str, str], k0: int):
+    def __init__(
+        self,
+        name: str,
+        labels: Tuple[str, str, str],
+        k0: int,
+        is_origin_well_defined: bool = True,
+    ):
         self.name = name
         self.labels = labels
         self.k0 = k0  # the index that corresponds to luminosity
+        self.is_origin_well_defined = is_origin_well_defined
 
     def __repr__(self):
         return f"<colorio color space {self.name}>"
 
-    def save_visible_gamut(self, observer, illuminant, filename, cut_000=False):
+    def save_visible_gamut(self, observer, illuminant, filename):
         import meshio
         from scipy.spatial import ConvexHull
 
@@ -55,7 +62,7 @@ class ColorSpace:
 
         cells = ConvexHull(values).simplices
 
-        if cut_000:
+        if not self.is_origin_well_defined:
             values = values[1:]
             cells = cells[~numpy.any(cells == 0, axis=1)]
             cells -= 1
@@ -64,7 +71,7 @@ class ColorSpace:
 
         meshio.write_points_cells(filename, pts, cells={"triangle": cells})
 
-    def save_rgb_gamut(self, filename, variant, n=50, cut_000=False):
+    def save_rgb_gamut(self, filename: str, variant: str = "srgb", n: int = 50):
         import meshio
         import meshzoo
 
@@ -76,7 +83,7 @@ class ColorSpace:
 
         points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
 
-        if cut_000:
+        if not self.is_origin_well_defined:
             # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
             points = points[1:]
             cells = cells[~numpy.any(cells == 0, axis=1)]
@@ -161,11 +168,11 @@ class ColorSpace:
         plt.savefig(filename, transparent=True, bbox_inches="tight")
         plt.close()
 
-    def plot_rgb_slice(self, variant, lightness, n=50):
+    def plot_rgb_slice(self, lightness, variant="srgb", n=50):
         import meshzoo
 
-        assert variant in ["srgb", "hdr", "rec709", "rec2020", "rec2100"]
-        # TODO etc
+        assert variant in ["srgb", "rec709"]
+        # TODO HDR
 
         # Get all RGB values that sum up to 1.
         srgb_vals, triangles = meshzoo.triangle(n=n)
