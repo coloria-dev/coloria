@@ -288,7 +288,7 @@ class CIECAM02:
 
 class CAM02(ColorSpace):
     def __init__(self, variant, c, Y_b, L_A, whitepoint=whitepoints_cie1931["D65"]):
-        super().__init__()
+        super().__init__(f"CAM02 ({variant})", ("J'", "a'", "b'"), 0)
         params = {
             "LCD": (0.77, 0.007, 0.0053),
             "SCD": (1.24, 0.007, 0.0363),
@@ -296,9 +296,6 @@ class CAM02(ColorSpace):
         }
         self.K_L, self.c1, self.c2 = params[variant]
         self.ciecam02 = CIECAM02(c, Y_b, L_A, whitepoint)
-        self.name = f"CAM02 ({variant})"
-        self.labels = ["J'", "a'", "b'"]
-        self.k0 = 0  # the index that corresponds to luminosity
 
     def from_xyz100(self, xyz):
         J, _, _, h, M, _, _ = self.ciecam02.from_xyz100(xyz)

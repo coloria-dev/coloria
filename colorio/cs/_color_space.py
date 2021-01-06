@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy
@@ -10,6 +12,11 @@ from ._srgb import SrgbLinear
 
 
 class ColorSpace:
+    def __init__(self, name: str, labels: Tuple[str, str, str], k0: int):
+        self.name = name
+        self.labels = labels
+        self.k0 = k0  # the index that corresponds to luminosity
+
     def save_visible_gamut(self, observer, illuminant, filename, cut_000=False):
         import meshio
         from scipy.spatial import ConvexHull
