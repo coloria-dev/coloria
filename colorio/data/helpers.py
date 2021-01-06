@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy
 
-from .._srgb import SrgbLinear
+from ..cs import SrgbLinear
 
 
 def _compute_straight_line_residuals(cs, wp, d):

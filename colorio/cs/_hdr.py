@@ -1,6 +1,6 @@
 import numpy
 
-from ._linalg import dot, solve
+from .._linalg import dot, solve
 
 
 def _xyy_to_xyz100(xyy):

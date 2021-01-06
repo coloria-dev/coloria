@@ -11,7 +11,7 @@ numpy.random.seed(0)
 )
 def test_conversion(xyz):
     # test with srgb conditions
-    ciecam02 = colorio.CIECAM02(0.69, 20, 64 / numpy.pi / 5)
+    ciecam02 = colorio.cs.CIECAM02(0.69, 20, 64 / numpy.pi / 5)
     J, C, H, h, M, s, Q = ciecam02.from_xyz100(xyz)
 
     out = ciecam02.to_xyz100(numpy.array([J, C, H]), "JCH")
@@ -26,7 +26,7 @@ def test_conversion(xyz):
 
 def test_breakdown():
     bad_xyz = [8.71292997, 2.02183974, 83.26198455]
-    ciecam02 = colorio.CIECAM02(0.69, 20, L_A=64 / numpy.pi / 5)
+    ciecam02 = colorio.cs.CIECAM02(0.69, 20, L_A=64 / numpy.pi / 5)
     with pytest.raises(colorio.NegativeAError):
         ciecam02.from_xyz100(bad_xyz)
 
@@ -46,7 +46,7 @@ def test_conversion_variants(variant, xyz):
 @pytest.mark.parametrize("xyz", [numpy.zeros(3), numpy.zeros((3, 4, 5))])
 def test_zero(xyz):
     L_A = 64 / numpy.pi / 5
-    cs = colorio.CIECAM02(0.69, 20, L_A)
+    cs = colorio.cs.CIECAM02(0.69, 20, L_A)
     J, C, H, h, M, s, Q = cs.from_xyz100(xyz)
 
     assert numpy.all(J == 0.0)
@@ -70,7 +70,7 @@ def test_gold():
     # See
     # https://github.com/njsmith/colorspacious/blob/master/colorspacious/gold_values.py
     xyz = [19.31, 23.93, 10.14]
-    ciecam02 = colorio.CIECAM02(0.69, 18, 200, whitepoint=[98.88, 90, 32.03])
+    ciecam02 = colorio.cs.CIECAM02(0.69, 18, 200, whitepoint=[98.88, 90, 32.03])
     values = ciecam02.from_xyz100(xyz)
     reference_values = numpy.array(
         [
@@ -88,7 +88,7 @@ def test_gold():
 
     # different L_A
     xyz = [19.31, 23.93, 10.14]
-    ciecam02 = colorio.CIECAM02(0.69, 18, 20, whitepoint=[98.88, 90, 32.03])
+    ciecam02 = colorio.cs.CIECAM02(0.69, 18, 20, whitepoint=[98.88, 90, 32.03])
     values = ciecam02.from_xyz100(xyz)
     reference_values = numpy.array(
         [
@@ -107,7 +107,7 @@ def test_gold():
     # gold values from Mark Fairchild's spreadsheet at
     #   http://rit-mcsl.org/fairchild//files/AppModEx.xls
     xyz = [19.01, 20.00, 21.78]
-    ciecam02 = colorio.CIECAM02(
+    ciecam02 = colorio.cs.CIECAM02(
         0.69, 20, 318.30988618379, whitepoint=[95.05, 100.0, 108.88]
     )
     values = ciecam02.from_xyz100(xyz)
@@ -126,7 +126,7 @@ def test_gold():
     assert numpy.all(abs(values - reference_values) < 1.0e-8 * reference_values)
 
     xyz = [57.06, 43.06, 31.96]
-    ciecam02 = colorio.CIECAM02(
+    ciecam02 = colorio.cs.CIECAM02(
         0.69, 20, 31.830988618379, whitepoint=[95.05, 100.0, 108.88]
     )
     values = ciecam02.from_xyz100(xyz)

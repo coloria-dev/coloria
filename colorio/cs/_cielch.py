@@ -1,8 +1,8 @@
 import numpy
 
+from ..illuminants import whitepoints_cie1931
 from ._cielab import CIELAB
 from ._color_space import ColorSpace
-from .illuminants import whitepoints_cie1931
 
 
 class CIELCH(ColorSpace):

@@ -1,8 +1,8 @@
 # https://bottosson.github.io/posts/oklab/
 import numpy
 
+from .._linalg import dot
 from ._color_space import ColorSpace
-from ._linalg import dot
 
 
 class OKLAB(ColorSpace):

@@ -1,9 +1,9 @@
 import numpy
 
+from .._linalg import dot
+from ..illuminants import whitepoints_cie1931
 from ._ciecam02 import compute_from, compute_to
 from ._color_space import ColorSpace
-from ._linalg import dot
-from .illuminants import whitepoints_cie1931
 
 
 class CAM16:

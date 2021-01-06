@@ -1,7 +1,7 @@
 import numpy
 
+from .._linalg import dot
 from ._color_space import ColorSpace
-from ._linalg import dot
 
 
 class OsaUcs(ColorSpace):

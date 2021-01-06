@@ -1,8 +1,8 @@
 import numpy
 
+from .._linalg import dot, solve
 from ._color_space import ColorSpace
 from ._hdr import HdrLinear
-from ._linalg import dot, solve
 
 
 class ICtCp(ColorSpace):

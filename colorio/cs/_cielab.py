@@ -1,7 +1,7 @@
 import numpy
 
+from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
-from .illuminants import whitepoints_cie1931
 
 
 class CIELAB(ColorSpace):

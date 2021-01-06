@@ -1,8 +1,8 @@
 import numpy
 
+from .._linalg import dot, solve
+from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
-from ._linalg import dot, solve
-from .illuminants import whitepoints_cie1931
 
 
 class RLAB(ColorSpace):

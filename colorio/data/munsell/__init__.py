@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy
 import yaml
 
-from ..._srgb import SrgbLinear
+from ...cs import SrgbLinear
 
 
 def load():

@@ -1,7 +1,7 @@
 import numpy
 
-from ._linalg import dot, solve
-from .illuminants import whitepoints_cie1931
+from .._linalg import dot, solve
+from ..illuminants import whitepoints_cie1931
 
 
 def _xyy_to_xyz100(xyy):

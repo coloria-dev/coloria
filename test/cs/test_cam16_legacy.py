@@ -27,7 +27,6 @@ def test_conversion(xyz):
 
     out = cam16.to_xyz100(numpy.array([J, s, h]), "Jsh")
     assert numpy.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
-    return
 
 
 if __name__ == "__main__":

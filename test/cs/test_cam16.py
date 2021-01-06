@@ -17,7 +17,7 @@ numpy.random.seed(0)
 def test_conversion(xyz):
     # test with srgb conditions
     L_A = 64 / numpy.pi / 5
-    cam16 = colorio.CAM16(0.69, 20, L_A)
+    cam16 = colorio.cs.CAM16(0.69, 20, L_A)
     J, C, H, h, M, s, Q = cam16.from_xyz100(xyz)
 
     out = cam16.to_xyz100(numpy.array([J, C, H]), "JCH")
@@ -32,7 +32,7 @@ def test_conversion(xyz):
 
 @pytest.mark.parametrize("xyz", [numpy.zeros(3), numpy.zeros((3, 4, 5))])
 def test_zero(xyz):
-    cam16 = colorio.CAM16(0.69, 20, 64 / numpy.pi / 5)
+    cam16 = colorio.cs.CAM16(0.69, 20, 64 / numpy.pi / 5)
     J, C, H, h, M, s, Q = cam16.from_xyz100(xyz)
 
     assert numpy.all(J == 0.0)
@@ -58,7 +58,7 @@ def test_zero(xyz):
 def test_conversion_variants(xyz):
     # test with srgb conditions
     L_A = 64 / numpy.pi / 5
-    cam16 = colorio.CAM16UCS(0.69, 20, L_A)
+    cam16 = colorio.cs.CAM16UCS(0.69, 20, L_A)
     out = cam16.to_xyz100(cam16.from_xyz100(xyz))
     assert numpy.all(abs(xyz - out) < 1.0e-14)
 
@@ -74,7 +74,7 @@ def test_conversion_variants(xyz):
 )
 def test_reference_values(xyz, ref):
     L_A = 64 / numpy.pi / 5
-    cam16 = colorio.CAM16UCS(0.69, 20, L_A)
+    cam16 = colorio.cs.CAM16UCS(0.69, 20, L_A)
     out = cam16.from_xyz100(xyz)
     ref = numpy.array(ref)
     assert numpy.all(abs(ref - out) < 1.0e-14 * ref)
@@ -85,7 +85,7 @@ def test_whitepoint():
     # With infinite luminance of the adapting field, the whitepoint is found
     # at (100, 0, 0).
     L_A = numpy.inf
-    cam16 = colorio.CAM16UCS(0.69, 20, L_A)
+    cam16 = colorio.cs.CAM16UCS(0.69, 20, L_A)
     out = cam16.from_xyz100(colorio.illuminants.whitepoints_cie1931["D65"])
     assert numpy.all(out == [100, 0, 0])
     return

@@ -7,9 +7,9 @@ import colorio
 @pytest.mark.parametrize(
     "cs,k0,level",
     [
-        [colorio.XYY(), 2, 0.4],
-        [colorio.CIELAB(), 0, 50],
-        [colorio.CAM16UCS(0.69, 20, 4.074), 0, 50],
+        [colorio.cs.XYY(), 2, 0.4],
+        [colorio.cs.CIELAB(), 0, 50],
+        [colorio.cs.CAM16UCS(0.69, 20, 4.074), 0, 50],
     ],
 )
 def test_visible_slice(cs, k0, level):
@@ -21,9 +21,9 @@ def test_visible_slice(cs, k0, level):
 @pytest.mark.parametrize(
     "colorspace, cut_000",
     [
-        (colorio.CIELAB(), False),
-        # (colorio.XYY(), True),
-        (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False),
+        (colorio.cs.CIELAB(), False),
+        # (colorio.cs.XYY(), True),
+        (colorio.cs.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False),
     ],
 )
 def test_srgb_gamut(variant, colorspace, cut_000, n=10):
@@ -33,9 +33,9 @@ def test_srgb_gamut(variant, colorspace, cut_000, n=10):
 @pytest.mark.parametrize(
     "colorspace",
     [
-        colorio.CIELAB(),
-        colorio.XYY(),
-        colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
+        colorio.cs.CIELAB(),
+        colorio.cs.XYY(),
+        colorio.cs.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
     ],
 )
 def test_cone_gamut(colorspace, n=10):
@@ -46,9 +46,9 @@ def test_cone_gamut(colorspace, n=10):
 @pytest.mark.parametrize(
     "colorspace,cut_000",
     [
-        # (colorio.CIELAB(), False),
-        # (colorio.XYY(), True),
-        (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False)
+        # (colorio.cs.CIELAB(), False),
+        # (colorio.cs.XYY(), True),
+        (colorio.cs.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False)
     ],
 )
 def test_visible_gamut(colorspace, cut_000):
