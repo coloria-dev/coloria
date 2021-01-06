@@ -3,7 +3,9 @@ import numpy
 from ._color_space import ColorSpace
 
 
-class XYY(ColorSpace):
+class XYY1(ColorSpace):
+    """xyY colorspace with Y scaled from 0 to 1."""
+
     def __init__(self):
         super().__init__("xyY", ("x", "y", "Y"), 2)
 

@@ -168,14 +168,8 @@ class ColorSpace:
         # TODO etc
 
         # Get all RGB values that sum up to 1.
-        bary, triangles = meshzoo.triangle(n=n)
-        corners = numpy.array([[0, 0], [1, 0], [0, 1]]).T
-        srgb_vals = numpy.dot(corners, bary).T
-        srgb_vals = numpy.column_stack([srgb_vals, 1.0 - numpy.sum(srgb_vals, axis=1)])
-
-        # matplotlib is sensitive when it comes to srgb values, so take good care here
-        assert numpy.all(srgb_vals > -1.0e-10)
-        srgb_vals[srgb_vals < 0.0] = 0.0
+        srgb_vals, triangles = meshzoo.triangle(n=n)
+        srgb_vals = srgb_vals.T
 
         # Use bisection to
         srgb_linear = SrgbLinear()
@@ -201,6 +195,7 @@ class ColorSpace:
                 mask[k] = False
                 continue
 
+            # bisection
             while True:
                 alpha = (alpha_max + alpha_min) / 2
                 srgb_linear_vals[k] = val * alpha

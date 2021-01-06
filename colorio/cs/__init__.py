@@ -15,8 +15,8 @@ from ._oklab import OKLAB
 from ._osa import OsaUcs
 from ._rlab import RLAB
 from ._srgb import SrgbLinear
-from ._xyy import XYY
-from ._xyz import XYZ
+from ._xyy1 import XYY1
+from ._xyz1 import XYZ1
 
 __all__ = [
     "CAM16",
@@ -39,6 +39,6 @@ __all__ = [
     "HdrLinear",
     "RLAB",
     "SrgbLinear",
-    "XYY",
-    "XYZ",
+    "XYY1",
+    "XYZ1",
 ]

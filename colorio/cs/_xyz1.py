@@ -1,7 +1,9 @@
 from ._color_space import ColorSpace
 
 
-class XYZ(ColorSpace):
+class XYZ1(ColorSpace):
+    """XYZ colorspace with the values scaled from 0 to 1."""
+
     def __init__(self):
         super().__init__("XYZ", ("X", "Y", "Z"), None)
 
