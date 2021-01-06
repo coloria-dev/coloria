@@ -32,7 +32,6 @@ def _plot_color_constancy_data(
 ):
     # k0 is the coordinate that corresponds to "lightness"
     k0 = colorspace.k0
-
     k1, k2 = [k for k in [0, 1, 2] if k != k0]
 
     wp = colorspace.from_xyz100(wp_xyz100)[[k1, k2]]
@@ -41,15 +40,15 @@ def _plot_color_constancy_data(
         d = colorspace.from_xyz100(xyz)[[k1, k2]]
 
         # get the eigenvector corresponding to the larger eigenvalue
-        vals, vecs = numpy.linalg.eigh(d @ d.T)
+        d_wp = (d.T - wp).T
+        vals, vecs = numpy.linalg.eigh(d_wp @ d_wp.T)
         v = vecs[:, 0] if vals[0] > vals[1] else vecs[:, 1]
 
-        avg = numpy.average(d, axis=1)
-        if numpy.dot(v, avg) < 0:
+        if numpy.dot(v, numpy.average(d, axis=1)) < 0:
             v = -v
 
         length = numpy.sqrt(numpy.max(numpy.einsum("ij,ij->i", d.T - wp, d.T - wp)))
-        end_point = wp + length * (v - wp) / numpy.linalg.norm(v - wp)
+        end_point = wp + length * v
         plt.plot([wp[0], end_point[0]], [wp[1], end_point[1]], "-", color="0.5")
 
         for dd, rgb in zip(d.T, srgb.from_xyz100(xyz).T):

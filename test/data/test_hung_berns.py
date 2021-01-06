@@ -2,11 +2,11 @@ import colorio
 
 
 def test_show():
-    # cs = colorio.cs.CIELAB()
+    cs = colorio.cs.CIELAB()
     # cs = colorio.cs.CIEHCL()
     # cs = colorio.cs.CIELCH()
     # cs = colorio.cs.OsaUcs()
-    cs = colorio.cs.IPT()
+    # cs = colorio.cs.IPT()
     colorio.data.hung_berns.show(cs)
     # colorio.data.ebner_fairchild.savefig(cs)
 
