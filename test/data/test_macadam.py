@@ -2,21 +2,21 @@ import colorio
 
 
 def test_show():
-    cs = colorio.CIELAB()
-    # cs = colorio.CIEHCL()
-    # cs = colorio.CIELCH()
-    # cs = colorio.OsaUcs()
-    # cs = colorio.IPT()
-    # cs = colorio.OKLAB()
-    # cs = colorio.CAM02("UCS", 0.69, 20, 4.074)
-    # cs = colorio.CAM16UCS(0.69, 20, 4.074)
-    # cs = colorio.JzAzBz()  # TODO
+    cs = colorio.cs.CIELAB()
+    # cs = colorio.cs.CIEHCL()
+    # cs = colorio.cs.CIELCH()
+    # cs = colorio.cs.OsaUcs()
+    # cs = colorio.cs.IPT()
+    # cs = colorio.cs.OKLAB()
+    # cs = colorio.cs.CAM02("UCS", 0.69, 20, 4.074)
+    # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
+    # cs = colorio.cs.JzAzBz()  # TODO
     colorio.data.macadam_1942.show(cs, 50)
     colorio.data.macadam_1942.savefig("out.png", cs, 50)
 
 
 def test_residuals():
-    cs = colorio.CIELAB()
+    cs = colorio.cs.CIELAB()
     ref = 10.418677911638703
     res = colorio.data.macadam_1942.residuals(cs, 0.5)
     print(res)

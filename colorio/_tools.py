@@ -1,8 +1,6 @@
 import pathlib
 
-import matplotlib
 import matplotlib.pyplot as plt
-import meshzoo
 import numpy
 import yaml
 from matplotlib.patches import Ellipse
@@ -74,16 +72,15 @@ def _plot_planckian_locus(observer, xy_to_2d):
 def plot_flat_gamut(
     xy_to_2d=lambda xy: xy,
     axes_labels=("x", "y"),
-    plot_rgb_triangle=True,
+    # plot_rgb_triangle=True,
     fill_horseshoe=True,
     plot_planckian_locus=True,
 ):
-    """Show a flat color gamut, by default xy.  There exists a chroma gamut for
-    all color models which transform lines in XYZ to lines, and hence have a
-    natural decomposition into lightness and chroma components.  Also, the flat
-    gamut is the same for every lightness value. Examples for color models with
-    this property are CIELUV and IPT, examples for color models without are
-    CIELAB and CIECAM02.
+    """Show a flat color gamut, by default xy. There exists a chroma gamut for all
+    color models which transform lines in XYZ to lines, and hence have a natural
+    decomposition into lightness and chroma components. Also, the flat gamut is the
+    same for every lightness value. Examples for color models with this property are
+    CIELUV and IPT, examples for color models without are CIELAB and CIECAM02.
     """
     observer = observers.cie_1931_2()
     # observer = observers.cie_1964_10()
@@ -91,8 +88,8 @@ def plot_flat_gamut(
     _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=fill_horseshoe)
     # plt.grid()
 
-    if plot_rgb_triangle:
-        _plot_rgb_triangle(xy_to_2d)
+    # if plot_rgb_triangle:
+    #     _plot_rgb_triangle(xy_to_2d)
     if plot_planckian_locus:
         _plot_planckian_locus(observer, xy_to_2d)
 
@@ -177,7 +174,7 @@ def plot_macadam(
         ellipse_scaling=ellipse_scaling,
         xy_to_2d=xy_to_2d,
         mesh_resolution=mesh_resolution,
-        plot_rgb_triangle=plot_rgb_triangle,
+        # plot_rgb_triangle=plot_rgb_triangle,
     )
 
 
@@ -248,7 +245,7 @@ def plot_luo_rigg(
         ellipse_scaling=ellipse_scaling,
         mesh_resolution=mesh_resolution,
         xy_to_2d=xy_to_2d,
-        plot_rgb_triangle=plot_rgb_triangle,
+        # plot_rgb_triangle=plot_rgb_triangle,
         ellipse_color=ellipse_color,
     )
     plt.xlim(0.0)
@@ -260,7 +257,7 @@ def _plot_ellipse_data(
     offsets,
     xy_to_2d=lambda xy: xy,
     axes_labels=("x", "y"),
-    plot_rgb_triangle=False,
+    # plot_rgb_triangle=False,
     ellipse_scaling=10,
     ellipse_color="k",
     mesh_resolution=None,
@@ -271,7 +268,7 @@ def _plot_ellipse_data(
         plot_planckian_locus=False,
         xy_to_2d=xy_to_2d,
         axes_labels=axes_labels,
-        plot_rgb_triangle=plot_rgb_triangle,
+        # plot_rgb_triangle=plot_rgb_triangle,
         fill_horseshoe=mesh_resolution is None,
     )
 
@@ -437,3 +434,36 @@ def get_mono_outline_xy(observer, max_stepsize, max_angle=None):
     vals_mono = numpy.array(vals_mono)
 
     return vals_mono, vals_conn
+
+
+# def _plot_rgb_triangle(xy_to_2d, bright=True):
+#     # plot sRGB triangle
+#     # discretization points
+#     n = 50
+#
+#     # Get all RGB values that sum up to 1.
+#     rgb_linear, _ = meshzoo.triangle(n)
+#     if bright:
+#         # For the x-y-diagram, it doesn't matter if the values are scaled in any way.
+#         # After all, the tranlation to XYZ is linear, and then to xyY it's (X/(X+Y+Z),
+#         # Y/(X+Y+Z), Y), so the factor will only be present in the last component which
+#         # is discarded. To make the plot a bit brighter, scale the colors up as much as
+#         # possible.
+#         rgb_linear /= numpy.max(rgb_linear, axis=0)
+#
+#     srgb_linear = SrgbLinear()
+#     xyz = srgb_linear.to_xyz100(rgb_linear)
+#     xyy_vals = xy_to_2d(_xyy_from_xyz100(xyz)[:2])
+#
+#     # Unfortunately, one cannot use tripcolors with explicit RGB specification
+#     # (see <https://github.com/matplotlib/matplotlib/issues/10265>). As a
+#     # workaround, associate range(n) data with the points and create a colormap
+#     # that associates the integer values with the respective RGBs.
+#     z = numpy.arange(xyy_vals.shape[1])
+#     rgb = srgb_linear.to_rgb1(rgb_linear)
+#     cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+#         "gamut", rgb.T, N=len(rgb.T)
+#     )
+#
+#     triang = matplotlib.tri.Triangulation(xyy_vals[0], xyy_vals[1])
+#     plt.tripcolor(triang, z, shading="gouraud", cmap=cmap)

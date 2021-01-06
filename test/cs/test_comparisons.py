@@ -12,7 +12,7 @@ def test_0():
     Y_b = 20
     L_A = 64 / numpy.pi / 5
     c = 0.69  # average
-    cam16 = colorio.CAM16(c, Y_b, L_A)
+    cam16 = colorio.cs.CAM16(c, Y_b, L_A)
 
     xyz = numpy.zeros(3)
     J, C, _, h, M, s, Q = cam16.from_xyz100(xyz)
@@ -28,7 +28,6 @@ def test_0():
     cam16_legacy = CAM16Legacy(c, Y_b, L_A)
     ref2 = cam16_legacy.from_xyz100(xyz)
     print(ref2)
-    return
 
 
 def test_from():
@@ -40,7 +39,7 @@ def test_from():
     L_A = 64 / numpy.pi / 5
 
     c = 0.69  # average
-    cs2 = colorio.CIECAM02(c, Y_b, L_A)
+    cs2 = colorio.cs.CIECAM02(c, Y_b, L_A)
     J, C, H, h, M, s, Q = cs2.from_xyz100(xyz)
 
     # compare with colorspacious
@@ -66,7 +65,6 @@ def test_from():
     # assert abs(ref2.M - M) < 1.0e-14 * M
     # assert abs(ref2.s - s) < 1.0e-14 * s
     # assert abs(ref2.Q - Q) < 1.0e-14 * Q
-    return
 
 
 def performance_comparison_from():
@@ -82,7 +80,7 @@ def performance_comparison_from():
     Y_b = 20
     L_A = 64 / numpy.pi / 5
     c = 0.69  # average
-    cam16 = colorio.CAM16(c, Y_b, L_A)
+    cam16 = colorio.cs.CAM16(c, Y_b, L_A)
 
     cam16_legacy = CAM16Legacy(c, Y_b, L_A)
 
@@ -93,7 +91,6 @@ def performance_comparison_from():
         n_range=1000 * numpy.arange(6),
         equality_check=False,
     )
-    return
 
 
 def performance_comparison_to():
@@ -103,7 +100,7 @@ def performance_comparison_to():
     L_A = 64 / numpy.pi / 5
 
     c = 0.69  # average
-    cam16 = colorio.CAM16(c, Y_b, L_A)
+    cam16 = colorio.cs.CAM16(c, Y_b, L_A)
 
     def cio(x):
         return cam16.to_xyz100(x, "JCh")
@@ -122,7 +119,6 @@ def performance_comparison_to():
 
     # import matplotlib2tikz
     # matplotlib2tikz.save('fig.tikz')
-    return
 
 
 if __name__ == "__main__":
