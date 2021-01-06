@@ -4,8 +4,6 @@ import pytest
 
 import colorio
 
-numpy.random.seed(0)
-
 
 @pytest.mark.parametrize(
     "xyz",
@@ -23,10 +21,10 @@ def test_conversion(xyz):
 
 def test_speed(N=2):
     numpy.random.seed(1)
-    osa = colorio.OsaUcs()
-    cielab = colorio.CIELAB()
+    osa = colorio.cs.OsaUcs()
+    cielab = colorio.cs.CIELAB()
     # cam16 = colorio.CAM16(0.69, 20, L_A=64 / numpy.pi / 5)
-    ciecam02 = colorio.CIECAM02(0.69, 20, L_A=64 / numpy.pi / 5)
+    ciecam02 = colorio.cs.CIECAM02(0.69, 20, L_A=64 / numpy.pi / 5)
 
     # This close probably means that another figure hasn't been properly closed.
     import matplotlib.pyplot as plt

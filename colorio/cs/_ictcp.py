@@ -12,11 +12,7 @@ class ICtCp(ColorSpace):
     """
 
     def __init__(self):
-        super().__init__()
-        self.name = "I C_T C_P"
-        self.labels = ["I", "C_T", "C_P"]
-        self.k0 = 0  # the index that corresponds to luminosity
-
+        super().__init__("IC_TC_P", ("I", "C_T", "C_P"), 0)
         self.M1 = (
             numpy.array([[1688, 2146, 262], [683, 2951, 462], [99, 309, 3688]]) / 4096
         )

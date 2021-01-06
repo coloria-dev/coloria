@@ -15,7 +15,7 @@ numpy.random.seed(2)
     ],
 )
 def test_reference_srgb(vals, ref):
-    hsv = colorio.HSV()
+    hsv = colorio.cs.HSV()
     assert numpy.all(abs(hsv.from_srgb256(vals) - ref) < 1.0e-14 * numpy.array(ref))
 
 
@@ -23,6 +23,6 @@ def test_reference_srgb(vals, ref):
     "vals", [numpy.random.rand(3), numpy.random.rand(3, 7), numpy.random.rand(3, 4, 5)]
 )
 def test_conversion(vals):
-    hsv = colorio.HSV()
+    hsv = colorio.cs.HSV()
     out = hsv.to_srgb1(hsv.from_srgb1(vals))
     assert numpy.all(abs(vals - out) < 1.0e-14)
