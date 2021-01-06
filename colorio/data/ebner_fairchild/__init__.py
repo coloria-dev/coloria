@@ -7,7 +7,7 @@ import yaml
 from ..helpers import _compute_straight_line_residuals, _plot_color_constancy_data
 
 
-def _load_data():
+def load():
     this_dir = pathlib.Path(__file__).resolve().parent
     with open(this_dir / "ebner_fairchild.yaml") as f:
         data = yaml.safe_load(f)
@@ -35,10 +35,10 @@ def savefig(cs, filename):
 
 
 def plot(cs):
-    wp, d = _load_data()
+    wp, d = load()
     _plot_color_constancy_data(d, wp, cs)
 
 
 def residuals(cs):
-    wp, d = _load_data()
+    wp, d = load()
     return _compute_straight_line_residuals(cs, wp, d)

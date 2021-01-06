@@ -17,7 +17,7 @@ def test_show():
 
 def test_residuals():
     cs = colorio.CIELAB()
-    ref = 0.4140811777348482
+    ref = 10.418677911638703
     res = colorio.data.macadam_1942.residuals(cs, 0.5)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref

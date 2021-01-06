@@ -50,7 +50,7 @@ class SrgbLinear:
         # 0.2126 * R_linear + 0.7152 * G_linear + 0.0722 * B_linear
         return 100 * dot(self.invM, srgb1_linear)
 
-    def from_srgb1(self, srgb1):
+    def from_rgb1(self, srgb1):
         srgb_linear = numpy.array(srgb1, dtype=float)
 
         a = 0.055
@@ -61,7 +61,7 @@ class SrgbLinear:
         srgb_linear[~is_smaller] = ((srgb_linear[~is_smaller] + a) / (1 + a)) ** 2.4
         return srgb_linear
 
-    def to_srgb1(self, srgb_linear):
+    def to_rgb1(self, srgb_linear):
         a = 0.055
         is_smaller = srgb_linear <= 0.0031308
         srgb = numpy.array(srgb_linear, dtype=float)
@@ -69,8 +69,8 @@ class SrgbLinear:
         srgb[~is_smaller] = (1 + a) * srgb[~is_smaller] ** (1 / 2.4) - a
         return srgb
 
-    def from_srgb255(self, srgb255):
-        return self.from_srgb1(numpy.asarray(srgb255) / 255)
+    def from_rgb255(self, srgb255):
+        return self.from_rgb1(numpy.asarray(srgb255) / 255)
 
-    def to_srgb255(self, srgb_linear):
-        return 255 * self.to_srgb1(srgb_linear)
+    def to_rgb255(self, srgb_linear):
+        return 255 * self.to_rgb1(srgb_linear)

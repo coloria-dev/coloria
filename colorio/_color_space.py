@@ -1,5 +1,3 @@
-import pathlib
-
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy
@@ -63,7 +61,7 @@ class ColorSpace:
         if variant.lower() in ["srgb", "rec709"]:
             rgb_linear = SrgbLinear()
         else:
-            assert variant.lower() in ["rec709", "rec2020", "rec2100"]
+            assert variant.lower() in ["hdr", "rec2020", "rec2100"]
             rgb_linear = HdrLinear()
 
         points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
@@ -76,7 +74,7 @@ class ColorSpace:
 
         pts = self.from_xyz100(rgb_linear.to_xyz100(points.T)).T
         assert pts.shape[1] == 3
-        rgb = rgb_linear.to_srgb1(points)
+        rgb = rgb_linear.to_rgb1(points)
         meshio.write_points_cells(
             filename, pts, {"tetra": cells}, point_data={"srgb": rgb}
         )
@@ -219,7 +217,7 @@ class ColorSpace:
         # associate range(n) data with the points and create a colormap that associates
         # the integer values with the respective RGBs.
         z = numpy.arange(srgb_vals.shape[0])
-        rgb = srgb_linear.to_srgb1(srgb_linear_vals)
+        rgb = srgb_linear.to_rgb1(srgb_linear_vals)
         cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
             "gamut", rgb, N=len(rgb)
         )

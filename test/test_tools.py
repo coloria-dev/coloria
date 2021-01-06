@@ -4,52 +4,6 @@ import pytest
 import colorio
 
 
-@pytest.mark.parametrize(
-    "colorspace, cut_000",
-    [
-        (colorio.CIELAB(), False),
-        # (colorio.XYY(), True),
-        (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False),
-    ],
-)
-def test_srgb_gamut(colorspace, cut_000, n=10):
-    colorspace.save_srgb_gamut("srgb.vtu", n=n, cut_000=cut_000)
-
-
-@pytest.mark.parametrize(
-    "colorspace",
-    [
-        colorio.CIELAB(),
-        colorio.XYY(),
-        colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
-    ],
-)
-def test_cone_gamut(colorspace, n=10):
-    observer = colorio.observers.cie_1931_2()
-    colorspace.save_cone_gamut("cone.vtu", observer, max_Y=1)
-
-
-@pytest.mark.parametrize(
-    "colorspace", [colorio.CIELAB(), colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5)]
-)
-def test_hdr_gamut(colorspace, n=10):
-    colorspace.save_hdr_gamut("hdr.vtu", n=n)
-
-
-@pytest.mark.parametrize(
-    "colorspace,cut_000",
-    [
-        # (colorio.CIELAB(), False),
-        # (colorio.XYY(), True),
-        (colorio.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5), False)
-    ],
-)
-def test_visible_gamut(colorspace, cut_000):
-    illuminant = colorio.illuminants.d65()
-    observer = colorio.observers.cie_1931_2()
-    colorspace.save_visible_gamut(observer, illuminant, "visible.vtu", cut_000=cut_000)
-
-
 def test_flat_gamut(xy_to_2d=lambda xy: xy):
     colorio.show_flat_gamut()
 
@@ -102,13 +56,10 @@ if __name__ == "__main__":
     # colorspace_ = colorio.IPT()
     # colorspace_ = colorio.JzAzBz()
     # colorspace_ = colorio.CIELUV()
-    colorspace_ = colorio.CIELAB()
+    # colorspace_ = colorio.CIELAB()
     # colorspace_ = colorio.CAM02('UCS', 0.69, 20, 64/numpy.pi/5)
     # colorspace_ = colorio.CAM16UCS(0.69, 20, 64 / numpy.pi / 5)
     # test_hdr_gamut(colorspace_, n=10)
     # test_visible_gamut(colorspace_, cut_000=False)
     # test_srgb_gamut(colorspace_, cut_000=False)
-    test_munsell(colorspace_)
-    # test_cone_gamut(colorio.XYY())
-    # test_cone_gamut(colorio.XYZ())
-    # test_cone_gamut(colorio.CIELAB())
+    test_luo_rigg()

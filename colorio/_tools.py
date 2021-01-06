@@ -1,4 +1,3 @@
-import os
 import pathlib
 
 import matplotlib
@@ -85,7 +84,7 @@ def _plot_rgb_triangle(xy_to_2d, bright=True):
     # workaround, associate range(n) data with the points and create a colormap
     # that associates the integer values with the respective RGBs.
     z = numpy.arange(xyy_vals.shape[1])
-    rgb = srgb_linear.to_srgb1(rgb_linear)
+    rgb = srgb_linear.to_rgb1(rgb_linear)
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
         "gamut", rgb.T, N=len(rgb.T)
     )
@@ -242,7 +241,7 @@ def plot_luo_rigg(
     # Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25-42,
     # <https://doi.org/10.1002/col.5080110107>.
 
-    with open(this_dir / "data/luo-rigg/luo-rigg.yaml") as f:
+    with open(this_dir / "data/luo_rigg/luo-rigg.yaml") as f:
         data = yaml.safe_load(f)
 
     centers = []

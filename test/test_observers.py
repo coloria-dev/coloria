@@ -24,7 +24,7 @@ def test_observers(observer):
         rgb_vals[rgb_vals < 0] = 0
         # project down to proper rgb
         rgb_vals /= max(rgb_vals)
-        colors.append(srgb.to_srgb1(rgb_vals))
+        colors.append(srgb.to_rgb1(rgb_vals))
 
     plt.plot(lmbda, data[0], color=colors[0])
     plt.plot(lmbda, data[1], color=colors[1])
@@ -36,7 +36,6 @@ def test_observers(observer):
     plt.ylim(ymin=0)
 
     plt.show()
-    return
 
 
 if __name__ == "__main__":

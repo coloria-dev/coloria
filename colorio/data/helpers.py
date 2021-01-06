@@ -58,8 +58,8 @@ def _plot_color_constancy_data(
                 rgb[rgb < 0] = 0
             else:
                 is_legal_srgb = numpy.all(rgb >= 0) and numpy.all(rgb <= 1)
-            col = srgb.to_srgb1(rgb) if is_legal_srgb else "white"
-            ecol = srgb.to_srgb1(rgb) if is_legal_srgb else "black"
+            col = srgb.to_rgb1(rgb) if is_legal_srgb else "white"
+            ecol = srgb.to_rgb1(rgb) if is_legal_srgb else "black"
             plt.plot(dd[0], dd[1], "o", color=col, markeredgecolor=ecol)
 
     plt.xlabel(colorspace.labels[k1])

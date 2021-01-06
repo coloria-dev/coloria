@@ -7,7 +7,7 @@ import yaml
 from ..helpers import _compute_straight_line_residuals, _plot_color_constancy_data
 
 
-def _load_data():
+def load():
     this_dir = pathlib.Path(__file__).resolve().parent
     filenames = [
         "unique_blue.yaml",
@@ -49,10 +49,10 @@ def savefig(cs, filename):
 
 
 def plot(self):
-    wp, d = _load_data()
+    wp, d = load()
     _plot_color_constancy_data(d, wp, self)
 
 
 def residuals(cs):
-    wp, d = _load_data()
+    wp, d = load()
     return _compute_straight_line_residuals(cs, wp, d)

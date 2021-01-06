@@ -7,7 +7,7 @@ import yaml
 from ..._srgb import SrgbLinear
 
 
-def _load_data():
+def load():
     this_dir = pathlib.Path(__file__).resolve().parent
     with open(this_dir / "real.yaml") as f:
         data = yaml.safe_load(f)
@@ -35,7 +35,7 @@ def savefig(filename, *args, **kwargs):
 
 
 def plot(cs, V):
-    _, v, _, xyy = _load_data()
+    _, v, _, xyy = load()
 
     # pick the data from the given munsell level
     xyy = xyy[:, v == V]
@@ -61,7 +61,7 @@ def plot(cs, V):
     )
     # plot the srgb dots
     for val, rgb_ in zip(vals[:, is_legal_srgb].T, rgb[:, is_legal_srgb].T):
-        plt.plot(val[k1], val[k2], "o", color=srgb.to_srgb1(rgb_))
+        plt.plot(val[k1], val[k2], "o", color=srgb.to_rgb1(rgb_))
 
     plt.grid()
     plt.title(f"V={V}")

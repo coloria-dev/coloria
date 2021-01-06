@@ -14,7 +14,7 @@ from ..._helpers import _plot_ellipses
 from ..helpers import _compute_ellipse_residual
 
 
-def _load_data(num_offset_points):
+def load(num_offset_points):
     # Extract ellipse centers and offsets from MacAdams data
     this_dir = pathlib.Path(__file__).resolve().parent
     with open(this_dir / "luo-rigg.yaml") as f:
@@ -64,10 +64,10 @@ def savefig(filename, *args, **kwargs):
 
 
 def plot(*args, ellipse_scaling=2.0, **kwargs):
-    xy_centers, xy_offsets = _load_data(num_offset_points=8)
+    xy_centers, xy_offsets = load(num_offset_points=8)
     _plot_ellipses(xy_centers, xy_offsets, *args, ellipse_scaling, **kwargs)
 
 
 def residuals(cs, Y: float):
-    xy_centers, xy_offsets = _load_data(num_offset_points=8)
+    xy_centers, xy_offsets = load(num_offset_points=8)
     return _compute_ellipse_residual(cs, xy_centers, xy_offsets, Y)

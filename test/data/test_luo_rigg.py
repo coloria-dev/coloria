@@ -14,7 +14,7 @@ def test_show():
 
 def test_residuals():
     cs = colorio.CIELAB()
-    ref = 0.4140811777348482
+    ref = 18.379222659827946
     res = colorio.data.luo_rigg.residuals(cs, 0.5)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref

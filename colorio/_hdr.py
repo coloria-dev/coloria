@@ -35,7 +35,7 @@ class HdrLinear:
         return 100 * dot(self.invM, hdr_linear)
 
     # gamma corrections:
-    def from_hdr1(self, hdr1):
+    def from_rgb1(self, hdr1):
         out = numpy.asarray(hdr1, dtype=float)
 
         is_smaller = out <= 4.5 * self.beta
@@ -45,10 +45,16 @@ class HdrLinear:
         )
         return out
 
-    def to_hdr1(self, hdr_linear):
+    def to_rgb1(self, hdr_linear):
         out = numpy.asarray(hdr_linear, dtype=float)
 
         is_smaller = hdr_linear <= self.beta
         out[is_smaller] *= 4.5
         out[~is_smaller] = self.alpha * out[~is_smaller] ** 0.45 - self.alpha + 1
         return out
+
+    def from_rgb255(self, srgb255):
+        return self.from_rgb1(numpy.asarray(srgb255) / 255)
+
+    def to_rgb255(self, srgb_linear):
+        return 255 * self.to_rgb1(srgb_linear)
