@@ -1,0 +1,2 @@
+class ColorioError(Exception):
+    pass

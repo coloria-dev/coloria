@@ -27,8 +27,8 @@ writing a class that provides those two methods.
 
 The following color spaces are implemented:
 
- * [XYZ](https://en.wikipedia.org/wiki/CIE_1931_color_space) (`colorio.XYZ()`)
- * [xyY](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space) (`colorio.XYY()`)
+ * [XYZ](https://en.wikipedia.org/wiki/CIE_1931_color_space) (`colorio.cs.XYZ1()`)
+ * [xyY](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space) (`colorio.cs.XYY1()`)
  * [Linear SRGB](https://en.wikipedia.org/wiki/SRGB)  (`colorio.SrgbLinear()`)
    This class has the two additional methods
    ```
@@ -36,29 +36,30 @@ The following color spaces are implemented:
    to_rgb1()
    ```
    for conversion from and to standard RGB.
- * [HSL and HSV](https://en.wikipedia.org/wiki/HSL_and_HSV)  (`colorio.HSL()`, `colorio.HSV()`)
+ * [HSL and HSV](https://en.wikipedia.org/wiki/HSL_and_HSV)  (`colorio.cs.HSL()`,
+   `colorio.cs.HSV()`)
    These classes have the two methods
    ```
    from_srgb1()
    to_srgb1()
    ```
    for conversion from and to standard RGB.
- * [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS) (`colorio.OsaUcs()`)
- * [CIELAB](https://en.wikipedia.org/wiki/Lab_color_space) (`colorio.CIELAB()`)
- * [CIELUV](https://en.wikipedia.org/wiki/CIELUV) (`colorio.CIELUV()`)
+ * [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS) (`colorio.cs.OsaUcs()`)
+ * [CIELAB](https://en.wikipedia.org/wiki/Lab_color_space) (`colorio.cs.CIELAB()`)
+ * [CIELUV](https://en.wikipedia.org/wiki/CIELUV) (`colorio.cs.CIELUV()`)
  * [RLAB](https://doi.org/10.1002/(SICI)1520-6378(199610)21:5<338::AID-COL3>3.0.CO;2-Z)
-   (`colorio.RLAB()`)
- * [ICtCp](https://en.wikipedia.org/wiki/ICtCp) (`colorio.ICtCp()`)
+   (`colorio.cs.RLAB()`)
+ * [ICtCp](https://en.wikipedia.org/wiki/ICtCp) (`colorio.cs.ICtCp()`)
  * [IPT](http://www.ingentaconnect.com/content/ist/cic/1998/00001998/00000001/art00003)
-   (`colorio.IPT()`)
+   (`colorio.cs.IPT()`)
  * [CIECAM02 / CAM02-UCS](https://en.wikipedia.org/wiki/CIECAM02)
    ```python
    import math
    import colorio
 
    L_A = 64 / math.pi / 5
-   ciecam02 = colorio.CIECAM02(0.69, 20, L_A)
-   cam02 = colorio.CAM02("UCS", 0.69, 20, L_A)
+   ciecam02 = colorio.cs.CIECAM02(0.69, 20, L_A)
+   cam02 = colorio.cs.CAM02("UCS", 0.69, 20, L_A)
    ```
    The implementation contains a few improvements over the CIECAM02 specification (see
    [here](https://arxiv.org/abs/1802.06067)).
@@ -68,14 +69,14 @@ The following color spaces are implemented:
    import colorio
 
    L_A = 64 / math.pi / 5
-   cam16 = colorio.CAM16(0.69, 20, L_A)
-   cam16ucs = colorio.CAM16UCS(0.69, 20, L_A)
+   cam16 = colorio.cs.CAM16(0.69, 20, L_A)
+   cam16ucs = colorio.cs.CAM16UCS(0.69, 20, L_A)
    ```
    The implementation contains a few improvements over the CAM16
    specification (see [here](https://arxiv.org/abs/1802.06067)).
  * [J<sub>z</sub>a<sub>z</sub>b<sub>z</sub>](https://doi.org/10.1364/OE.25.015131)
-   (`colorio.JzAzBz()`)
- * [OKLAB](https://bottosson.github.io/posts/oklab/)(`colorio.OKLAB()`)
+   (`colorio.cs.JzAzBz()`)
+ * [OKLAB](https://bottosson.github.io/posts/oklab/)(`colorio.cs.OKLAB()`)
 
 All methods in colorio are fully vectorized, i.e., computation is _really_ fast.
 
@@ -95,11 +96,11 @@ data was created with
 ```python
 import colorio
 
-colorspace = colorio.CIELAB()
-colorspace.save_rgb_gamut("srgb.vtk", "srgb", n=50, cut_000=False)
+colorspace = colorio.cs.CIELAB()
+colorspace.save_rgb_gamut("srgb.vtk", "srgb", n=50)
 
 # The HDR (Rec.2100, Rec.2020) gamut works the same way
-colorspace.save_rgb_gamut("hdr.vtk", "hdr", n=50, cut_000=False)
+colorspace.save_rgb_gamut("hdr.vtk", "hdr", n=50)
 ```
 The [VTK](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
 in, e.g., ParaView, where the following instructions apply:
@@ -131,7 +132,7 @@ import colorio
 illuminant = colorio.illuminants.d65()
 observer = colorio.observers.cie_1931_2()
 
-colorspace = colorio.XYZ()
+colorspace = colorio.cs.XYZ1()
 colorspace.save_visible_gamut(observer, illuminant, "visible.vtk")
 ```
 The gamut is shown in grey since SRGB screens are not able to display the colors anyway.
@@ -153,13 +154,13 @@ xyY (at Y=0.4)  |  CIELAB (at L=50)  |  CAM16-UCS (at J'=50) |
 ```python
 import colorio
 
-# xyy = colorio.XYY()
+# xyy = colorio.cs.XYY1()
 # xyy.show_visible_slice("xyy-visible-slice.png", 2, 0.4)
 
-# cielab = colorio.CIELAB()
+# cielab = colorio.cs.CIELAB()
 # cielab.show_visible_slice(0, 50)
 
-cam16 = colorio.CAM16UCS(0.69, 20, 4.07)
+cam16 = colorio.cs.CAM16UCS(0.69, 20, 4.07)
 cam16.show_visible_slice(0, 50)
 # cam16.save_visible_slice("cam16ucs-visible-slice.png", 0, 50)
 ```
@@ -195,11 +196,11 @@ article](https://doi.org/10.1364%2FJOSA.32.000247)) can be plotted with
 ```python
 import colorio
 
-# xyy = colorio.XYY()
+# xyy = colorio.cs.XYY1()
 # colorio.data.macadam_1942.show(xyy, 0.4)
 # colorio.data.macadam_1942.savefig("macadam-xyy.png", xyy, 0.4)
 
-cieluv = colorio.CIELUV()
+cieluv = colorio.cs.CIELUV()
 colorio.data.macadam_1942.show(cieluv, 50.0)
 ```
 
@@ -214,11 +215,11 @@ Likewise for [Luo-Rigg](https://doi.org/10.1002/col.5080110107).
 ```python
 import colorio
 
-# xyy = colorio.XYY()
+# xyy = colorio.cs.XYY1()
 # colorio.data.luo_rigg.show(xyy, 0.4)
 # colorio.data.luo_rigg.savefig("luo-rigg-xyy.png", xyy, 0.4)
 
-cieluv = colorio.CIELUV()
+cieluv = colorio.cs.CIELUV()
 colorio.data.luo_rigg.show(cieluv, 50)
 ```
 
@@ -232,7 +233,7 @@ For example
 ```python
 import colorio
 
-colorspace = colorio.JzAzBz()
+colorspace = colorio.cs.JzAzBz()
 colorio.data.ebner_fairchild.show(colorspace)
 ```
 shows constant-hue data from [the Ebner-Fairchild
@@ -252,7 +253,7 @@ Note the dark blue distortion in CIELAB and CAM16.
 ```python
 import colorio
 
-colorspace = colorio.JzAzBz()
+colorspace = colorio.cs.JzAzBz()
 colorio.data.hung_berns.show(colorspace)
 ```
 
@@ -266,7 +267,7 @@ xyY             | CIELAB          |  CAM16             |
 ```python
 import colorio
 
-colorspace = colorio.CIELAB()
+colorspace = colorio.cs.CIELAB()
 colorio.data.xiao.show(colorspace)
 ```
 
@@ -281,7 +282,7 @@ visualized with
 ```python
 import colorio
 
-cs = colorio.CIELUV()
+cs = colorio.cs.CIELUV()
 colorio.data.munsell.show(cs, V=5)
 ```
 

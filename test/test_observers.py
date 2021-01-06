@@ -19,7 +19,7 @@ def test_observers(observer):
             (lmbda, data[k]), observer=observer
         )
         out *= 100 / out[1]
-        srgb = colorio.SrgbLinear()
+        srgb = colorio.cs.SrgbLinear()
         rgb_vals = srgb.from_xyz100(out)
         rgb_vals[rgb_vals < 0] = 0
         # project down to proper rgb

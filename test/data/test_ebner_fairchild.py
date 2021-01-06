@@ -2,17 +2,17 @@ import colorio
 
 
 def test_show():
-    # cs = colorio.CIELAB()
-    # cs = colorio.CIEHCL()
-    # cs = colorio.CIELCH()
-    # cs = colorio.OsaUcs()
-    cs = colorio.IPT()
+    # cs = colorio.cs.CIELAB()
+    # cs = colorio.cs.CIEHCL()
+    # cs = colorio.cs.CIELCH()
+    # cs = colorio.cs.OsaUcs()
+    cs = colorio.cs.IPT()
     colorio.data.ebner_fairchild.show(cs)
     # colorio.data.ebner_fairchild.savefig(cs)
 
 
 def test_residuals():
-    cs = colorio.CIELAB()
+    cs = colorio.cs.CIELAB()
     ref = 4.095516235268518
     res = sum(colorio.data.ebner_fairchild.residuals(cs))
     print(res)
