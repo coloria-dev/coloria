@@ -23,10 +23,10 @@ class CIELAB(ColorSpace):
 
     def to_xyz100(self, lab):
         def f1(t):
-            delta = 6.0 / 29.0
+            delta = 6 / 29
             out = numpy.array(t, dtype=float)
-            is_greater = out > 2.0 / 29.0
-            out[is_greater] = (out[is_greater] + 4.0 / 29.0) ** 3
+            is_greater = out > 2 / 29
+            out[is_greater] = (out[is_greater] + 4 / 29) ** 3
             out[~is_greater] = 3 * delta ** 2 * out[~is_greater]
             return out
 

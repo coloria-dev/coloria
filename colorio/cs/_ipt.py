@@ -32,11 +32,9 @@ class IPT(ColorSpace):
     def from_xyz100(self, xyz):
         lms = dot(self.M1, xyz)
         lms_ = numpy.sign(lms) * numpy.abs(lms) ** 0.43
-        ipt = dot(self.M2, lms_)
-        return ipt
+        return dot(self.M2, lms_)
 
     def to_xyz100(self, ipt):
         lms_ = solve(self.M2, ipt)
         lms = numpy.sign(lms_) * numpy.abs(lms_) ** (1 / 0.43)
-        xyz = solve(self.M1, lms)
-        return xyz
+        return solve(self.M1, lms)

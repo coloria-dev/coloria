@@ -10,6 +10,7 @@ class XYY1(ColorSpace):
         super().__init__("xyY", ("x", "y", "Y"), 2, is_origin_well_defined=False)
 
     def from_xyz100(self, xyz100):
+        xyz100 = numpy.asarray(xyz100)
         xyz = xyz100 / 100
         sum_xyz = numpy.sum(xyz, axis=0)
         x = xyz[0]
