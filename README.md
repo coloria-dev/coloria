@@ -184,7 +184,7 @@ colorio contains lots of experimental data sets some of which can be used to ass
 certain properties of color spaces.
 
 
-###### MacAdam
+###### MacAdam ellipses
 
 <img src="https://nschloe.github.io/colorio/macadam-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam-cam16.png" width="100%">
 :--------------:|:------------------:|:----------------:|
@@ -292,6 +292,10 @@ import colorio
 
 h, V, C, xyy = colorio.data.munsell.load()
 ```
+
+##### MacAdam color distances
+
+TODO
 
 #### Color differences
 

@@ -102,6 +102,17 @@ transformation is usually continuously differentiable and bijective. When talkin
 a colorspace, one almost always means the transformation $T$ and its inverse.
 
 
+TODO desirable properties of cost functionals:
+\begin{itemize}
+  \item Are continuous, and ideally continuously differentiable (for optimization)
+  \item Are 0 if the experimental data is matched exactly (will never be fulfilled since
+    experimental data contains errors). Together with the first one, number are small if
+    the match is approximate.
+  \item are scaling invariant
+  \item are rotation invariant
+  \item are translation invariant
+\end{itemize}
+
 % There are numerous experiments~\cite{ebner,xiao,hung,macadam,macadam,luo} which try to
 % gauge perceptual distances between colors or to determine which colors of different
 % luminosity are perceived as the same chroma.
@@ -399,6 +410,9 @@ xyY           &        13.218  &        15.569  &         28.787\\
 
 
 \subsection{Cost functional for target differences}
+
+TODO compare STRESS definition in
+Color difference evaluation for wide-color-gamut displays
 
 Some data sets give target distance values $d_i$ for pairs of colors $X_{i,1}, X_{i,2}$
 (e.g.  \cite{macadam1974}). A color space conforms will with this data if the distance
