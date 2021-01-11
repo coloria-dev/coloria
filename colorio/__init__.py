@@ -1,4 +1,4 @@
-from . import cs, data, illuminants, observers, diff
+from . import cs, data, diff, illuminants, observers
 from .__about__ import __version__
 from ._exceptions import ColorioError
 from ._tools import delta, show_flat_gamut, xy_gamut_mesh
