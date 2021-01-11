@@ -75,8 +75,15 @@ def test(lab1, lab2, ref):
 
 def test_vector():
     numpy.random.seed(0)
-    lab1 = numpy.random.rand(3, 10)
-    lab2 = numpy.random.rand(3, 10)
-    for l1, l2, ref in zip(lab1.T, lab2.T, colorio.diff.ciede2000(lab1, lab2)):
+    lab1 = numpy.random.rand(3, 100)
+    lab2 = numpy.random.rand(3, 100)
+    refs = colorio.diff.ciede2000(lab1, lab2)
+    for l1, l2, ref in zip(lab1.T, lab2.T, refs):
         val = colorio.diff.ciede2000(l1, l2)
         assert abs(val - ref) < 1.0e-14 * abs(ref)
+
+    # test against reference
+    norms = [72.28648865804603, 7.900686896175966, 1.5522930564862678]
+    assert abs(numpy.linalg.norm(refs, 1) - norms[0]) < 1.0e-14 * abs(norms[0])
+    assert abs(numpy.linalg.norm(refs, 2) - norms[1]) < 1.0e-14 * abs(norms[1])
+    assert abs(numpy.linalg.norm(refs, numpy.inf) - norms[2]) < 1.0e-14 * abs(norms[2])

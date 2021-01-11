@@ -19,39 +19,30 @@ def ciede2000(lab1, lab2, k_L=1.0, k_C=1.0, k_H=1.0):
     C1p = numpy.sqrt(a1p ** 2 + b1 ** 2)
     C2p = numpy.sqrt(a2p ** 2 + b2 ** 2)
 
-    h1p = numpy.mod(numpy.degrees(numpy.arctan2(b1, a1p)), 360)
-    h2p = numpy.mod(numpy.degrees(numpy.arctan2(b2, a2p)), 360)
+    h1p = numpy.degrees(numpy.arctan2(b1, a1p)) % 360
+    h2p = numpy.degrees(numpy.arctan2(b2, a2p)) % 360
+    # make sure dhp is in the (-180, 180) range
     hp_diff = h2p - h1p
+    dhp = ((hp_diff + 180) % 360) - 180
 
     dLp = L2 - L1
     dCp = C2p - C1p
-
-    dhp = numpy.empty_like(h1p)
-    idx = numpy.abs(hp_diff) <= 180
-    dhp[idx] = hp_diff[idx]
-    idx = hp_diff > 180
-    dhp[idx] = hp_diff[idx] - 360
-    idx = hp_diff < -180
-    dhp[idx] = hp_diff[idx] + 360
-    #
-    is_c_zero = (C1p == 0.0) | (C2p == 0.0)
-    dhp[is_c_zero] = 0.0
-
     dHp = 2 * numpy.sqrt(C1p * C2p) * numpy.sin(numpy.radians(dhp / 2))
 
     Lp_mean = (L1 + L2) / 2
     Cp_mean = (C1p + C2p) / 2
 
+    # TODO clean this up
     hp_mean = numpy.empty_like(h1p)
-    hp_sum = h1p + h2p
-    idx = is_c_zero
-    hp_mean[idx] = hp_sum[idx]
-    idx = ~is_c_zero & (numpy.abs(h1p - h2p) <= 180)
-    hp_mean[idx] = hp_sum[idx] / 2
-    idx = ~is_c_zero & ~(numpy.abs(h1p - h2p) <= 180) & (h1p + h2p < 360)
-    hp_mean[idx] = (hp_sum[idx] + 360) / 2
-    idx = ~is_c_zero & ~(numpy.abs(h1p - h2p) <= 180) & (h1p + h2p >= 360)
-    hp_mean[idx] = (hp_sum[idx] - 360) / 2
+    hp_avg = (h1p + h2p) / 2
+    idx = numpy.abs(hp_diff) <= 180
+    hp_mean[idx] = hp_avg[idx]
+    idx = ~(numpy.abs(hp_diff) <= 180) & (hp_avg < 180)
+    hp_mean[idx] = hp_avg[idx] + 180
+    idx = ~(numpy.abs(hp_diff) <= 180) & (hp_avg >= 180)
+    hp_mean[idx] = hp_avg[idx] - 180
+    idx = (C1p == 0.0) | (C2p == 0.0)
+    hp_mean[idx] = 2 * hp_avg[idx]
 
     T = (
         1.0
