@@ -299,7 +299,7 @@ TODO
 
 #### Color differences
 
-Color differences in any space can be computed with `colorio.delta(a, b)`.
+TODO
 
 ### Articles
 
