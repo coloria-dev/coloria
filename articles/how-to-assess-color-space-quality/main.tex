@@ -102,6 +102,17 @@ transformation is usually continuously differentiable and bijective. When talkin
 a colorspace, one almost always means the transformation $T$ and its inverse.
 
 
+TODO desirable properties of cost functionals:
+\begin{itemize}
+  \item Are continuous, and ideally continuously differentiable (for optimization)
+  \item Are 0 if the experimental data is matched exactly (will never be fulfilled since
+    experimental data contains errors). Together with the first one, number are small if
+    the match is approximate.
+  \item are scaling invariant
+  \item are rotation invariant
+  \item are translation invariant
+\end{itemize}
+
 % There are numerous experiments~\cite{ebner,xiao,hung,macadam,macadam,luo} which try to
 % gauge perceptual distances between colors or to determine which colors of different
 % luminosity are perceived as the same chroma.
@@ -398,6 +409,53 @@ xyY           &        13.218  &        15.569  &         28.787\\
 \end{table}
 
 
+\subsection{Cost functional for target differences}
+
+TODO compare STRESS definition in
+Color difference evaluation for wide-color-gamut displays
+
+Some data sets give target distance values $d_i$ for pairs of colors $X_{i,1}, X_{i,2}$
+(e.g.  \cite{macadam1974}). A color space conforms will with this data if the distance
+between the transformed points is close to a scaled $d_i$, i.e.,
+\begin{equation}\label{eq:p}
+  p_2
+  \coloneqq
+  \frac{%
+    \sqrt{\sum_{i=1}^n (\alpha d_i - \delta_i)^2}
+  }{
+    \sqrt{\sum_{i=1}^n \delta_i^2}
+  }
+\end{equation}
+with
+\[
+  \delta_i \coloneqq \|T(X_{i,1}) - T(X_{i,2})\|_2
+\]
+The scaling parameter $\alpha$ is chosen such that is minimizes $p_2$,
+\[
+  \alpha = \frac{\sum_{i=1}^n d_i \delta_i}{\sum_{i=1}^n d_i^2}.
+\]
+
+\begin{table}
+  \centering
+  \begin{tabular}{lrrr}
+    \toprule
+    & MacAdam (1974)\\
+    \midrule
+CAM02 (UCS) & 0.190\\
+CAM16 (UCS) & \textbf{0.187}\\
+CIELAB & 0.245\\
+CIELUV & 0.271\\
+IPT & 0.213\\
+$J_za_zb_z$ & 0.232\\
+Oklab & 0.327\\
+OSA-UCS & 0.198\\
+RLAB & 0.235\\
+xyY & 0.500\\
+    \bottomrule
+  \end{tabular}
+  \caption{$p_2$ for a number of color spaces. The color space OSA-UCS was designed
+  specifically with the MacAdam dataset in mind. Both CAM spaces perform even better.}
+\end{table}
 
 % \printbibliography{}
 % \bibliography{pucs}{}

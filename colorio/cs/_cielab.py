@@ -18,18 +18,21 @@ class CIELAB(ColorSpace):
             out[~is_greater] = out[~is_greater] / (delta / 2) ** 3
             return out
 
+        xyz = numpy.asarray(xyz)
+
         fx, fy, fz = f((xyz.T / self.whitepoint).T)
         return numpy.array([fy, 125 / 29 * (fx - fy), 50 / 29 * (fy - fz)])
 
     def to_xyz100(self, lab):
         def f1(t):
-            delta = 6.0 / 29.0
+            delta = 6 / 29
             out = numpy.array(t, dtype=float)
-            is_greater = out > 2.0 / 29.0
-            out[is_greater] = (out[is_greater] + 4.0 / 29.0) ** 3
+            is_greater = out > 2 / 29
+            out[is_greater] = (out[is_greater] + 4 / 29) ** 3
             out[~is_greater] = 3 * delta ** 2 * out[~is_greater]
             return out
 
+        lab = numpy.asarray(lab)
         L, a, b = lab
         return (
             f1(numpy.array([L / 116 + a / 500, L / 116, L / 116 - b / 200])).T
