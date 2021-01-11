@@ -5,7 +5,7 @@ import colorio
 
 
 def test_show():
-    # cs = colorio.cs.CIELAB()
+    cs = colorio.cs.CIELAB()
     # cs = colorio.cs.CIEHCL()
     # cs = colorio.cs.CIELCH()
     # cs = colorio.cs.OsaUcs()
@@ -14,7 +14,7 @@ def test_show():
     # cs = colorio.cs.CAM02("UCS", 0.69, 20, 4.074)
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     # cs = colorio.cs.JzAzBz()
-    cs = colorio.cs.XYY1()
+    # cs = colorio.cs.XYY1()
     colorio.data.macadam_1974.show(cs)
     with tempfile.TemporaryDirectory() as tmpdir:
         colorio.data.macadam_1974.savefig(Path(tmpdir) / "out.png", cs, 50)
@@ -29,5 +29,5 @@ def test_residual():
 
 
 if __name__ == "__main__":
-    # test_show()
-    test_residual()
+    test_show()
+    # test_residual()

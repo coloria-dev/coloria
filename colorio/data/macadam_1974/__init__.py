@@ -51,27 +51,44 @@ def savefig(filename, *args, **kwargs):
 def plot(cs):
     d, pairs, xyz100_tiles = _load_data()
 
-    # Plot the tiles points. Scratch the lightness component.
+    # only consider the first 43 tiles which are all of approximately the same lightness
+    # TODO plot 3D tetrahedral pairs, too
+    d = d[numpy.all(pairs <= 43, axis=1)]
+    pairs = pairs[numpy.all(pairs <= 43, axis=1)]
     xyz100_tiles = xyz100_tiles[:, :43]
-    print(xyz100_tiles.shape)
     pts = cs.from_xyz100(xyz100_tiles)
-    pts = numpy.delete(pts, cs.k0, axis=0)
 
-    for k, pt in enumerate(pts.T):
-        plt.text(pt[0], pt[1], k + 1)
-        plt.plot(pt[0], pt[1], "ok", fillstyle="none")
-    # plt.plot(pts[0], pts[1], "ok", fillstyle="none")
+    # Plot the tile points.
+    pts_2d = numpy.delete(pts, cs.k0, axis=0)
+    plt.plot(pts_2d[0], pts_2d[1], "ok", fillstyle="none")
+
+    # for k, pt in enumerate(pts.T):
+    #     # plt.text(pt[0], pt[1], k + 1)
+    #     plt.plot(pt[0], pt[1], "ok", fillstyle="none")
+
+    # scale the distances
+    diff = pts[:, pairs]
+    delta = numpy.linalg.norm(diff[..., 0] - diff[..., 1], axis=0)
+    alpha = numpy.dot(d, delta) / numpy.dot(d, d)
+    d *= alpha
+
+    # plot arrow
+    for dist, pair in zip(d, pairs):
+        # arrow from pair[0] to pair[1]
+        base = pts[:, pair[0]]
+        diff = pts[:, pair[1]] - pts[:, pair[0]]
+        v = diff / numpy.linalg.norm(diff, 2) * dist / 2
+        base = numpy.delete(base, cs.k0)
+        v = numpy.delete(v, cs.k0)
+        plt.arrow(base[0], base[1], v[0], v[1], length_includes_head=True, color="k")
+        # arrow from pair[1] to pair[0]
+        base = pts[:, pair[1]]
+        base = numpy.delete(base, cs.k0)
+        v = -v
+        plt.arrow(base[0], base[1], v[0], v[1], length_includes_head=True, color="k")
+
     plt.gca().set_aspect("equal")
     plt.show()
-
-    # plot arrows
-    for dist, pair in zip(d, pairs):
-        print(pair)
-        exit(1)
-
-    # plt.plt(pts[0
-    # xy_centers, xy_offsets = _load_data()
-    # _plot_ellipses(xy_centers, xy_offsets, *args, ellipse_scaling, **kwargs)
 
 
 def residual(cs):
