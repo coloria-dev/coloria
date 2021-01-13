@@ -86,7 +86,6 @@ def _compute_ellipse_residual(cs, xyy100_centers, xyy100_points):
         # plt.show()
         cs_center = cs.from_xyz100(xyz100_center)
         cs_ellips = cs.from_xyz100(xyz100_pts)
-        # remove lightness data
         # plt.plot(cs_center[0], cs_center[1], "x")
         # plt.plot(cs_ellips[0], cs_ellips[1], "o")
         # plt.show()

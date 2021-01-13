@@ -3,6 +3,7 @@ import pytest
 import colorio
 
 
+@pytest.mark.skip
 @pytest.mark.parametrize(
     "lab1, lab2, ref",
     [
