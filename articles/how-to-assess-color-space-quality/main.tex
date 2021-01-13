@@ -251,7 +251,7 @@ distances of all points to that line. There are multiple meaningful ways in whic
 between two points $a$ and $b$ can be defined by a \emph{norm}.
 
 
-\subsection{Cost functional for target distances}
+\subsection{Cost functional for target distances and ellipses}
 
 Some data sets give target distance values $d_i$ for pairs of colors $X_{i,1}, X_{i,2}$
 (e.g. \cite{macadam1974}). A color space conforms with this data if the distance
@@ -283,7 +283,7 @@ called the STRESS metric for target distances,
   \centering
   \begin{tabular}{lrr}
     \toprule
-    & MacAdam (1942) & MacAdam (1974)\\
+    & MacAdam (1942) ($Y=50$) & MacAdam (1974)\\
     \midrule
 CAM02 (UCS) & \textbf{32.4} &         19.0\\
 CAM16 (UCS) &         34.8  & \textbf{18.7}\\
@@ -303,20 +303,12 @@ xyY         &         53.8  &         50.0\\
   well for all data sets.}
 \end{table}
 
-
-\subsection{Cost functional for ellipse data}
-
-It is usually desirable to judge color space quality against direct experimental
-measurements. In some cases however, experimental data has already been processed in
-some way. This is the case for ellipses (\cite{MacAdam,Luorigg}) which are typically
-produces by projecting out the lightness components of the measurement and
-least-squares-fitting the data.
-
-By picking a fixed number of points on the boundary of each ellipse (e.g., 4 or 8), a
-cost functional can be produced in the same way as for target distances. Since the
-ellipses are ideally mapped to circles of equal size in the transformed space, the
-distances $\delta_i$ between the ellipse centers and the boundary should be equal, i.e.,
-$d_i=1$ for all $i$. This gives
+A common special case of this setting is distance data given in terms of ellipse points,
+i.e., a color center with a number of standard deviations (or similar) in various
+directions. The famous MacAdam ellipses (\cite{macadam1942}) are derived from such data.
+Since the ellipses are supposed to to be circles of equal size in the transformed space,
+the target value for all $d_i$ is 1. The parameter $\alpha$ simplifies to be the average
+over all $\delta_i$ and we have
 \begin{equation}\label{eq:e}
   e_{\text{STRESS}}
   \coloneqq
@@ -325,10 +317,11 @@ $d_i=1$ for all $i$. This gives
     \sqrt{\sum_{i=1}^n (\alpha - \delta_{i})^2}
   }{
     \sqrt{\sum_{i=1}^n \delta_i^2}
-  }
+  }.
 \end{equation}
-with the minimizing $\alpha = \frac{1}{n} \sum_{i=1}^n \delta_i$.
-
+In case only the actual ellipses are given (e.g., \cite{luorigg}), one can place a
+number of points onto their boundaries (e.g., 8 or 16) and compute the residual with
+from them.
 
 \begin{table}
   \centering
@@ -352,7 +345,7 @@ xyY           &        13.218  &        15.569  &         28.787\\
   CAM16 far outperform the other color spaces, particularly for the Luo-Rigg data set.}
 \end{table}
 
-\subsection{Cost functional for hue linearity data}
+\subsection{Cost functional for hue linearity}
 
 There are multiple experiments which data about which colors are perceived to be of
 equal hue~\cite{hung,ebner,xiao} (see figure~\ref{}). Color spaces are considered good
