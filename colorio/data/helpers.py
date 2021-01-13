@@ -73,27 +73,20 @@ def _plot_hue_linearity_data(
     ax.spines["left"].set_visible(False)
 
 
-def _compute_ellipse_residual(cs, xy_centers, xy_offsets, Y):
-    xy_centers = numpy.asarray(xy_centers)
-
+def _compute_ellipse_residual(cs, xyy100_centers, xyy100_points):
     distances = []
-    for xy_center, xy_offsets in zip(xy_centers, xy_offsets):
-        xy_ellips = (xy_center + xy_offsets.T).T
+    for xyy100_center, xyy100_pts in zip(xyy100_centers, xyy100_points):
         # append Y
-        xyy_center = numpy.array([*xy_center, Y])
-        xyy_ellips = numpy.array([*xy_ellips, numpy.full(xy_ellips.shape[1], Y)])
-        xyz_center = _xyy_to_xyz100(xyy_center)
-        assert numpy.all(xyz_center >= 0.0)
-        xyz_ellips = _xyy_to_xyz100(xyy_ellips)
-        assert numpy.all(xyz_ellips >= 0.0)
+        xyz100_center = _xyy100_to_xyz100(xyy100_center)
+        assert numpy.all(xyz100_center >= 0.0)
+        xyz100_pts = _xyy100_to_xyz100(xyy100_pts)
+        assert numpy.all(xyz100_pts >= 0.0)
         # plt.plot(xyz_center[0], xyz_center[2], "x")
         # plt.plot(xyz_ellips[0], xyz_ellips[2], "o")
         # plt.show()
-        cs_center = cs.from_xyz100(xyz_center)
-        cs_ellips = cs.from_xyz100(xyz_ellips)
+        cs_center = cs.from_xyz100(xyz100_center)
+        cs_ellips = cs.from_xyz100(xyz100_pts)
         # remove lightness data
-        cs_center = numpy.delete(cs_center, cs.k0, axis=0)
-        cs_ellips = numpy.delete(cs_ellips, cs.k0, axis=0)
         # plt.plot(cs_center[0], cs_center[1], "x")
         # plt.plot(cs_ellips[0], cs_ellips[1], "o")
         # plt.show()
@@ -107,14 +100,14 @@ def _compute_ellipse_residual(cs, xy_centers, xy_offsets, Y):
     return numpy.sqrt(numpy.sum((alpha - distances) ** 2) / numpy.sum(distances ** 2))
 
 
-def _xyy_to_xyz100(xyy):
+def _xyy100_to_xyz100(xyy):
     x, y, Y = xyy
-    return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
+    return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)])
 
 
 def _plot_ellipses(
-    xy_centers,
-    xy_offsets,
+    xyy100_centers,
+    xyy100_points,
     cs,
     lightness,
     ellipse_scaling=1.0,
@@ -133,21 +126,18 @@ def _plot_ellipses(
     if plot_srgb_gamut:
         cs.plot_rgb_slice(lightness)
 
-    for center, offset in zip(xy_centers, xy_offsets):
-        # get all the approximate ellipse points in xy space
-        xy_ellipse = (center + offset.T).T
-
-        tcenter = _find_Y(cs, center, lightness)
-        tvals = numpy.array([_find_Y(cs, xy, lightness) for xy in xy_ellipse.T])
-
+    for center, points in zip(xyy100_centers, xyy100_points):
         # cut off the irrelevant index
-        k1, k2 = [k for k in [0, 1, 2] if k != cs.k0]
-        tcenter = tcenter[[k1, k2]]
-        tvals = tvals[:, [k1, k2]]
+        cs_center = cs.from_xyz100(_xyy100_to_xyz100(center))
+        cs_points = cs.from_xyz100(_xyy100_to_xyz100(points))
+
+        # project out lightness component
+        tcenter = numpy.delete(cs_center, cs.k0)
+        tvals = numpy.delete(cs_points, cs.k0, axis=0)
 
         # Given these new transformed vals, find the ellipse that best fits those
         # points
-        X = (tvals - tcenter).T
+        X = (tvals.T - tcenter).T
 
         def f_ellipse(a_b_theta):
             a, b, theta = a_b_theta

@@ -19,8 +19,8 @@ def load(num_offset_points):
     with open(this_dir / "luo-rigg.yaml") as f:
         data = yaml.safe_load(f)
     #
-    xy_centers = []
-    xy_offsets = []
+    xyy100_centers = []
+    xyy100_points = []
     # collect the ellipse centers and offsets
     alpha = (
         2
@@ -37,15 +37,19 @@ def load(num_offset_points):
             a *= (Y / 30) ** 0.2
             b = a / a_div_b
             # plot the ellipse
-            xy_centers.append([x, y])
+            c = numpy.array([x, y])
             J = numpy.array(
                 [
                     [+a * numpy.cos(theta), -b * numpy.sin(theta)],
                     [+a * numpy.sin(theta), +b * numpy.cos(theta)],
                 ]
             )
-            xy_offsets.append(numpy.dot(J, pts))
-    return xy_centers, xy_offsets
+            offsets = numpy.dot(J, pts)
+            pts = (c + offsets.T).T
+
+            xyy100_centers.append(numpy.array([*c, Y]))
+            xyy100_points.append(numpy.array([*pts, numpy.full(pts.shape[1], Y)]))
+    return xyy100_centers, xyy100_points
 
 
 def show(*args, **kwargs):
@@ -63,10 +67,10 @@ def savefig(filename, *args, **kwargs):
 
 
 def plot(*args, ellipse_scaling=2.0, **kwargs):
-    xy_centers, xy_offsets = load(num_offset_points=8)
-    _plot_ellipses(xy_centers, xy_offsets, *args, ellipse_scaling, **kwargs)
+    xyy100_centers, xyy100_points = load(num_offset_points=8)
+    _plot_ellipses(xyy100_centers, xyy100_points, *args, ellipse_scaling, **kwargs)
 
 
-def residuals(cs, Y: float):
-    xy_centers, xy_offsets = load(num_offset_points=8)
-    return _compute_ellipse_residual(cs, xy_centers, xy_offsets, Y)
+def residuals(cs):
+    xyy100_centers, xyy100_points = load(num_offset_points=8)
+    return _compute_ellipse_residual(cs, xyy100_centers, xyy100_points)
