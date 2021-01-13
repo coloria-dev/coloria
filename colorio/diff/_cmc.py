@@ -2,6 +2,7 @@ import numpy
 
 from ..cs import CIELAB, CIELCH
 
+
 # Acceptability: l=2, c=1 Perceptability: l=1, c=1
 def cmc(lab1, lab2, l=2.0, c=1.0):
     cielab = CIELAB()

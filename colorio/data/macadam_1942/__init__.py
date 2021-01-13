@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 import numpy
 import yaml
 
-from ..helpers import _compute_ellipse_residual, _plot_ellipses
 from ...cs import XYY1
+from ..helpers import _compute_ellipse_residual, _plot_ellipses
 
 
 def _load_data():

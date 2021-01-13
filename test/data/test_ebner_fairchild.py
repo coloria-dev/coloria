@@ -1,3 +1,5 @@
+import numpy
+
 import colorio
 
 
@@ -11,10 +13,10 @@ def test_show():
     # colorio.data.ebner_fairchild.savefig(cs)
 
 
-def test_residuals():
+def test_stress():
     cs = colorio.cs.CIELAB()
-    ref = 4.095516235268518
-    res = sum(colorio.data.ebner_fairchild.residuals(cs))
+    ref = 5.3071509533648085
+    res = numpy.average(colorio.data.ebner_fairchild.stress(cs))
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 

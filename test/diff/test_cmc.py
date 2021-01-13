@@ -27,8 +27,9 @@ def test(lab1, lab2, ref):
     print(val)
     # assert abs(val - ref) < 1.0e-14 * abs(ref)
 
-    from colormath.color_objects import LabColor
     from colormath.color_diff import delta_e_cmc
+    from colormath.color_objects import LabColor
+
     color1 = LabColor(*lab1)
     color2 = LabColor(*lab2)
     delta_e = delta_e_cmc(color1, color2)
