@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy
 
-from .._helpers import _find_Y
 from ..cs import SrgbLinear
 
 
