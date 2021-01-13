@@ -161,7 +161,10 @@ def _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling=1.0):
         e.set_alpha(0.5)
         e.set_facecolor("k")
 
-        # plt.plot(tvals[:, 0], tvals[:, 1], "xk")
+        # plt.plot(*tcenter, "xk")
+        # plt.plot(*tvals, "ok")
+        # plt.show()
+
     plt.gca().set_aspect("equal")
     labels = cs.labels[: cs.k0] + cs.labels[cs.k0 + 1 :]
     plt.xlabel(labels[0])

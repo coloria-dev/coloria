@@ -22,12 +22,8 @@ def load(num_offset_points):
     xyy100_centers = []
     xyy100_points = []
     # collect the ellipse centers and offsets
-    alpha = (
-        2
-        * numpy.pi
-        * numpy.linspace(0.0, 2 * numpy.pi, num_offset_points, endpoint=False)
-    )
-    pts = numpy.array([numpy.cos(alpha), numpy.sin(alpha)])
+    alpha = numpy.linspace(0.0, 2 * numpy.pi, num_offset_points, endpoint=False)
+    circle_pts = numpy.array([numpy.cos(alpha), numpy.sin(alpha)])
     for data_set in data.values():
         # The set factor is the mean of the R values
         # set_factor = sum([dat[-1] for dat in data_set.values()]) / len(data_set)
@@ -44,11 +40,12 @@ def load(num_offset_points):
                     [+a * numpy.sin(theta), +b * numpy.cos(theta)],
                 ]
             )
-            offsets = numpy.dot(J, pts)
+            offsets = numpy.dot(J, circle_pts)
             pts = (c + offsets.T).T
 
             xyy100_centers.append(numpy.array([*c, Y]))
             xyy100_points.append(numpy.array([*pts, numpy.full(pts.shape[1], Y)]))
+
     return xyy100_centers, xyy100_points
 
 
@@ -66,7 +63,7 @@ def savefig(filename, *args, **kwargs):
     plt.close()
 
 
-def plot(cs, ellipse_scaling=2.0, num_offset_points=8):
+def plot(cs, ellipse_scaling=2.0, num_offset_points=16):
     xyy100_centers, xyy100_points = load(num_offset_points)
     _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling)
     plt.title(f"Luo-Rigg ellipses for {cs.name}")
