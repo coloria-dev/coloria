@@ -66,6 +66,9 @@ def compute_from(rgb_, cs):
     p1_ = 50000 / 13 * e_t * cs.N_c * cs.N_cb
     t = p1_ * numpy.hypot(a, b) / (u + 0.305)
 
+    if numpy.any(t < 0):
+        raise ColorioError("CIECAM02 breakdown")
+
     alpha = t ** 0.9 * (1.64 - 0.29 ** cs.n) ** 0.73
     C = alpha * sqrt_J_100
 

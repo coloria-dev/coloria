@@ -5,14 +5,6 @@ from . import observers
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
 
-def delta(a, b):
-    """Computes the distances between two colors or color sets. The shape of
-    `a` and `b` must be equal.
-    """
-    diff = a - b
-    return numpy.einsum("i...,i...->...", diff, diff)
-
-
 def _xyy_from_xyz100(xyz):
     sum_xyz = numpy.sum(xyz, axis=0)
     x = xyz[0]

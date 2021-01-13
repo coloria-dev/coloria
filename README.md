@@ -80,6 +80,32 @@ The following color spaces are implemented:
 
 All methods in colorio are fully vectorized, i.e., computation is _really_ fast.
 
+
+### Color difference formulas
+
+ colorio implements the following color difference formulas:
+
+ * [CIE76](https://en.wikipedia.org/wiki/Color_difference#CIE76)
+   <!--exdown-skip-->
+   ```python
+   colorio.diff.cie76(lab1, lab2)
+   ```
+ * [CIE94](https://en.wikipedia.org/wiki/Color_difference#CIE94)
+   <!--exdown-skip-->
+   ```python
+   colorio.diff.cie94(lab1, lab2)
+   ```
+ * [CIEDE2000](https://en.wikipedia.org/wiki/Color_difference#CIEDE2000)
+   <!--exdown-skip-->
+   ```python
+   colorio.diff.ciede2000(lab1, lab2)
+   ```
+ * [CMC l:c](https://en.wikipedia.org/wiki/Color_difference#CMC_l:c_(1984))
+   <!--exdown-skip-->
+   ```python
+   colorio.diff.cmc(lab1, lab2)
+   ```
+
 ### Tools
 
 colorio provides a number of useful tools for analyzing and visualizing color spaces.
@@ -299,7 +325,7 @@ TODO
 
 #### Color differences
 
-Color differences in any space can be computed with `colorio.delta(a, b)`.
+TODO
 
 ### Articles
 

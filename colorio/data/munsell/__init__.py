@@ -51,7 +51,7 @@ def plot(cs, V):
     idx = [0, 1, 2]
     k1, k2 = idx[: cs.k0] + idx[cs.k0 + 1 :]
 
-    # plot the ones that cannot be represented in SRGB
+    # plot the ones that cannot be represented in SRGB in black
     plt.plot(
         vals[k1, ~is_legal_srgb],
         vals[k2, ~is_legal_srgb],
@@ -59,7 +59,7 @@ def plot(cs, V):
         color="white",
         markeredgecolor="black",
     )
-    # plot the srgb dots
+    # plot the srgb dots in color
     for val, rgb_ in zip(vals[:, is_legal_srgb].T, rgb[:, is_legal_srgb].T):
         plt.plot(val[k1], val[k2], "o", color=srgb.to_rgb1(rgb_))
 

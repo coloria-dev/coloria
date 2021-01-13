@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy
 
-from .._helpers import _find_Y
 from ..cs import SrgbLinear
 
 
@@ -16,18 +15,16 @@ def _compute_straight_line_residuals(cs, wp, d):
         vals = cs.from_xyz100(dd)[idx]
         # move values such that whitepoint is in the origin
         vals = (vals.T - wp_cs).T
-        # scale invariance by normalizing by average
-        avg = numpy.sum(vals, axis=1) / vals.shape[1]
-        vals /= numpy.linalg.norm(avg)
         # could also be computed explicitly
-        s2.append(numpy.linalg.svd(vals, compute_uv=False)[-1])
+        s_max, s_min = numpy.linalg.svd(vals, compute_uv=False)
+        s2.append(s_min / s_max)
         # plt.plot(vals[0], vals[1], "x")
         # plt.gca().set_aspect("equal")
         # plt.show()
-    return s2
+    return numpy.array(s2)
 
 
-def _plot_color_constancy_data(
+def _plot_hue_linearity_data(
     data_xyz100, wp_xyz100, colorspace, approximate_colors_in_srgb=False
 ):
     # k0 is the coordinate that corresponds to "lightness"
@@ -75,27 +72,19 @@ def _plot_color_constancy_data(
     ax.spines["left"].set_visible(False)
 
 
-def _compute_ellipse_residual(cs, xy_centers, xy_offsets, Y):
-    xy_centers = numpy.asarray(xy_centers)
-
+def _compute_ellipse_residual(cs, xyy100_centers, xyy100_points):
     distances = []
-    for xy_center, xy_offsets in zip(xy_centers, xy_offsets):
-        xy_ellips = (xy_center + xy_offsets.T).T
+    for xyy100_center, xyy100_pts in zip(xyy100_centers, xyy100_points):
         # append Y
-        xyy_center = numpy.array([*xy_center, Y])
-        xyy_ellips = numpy.array([*xy_ellips, numpy.full(xy_ellips.shape[1], Y)])
-        xyz_center = _xyy_to_xyz100(xyy_center)
-        assert numpy.all(xyz_center >= 0.0)
-        xyz_ellips = _xyy_to_xyz100(xyy_ellips)
-        assert numpy.all(xyz_ellips >= 0.0)
+        xyz100_center = _xyy100_to_xyz100(xyy100_center)
+        assert numpy.all(xyz100_center >= 0.0)
+        xyz100_pts = _xyy100_to_xyz100(xyy100_pts)
+        assert numpy.all(xyz100_pts >= 0.0)
         # plt.plot(xyz_center[0], xyz_center[2], "x")
         # plt.plot(xyz_ellips[0], xyz_ellips[2], "o")
         # plt.show()
-        cs_center = cs.from_xyz100(xyz_center)
-        cs_ellips = cs.from_xyz100(xyz_ellips)
-        # remove lightness data
-        cs_center = numpy.delete(cs_center, cs.k0, axis=0)
-        cs_ellips = numpy.delete(cs_ellips, cs.k0, axis=0)
+        cs_center = cs.from_xyz100(xyz100_center)
+        cs_ellips = cs.from_xyz100(xyz100_pts)
         # plt.plot(cs_center[0], cs_center[1], "x")
         # plt.plot(cs_ellips[0], cs_ellips[1], "o")
         # plt.show()
@@ -105,53 +94,31 @@ def _compute_ellipse_residual(cs, xy_centers, xy_offsets, Y):
         distances.append(numpy.sqrt(diff[0] ** 2 + diff[1] ** 2))
 
     distances = numpy.concatenate(distances)
-    # scale invariance by normalizing on distance average
-    distances /= numpy.average(distances)
-    avg = 1.0
-    return numpy.sqrt(numpy.sum((distances - avg) ** 2))
+    alpha = numpy.average(distances)
+    return numpy.sqrt(numpy.sum((alpha - distances) ** 2) / numpy.sum(distances ** 2))
 
 
-def _xyy_to_xyz100(xyy):
+def _xyy100_to_xyz100(xyy):
     x, y, Y = xyy
-    return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
+    return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)])
 
 
-def _plot_ellipses(
-    xy_centers,
-    xy_offsets,
-    cs,
-    lightness,
-    ellipse_scaling=1.0,
-    outline_prec=1.0e-2,
-    plot_srgb_gamut=True,
-    visible_gamut_fill_color="0.8",
-):
+def _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling=1.0):
     from matplotlib.patches import Ellipse
     from scipy.optimize import leastsq
 
-    cs.plot_visible_slice(
-        lightness,
-        outline_prec=outline_prec,
-        fill_color=visible_gamut_fill_color,
-    )
-    if plot_srgb_gamut:
-        cs.plot_rgb_slice(lightness)
-
-    for center, offset in zip(xy_centers, xy_offsets):
-        # get all the approximate ellipse points in xy space
-        xy_ellipse = (center + offset.T).T
-
-        tcenter = _find_Y(cs, center, lightness)
-        tvals = numpy.array([_find_Y(cs, xy, lightness) for xy in xy_ellipse.T])
-
+    for center, points in zip(xyy100_centers, xyy100_points):
         # cut off the irrelevant index
-        k1, k2 = [k for k in [0, 1, 2] if k != cs.k0]
-        tcenter = tcenter[[k1, k2]]
-        tvals = tvals[:, [k1, k2]]
+        cs_center = cs.from_xyz100(_xyy100_to_xyz100(center))
+        cs_points = cs.from_xyz100(_xyy100_to_xyz100(points))
+
+        # project out lightness component
+        tcenter = numpy.delete(cs_center, cs.k0)
+        tvals = numpy.delete(cs_points, cs.k0, axis=0)
 
         # Given these new transformed vals, find the ellipse that best fits those
         # points
-        X = (tvals - tcenter).T
+        X = (tvals.T - tcenter).T
 
         def f_ellipse(a_b_theta):
             a, b, theta = a_b_theta
@@ -194,4 +161,28 @@ def _plot_ellipses(
         e.set_alpha(0.5)
         e.set_facecolor("k")
 
-        # plt.plot(tvals[:, 0], tvals[:, 1], "xk")
+        # plt.plot(*tcenter, "xk")
+        # plt.plot(*tvals, "ok")
+        # plt.show()
+
+    plt.gca().set_aspect("equal")
+    labels = cs.labels[: cs.k0] + cs.labels[cs.k0 + 1 :]
+    plt.xlabel(labels[0])
+    plt.ylabel(labels[1])
+
+    # mpl doesn't update axis limits when adding artists,
+    # <https://github.com/matplotlib/matplotlib/issues/19290>.
+    # Handle it manually.
+    tcenters = []
+    for center, points in zip(xyy100_centers, xyy100_points):
+        cs_center = cs.from_xyz100(_xyy100_to_xyz100(center))
+        tcenters.append(numpy.delete(cs_center, cs.k0))
+    tcenters = numpy.asarray(tcenters).T
+    xmin = numpy.min(tcenters[0])
+    xmax = numpy.max(tcenters[0])
+    ymin = numpy.min(tcenters[1])
+    ymax = numpy.max(tcenters[1])
+    width = xmax - xmin
+    height = ymax - ymin
+    plt.xlim(xmin - 0.2 * width, xmax + 0.2 * width)
+    plt.ylim(ymin - 0.2 * height, ymax + 0.2 * height)

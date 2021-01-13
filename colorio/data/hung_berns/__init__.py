@@ -5,7 +5,7 @@ import numpy
 import yaml
 
 from ...illuminants import whitepoints_cie1931
-from ..helpers import _compute_straight_line_residuals, _plot_color_constancy_data
+from ..helpers import _compute_straight_line_residuals, _plot_hue_linearity_data
 
 
 def load():
@@ -34,9 +34,13 @@ def savefig(cs, filename):
 
 def plot(cs):
     wp, d = load()
-    _plot_color_constancy_data(d, wp, cs)
+    _plot_hue_linearity_data(d, wp, cs)
 
 
 def residuals(cs):
     wp, d = load()
     return _compute_straight_line_residuals(cs, wp, d)
+
+
+def stress(cs):
+    return 100 * residuals(cs)

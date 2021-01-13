@@ -11,7 +11,8 @@ import matplotlib.pyplot as plt
 import numpy
 import yaml
 
-from ..helpers import _compute_ellipse_residual, _plot_ellipses
+from ...cs import XYY1
+from ..helpers import _plot_ellipses
 
 
 def _load_data():
@@ -52,11 +53,56 @@ def savefig(filename, *args, **kwargs):
     plt.close()
 
 
-def plot(*args, ellipse_scaling=10.0, **kwargs):
+def plot(cs, ellipse_scaling=10.0):
     xy_centers, xy_offsets = _load_data()
-    _plot_ellipses(xy_centers, xy_offsets, *args, ellipse_scaling, **kwargs)
+
+    Y = 50.0
+    xyy100_centers = []
+    xyy100_points = []
+    for c, off in zip(xy_centers, xy_offsets):
+        xyy100_centers.append(numpy.array([*c, Y]))
+        p = (c + off.T).T
+        xyy100_points.append(numpy.array([*p, numpy.full(p.shape[1], Y)]))
+
+    _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling)
+    plt.title(f"MacAdam ellipses for {cs.name}")
+
+    # cs.plot_visible_slice(
+    #     lightness,
+    #     outline_prec=outline_prec,
+    #     fill_color=visible_gamut_fill_color,
+    # )
+    # if plot_srgb_gamut:
+    #     cs.plot_rgb_slice(lightness)
 
 
-def residuals(cs, Y: float):
+def residual(cs, Y100: float) -> float:
     xy_centers, xy_offsets = _load_data()
-    return _compute_ellipse_residual(cs, xy_centers, xy_offsets, Y)
+
+    xyy1 = XYY1()
+
+    dists = []
+    for c, off in zip(xy_centers, xy_offsets):
+        pts = (c + off.T).T
+
+        # get ellipse center in transformed space
+        xyY1_center = numpy.append(c, Y100 / 100)
+        c = cs.from_xyz100(xyy1.to_xyz100(xyY1_center))
+
+        # get ellipse points in transformed space
+        xyY1_pts = numpy.array([*pts, numpy.full(pts.shape[1], Y100 / 100)])
+        pts = cs.from_xyz100(xyy1.to_xyz100(xyY1_pts))
+
+        # compute the distance in the transformed space
+        diff = (c - pts.T).T
+        dists.append(numpy.sqrt(numpy.einsum("ij,ij->j", diff, diff)))
+
+    delta = numpy.concatenate(dists)
+
+    alpha = numpy.average(delta)
+    val = numpy.sqrt(numpy.dot(alpha - delta, alpha - delta) / numpy.dot(delta, delta))
+    return val
+
+
+def stress(cs, Y100: float):
+    return 100 * residual(cs, Y100)
