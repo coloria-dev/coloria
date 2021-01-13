@@ -102,3 +102,7 @@ def residual(cs):
     alpha = numpy.dot(d, delta) / numpy.dot(d, d)
     val = numpy.dot(alpha * d - delta, alpha * d - delta) / numpy.dot(delta, delta)
     return numpy.sqrt(val)
+
+
+def stress(cs):
+    return 100 * residual(cs)

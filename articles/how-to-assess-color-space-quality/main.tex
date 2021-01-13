@@ -35,6 +35,7 @@
 
 % <https://tex.stackexchange.com/a/43009/13262>
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
 
 \usepackage[T1]{fontenc}
 \usepackage{newtxtext}
@@ -93,7 +94,7 @@ Unfortunately, it is hardly ever explained how those numbers are computed.
 
 This article describes in detail how to assess the experimental compliance of color
 space with experimental data. The article focuses on the two most used types of
-experimental data: Hue constancy \cite{ebner,xiao,hung} and color difference ellipses
+experimental data: Hue linearity \cite{ebner,xiao,hung} and color difference ellipses
 \cite{macadam,luo}.
 
 Almost every color space is defined by a transformation $T$ that maps the CIE-1931-XYZ
@@ -250,140 +251,83 @@ distances of all points to that line. There are multiple meaningful ways in whic
 between two points $a$ and $b$ can be defined by a \emph{norm}.
 
 
-\subsection{Cost functional for hue constancy data}
+\subsection{Cost functional for target distances}
 
-There are multiple experiments which data about which colors are perceived to be of
-equal hue~\cite{ebner,xiao,hung} (see figure~\ref{}). Color spaces are considered good
-if the transformation maps points of equal perceived hue onto a straight line.
-
-What is a good measure of how well points sit on a straight line?
-A common idea is to find the straight line that mimizes the sum of squared distances to
-all points. This general approach is usually referred to as \emph{total least squares
-(TLS)}.
-The line is typically given implicitly by $\alpha_1 x + \alpha_2 y
-= 0$ with $\alpha_1,\alpha_2\in\R$, $\|\alpha\|_2^2 = \alpha_1^2 + \alpha_2^2 = 1$.
-To make sure the functional is scale-invariant and the line goes indeed through the
-origin, translate it by the white point $w$ of the color space first and scale the
-translated point cloud by its norm average.
-In short:
-\begin{equation}\label{eq:s}
-s_2 \coloneqq
-\min_{\|\alpha\|_2=1}
-  \sqrt{\sum_{i=1}^n (\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2}
+Some data sets give target distance values $d_i$ for pairs of colors $X_{i,1}, X_{i,2}$
+(e.g. \cite{macadam1974}). A color space conforms with this data if the distance
+between the transformed points
+$\delta_i \coloneqq \norm{T(X_{i,1}) - T(X_{i,2})}_2$
+is close to a scaled $d_i$, i.e.,
+\begin{equation}\label{eq:p}
+  p_2
+  \coloneqq \sqrt{\sum_{i=1}^n (\alpha d_i - \delta_i)^2}
 \end{equation}
-with the translated and scaled sample points
-\[
-  \tilde{x}_i \coloneqq \frac{x_i-w_x}{\frac{1}{n}\sum_{j=1}^n (x_j-w_x)},\qquad
-  \tilde{y}_i \coloneqq \frac{y_i-w_y}{\frac{1}{n}\sum_{j=1}^n (y_j-w_y)}.
-\]
-
-The value of $s_2$ can be approximated with any appropriate optimization method. A
-faster, more explicit, and more accurate representation however is retrieved as follows.
-With the $n$-by-2 coordinate matrix
-\[
-  A \coloneqq \begin{pmatrix}
-    \tilde{x}_1 & \tilde{y}_1\\
-    \vdots & \vdots\\
-    \tilde{x}_n & \tilde{y}_n
-  \end{pmatrix},
-\]
-\eqref{eq:s} can be written as
-\[
-  s_2
-  = \min_{\|\alpha\|_2=1} \sqrt{(A \alpha)^T (A \alpha)}
-  = \min_{\|\alpha\|_2=1} \sqrt{\alpha^T A^T A \alpha}
-\]
-This makes clear that $s_2$ is exactly the square root of smaller of two eigenvalues of
-$A^TA$ or equivalently the smaller of the two singular values of $A$,
-\[
-s_2
-= \sqrt{\lambda_{\min}(A^T A)}
-= \sigma_{\min}(A).
-\]
-The value is given explicitly by
-\begin{equation}\label{eq:s2}
-  s_2 = \sqrt{
-    \frac{1}{2} \left(
-      \tilde{x}^T\tilde{x}
-      + \tilde{y}^T\tilde{y}
-      - \sqrt{(\tilde{x}^T\tilde{x} - \tilde{y}^T\tilde{y})^2 + 4 (\tilde{x}^T\tilde{y})^2}
-      \right)
-    }.
+The parameter $\alpha$ is chosen to minimize the expression, namely, $\alpha =
+\left.\sum_{i=1}^n d_i \delta_i \middle/ \sum_{i=1}^n d_i^2\right.$.
+To achieve scale-invariance, one often divides by
+$\sqrt{\sum_{i=1}^n \delta_i^2}$.
+The resulting expression is always between 0 and 1, and after scaling by 100, this is
+called the STRESS metric for target distances,
+\begin{equation}\label{eq:p}
+  p_{\text{STRESS}}
+  \coloneqq
+  100
+  \frac{%
+    \sqrt{\sum_{i=1}^n (\alpha d_i - \delta_i)^2}
+  }{
+    \sqrt{\sum_{i=1}^n \delta_i^2}
+  }.
 \end{equation}
-The expression under the outer root is always nonnegative by the Cauchy-Schwarz
-inequality $(x^Ty)^2 \le (x^Tx) (y^Ty)$. It is 0 if and only if $x$ and $y$ are linearly
-dependent, i.e., if the points $(x_i, y_i)$ are on a straight line.
-
-
-\begin{remark}
-  The representation \eqref{eq:s2} is suitable for optimization purposes. Since a value
-  $\sqrt{t}$ is small if and only if $t$ is small, one would in the interest of
-  simplicity disregard the outer square root.
-\end{remark}
-
-\begin{remark}
-Besides \eqref{eq:s}, there are other meaningful ways in which the distance of a point
-cloud to a line can be defined. Instead of summing the squared distances, one could take
-the $p$-norm,
-\[
-s_p
-  \coloneqq \min_{\|\alpha\|_2=1} \|\alpha_1 \tilde{x} + \alpha_2\tilde{y}\|_p
-= \min_{\|\alpha\|_2=1}
-  \left(\sum_{i=1}^n |\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i|^p\right)^{1/p}
-\]
-  with $1\le p \le \infty$.
-  The value $s_2$ remains of prominent importance, though, because of its smooth
-  dependence on the point set.
-  Note also that, unlike often seen, in no case the center of gravity $(\overline{x},
-  \overline{y})$ of the point set is of particular significance.
-\end{remark}
-
 
 \begin{table}
   \centering
-  \begin{tabular}{lrrrr}
+  \begin{tabular}{lrrr}
     \toprule
-    & Hung--Berns & Ebner--Fairchild & Xiao et al. & sum\\
+    & MacAdam (1974)\\
     \midrule
-CAM02 (UCS)   &         0.826  &         3.493  &         0.780  &         5.099\\
-CAM16 (UCS)   &         1.020  &         3.738  &         0.719  &         5.477\\
-CIELAB        &         1.178  &         4.096  &         0.553  &         5.827\\
-CIELUV        &         1.113  &         3.723  &         0.652  &         5.488\\
-IPT           &         0.779  &         2.984  &         0.893  &         4.656\\
-$J_z a_z b_z$ &         0.708  &         3.124  &         0.754  &         4.585\\
-OKLAB         &         0.699  &         3.098  &         0.758  &         4.555\\
-OSA-UCS       & \textbf{0.666} & \textbf{2.949} &         0.835  & \textbf{4.449}\\
-RLAB          &         1.141  &         4.177  &         0.709  &         6.027\\
-xyY           &         0.897  &         3.555  & \textbf{0.441} &         4.893\\
+CAM02 (UCS) & 19.0\\
+CAM16 (UCS) & \textbf{18.7}\\
+CIELAB & 24.5\\
+CIELUV & 27.1\\
+IPT & 21.3\\
+$IC_TC_P$ & 38.5\\
+$J_z a_z b_z$ & 23.2\\
+Oklab & 32.7\\
+OSA-UCS & 19.8\\
+RLAB & 23.5\\
+xyY & 50.0\\
     \bottomrule
   \end{tabular}
-  \caption{The sum the $s_2$ values for all arms. The best value is highlighted in bold.
-  OSA-UCS is the overall best color space for hue constancy.}
+  \caption{$p_\text{STRESS}$ for a number of color spaces. The color space OSA-UCS was
+  designed specifically with the MacAdam dataset in mind. Both CAM spaces perform even
+  better.}
 \end{table}
 
 
 \subsection{Cost functional for ellipse data}
 
-There are multiple experiments concerning color distances producing ellipses in
-the $xy$-plane.
-When small, the ellipses indicate that the test subjects where able to the distinguish
-the center chroma from its surroundings well. When large, the center chroma blends with
-its environment. A perceptually uniform color space transforms the $xy$-plane such that
-the ellipses are transformed into circles of equal size. This goal is cast into a
-functional by
-\[
-  e_2
-  = \min_{R\in\R^+} \sqrt{\sum_{i=1}^n \sum_{j=1}^{m_i} \left(
-  \sqrt{\left(x_{i,j} - x^{(c)}_i\right)^2 + \left(y_{i,j} - y^{(c)}_i\right)^2} - R
-  \right)^2}
-\]
-where $(x^{(c)}_i, y^{(c)}_i$ are the centers of the ellipses and $(x_{i,j}, y_{i,j})$
-are the points on or near their boundaries. It is easy to see that the minimizing common
-radius is the average of all distances, i.e.,
-\[
-  R = \frac{1}{\sum_{i=1}^n m_i} \sum_{i=1}^n \sum_{j=1}^{m_i} \sqrt{\left(x_{i,j} -
-  x^{(c)}_i\right)^2 + \left(y_{i,j} - y^{(c)}_i\right)^2}.
-\]
+It is usually desirable to judge color space quality against direct experimental
+measurements. In some cases however, experimental data has already been processed in
+some way. This is the case for ellipses (\cite{MacAdam,Luorigg}) which are typically
+produces by projecting out the lightness components of the measurement and
+least-squares-fitting the data.
+
+By picking a fixed number of points on the boundary of each ellipse (e.g., 4 or 8), a
+cost functional can be produced in the same way as for target distances. Since the
+ellipses are ideally mapped to circles of equal size in the transformed space, the
+distances $\delta_i$ between the ellipse centers and the boundary should be equal, i.e.,
+$d_i=1$ for all $i$. This gives
+\begin{equation}\label{eq:e}
+  e_{\text{STRESS}}
+  \coloneqq
+  100
+  \frac{%
+    \sqrt{\sum_{i=1}^n (\alpha - \delta_{i})^2}
+  }{
+    \sqrt{\sum_{i=1}^n \delta_i^2}
+  }
+\end{equation}
+with the minimizing $\alpha = \frac{1}{n} \sum_{i=1}^n \delta_i$.
 
 
 \begin{table}
@@ -404,58 +348,153 @@ RLAB          &        10.916  &        18.156  &         29.072\\
 xyY           &        13.218  &        15.569  &         28.787\\
     \bottomrule
   \end{tabular}
-  \caption{$e_2$ for a number of color spaces. CAM02 and its close relative CAM16
-  far outperform the other color spaces, particularly for the Luo-Rigg data set.}
+  \caption{$e_\text{STRESS}$ for a number of color spaces. CAM02 and its close relative
+  CAM16 far outperform the other color spaces, particularly for the Luo-Rigg data set.}
 \end{table}
 
+\subsection{Cost functional for hue linearity data}
 
-\subsection{Cost functional for target differences}
+There are multiple experiments which data about which colors are perceived to be of
+equal hue~\cite{hung,ebner,xiao} (see figure~\ref{}). Color spaces are considered good
+if the transformation maps points of equal perceived hue onto a straight line.
 
-TODO compare STRESS definition in
-Color difference evaluation for wide-color-gamut displays
+What is a good measure of how well points sit on a straight line?
+A common idea is to find the straight line that mimizes the sum of squared distances to
+all points. This general approach is usually referred to as \emph{total least squares
+(TLS)}.
+The line is typically
+given implicitly by $\alpha_1 x + \alpha_2 y
+= 0$ with $\alpha_1,\alpha_2\in\R$, $\|\alpha\|_2^2 = \alpha_1^2 + \alpha_2^2 = 1$.
+Because this assumes that the line passes through the origin, all points are
+first translated such that the whitepoint sits in in origin.
 
-Some data sets give target distance values $d_i$ for pairs of colors $X_{i,1}, X_{i,2}$
-(e.g.  \cite{macadam1974}). A color space conforms will with this data if the distance
-between the transformed points is close to a scaled $d_i$, i.e.,
-\begin{equation}\label{eq:p}
-  p_2
-  \coloneqq
-  \frac{%
-    \sqrt{\sum_{i=1}^n (\alpha d_i - \delta_i)^2}
-  }{
-    \sqrt{\sum_{i=1}^n \delta_i^2}
-  }
+For scale-invariance, it is convenient to divide by the maximizer of the squared
+distances, in total:
+\begin{equation}\label{eq:l}
+l_2 \coloneqq
+  \frac{
+\min_{\|\alpha\|_2=1}
+  \sqrt{\sum_{i=1}^n (\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2}
+}{
+\max_{\|\alpha\|_2=1}
+  \sqrt{\sum_{i=1}^n (\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2}
+}
 \end{equation}
-with
+with the translated sample points
 \[
-  \delta_i \coloneqq \|T(X_{i,1}) - T(X_{i,2})\|_2
+  \tilde{x}_i \coloneqq x_i-w_x,\qquad
+  \tilde{y}_i \coloneqq y_i-w_y.
 \]
-The scaling parameter $\alpha$ is chosen such that is minimizes $p_2$,
+
+The value of $l_2$ can be approximated with any appropriate optimization method. A more
+explicit and more easily computable representation however is retrieved as follows.
+With the $n$-by-2 coordinate matrix
 \[
-  \alpha = \frac{\sum_{i=1}^n d_i \delta_i}{\sum_{i=1}^n d_i^2}.
+  A \coloneqq \begin{pmatrix}
+    \tilde{x}_1 & \tilde{y}_1\\
+    \vdots & \vdots\\
+    \tilde{x}_n & \tilde{y}_n
+  \end{pmatrix},
 \]
+the sum in \eqref{eq:l} can be written as
+\[
+  \sum_{i=1}^n (\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2
+  = (A \alpha)^T (A \alpha)
+  = \alpha^T A^T A \alpha.
+\]
+This makes clear that $l_2$ is exactly the square root of the ratio of the two
+eigenvalues of $A^TA$ or equivalently the ratio of the two singular values of $A$,
+\[
+l_2
+= \sqrt{
+  \frac{
+    \lambda_{\min}(A^T A)
+  }{
+    \lambda_{\max}(A^T A)
+  }
+}
+= \frac{\sigma_{\min}(A)}{\sigma_{\max}(A)}.
+\]
+The value is given explicitly by
+\begin{equation*}
+  l_2 = \sqrt{
+    \frac{
+      \tilde{x}^T\tilde{x}
+      + \tilde{y}^T\tilde{y}
+      - \sqrt{(\tilde{x}^T\tilde{x} - \tilde{y}^T\tilde{y})^2 + 4 (\tilde{x}^T\tilde{y})^2}
+    }{
+      \tilde{x}^T\tilde{x}
+      + \tilde{y}^T\tilde{y}
+      + \sqrt{(\tilde{x}^T\tilde{x} - \tilde{y}^T\tilde{y})^2 + 4 (\tilde{x}^T\tilde{y})^2}
+    }
+    }.
+\end{equation*}
+The expression under the outer root is always nonnegative by the Cauchy-Schwarz
+inequality $(x^Ty)^2 \le (x^Tx) (y^Ty)$. It is 0 if and only if $x$ and $y$ are linearly
+dependent, i.e., if the points $(x_i, y_i)$ are on a straight line.
+
+Since $0\le l_2\le 1$, the value can be given in terms of STRESS,
+\begin{equation}\label{eq:lstress}
+  l_\text{STRESS} = 100 \frac{\sigma_{\min}(A)}{\sigma_{\max}(A)}.
+\end{equation}
+
+
+% \begin{remark}
+%   The representation \eqref{eq:s2} is suitable for optimization purposes. Since a value
+%   $\sqrt{t}$ is small if and only if $t$ is small, one would in the interest of
+%   simplicity disregard the outer square root.
+% \end{remark}
+
+\begin{remark}
+Besides \eqref{eq:l}, there are other meaningful ways in which the distance of a point
+cloud to a line can be defined. Instead of summing the squared distances, one could take
+the $p$-norm,
+\[
+l_p
+  \coloneqq
+  \frac{
+    \min_{\|\alpha\|_2=1} \|\alpha_1 \tilde{x} + \alpha_2\tilde{y}\|_p
+  }{
+    \max_{\|\alpha\|_2=1} \|\alpha_1 \tilde{x} + \alpha_2\tilde{y}\|_p
+  }
+  = \frac{
+    \min_{\|\alpha\|_2=1}
+  \left(\sum_{i=1}^n |\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i|^p\right)^{1/p}
+}{
+    \max_{\|\alpha\|_2=1}
+  \left(\sum_{i=1}^n |\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i|^p\right)^{1/p}
+}
+\]
+  with $1\le p \le \infty$.
+  The value $l_2$ remains of prominent importance, though, because of its smooth
+  dependence on the point set.
+\end{remark}
+
 
 \begin{table}
   \centering
-  \begin{tabular}{lrrr}
+  \begin{tabular}{lrrrr}
     \toprule
-    & MacAdam (1974)\\
+    & Hung--Berns & Ebner--Fairchild & Xiao et al. & average\\
     \midrule
-CAM02 (UCS) & 0.190\\
-CAM16 (UCS) & \textbf{0.187}\\
-CIELAB & 0.245\\
-CIELUV & 0.271\\
-IPT & 0.213\\
-$J_za_zb_z$ & 0.232\\
-Oklab & 0.327\\
-OSA-UCS & 0.198\\
-RLAB & 0.235\\
-xyY & 0.500\\
+CAM02 (UCS) &         3.3  &         4.8  &         6.2  &         4.4\\
+CAM16 (UCS) &         4.0  &         5.1  &         5.7  &         4.8\\
+CIELAB      &         4.3  &         5.3  &         4.2  &         4.8\\
+CIELUV      &         4.2  &         4.8  &         4.9  &         4.6\\
+IPT         &         2.9  &         3.9  &         6.8  &         3.9\\
+$IC_TC_P$   &         3.8  &         7.0  &         4.2  &         5.4\\
+$J_za_zb_z$ &         2.7  &         4.1  &         5.8  &         3.8\\
+Oklab       &         2.6  &         4.1  &         5.8  &         3.7\\
+OSA-UCS     & \textbf{2.5} & \textbf{3.8} &         6.4  & \textbf{3.6}\\
+RLAB        &         4.2  &         5.4  &         5.4  &         4.9\\
+xyY         &         3.4  &         4.8  & \textbf{3.4} &         4.1\\
     \bottomrule
   \end{tabular}
-  \caption{$p_2$ for a number of color spaces. The color space OSA-UCS was designed
-  specifically with the MacAdam dataset in mind. Both CAM spaces perform even better.}
+  \caption{$l_\text{STRESS}$ averaged over all arms of each data set and the total
+  average. The best value is highlighted in bold. While all listed color spaces perform
+  quite well, OSA-UCS is the overall best color space for hue linearity.}
 \end{table}
+
 
 % \printbibliography{}
 % \bibliography{pucs}{}

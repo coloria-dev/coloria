@@ -16,18 +16,16 @@ def _compute_straight_line_residuals(cs, wp, d):
         vals = cs.from_xyz100(dd)[idx]
         # move values such that whitepoint is in the origin
         vals = (vals.T - wp_cs).T
-        # scale invariance by normalizing by average
-        avg = numpy.sum(vals, axis=1) / vals.shape[1]
-        vals /= numpy.linalg.norm(avg)
         # could also be computed explicitly
-        s2.append(numpy.linalg.svd(vals, compute_uv=False)[-1])
+        s_max, s_min = numpy.linalg.svd(vals, compute_uv=False)
+        s2.append(s_min / s_max)
         # plt.plot(vals[0], vals[1], "x")
         # plt.gca().set_aspect("equal")
         # plt.show()
-    return s2
+    return numpy.array(s2)
 
 
-def _plot_color_constancy_data(
+def _plot_hue_linearity_data(
     data_xyz100, wp_xyz100, colorspace, approximate_colors_in_srgb=False
 ):
     # k0 is the coordinate that corresponds to "lightness"
@@ -105,10 +103,8 @@ def _compute_ellipse_residual(cs, xy_centers, xy_offsets, Y):
         distances.append(numpy.sqrt(diff[0] ** 2 + diff[1] ** 2))
 
     distances = numpy.concatenate(distances)
-    # scale invariance by normalizing on distance average
-    distances /= numpy.average(distances)
-    avg = 1.0
-    return numpy.sqrt(numpy.sum((distances - avg) ** 2))
+    alpha = numpy.average(distances)
+    return numpy.sqrt(numpy.sum((alpha - distances) ** 2) / numpy.sum(distances ** 2))
 
 
 def _xyy_to_xyz100(xyy):

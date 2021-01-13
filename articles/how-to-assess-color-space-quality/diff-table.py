@@ -8,6 +8,7 @@ color_spaces = [
     colorio.cs.CIELAB(),
     colorio.cs.CIELUV(),
     colorio.cs.IPT(),
+    colorio.cs.ICtCp(),
     colorio.cs.JzAzBz(),
     colorio.cs.OKLAB(),
     colorio.cs.OsaUcs(),
@@ -17,6 +18,6 @@ color_spaces = [
 
 for cs in color_spaces:
     vals = [
-        colorio.data.macadam_1974.residual(cs),
+        colorio.data.macadam_1974.stress(cs),
     ]
-    print(f"{cs.name} & {vals[0]:.3f}\\\\")
+    print(f"{cs.name} & {vals[0]:.1f}\\\\")
