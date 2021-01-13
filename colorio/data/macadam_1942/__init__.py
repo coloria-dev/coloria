@@ -12,7 +12,7 @@ import numpy
 import yaml
 
 from ...cs import XYY1
-from ..helpers import _compute_ellipse_residual, _plot_ellipses
+from ..helpers import _plot_ellipses
 
 
 def _load_data():
