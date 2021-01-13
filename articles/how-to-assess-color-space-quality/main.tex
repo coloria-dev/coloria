@@ -72,7 +72,8 @@
 % \usepackage{amsfonts}
 \usepackage{bm}
 \newcommand\R{\ensuremath{\mathbb{R}}}
-\newcommand\x{\ensuremath{\bm{x}}}
+\newcommand\xt{\ensuremath{\bm{\tilde{x}}}}
+\newcommand\yt{\ensuremath{\bm{\tilde{y}}}}
 
 \title{\mytitle\footnote{The LaTeX sources of this article are on
 \url{https://github.com/nschloe/colorio}}}
@@ -395,36 +396,35 @@ the sum in \eqref{eq:l} can be written as
   = (A \alpha)^T (A \alpha)
   = \alpha^T A^T A \alpha.
 \]
-This makes clear that $l_2$ is exactly the square root of the ratio of the two
+This makes clear that $l_2$ is exactly the ratio of the square roots of the two
 eigenvalues of $A^TA$ or equivalently the ratio of the two singular values of $A$,
 \[
 l_2
-= \sqrt{
-  \frac{
-    \lambda_{\min}(A^T A)
+= \frac{
+  \sqrt{\lambda_{\min}(A^T A)}
   }{
-    \lambda_{\max}(A^T A)
+    \sqrt{\lambda_{\max}(A^T A)}
   }
-}
 = \frac{\sigma_{\min}(A)}{\sigma_{\max}(A)}.
 \]
 The value is given explicitly by
 \begin{equation*}
   l_2 = \sqrt{
     \frac{
-      \tilde{x}^T\tilde{x}
-      + \tilde{y}^T\tilde{y}
-      - \sqrt{(\tilde{x}^T\tilde{x} - \tilde{y}^T\tilde{y})^2 + 4 (\tilde{x}^T\tilde{y})^2}
+      \xt^T\xt
+      + \yt^T\yt
+      - \sqrt{(\xt^T\xt - \yt^T\yt)^2 + 4 (\xt^T\yt)^2}
     }{
-      \tilde{x}^T\tilde{x}
-      + \tilde{y}^T\tilde{y}
-      + \sqrt{(\tilde{x}^T\tilde{x} - \tilde{y}^T\tilde{y})^2 + 4 (\tilde{x}^T\tilde{y})^2}
+      \xt^T\xt
+      + \yt^T\yt
+      + \sqrt{(\xt^T\xt - \yt^T\yt)^2 + 4 (\xt^T\yt)^2}
     }
     }.
 \end{equation*}
-The expression under the outer root is always nonnegative by the Cauchy-Schwarz
-inequality $(x^Ty)^2 \le (x^Tx) (y^Ty)$. It is 0 if and only if $x$ and $y$ are linearly
-dependent, i.e., if the points $(x_i, y_i)$ are on a straight line.
+The expression under the outer root is indeed always nonnegative by virtue of the
+Cauchy-Schwarz inequality $(\xt^T\yt)^2 \le (\xt^T\xt) (\yt^T\yt)$. It is 0 if and only
+if $\xt$ and $\yt$ are linearly dependent, i.e., if the points $(x_i, y_i)$ sit on a
+straight line through the origin.
 
 Since $0\le l_2\le 1$, the value can be given in terms of STRESS,
 \begin{equation}\label{eq:lstress}

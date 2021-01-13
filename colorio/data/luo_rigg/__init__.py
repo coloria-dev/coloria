@@ -66,9 +66,10 @@ def savefig(filename, *args, **kwargs):
     plt.close()
 
 
-def plot(*args, ellipse_scaling=2.0, **kwargs):
+def plot(cs, ellipse_scaling=2.0):
     xyy100_centers, xyy100_points = load(num_offset_points=8)
-    _plot_ellipses(xyy100_centers, xyy100_points, *args, ellipse_scaling, **kwargs)
+    _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling)
+    plt.title(f"Luo-Rigg ellipses for {cs.name}")
 
 
 def residuals(cs):

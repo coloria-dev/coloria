@@ -105,26 +105,9 @@ def _xyy100_to_xyz100(xyy):
     return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)])
 
 
-def _plot_ellipses(
-    xyy100_centers,
-    xyy100_points,
-    cs,
-    lightness,
-    ellipse_scaling=1.0,
-    outline_prec=1.0e-2,
-    plot_srgb_gamut=True,
-    visible_gamut_fill_color="0.8",
-):
+def _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling=1.0):
     from matplotlib.patches import Ellipse
     from scipy.optimize import leastsq
-
-    cs.plot_visible_slice(
-        lightness,
-        outline_prec=outline_prec,
-        fill_color=visible_gamut_fill_color,
-    )
-    if plot_srgb_gamut:
-        cs.plot_rgb_slice(lightness)
 
     for center, points in zip(xyy100_centers, xyy100_points):
         # cut off the irrelevant index
@@ -181,3 +164,24 @@ def _plot_ellipses(
         e.set_facecolor("k")
 
         # plt.plot(tvals[:, 0], tvals[:, 1], "xk")
+    plt.gca().set_aspect("equal")
+    labels = cs.labels[: cs.k0] + cs.labels[cs.k0 + 1 :]
+    plt.xlabel(labels[0])
+    plt.ylabel(labels[1])
+
+    # mpl doesn't update axis limits when adding artists,
+    # <https://github.com/matplotlib/matplotlib/issues/19290>.
+    # Handle it manually.
+    tcenters = []
+    for center, points in zip(xyy100_centers, xyy100_points):
+        cs_center = cs.from_xyz100(_xyy100_to_xyz100(center))
+        tcenters.append(numpy.delete(cs_center, cs.k0))
+    tcenters = numpy.asarray(tcenters).T
+    xmin = numpy.min(tcenters[0])
+    xmax = numpy.max(tcenters[0])
+    ymin = numpy.min(tcenters[1])
+    ymax = numpy.max(tcenters[1])
+    width = xmax - xmin
+    height = ymax - ymin
+    plt.xlim(xmin - 0.2 * width, xmax + 0.2 * width)
+    plt.ylim(ymin - 0.2 * height, ymax + 0.2 * height)

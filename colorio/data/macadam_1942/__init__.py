@@ -53,9 +53,27 @@ def savefig(filename, *args, **kwargs):
     plt.close()
 
 
-def plot(*args, ellipse_scaling=10.0, **kwargs):
+def plot(cs, ellipse_scaling=10.0):
     xy_centers, xy_offsets = _load_data()
-    _plot_ellipses(xy_centers, xy_offsets, *args, ellipse_scaling, **kwargs)
+
+    Y = 50.0
+    xyy100_centers = []
+    xyy100_points = []
+    for c, off in zip(xy_centers, xy_offsets):
+        xyy100_centers.append(numpy.array([*c, Y]))
+        p = (c + off.T).T
+        xyy100_points.append(numpy.array([*p, numpy.full(p.shape[1], Y)]))
+
+    _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling)
+    plt.title(f"MacAdam ellipses for {cs.name}")
+
+    # cs.plot_visible_slice(
+    #     lightness,
+    #     outline_prec=outline_prec,
+    #     fill_color=visible_gamut_fill_color,
+    # )
+    # if plot_srgb_gamut:
+    #     cs.plot_rgb_slice(lightness)
 
 
 def residual(cs, Y100: float) -> float:
