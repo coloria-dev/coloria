@@ -76,22 +76,11 @@ def _compute_ellipse_residual(cs, xyy100_centers, xyy100_points):
     distances = []
     for xyy100_center, xyy100_pts in zip(xyy100_centers, xyy100_points):
         # append Y
-        xyz100_center = _xyy100_to_xyz100(xyy100_center)
-        assert numpy.all(xyz100_center >= 0.0)
-        xyz100_pts = _xyy100_to_xyz100(xyy100_pts)
-        assert numpy.all(xyz100_pts >= 0.0)
-        # plt.plot(xyz_center[0], xyz_center[2], "x")
-        # plt.plot(xyz_ellips[0], xyz_ellips[2], "o")
-        # plt.show()
-        cs_center = cs.from_xyz100(xyz100_center)
-        cs_ellips = cs.from_xyz100(xyz100_pts)
-        # plt.plot(cs_center[0], cs_center[1], "x")
-        # plt.plot(cs_ellips[0], cs_ellips[1], "o")
-        # plt.show()
-        #
+        cs_center = cs.from_xyz100(_xyy100_to_xyz100(xyy100_center))
+        cs_ellips = cs.from_xyz100(_xyy100_to_xyz100(xyy100_pts))
         # compute distances to ellipse center
         diff = (cs_center - cs_ellips.T).T
-        distances.append(numpy.sqrt(diff[0] ** 2 + diff[1] ** 2))
+        distances.append(numpy.sqrt(numpy.einsum("ij,ij->j", diff, diff)))
 
     distances = numpy.concatenate(distances)
     alpha = numpy.average(distances)
@@ -157,7 +146,7 @@ def _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling=1.0):
             angle=theta / numpy.pi * 180,
             # label=label,
         )
-        plt.gca().add_artist(e)
+        plt.gca().add_patch(e)
         e.set_alpha(0.5)
         e.set_facecolor("k")
 
@@ -172,7 +161,7 @@ def _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling=1.0):
 
     # mpl doesn't update axis limits when adding artists,
     # <https://github.com/matplotlib/matplotlib/issues/19290>.
-    # Handle it manually.
+    # Handle it manually for now.
     tcenters = []
     for center, points in zip(xyy100_centers, xyy100_points):
         cs_center = cs.from_xyz100(_xyy100_to_xyz100(center))

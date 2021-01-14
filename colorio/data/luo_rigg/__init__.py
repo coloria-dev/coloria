@@ -13,7 +13,7 @@ import yaml
 from ..helpers import _compute_ellipse_residual, _plot_ellipses
 
 
-def load(num_offset_points):
+def load(num_offset_points: int):
     # Extract ellipse centers and offsets from MacAdams data
     this_dir = pathlib.Path(__file__).resolve().parent
     with open(this_dir / "luo-rigg.yaml") as f:
@@ -63,7 +63,7 @@ def savefig(filename, *args, **kwargs):
     plt.close()
 
 
-def plot(cs, ellipse_scaling=2.0, num_offset_points=16):
+def plot(cs, ellipse_scaling: float = 2.0, num_offset_points: int = 16):
     xyy100_centers, xyy100_points = load(num_offset_points)
     _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling)
     plt.title(f"Luo-Rigg ellipses for {cs.name}")

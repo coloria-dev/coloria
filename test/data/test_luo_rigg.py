@@ -14,12 +14,12 @@ def test_show():
     cs = colorio.cs.XYY1()
     colorio.data.luo_rigg.show(cs)
     with tempfile.TemporaryDirectory() as tmpdir:
-        colorio.data.luo_rigg.savefig(Path(tmpdir) / "out.png", cs, 50)
+        colorio.data.luo_rigg.savefig(Path(tmpdir) / "out.png", cs, 8)
 
 
 def test_residuals():
     cs = colorio.cs.CIELAB()
-    ref = 56.34687259218565
+    ref = 48.472622852849376
     res = colorio.data.luo_rigg.stress(cs, 8)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
