@@ -13,6 +13,7 @@ from ._ipt import IPT
 from ._jzazbz import JzAzBz
 from ._oklab import OKLAB
 from ._osa import OsaUcs
+from ._prolab import PROLAB
 from ._rlab import RLAB
 from ._srgb import SrgbLinear
 from ._xyy1 import XYY1
@@ -36,6 +37,7 @@ __all__ = [
     "observers",
     "OKLAB",
     "OsaUcs",
+    "PROLAB",
     "HdrLinear",
     "RLAB",
     "SrgbLinear",

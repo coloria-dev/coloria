@@ -28,5 +28,5 @@ class OKLAB(ColorSpace):
     def from_xyz100(self, xyz):
         return dot(self.M2, numpy.cbrt(dot(self.M1, xyz)))
 
-    def to_xyz100(self, xyz):
-        return dot(self.M1inv, dot(self.M2inv, xyz) ** 3)
+    def to_xyz100(self, lab):
+        return dot(self.M1inv, dot(self.M2inv, lab) ** 3)
