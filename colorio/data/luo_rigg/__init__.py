@@ -63,7 +63,7 @@ def savefig(filename, *args, **kwargs):
     plt.close()
 
 
-def plot(cs, ellipse_scaling:float =2.0, num_offset_points:int =16):
+def plot(cs, ellipse_scaling: float = 2.0, num_offset_points: int = 16):
     xyy100_centers, xyy100_points = load(num_offset_points)
     _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling)
     plt.title(f"Luo-Rigg ellipses for {cs.name}")

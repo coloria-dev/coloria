@@ -146,7 +146,7 @@ def _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling=1.0):
             angle=theta / numpy.pi * 180,
             # label=label,
         )
-        plt.gca().add_artist(e)
+        plt.gca().add_patch(e)
         e.set_alpha(0.5)
         e.set_facecolor("k")
 
@@ -161,7 +161,7 @@ def _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling=1.0):
 
     # mpl doesn't update axis limits when adding artists,
     # <https://github.com/matplotlib/matplotlib/issues/19290>.
-    # Handle it manually.
+    # Handle it manually for now.
     tcenters = []
     for center, points in zip(xyy100_centers, xyy100_points):
         cs_center = cs.from_xyz100(_xyy100_to_xyz100(center))
