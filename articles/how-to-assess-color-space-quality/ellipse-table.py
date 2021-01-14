@@ -12,6 +12,7 @@ color_spaces = [
     colorio.cs.JzAzBz(),
     colorio.cs.OKLAB(),
     colorio.cs.OsaUcs(),
+    colorio.cs.PROLAB(),
     colorio.cs.RLAB(),
     colorio.cs.XYY1(),
 ]

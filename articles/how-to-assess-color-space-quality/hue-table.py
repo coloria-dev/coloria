@@ -15,20 +15,21 @@ color_spaces = [
     colorio.cs.JzAzBz(),
     colorio.cs.OKLAB(),
     colorio.cs.OsaUcs(),
+    colorio.cs.PROLAB(),
     colorio.cs.RLAB(),
     colorio.cs.XYY1(),
 ]
 
-# for cs in color_spaces:
-#     vals = [
-#         colorio.data.hung_berns.stress(cs),
-#         colorio.data.ebner_fairchild.stress(cs),
-#         colorio.data.xiao.stress(cs),
-#     ]
-#     avg = numpy.average(numpy.concatenate(vals))
-#     vals = [numpy.average(val) for val in vals]
-#     # print(f"{cs.name}    {sum(vals)}")
-#     print(f"{cs.name} & {vals[0]:.1f} & {vals[1]:.1f} & {vals[2]:.1f} & {avg:.1f}\\\\")
+for cs in color_spaces:
+    vals = [
+        colorio.data.hung_berns.stress(cs),
+        colorio.data.ebner_fairchild.stress(cs),
+        colorio.data.xiao.stress(cs),
+    ]
+    avg = np.average(np.concatenate(vals))
+    vals = [np.average(val) for val in vals]
+    # print(f"{cs.name}    {sum(vals)}")
+    print(f"{cs.name} & {vals[0]:.1f} & {vals[1]:.1f} & {vals[2]:.1f} & {avg:.1f}\\\\")
 
 labels = [cs.name for cs in color_spaces]
 data_sets = {

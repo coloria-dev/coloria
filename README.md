@@ -76,7 +76,8 @@ The following color spaces are implemented:
    specification (see [here](https://arxiv.org/abs/1802.06067)).
  * [J<sub>z</sub>a<sub>z</sub>b<sub>z</sub>](https://doi.org/10.1364/OE.25.015131)
    (`colorio.cs.JzAzBz()`)
- * [OKLAB](https://bottosson.github.io/posts/oklab/)(`colorio.cs.OKLAB()`)
+ * [Oklab](https://bottosson.github.io/posts/oklab/)(`colorio.cs.OKLAB()`)
+ * [proLab](https://arxiv.org/abs/2012.07653)(`colorio.cs.PROLAB()`)
 
 All methods in colorio are fully vectorized, i.e., computation is _really_ fast.
 
