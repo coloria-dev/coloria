@@ -16,16 +16,17 @@ color_spaces = [
     colorio.cs.JzAzBz(),
     colorio.cs.OKLAB(),
     colorio.cs.OsaUcs(),
+    colorio.cs.PROLAB(),
     colorio.cs.RLAB(),
     colorio.cs.XYY1(),
 ]
 
-# for cs in color_spaces:
-#     vals = [
-#         colorio.data.macadam_1942.stress(cs, 50),
-#         colorio.data.macadam_1974.stress(cs),
-#     ]
-#     print(f"{cs.name} & {vals[0]:.1f} & {vals[1]:.1f}\\\\")
+for cs in color_spaces:
+    vals = [
+        colorio.data.macadam_1942.stress(cs, 50),
+        colorio.data.macadam_1974.stress(cs),
+    ]
+    print(f"{cs.name} & {vals[0]:.1f} & {vals[1]:.1f}\\\\")
 
 labels = [cs.name for cs in color_spaces]
 macadam_1942 = [colorio.data.macadam_1942.stress(cs, 50) for cs in color_spaces]
