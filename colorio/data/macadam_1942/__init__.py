@@ -104,5 +104,5 @@ def residual(cs, Y100: float) -> float:
     return val
 
 
-def stress(cs, Y100: float):
+def stress(cs, Y100: float) -> float:
     return 100 * residual(cs, Y100)

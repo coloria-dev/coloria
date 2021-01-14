@@ -449,29 +449,13 @@ l_p
 \end{remark}
 
 
-\begin{table}
+\begin{figure}
   \centering
-  \begin{tabular}{lrrrr}
-    \toprule
-    & Hung--Berns & Ebner--Fairchild & Xiao et al. & average\\
-    \midrule
-CAM02 (UCS) &         3.3  &         4.8  &         6.2  &         4.4\\
-CAM16 (UCS) &         4.0  &         5.1  &         5.7  &         4.8\\
-CIELAB      &         4.3  &         5.3  &         4.2  &         4.8\\
-CIELUV      &         4.2  &         4.8  &         4.9  &         4.6\\
-IPT         &         2.9  &         3.9  &         6.8  &         3.9\\
-$IC_TC_P$   &         3.8  &         7.0  &         4.2  &         5.4\\
-$J_za_zb_z$ &         2.7  &         4.1  &         5.8  &         3.8\\
-Oklab       &         2.6  &         4.1  &         5.8  &         3.7\\
-OSA-UCS     & \textbf{2.5} & \textbf{3.8} &         6.4  & \textbf{3.6}\\
-RLAB        &         4.2  &         5.4  &         5.4  &         4.9\\
-xyY         &         3.4  &         4.8  & \textbf{3.4} &         4.1\\
-    \bottomrule
-  \end{tabular}
-  \caption{$l_\text{STRESS}$ averaged over all arms of each data set and the total
-  average. The best value is highlighted in bold. While all listed color spaces perform
-  quite well, OSA-UCS is the overall best color space for hue linearity.}
-\end{table}
+  \input{lstress.tex}
+  \caption{$l_\text{STRESS}$ averaged over all arms of each data set.  While all listed
+  color spaces perform quite well, OSA-UCS is the overall best color space for hue
+  linearity.}
+\end{figure}
 
 
 % \printbibliography{}
