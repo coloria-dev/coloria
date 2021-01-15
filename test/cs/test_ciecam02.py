@@ -145,6 +145,13 @@ def test_gold():
     assert numpy.all(abs(values - reference_values) < 1.0e-6 * reference_values)
 
 
+def test_nan():
+    ciecam02 = colorio.cs.CIECAM02(0.69, 20, 64 / numpy.pi / 5)
+    xyz = numpy.full(3, numpy.nan)
+    out = ciecam02.from_xyz100(xyz)
+    assert numpy.all(numpy.isnan(out))
+
+
 # @pytest.mark.parametrize('variant, xyz100, ref', [
 #     # From
 # <https://github.com/njsmith/colorspacious/blob/master/colorspacious/gold_values.py>.
@@ -166,4 +173,4 @@ def test_gold():
 
 
 if __name__ == "__main__":
-    test_gold()
+    test_nan()
