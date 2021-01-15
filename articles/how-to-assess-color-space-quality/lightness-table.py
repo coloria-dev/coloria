@@ -24,7 +24,7 @@ color_spaces = [
 for cs in color_spaces:
     vals = [
         colorio.data.fairchild_chen.stress(cs, "SL1"),
-        colorio.data.fairchild_chen.stress(cs, "SL2")
+        colorio.data.fairchild_chen.stress(cs, "SL2"),
     ]
     print(f"{cs.name} & {vals[0]:.1f} & {vals[1]:.1f}\\\\")
 
@@ -60,5 +60,6 @@ ax.legend()
 fig.tight_layout()
 # plt.show()
 tikzplotlib.save(
-    "light_stress.tex", extra_axis_parameters=["width=\\textwidth", "height=0.5\\textwidth"]
+    "light_stress.tex",
+    extra_axis_parameters=["width=\\textwidth", "height=0.5\\textwidth"],
 )
