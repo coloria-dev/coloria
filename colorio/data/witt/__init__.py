@@ -74,7 +74,10 @@ def plot(cs, key):
         raise ColorioError(f"`key` must be one of {string}.")
 
     xyy = xyy_samples[key]
-    coords = cs.from_xyz100(XYY(100).to_xyz100(xyy.T))
+    # kick out the nans
+    xyy = xyy[~numpy.any(numpy.isnan(xyy), axis=1)]
+    xyz100 = XYY(100).to_xyz100(xyy.T)
+    coords = cs.from_xyz100(xyz100)
 
     # reorder the coords such that the lightness in the last (the z-)component
     coords = numpy.roll(coords, 2 - cs.k0, axis=0)
@@ -101,8 +104,6 @@ def residual(cs):
         cs_samples = cs.from_xyz100(xyz_samples).T
         cs_diff = cs_samples[pairs[~isnan, 0]] - cs_samples[pairs[~isnan, 1]]
         cs_dist = numpy.sqrt(numpy.einsum("ij,ij->i", cs_diff, cs_diff))
-        # print(numpy.column_stack([pairs[~isnan, 0], pairs[~isnan, 1], target_distances[key][~isnan], cs_dist]))
-        # exit(1)
         delta.append(cs_dist)
 
     d = numpy.concatenate(d)
