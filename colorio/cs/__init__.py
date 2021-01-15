@@ -16,7 +16,7 @@ from ._osa import OsaUcs
 from ._prolab import PROLAB
 from ._rlab import RLAB
 from ._srgb import SrgbLinear
-from ._xyy1 import XYY1
+from ._xyy import XYY
 from ._xyz1 import XYZ1
 
 __all__ = [
@@ -41,6 +41,6 @@ __all__ = [
     "HdrLinear",
     "RLAB",
     "SrgbLinear",
-    "XYY1",
+    "XYY",
     "XYZ1",
 ]

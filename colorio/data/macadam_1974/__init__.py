@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy
 import yaml
 
-from ...cs import XYY1
+from ...cs import XYY
 
 
 def _load_data():

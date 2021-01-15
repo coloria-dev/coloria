@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy
 import yaml
 
-from ...cs import XYY1
+from ...cs import XYY
 
 
 def _load_data():
@@ -20,11 +20,11 @@ def _load_data():
         xyy_samples = yaml.safe_load(f)
     xyy_samples = numpy.array([s for s in xyy_samples.values()])
     xyy_samples = {
-            "yellow": xyy_samples[:, 0],
-            "grey": xyy_samples[:, 1],
-            "green": xyy_samples[:, 2],
-            "red": xyy_samples[:, 3],
-            "blue": xyy_samples[:, 4],
+        "yellow": xyy_samples[:, 0],
+        "grey": xyy_samples[:, 1],
+        "green": xyy_samples[:, 2],
+        "red": xyy_samples[:, 3],
+        "blue": xyy_samples[:, 4],
     }
 
     with open(this_dir / "table_a2.yaml") as f:
@@ -58,24 +58,21 @@ def savefig(filename, *args, **kwargs):
 
 
 def plot(cs, key):
+    # only plot one tile set for now
     xyy_samples, _, _ = _load_data()
-
-    # only plot yellow for now
-    # d = distances[key]
     xyy = xyy_samples[key]
+    coords = cs.from_xyz100(XYY(100).to_xyz100(xyy.T))
 
-    xyz100 = XYY1().to_xyz100(xyy
+    # reorder the coords such that the lightness in the last (the z-)component
+    coords = numpy.roll(coords, 2 - cs.k0, axis=0)
+    labels = numpy.roll(cs.labels, 2 - cs.k0, axis=0)
 
-    print(xyy.shape)
-    exit(1)
     ax = plt.axes(projection="3d")
-    ax.scatter(*xyy.T, marker="o", color=key)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.set_zlabel("Y")
-    # plt.zlabel("Y")
-    # plt.title(
-    # ax.set_box_aspect((1, 1, 1))
+    ax.scatter(*coords, marker="o", color=key)
+    ax.set_xlabel(labels[0])
+    ax.set_ylabel(labels[1])
+    ax.set_zlabel(labels[2])
+    ax.set_title(f"Witt dataset, {key} tiles, in {cs.name}")
 
 
 def residual(cs):

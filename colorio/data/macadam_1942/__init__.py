@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy
 import yaml
 
-from ...cs import XYY1
+from ...cs import XYY
 from ..helpers import _plot_ellipses
 
 
@@ -79,19 +79,19 @@ def plot(cs, ellipse_scaling=10.0):
 def residual(cs, Y100: float) -> float:
     xy_centers, xy_offsets = _load_data()
 
-    xyy1 = XYY1()
+    xyy100 = XYY(Y_scaling=100)
 
     dists = []
     for c, off in zip(xy_centers, xy_offsets):
         pts = (c + off.T).T
 
         # get ellipse center in transformed space
-        xyY1_center = numpy.append(c, Y100 / 100)
-        c = cs.from_xyz100(xyy1.to_xyz100(xyY1_center))
+        xyY1_center = numpy.append(c, Y100)
+        c = cs.from_xyz100(xyy100.to_xyz100(xyY1_center))
 
         # get ellipse points in transformed space
-        xyY1_pts = numpy.array([*pts, numpy.full(pts.shape[1], Y100 / 100)])
-        pts = cs.from_xyz100(xyy1.to_xyz100(xyY1_pts))
+        xyY1_pts = numpy.array([*pts, numpy.full(pts.shape[1], Y100)])
+        pts = cs.from_xyz100(xyy100.to_xyz100(xyY1_pts))
 
         # compute the distance in the transformed space
         diff = (c - pts.T).T
