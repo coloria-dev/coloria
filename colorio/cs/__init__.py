@@ -34,7 +34,6 @@ __all__ = [
     "ICtCp",
     "IPT",
     "JzAzBz",
-    "observers",
     "OKLAB",
     "OsaUcs",
     "PROLAB",
