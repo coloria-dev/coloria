@@ -1,16 +1,14 @@
-import numpy
-
 import colorio
 
 
 def test_show():
     # cs = colorio.cs.CIELAB()
-    # cs = colorio.cs.CIEHCL()
-    # cs = colorio.cs.CIELCH()
     # cs = colorio.cs.OsaUcs()
     # cs = colorio.cs.IPT()
-    # cs = colorio.cs.JzAzBz()
-    cs = colorio.cs.XYY(1)
+    # cs = colorio.cs.ICtCp()
+    # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
+    cs = colorio.cs.JzAzBz()
+    # cs = colorio.cs.XYY(1)
     colorio.data.fairchild_chen.show(cs, "SL2")
     # colorio.data.fairchild_chen.savefig(cs)
 
@@ -29,5 +27,5 @@ def test_stress():
 
 
 if __name__ == "__main__":
-    # test_show()
-    test_stress()
+    test_show()
+    # test_stress()

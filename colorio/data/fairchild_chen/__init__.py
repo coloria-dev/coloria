@@ -33,18 +33,26 @@ def savefig(filename, *args):
 
 def plot(cs, key: str):
     assert key in ["SL1", "SL2"]
+    plt.style.use(dufte.style)
 
     data = load()[key]
 
-    # prediced lightness
+    # experimental lightness
+    L = data["lightness"]
+    # predicted lightness
     L_ = cs.from_xyz100(data["xyz"].T)[cs.k0]
 
-    plt.style.use(dufte.style)
+    Y = data["xyz"][:, 1]
+    plt.plot(Y, L, "o", label="experimental")
 
-    plt.plot(L_, data["lightness"], "o")
-    plt.xlabel(cs.labels[cs.k0])
-    plt.ylabel("experimental lightness")
-    plt.title(f"Fairchild-Chen {key} data for {cs.name}")
+    alpha = numpy.dot(L, L_) / numpy.dot(L, L)
+    plt.plot(Y, L_ / alpha, "-", label=f"{cs.name} (scaled)")
+
+    plt.xlabel("Y")
+    plt.ylabel("lightness")
+    plt.title(f"Fairchild-Chen {key} lightness data")
+    # dufte.legend()
+    plt.legend()
     plt.show()
 
 

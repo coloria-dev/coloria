@@ -298,6 +298,11 @@ colorspace = colorio.cs.CIELAB()
 colorio.data.xiao.show(colorspace)
 ```
 
+##### Fairchild-Chen
+
+Lightness experiment [Fairchild-Chen](https://doi.org/10.1117/12.872075).
+
+
 ##### Munsell
 
 <img src="https://nschloe.github.io/colorio/munsell-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cam16.svg" width="100%">
