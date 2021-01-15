@@ -17,7 +17,7 @@ color_spaces = [
     colorio.cs.OsaUcs(),
     colorio.cs.PROLAB(),
     colorio.cs.RLAB(),
-    colorio.cs.XYY1(),
+    colorio.cs.XYY(1),
 ]
 
 for cs in color_spaces:

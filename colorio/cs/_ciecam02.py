@@ -48,7 +48,10 @@ def compute_from(rgb_, cs):
     #         data given in Table 2.4.
     h_ = (h - cs.h[0]) % 360 + cs.h[0]
     e_t = (numpy.cos(numpy.deg2rad(h_) + 2) + 3.8) / 4
-    i = numpy.searchsorted(cs.h, h_) - 1
+    # For searchsorted, we don't need the last entry of cs.h. That's because the method
+    # will return len(arr)+1 if it wasn't successful. This also prevents difficulties
+    # with nans.
+    i = numpy.searchsorted(cs.h[:-1], h_) - 1
     beta = (h_ - cs.h[i]) * cs.e[i + 1]
     H = cs.H[i] + 100 * beta / (beta + cs.e[i] * (cs.h[i + 1] - h_))
 

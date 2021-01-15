@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Optional, Tuple
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -16,7 +16,7 @@ class ColorSpace:
         self,
         name: str,
         labels: Tuple[str, str, str],
-        k0: int,
+        k0: Optional[int],
         is_origin_well_defined: bool = True,
     ):
         self.name = name
