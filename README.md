@@ -27,7 +27,7 @@ writing a class that provides those two methods.
 
 The following color spaces are implemented:
 
- * [XYZ](https://en.wikipedia.org/wiki/CIE_1931_color_space) (`colorio.cs.XYZ1()`)
+ * [XYZ](https://en.wikipedia.org/wiki/CIE_1931_color_space) (`colorio.cs.XYZ(100)`)
  * [xyY](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space) (`colorio.cs.XYY(100)`)
  * [Linear SRGB](https://en.wikipedia.org/wiki/SRGB)  (`colorio.SrgbLinear()`)
    This class has the two additional methods
@@ -159,7 +159,7 @@ import colorio
 illuminant = colorio.illuminants.d65()
 observer = colorio.observers.cie_1931_2()
 
-colorspace = colorio.cs.XYZ1()
+colorspace = colorio.cs.XYZ(100)
 colorspace.save_visible_gamut(observer, illuminant, "visible.vtk")
 ```
 The gamut is shown in grey since SRGB screens are not able to display the colors anyway.

@@ -22,7 +22,8 @@ numpy.random.seed(0)
         (colorio.cs.RLAB(), 1.0e-14),
         (colorio.cs.XYY(1), 1.0e-14),
         (colorio.cs.XYY(100), 1.0e-14),
-        (colorio.cs.XYZ1(), 1.0e-14),
+        (colorio.cs.XYZ(1), 1.0e-14),
+        (colorio.cs.XYZ(100), 1.0e-14),
     ],
 )
 @pytest.mark.parametrize(

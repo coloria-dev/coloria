@@ -17,7 +17,7 @@ from ._prolab import PROLAB
 from ._rlab import RLAB
 from ._srgb import SrgbLinear
 from ._xyy import XYY
-from ._xyz1 import XYZ1
+from ._xyz import XYZ
 
 __all__ = [
     "CAM16",
@@ -42,5 +42,5 @@ __all__ = [
     "RLAB",
     "SrgbLinear",
     "XYY",
-    "XYZ1",
+    "XYZ",
 ]
