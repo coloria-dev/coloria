@@ -6,7 +6,7 @@ class XYZ(ColorSpace):
     """XYZ colorspace."""
 
     def __init__(self, scaling):
-        if not scaling in [1, 100]:
+        if scaling not in [1, 100]:
             raise ColorioError("scaling needs to be 1 or 100.")
 
         self.scaling = scaling

@@ -8,7 +8,7 @@ class XYY(ColorSpace):
     """xyY colorspace with Y scaled from 0 to 1."""
 
     def __init__(self, Y_scaling: int):
-        if not Y_scaling in [1, 100]:
+        if Y_scaling not in [1, 100]:
             raise ColorioError("Y_scaling needs to be 1 or 100.")
 
         super().__init__(
