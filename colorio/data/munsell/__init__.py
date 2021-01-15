@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
-from ...cs import SrgbLinear
+from ...cs import SrgbLinear, XYY
 
 
 def load():
@@ -15,9 +15,8 @@ def load():
     h = np.array(data["h"])
     V = np.array(data["V"])
     C = np.array(data["C"])
-    xyy = np.array([data["x"], data["y"], data["Y"]])
-
-    return h, V, C, xyy
+    xyy100 = np.array([data["x"], data["y"], data["Y"]])
+    return h, V, C, xyy100
 
 
 def show(*args, **kwargs):
@@ -68,3 +67,17 @@ def plot(cs, V):
     plt.xlabel(cs.labels[k1])
     plt.ylabel(cs.labels[k2])
     plt.axis("equal")
+
+
+def residual_lightness(cs):
+    _, V, _, xyy100 = load()
+
+    L_ = cs.from_xyz100(XYY(100).to_xyz100(xyy100))[cs.k0]
+
+    alpha = np.dot(V, L_) / np.dot(V, V)
+    diff = alpha * V - L_
+    return np.sqrt(np.dot(diff, diff) / np.dot(L_, L_))
+
+
+def stress_lightness(*args):
+    return 100 * residual_lightness(*args)
