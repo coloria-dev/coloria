@@ -73,10 +73,14 @@ def residual_lightness(cs):
     _, V, _, xyy100 = load()
 
     L_ = cs.from_xyz100(XYY(100).to_xyz100(xyy100))[cs.k0]
+    print(L_)
 
     alpha = np.dot(V, L_) / np.dot(V, V)
     diff = alpha * V - L_
-    return np.sqrt(np.dot(diff, diff) / np.dot(L_, L_))
+    val = np.sqrt(np.dot(diff, diff) / np.dot(L_, L_))
+    print(val)
+    exit(1)
+    return val
 
 
 def stress_lightness(*args):
