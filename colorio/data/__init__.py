@@ -1,5 +1,6 @@
 from . import (
     ebner_fairchild,
+    fairchild_chen,
     hung_berns,
     luo_rigg,
     macadam_1942,
@@ -11,6 +12,7 @@ from . import (
 
 __all__ = [
     "ebner_fairchild",
+    "fairchild_chen",
     "hung_berns",
     "luo_rigg",
     "macadam_1942",
