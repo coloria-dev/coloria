@@ -1,9 +1,8 @@
 """
-David L. MacAdam,
-Uniform color scales,
-Journal of the Optical Society of America, Vol. 64, Issue 12, pp. 1691-1702,
-1974,
-<https://doi.org/10.1364/JOSA.64.001691>.
+Klaus Witt,
+Geometric relations between scales of small colour differences,
+Color Research and Application, Volume 24, Issue 2, April 1999, Pages 78-92,
+<https://doi.org/10.1002/(SICI)1520-6378(199904)24:2<78::AID-COL3>3.0.CO;2-M>.
 """
 import pathlib
 
@@ -17,23 +16,31 @@ from ...cs import XYY1
 def _load_data():
     this_dir = pathlib.Path(__file__).resolve().parent
 
+    with open(this_dir / "table_a1.yaml") as f:
+        xyy_samples = yaml.safe_load(f)
+    xyy_samples = numpy.array([s for s in xyy_samples.values()])
+    xyy_samples = {
+            "yellow": xyy_samples[:, 0],
+            "grey": xyy_samples[:, 1],
+            "green": xyy_samples[:, 2],
+            "red": xyy_samples[:, 3],
+            "blue": xyy_samples[:, 4],
+    }
+
     with open(this_dir / "table_a2.yaml") as f:
         data = yaml.safe_load(f)
 
-    print(data)
-    exit(1)
-
-    t = dict(zip(data.keys(), range(len(data))))
-    xyy1_tiles = numpy.array([[val[0], val[1], val[2]] for val in data.values()])
-    xyy1_tiles[:, 2] /= 100
-    xyz100_tiles = XYY1().to_xyz100(xyy1_tiles.T)
-
-    with open(this_dir / "table1.yaml") as f:
-        data = yaml.safe_load(f)
-
-    d = numpy.array([item[3] for item in data])
-    pairs = numpy.array([[t[item[1]], t[item[2]]] for item in data])
-    return d, pairs, xyz100_tiles
+    # each line has 12 entries:
+    # pair, yellow (mean + sigma), grey (m+s), green (m+s), red (m+s), blue (m+s)
+    pairs = numpy.array([item[:2] for item in data])
+    distances = {
+        "yellow": numpy.array([item[2] for item in data]),
+        "grey": numpy.array([item[4] for item in data]),
+        "green": numpy.array([item[6] for item in data]),
+        "red": numpy.array([item[8] for item in data]),
+        "blue": numpy.array([item[10] for item in data]),
+    }
+    return xyy_samples, pairs, distances
 
 
 def show(*args, **kwargs):
@@ -50,47 +57,25 @@ def savefig(filename, *args, **kwargs):
     plt.close()
 
 
-def plot(cs):
-    d, pairs, xyz100_tiles = _load_data()
+def plot(cs, key):
+    xyy_samples, _, _ = _load_data()
 
-    # only consider the first 43 tiles which are all of approximately the same lightness
-    # TODO plot 3D tetrahedral pairs, too
-    d = d[numpy.all(pairs <= 43, axis=1)]
-    pairs = pairs[numpy.all(pairs <= 43, axis=1)]
-    xyz100_tiles = xyz100_tiles[:, :43]
-    pts = cs.from_xyz100(xyz100_tiles)
+    # only plot yellow for now
+    # d = distances[key]
+    xyy = xyy_samples[key]
 
-    # Plot the tile points.
-    pts_2d = numpy.delete(pts, cs.k0, axis=0)
-    plt.plot(pts_2d[0], pts_2d[1], "ok", fillstyle="none")
+    xyz100 = XYY1().to_xyz100(xyy
 
-    # for k, pt in enumerate(pts.T):
-    #     # plt.text(pt[0], pt[1], k + 1)
-    #     plt.plot(pt[0], pt[1], "ok", fillstyle="none")
-
-    # scale the distances
-    diff = pts[:, pairs]
-    delta = numpy.linalg.norm(diff[..., 0] - diff[..., 1], axis=0)
-    alpha = numpy.dot(d, delta) / numpy.dot(d, d)
-    d *= alpha
-
-    # plot arrow
-    for dist, pair in zip(d, pairs):
-        # arrow from pair[0] to pair[1]
-        base = pts[:, pair[0]]
-        diff = pts[:, pair[1]] - pts[:, pair[0]]
-        v = diff / numpy.linalg.norm(diff, 2) * dist / 2
-        base = numpy.delete(base, cs.k0)
-        v = numpy.delete(v, cs.k0)
-        plt.arrow(base[0], base[1], v[0], v[1], length_includes_head=True, color="k")
-        # arrow from pair[1] to pair[0]
-        base = pts[:, pair[1]]
-        base = numpy.delete(base, cs.k0)
-        v = -v
-        plt.arrow(base[0], base[1], v[0], v[1], length_includes_head=True, color="k")
-
-    plt.gca().set_aspect("equal")
-    plt.show()
+    print(xyy.shape)
+    exit(1)
+    ax = plt.axes(projection="3d")
+    ax.scatter(*xyy.T, marker="o", color=key)
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_zlabel("Y")
+    # plt.zlabel("Y")
+    # plt.title(
+    # ax.set_box_aspect((1, 1, 1))
 
 
 def residual(cs):
