@@ -20,7 +20,8 @@ numpy.random.seed(0)
         (colorio.cs.OsaUcs(), 1.0e-11),
         (colorio.cs.PROLAB(), 1.0e-14),
         (colorio.cs.RLAB(), 1.0e-14),
-        (colorio.cs.XYY1(), 1.0e-14),
+        (colorio.cs.XYY(1), 1.0e-14),
+        (colorio.cs.XYY(100), 1.0e-14),
         (colorio.cs.XYZ1(), 1.0e-14),
     ],
 )

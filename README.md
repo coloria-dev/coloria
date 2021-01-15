@@ -28,7 +28,7 @@ writing a class that provides those two methods.
 The following color spaces are implemented:
 
  * [XYZ](https://en.wikipedia.org/wiki/CIE_1931_color_space) (`colorio.cs.XYZ1()`)
- * [xyY](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space) (`colorio.cs.XYY1()`)
+ * [xyY](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space) (`colorio.cs.XYY(100)`)
  * [Linear SRGB](https://en.wikipedia.org/wiki/SRGB)  (`colorio.SrgbLinear()`)
    This class has the two additional methods
    ```
@@ -181,7 +181,7 @@ xyY (at Y=0.4)  |  CIELAB (at L=50)  |  CAM16-UCS (at J'=50) |
 ```python
 import colorio
 
-# xyy = colorio.cs.XYY1()
+# xyy = colorio.cs.XYY(100)
 # xyy.show_visible_slice("xyy-visible-slice.png", 2, 0.4)
 
 # cielab = colorio.cs.CIELAB()
@@ -223,7 +223,7 @@ article](https://doi.org/10.1364%2FJOSA.32.000247)) can be plotted with
 ```python
 import colorio
 
-# xyy = colorio.cs.XYY1()
+# xyy = colorio.cs.XYY(100)
 # colorio.data.macadam_1942.show(xyy, 0.4)
 # colorio.data.macadam_1942.savefig("macadam-xyy.png", xyy, 0.4)
 
@@ -242,7 +242,7 @@ Likewise for [Luo-Rigg](https://doi.org/10.1002/col.5080110107).
 ```python
 import colorio
 
-# xyy = colorio.cs.XYY1()
+# xyy = colorio.cs.XYY(100)
 # colorio.data.luo_rigg.show(xyy, 0.4)
 # colorio.data.luo_rigg.savefig("luo-rigg-xyy.png", xyy, 0.4)
 

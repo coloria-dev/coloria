@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy
 import yaml
 
+from ..._exceptions import ColorioError
 from ...cs import XYY
 
 
@@ -60,6 +61,11 @@ def savefig(filename, *args, **kwargs):
 def plot(cs, key):
     # only plot one tile set for now
     xyy_samples, _, _ = _load_data()
+
+    if key not in xyy_samples:
+        string = ", ".join(xyy_samples.keys())
+        raise ColorioError(f"`key` must be one of {string}.")
+
     xyy = xyy_samples[key]
     coords = cs.from_xyz100(XYY(100).to_xyz100(xyy.T))
 

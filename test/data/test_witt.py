@@ -14,7 +14,7 @@ def test_show():
     # cs = colorio.cs.CAM02("UCS", 0.69, 20, 4.074)
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     # cs = colorio.cs.JzAzBz()
-    # cs = colorio.cs.XYY1()
+    # cs = colorio.cs.XYY(1)
     colorio.data.witt.show(cs, "green")
     with tempfile.TemporaryDirectory() as tmpdir:
         colorio.data.witt.savefig(Path(tmpdir) / "out.png", cs, "green")

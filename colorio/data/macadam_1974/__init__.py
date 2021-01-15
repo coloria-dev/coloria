@@ -23,8 +23,7 @@ def _load_data():
 
     t = dict(zip(data.keys(), range(len(data))))
     xyy1_tiles = numpy.array([[val[0], val[1], val[2]] for val in data.values()])
-    xyy1_tiles[:, 2] /= 100
-    xyz100_tiles = XYY1().to_xyz100(xyy1_tiles.T)
+    xyz100_tiles = XYY(100).to_xyz100(xyy1_tiles.T)
 
     with open(this_dir / "table1.yaml") as f:
         data = yaml.safe_load(f)
