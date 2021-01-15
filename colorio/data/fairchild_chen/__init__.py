@@ -62,7 +62,9 @@ def residual(cs, key: str):
     # experimental lightness
     L = d["lightness"]
     # predicted lightness
-    L_ = cs.from_xyz100(d["xyz"].T)[cs.k0]
+    # Move L0 into origin for translation invariance
+    L0_ = cs.from_xyz100([0, 0, 0])[cs.k0]
+    L_ = cs.from_xyz100(d["xyz"].T)[cs.k0] - L0_
 
     alpha = np.dot(L, L_) / np.dot(L, L)
     diff = alpha * L - L_
