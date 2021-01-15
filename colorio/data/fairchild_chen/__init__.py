@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 import numpy
 import yaml
 
-from ..helpers import _compute_straight_line_residuals
-
 
 def load():
     this_dir = pathlib.Path(__file__).resolve().parent
@@ -19,40 +17,49 @@ def load():
     return data
 
 
-def show(cs):
+def show(*args):
     plt.figure()
-    plot(cs)
+    plot(*args)
     plt.show()
     plt.close()
 
 
-def savefig(cs, filename):
+def savefig(filename, *args):
     plt.figure()
-    plot(cs)
+    plot(*args)
     plt.savefig(filename, transparent=True, bbox_inches="tight")
     plt.close()
 
 
-def plot(cs):
-    d = load()
-    data = d["SL2"]
+def plot(cs, key: str):
+    assert key in ["SL1", "SL2"]
 
-    coords = cs.from_xyz100(data["xyz"].T)
-    l = coords[cs.k0]
+    data = load()[key]
+
+    # prediced lightness
+    L_ = cs.from_xyz100(data["xyz"].T)[cs.k0]
 
     plt.style.use(dufte.style)
 
-    plt.plot(l, data["lightness"], "o")
+    plt.plot(L_, data["lightness"], "o")
     plt.xlabel(cs.labels[cs.k0])
     plt.ylabel("experimental lightness")
-    plt.title(f"Fairchild-Chen SL2 data for {cs.name}")
+    plt.title(f"Fairchild-Chen {key} data for {cs.name}")
     plt.show()
 
 
-def residuals(cs):
-    wp, d = load()
-    return _compute_straight_line_residuals(cs, wp, d)
+def residual(cs, key: str):
+    d = load()[key]
+
+    # experimental lightness
+    L = d["lightness"]
+    # predicted lightness
+    L_ = cs.from_xyz100(d["xyz"].T)[cs.k0]
+
+    alpha = numpy.dot(L, L_) / numpy.dot(L, L)
+    diff = alpha * L - L_
+    return numpy.sqrt(numpy.dot(diff, diff) / numpy.dot(L_, L_))
 
 
-def stress(cs):
-    return 100 * residuals(cs)
+def stress(*args):
+    return 100 * residual(*args)
