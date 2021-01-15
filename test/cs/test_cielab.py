@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 import pytest
 
 import colorio
@@ -16,9 +16,9 @@ import colorio
 )
 def test_reference_xyz(xyz100, ref):
     cielab = colorio.cs.CIELAB()
-    xyz100 = numpy.array(xyz100)
-    assert numpy.all(
-        numpy.abs(cielab.from_xyz100(xyz100) - ref) < 1.0e-4 * numpy.abs(ref) + 1.0e-15
+    xyz100 = np.array(xyz100)
+    assert np.all(
+        np.abs(cielab.from_xyz100(xyz100) - ref) < 1.0e-4 * np.abs(ref) + 1.0e-15
     )
 
 
@@ -36,7 +36,7 @@ def test_reference_xyz_d50(xyz100, ref):
     cielab = colorio.cs.CIELAB(
         whitepoint=colorio.illuminants.whitepoints_cie1931["D50"]
     )
-    xyz100 = numpy.array(xyz100)
-    assert numpy.all(
-        numpy.abs(cielab.from_xyz100(xyz100) - ref) < 1.0e-4 * numpy.abs(ref) + 1.0e-15
+    xyz100 = np.array(xyz100)
+    assert np.all(
+        np.abs(cielab.from_xyz100(xyz100) - ref) < 1.0e-4 * np.abs(ref) + 1.0e-15
     )

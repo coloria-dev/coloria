@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 import pytest
 
 import colorio
@@ -13,9 +13,9 @@ import colorio
 )
 def test_reference_xyz(xyz, ref):
     cs = colorio.cs.CIELCH()
-    xyz = numpy.array(xyz)
-    ref = numpy.array(ref)
-    assert numpy.all(abs(cs.from_xyz100(xyz) - ref) < 1.0e-4 * ref)
+    xyz = np.array(xyz)
+    ref = np.array(ref)
+    assert np.all(abs(cs.from_xyz100(xyz) - ref) < 1.0e-4 * ref)
 
 
 @pytest.mark.parametrize(
@@ -26,6 +26,6 @@ def test_reference_xyz(xyz, ref):
     ],
 )
 def test_reference_xyz_d50(vals, ref):
-    cs = colorio.cs.CIELCH(whitepoint=numpy.array([96.422, 100, 82.521]) / 100)
-    xyz = numpy.array(vals) / 100
-    assert numpy.all(abs(cs.from_xyz100(xyz) - ref) < 1.0e-6 * abs(numpy.array(ref)))
+    cs = colorio.cs.CIELCH(whitepoint=np.array([96.422, 100, 82.521]) / 100)
+    xyz = np.array(vals) / 100
+    assert np.all(abs(cs.from_xyz100(xyz) - ref) < 1.0e-6 * abs(np.array(ref)))

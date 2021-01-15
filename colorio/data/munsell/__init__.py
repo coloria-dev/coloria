@@ -1,7 +1,7 @@
 import pathlib
 
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
 import yaml
 
 from ...cs import SrgbLinear
@@ -12,10 +12,10 @@ def load():
     with open(this_dir / "real.yaml") as f:
         data = yaml.safe_load(f)
 
-    h = numpy.array(data["h"])
-    V = numpy.array(data["V"])
-    C = numpy.array(data["C"])
-    xyy = numpy.array([data["x"], data["y"], data["Y"]])
+    h = np.array(data["h"])
+    V = np.array(data["V"])
+    C = np.array(data["C"])
+    xyy = np.array([data["x"], data["y"], data["Y"]])
 
     return h, V, C, xyy
 
@@ -41,12 +41,12 @@ def plot(cs, V):
     xyy = xyy[:, v == V]
 
     x, y, Y = xyy
-    xyz100 = numpy.array([Y / y * x, Y, Y / y * (1 - x - y)])
+    xyz100 = np.array([Y / y * x, Y, Y / y * (1 - x - y)])
     vals = cs.from_xyz100(xyz100)
 
     srgb = SrgbLinear()
     rgb = srgb.from_xyz100(xyz100)
-    is_legal_srgb = numpy.all((0 <= rgb) & (rgb <= 1), axis=0)
+    is_legal_srgb = np.all((0 <= rgb) & (rgb <= 1), axis=0)
 
     idx = [0, 1, 2]
     k1, k2 = idx[: cs.k0] + idx[cs.k0 + 1 :]

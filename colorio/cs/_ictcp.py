@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 
 from .._linalg import dot, solve
 from ._color_space import ColorSpace
@@ -14,7 +14,7 @@ class ICtCp(ColorSpace):
     def __init__(self):
         super().__init__("IC_TC_P", ("I", "C_T", "C_P"), 0)
         self.M1 = (
-            numpy.array([[1688, 2146, 262], [683, 2951, 462], [99, 309, 3688]]) / 4096
+            np.array([[1688, 2146, 262], [683, 2951, 462], [99, 309, 3688]]) / 4096
         )
 
         # From <https://doi.org/10.5594/SMPTE.ST2084.2014>
@@ -25,7 +25,7 @@ class ICtCp(ColorSpace):
         self.c3 = 2392 / 4096 * 32
 
         self.M2 = (
-            numpy.array([[2048, 2048, 0], [6610, -13613, 7003], [17933, -17390, -543]])
+            np.array([[2048, 2048, 0], [6610, -13613, 7003], [17933, -17390, -543]])
             / 4096
         )
 

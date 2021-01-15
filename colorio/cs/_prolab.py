@@ -1,7 +1,7 @@
 # Ivan A. Konovalenko, Anna A. Smagina, Dmitry P. Nikolaev, Petr P. Nikolaev,
 # ProLab: perceptually uniform projective colour coordinate system,
 # https://arxiv.org/abs/2012.07653
-import numpy
+import numpy as np
 
 from .._linalg import dot
 from ..illuminants import whitepoints_cie1931
@@ -16,15 +16,15 @@ class PROLAB(ColorSpace):
         #  Q = ( Q 0 )
         #      ( q 1 )
         #
-        self.Q = numpy.array(
+        self.Q = np.array(
             [
                 [79.4725, 486.6610, 153.7311],
                 [649.9038, -595.4477, -20.4498],
                 [50.8625, 194.9377, -223.4334],
             ]
         )
-        self.q = numpy.array([0.7947, 3.8666, 1.5373])
-        self.Qinv = numpy.linalg.inv(self.Q)
+        self.q = np.array([0.7947, 3.8666, 1.5373])
+        self.Qinv = np.linalg.inv(self.Q)
 
     def from_xyz100(self, xyz):
         xyz = (xyz.T / whitepoints_cie1931["D65"]).T

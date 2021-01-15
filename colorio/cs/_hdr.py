@@ -1,11 +1,11 @@
-import numpy
+import numpy as np
 
 from .._linalg import dot, solve
 
 
 def _xyy_to_xyz100(xyy):
     x, y, Y = xyy
-    return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
+    return np.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
 
 
 class HdrLinear:
@@ -18,7 +18,7 @@ class HdrLinear:
 
     def __init__(self):
         # TODO The Y-coordinate is guessed, it does not explicitly appear in the spec.
-        primaries_xyy = numpy.array(
+        primaries_xyy = np.array(
             [[0.708, 0.292, 1 / 3], [0.170, 0.797, 1 / 3], [0.131, 0.046, 1 / 3]]
         )
 
@@ -36,7 +36,7 @@ class HdrLinear:
 
     # gamma corrections:
     def from_rgb1(self, hdr1):
-        out = numpy.asarray(hdr1, dtype=float)
+        out = np.asarray(hdr1, dtype=float)
 
         is_smaller = out <= 4.5 * self.beta
         out[is_smaller] /= 4.5
@@ -46,7 +46,7 @@ class HdrLinear:
         return out
 
     def to_rgb1(self, hdr_linear):
-        out = numpy.asarray(hdr_linear, dtype=float)
+        out = np.asarray(hdr_linear, dtype=float)
 
         is_smaller = hdr_linear <= self.beta
         out[is_smaller] *= 4.5
@@ -54,7 +54,7 @@ class HdrLinear:
         return out
 
     def from_rgb255(self, srgb255):
-        return self.from_rgb1(numpy.asarray(srgb255) / 255)
+        return self.from_rgb1(np.asarray(srgb255) / 255)
 
     def to_rgb255(self, srgb_linear):
         return 255 * self.to_rgb1(srgb_linear)

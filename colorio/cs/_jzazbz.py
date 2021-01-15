@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 
 from .._linalg import dot, solve
 from ..illuminants import whitepoints_cie1931
@@ -28,14 +28,14 @@ class JzAzBz(ColorSpace):
         self.d = -0.56
         self.d0 = 1.6295499532821566e-11
 
-        self.M1 = numpy.array(
+        self.M1 = np.array(
             [
                 [0.41478972, 0.579999, 0.0146480],
                 [-0.2015100, 1.120649, 0.0531008],
                 [-0.0166008, 0.264800, 0.6684799],
             ]
         )
-        self.M2 = numpy.array(
+        self.M2 = np.array(
             [
                 [0.5, 0.5, 0],
                 [3.524000, -4.066708, +0.542708],
@@ -56,13 +56,13 @@ class JzAzBz(ColorSpace):
         ) ** self.p
         iz, az, bz = dot(self.M2, lms_)
         jz = (1 + self.d) * iz / (1 + self.d * iz) - self.d0
-        return numpy.array([jz, az, bz])
+        return np.array([jz, az, bz])
 
     def to_xyz100(self, jzazbz):
         jz, az, bz = jzazbz
         iz = (jz + self.d0) / (1 + self.d - self.d * (jz + self.d0))
-        lms_ = solve(self.M2, numpy.array([iz, az, bz]))
-        assert numpy.all(lms_ >= 0.0)
+        lms_ = solve(self.M2, np.array([iz, az, bz]))
+        assert np.all(lms_ >= 0.0)
         lms = 10000 * (
             (self.c1 - lms_ ** (1 / self.p))
             / (self.c3 * lms_ ** (1 / self.p) - self.c2)
@@ -70,5 +70,5 @@ class JzAzBz(ColorSpace):
         x_, y_, z_ = solve(self.M1, lms)
         x = (x_ + (self.b - 1) * z_) / self.b
         y = (y_ + (self.g - 1) * x) / self.g
-        # return (numpy.array([x, y, z_]).T * self.whitepoint).T
-        return numpy.array([x, y, z_])
+        # return (np.array([x, y, z_]).T * self.whitepoint).T
+        return np.array([x, y, z_])

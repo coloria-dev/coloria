@@ -2,7 +2,7 @@ from typing import Optional, Tuple
 
 import matplotlib
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
 
 from .._helpers import _find_Y
 from .._tools import get_mono_outline_xy, spectrum_to_xyz100
@@ -36,23 +36,23 @@ class ColorSpace:
 
         # Iterate over every possible illuminant input and store it in values
         n = len(lmbda)
-        values = numpy.empty((n * (n - 1) + 2, 3))
+        values = np.empty((n * (n - 1) + 2, 3))
         k = 0
 
         # No light
-        data = numpy.zeros(n)
+        data = np.zeros(n)
         values[k] = spectrum_to_xyz100((lmbda, illu * data), observer=observer)
         k += 1
         # frequency blocks
         for width in range(1, n):
-            data = numpy.zeros(n)
+            data = np.zeros(n)
             data[:width] = 1.0
             for _ in range(n):
                 values[k] = spectrum_to_xyz100((lmbda, illu * data), observer=observer)
                 k += 1
-                data = numpy.roll(data, shift=1)
+                data = np.roll(data, shift=1)
         # Full illuminant
-        data = numpy.ones(len(lmbda))
+        data = np.ones(len(lmbda))
         values[k] = spectrum_to_xyz100((lmbda, illu * data), observer=observer)
         k += 1
 
@@ -64,7 +64,7 @@ class ColorSpace:
 
         if not self.is_origin_well_defined:
             values = values[1:]
-            cells = cells[~numpy.any(cells == 0, axis=1)]
+            cells = cells[~np.any(cells == 0, axis=1)]
             cells -= 1
 
         pts = self.from_xyz100(values.T).T
@@ -86,7 +86,7 @@ class ColorSpace:
         if not self.is_origin_well_defined:
             # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
             points = points[1:]
-            cells = cells[~numpy.any(cells == 0, axis=1)]
+            cells = cells[~np.any(cells == 0, axis=1)]
             cells -= 1
 
         pts = self.from_xyz100(rgb_linear.to_xyz100(points.T)).T
@@ -105,7 +105,7 @@ class ColorSpace:
             xy, _ = get_mono_outline_xy(observer, max_stepsize=max_stepsize)
 
             # append third component
-            xy = numpy.column_stack([xy, numpy.full(xy.shape[0], 1.0e-5)])
+            xy = np.column_stack([xy, np.full(xy.shape[0], 1.0e-5)])
 
             # Draw a cross.
             poly = geom.add_polygon(xy, mesh_size=max_stepsize)
@@ -140,15 +140,15 @@ class ColorSpace:
             observer=cie_1931_2(), max_stepsize=outline_prec
         )
 
-        mono_vals = numpy.array([_find_Y(self, xy, lightness) for xy in mono_xy])
-        conn_vals = numpy.array([_find_Y(self, xy, lightness) for xy in conn_xy])
+        mono_vals = np.array([_find_Y(self, xy, lightness) for xy in mono_xy])
+        conn_vals = np.array([_find_Y(self, xy, lightness) for xy in conn_xy])
 
         k1, k2 = [k for k in [0, 1, 2] if k != self.k0]
         plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
         plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
         #
         if fill_color is not None:
-            xyz = numpy.vstack([mono_vals, conn_vals[1:]])
+            xyz = np.vstack([mono_vals, conn_vals[1:]])
             plt.fill(xyz[:, k1], xyz[:, k2], facecolor=fill_color, zorder=0)
 
         plt.axis("equal")
@@ -183,9 +183,9 @@ class ColorSpace:
         tol = 1.0e-5
         # Use zeros() instead of empty() here to avoid invalid values when setting up
         # the cmap below.
-        self_vals = numpy.zeros((srgb_vals.shape[0], 3))
-        srgb_linear_vals = numpy.zeros((srgb_vals.shape[0], 3))
-        mask = numpy.ones(srgb_vals.shape[0], dtype=bool)
+        self_vals = np.zeros((srgb_vals.shape[0], 3))
+        srgb_linear_vals = np.zeros((srgb_vals.shape[0], 3))
+        mask = np.ones(srgb_vals.shape[0], dtype=bool)
         for k, val in enumerate(srgb_vals):
             alpha_min = 0.0
             xyz100 = srgb_linear.to_xyz100(val * alpha_min)
@@ -194,7 +194,7 @@ class ColorSpace:
                 mask[k] = False
                 continue
 
-            alpha_max = 1.0 / numpy.max(val)
+            alpha_max = 1.0 / np.max(val)
 
             xyz100 = srgb_linear.to_xyz100(val * alpha_max)
             self_val_max = self.from_xyz100(xyz100)[self.k0]
@@ -218,8 +218,8 @@ class ColorSpace:
             self_vals[k] = self_val
 
         # Remove all triangles which have masked corner points
-        tri_mask = numpy.all(mask[triangles], axis=1)
-        if ~numpy.any(tri_mask):
+        tri_mask = np.all(mask[triangles], axis=1)
+        if ~np.any(tri_mask):
             return
         triangles = triangles[tri_mask]
 
@@ -227,7 +227,7 @@ class ColorSpace:
         # <https://github.com/matplotlib/matplotlib/issues/10265>). As a workaround,
         # associate range(n) data with the points and create a colormap that associates
         # the integer values with the respective RGBs.
-        z = numpy.arange(srgb_vals.shape[0])
+        z = np.arange(srgb_vals.shape[0])
         rgb = srgb_linear.to_rgb1(srgb_linear_vals)
         cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
             "gamut", rgb, N=len(rgb)
@@ -248,4 +248,4 @@ class ColorSpace:
 
 def _xyy_to_xyz100(xyy):
     x, y, Y = xyy
-    return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
+    return np.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100

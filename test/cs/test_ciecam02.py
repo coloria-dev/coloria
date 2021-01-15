@@ -1,69 +1,69 @@
-import numpy
+import numpy as np
 import pytest
 
 import colorio
 
-numpy.random.seed(0)
+np.random.seed(0)
 
 
 @pytest.mark.parametrize(
-    "xyz", [numpy.random.rand(3), numpy.random.rand(3, 7), numpy.random.rand(3, 4, 5)]
+    "xyz", [np.random.rand(3), np.random.rand(3, 7), np.random.rand(3, 4, 5)]
 )
 def test_conversion(xyz):
     # test with srgb conditions
-    ciecam02 = colorio.cs.CIECAM02(0.69, 20, 64 / numpy.pi / 5)
+    ciecam02 = colorio.cs.CIECAM02(0.69, 20, 64 / np.pi / 5)
     J, C, H, h, M, s, Q = ciecam02.from_xyz100(xyz)
 
-    out = ciecam02.to_xyz100(numpy.array([J, C, H]), "JCH")
-    assert numpy.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
+    out = ciecam02.to_xyz100(np.array([J, C, H]), "JCH")
+    assert np.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
 
-    out = ciecam02.to_xyz100(numpy.array([Q, M, h]), "QMh")
-    assert numpy.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
+    out = ciecam02.to_xyz100(np.array([Q, M, h]), "QMh")
+    assert np.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
 
-    out = ciecam02.to_xyz100(numpy.array([J, s, h]), "Jsh")
-    assert numpy.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
+    out = ciecam02.to_xyz100(np.array([J, s, h]), "Jsh")
+    assert np.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
 
 
 def test_breakdown():
     bad_xyz = [8.71292997, 2.02183974, 83.26198455]
-    ciecam02 = colorio.cs.CIECAM02(0.69, 20, L_A=64 / numpy.pi / 5)
+    ciecam02 = colorio.cs.CIECAM02(0.69, 20, L_A=64 / np.pi / 5)
     with pytest.raises(colorio.ColorioError):
         ciecam02.from_xyz100(bad_xyz)
 
 
 @pytest.mark.parametrize("variant", ["LCD", "SCD", "UCS"])
 @pytest.mark.parametrize(
-    "xyz", [numpy.random.rand(3), numpy.random.rand(3, 7), numpy.random.rand(3, 4, 5)]
+    "xyz", [np.random.rand(3), np.random.rand(3, 7), np.random.rand(3, 4, 5)]
 )
 def test_conversion_variants(variant, xyz):
     # test with srgb conditions
-    L_A = 64 / numpy.pi / 5
+    L_A = 64 / np.pi / 5
     cam02 = colorio.cs.CAM02(variant, 0.69, 20, L_A)
     out = cam02.to_xyz100(cam02.from_xyz100(xyz))
-    assert numpy.all(abs(xyz - out) < 1.0e-14)
+    assert np.all(abs(xyz - out) < 1.0e-14)
 
 
-@pytest.mark.parametrize("xyz", [numpy.zeros(3), numpy.zeros((3, 4, 5))])
+@pytest.mark.parametrize("xyz", [np.zeros(3), np.zeros((3, 4, 5))])
 def test_zero(xyz):
-    L_A = 64 / numpy.pi / 5
+    L_A = 64 / np.pi / 5
     cs = colorio.cs.CIECAM02(0.69, 20, L_A)
     J, C, H, h, M, s, Q = cs.from_xyz100(xyz)
 
-    assert numpy.all(J == 0.0)
-    assert numpy.all(C == 0.0)
-    assert numpy.all(h == 0.0)
-    assert numpy.all(M == 0.0)
-    assert numpy.all(s == 0.0)
-    assert numpy.all(Q == 0.0)
+    assert np.all(J == 0.0)
+    assert np.all(C == 0.0)
+    assert np.all(h == 0.0)
+    assert np.all(M == 0.0)
+    assert np.all(s == 0.0)
+    assert np.all(Q == 0.0)
 
-    out = cs.to_xyz100(numpy.array([J, C, H]), "JCH")
-    assert numpy.all(abs(out) < 1.0e-13)
+    out = cs.to_xyz100(np.array([J, C, H]), "JCH")
+    assert np.all(abs(out) < 1.0e-13)
 
-    out = cs.to_xyz100(numpy.array([Q, M, h]), "QMh")
-    assert numpy.all(abs(out) < 1.0e-13)
+    out = cs.to_xyz100(np.array([Q, M, h]), "QMh")
+    assert np.all(abs(out) < 1.0e-13)
 
-    out = cs.to_xyz100(numpy.array([J, s, h]), "Jsh")
-    assert numpy.all(abs(out) < 1.0e-13)
+    out = cs.to_xyz100(np.array([J, s, h]), "Jsh")
+    assert np.all(abs(out) < 1.0e-13)
 
 
 def test_gold():
@@ -72,7 +72,7 @@ def test_gold():
     xyz = [19.31, 23.93, 10.14]
     ciecam02 = colorio.cs.CIECAM02(0.69, 18, 200, whitepoint=[98.88, 90, 32.03])
     values = ciecam02.from_xyz100(xyz)
-    reference_values = numpy.array(
+    reference_values = np.array(
         [
             # J, C, H, h, M, s, Q
             48.0314,
@@ -84,13 +84,13 @@ def test_gold():
             183.1240,
         ]
     )
-    assert numpy.all(abs(values - reference_values) < 1.0e-6 * reference_values)
+    assert np.all(abs(values - reference_values) < 1.0e-6 * reference_values)
 
     # different L_A
     xyz = [19.31, 23.93, 10.14]
     ciecam02 = colorio.cs.CIECAM02(0.69, 18, 20, whitepoint=[98.88, 90, 32.03])
     values = ciecam02.from_xyz100(xyz)
-    reference_values = numpy.array(
+    reference_values = np.array(
         [
             # J, C, H, h, M, s, Q
             47.6856,
@@ -102,7 +102,7 @@ def test_gold():
             113.8401,
         ]
     )
-    assert numpy.all(abs(values - reference_values) < 1.0e-5 * reference_values)
+    assert np.all(abs(values - reference_values) < 1.0e-5 * reference_values)
 
     # gold values from Mark Fairchild's spreadsheet at
     #   http://rit-mcsl.org/fairchild//files/AppModEx.xls
@@ -111,7 +111,7 @@ def test_gold():
         0.69, 20, 318.30988618379, whitepoint=[95.05, 100.0, 108.88]
     )
     values = ciecam02.from_xyz100(xyz)
-    reference_values = numpy.array(
+    reference_values = np.array(
         [
             # J, C, H, h, M, s, Q
             4.17310911e01,
@@ -123,14 +123,14 @@ def test_gold():
             1.95371311e02,
         ]
     )
-    assert numpy.all(abs(values - reference_values) < 1.0e-8 * reference_values)
+    assert np.all(abs(values - reference_values) < 1.0e-8 * reference_values)
 
     xyz = [57.06, 43.06, 31.96]
     ciecam02 = colorio.cs.CIECAM02(
         0.69, 20, 31.830988618379, whitepoint=[95.05, 100.0, 108.88]
     )
     values = ciecam02.from_xyz100(xyz)
-    reference_values = numpy.array(
+    reference_values = np.array(
         [
             # J, C, H, h, M, s, Q
             65.95523,
@@ -142,14 +142,14 @@ def test_gold():
             152.67220,
         ]
     )
-    assert numpy.all(abs(values - reference_values) < 1.0e-6 * reference_values)
+    assert np.all(abs(values - reference_values) < 1.0e-6 * reference_values)
 
 
 def test_nan():
-    ciecam02 = colorio.cs.CIECAM02(0.69, 20, 64 / numpy.pi / 5)
-    xyz = numpy.full(3, numpy.nan)
+    ciecam02 = colorio.cs.CIECAM02(0.69, 20, 64 / np.pi / 5)
+    xyz = np.full(3, np.nan)
     out = ciecam02.from_xyz100(xyz)
-    assert numpy.all(numpy.isnan(out))
+    assert np.all(np.isnan(out))
 
 
 # @pytest.mark.parametrize('variant, xyz100, ref', [
@@ -164,11 +164,11 @@ def test_nan():
 #     ])
 # def test_reference(variant, xyz100, ref):
 #     cs = colorio.CAM02(
-#         variant, whitepoint=numpy.array([96.422, 100, 82.521])/100
+#         variant, whitepoint=np.array([96.422, 100, 82.521])/100
 #         )
-#     xyz = numpy.array(xyz100) / 100
-#     assert numpy.all(
-#         abs(cs.from_xyz100(xyz) - ref) < 1.0e-6 * abs(numpy.array(ref))
+#     xyz = np.array(xyz100) / 100
+#     assert np.all(
+#         abs(cs.from_xyz100(xyz) - ref) < 1.0e-6 * abs(np.array(ref))
 #         )
 
 

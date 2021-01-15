@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
 
 from ..cs import SrgbLinear
 
@@ -16,12 +16,12 @@ def _compute_straight_line_residuals(cs, wp, d):
         # move values such that whitepoint is in the origin
         vals = (vals.T - wp_cs).T
         # could also be computed explicitly
-        s_max, s_min = numpy.linalg.svd(vals, compute_uv=False)
+        s_max, s_min = np.linalg.svd(vals, compute_uv=False)
         s2.append(s_min / s_max)
         # plt.plot(vals[0], vals[1], "x")
         # plt.gca().set_aspect("equal")
         # plt.show()
-    return numpy.array(s2)
+    return np.array(s2)
 
 
 def _plot_hue_linearity_data(
@@ -38,13 +38,13 @@ def _plot_hue_linearity_data(
 
         # get the eigenvector corresponding to the larger eigenvalue
         d_wp = (d.T - wp).T
-        vals, vecs = numpy.linalg.eigh(d_wp @ d_wp.T)
+        vals, vecs = np.linalg.eigh(d_wp @ d_wp.T)
         v = vecs[:, 0] if vals[0] > vals[1] else vecs[:, 1]
 
-        if numpy.dot(v, numpy.average(d, axis=1)) < 0:
+        if np.dot(v, np.average(d, axis=1)) < 0:
             v = -v
 
-        length = numpy.sqrt(numpy.max(numpy.einsum("ij,ij->i", d.T - wp, d.T - wp)))
+        length = np.sqrt(np.max(np.einsum("ij,ij->i", d.T - wp, d.T - wp)))
         end_point = wp + length * v
         plt.plot([wp[0], end_point[0]], [wp[1], end_point[1]], "-", color="0.5")
 
@@ -54,7 +54,7 @@ def _plot_hue_linearity_data(
                 rgb[rgb > 1] = 1
                 rgb[rgb < 0] = 0
             else:
-                is_legal_srgb = numpy.all(rgb >= 0) and numpy.all(rgb <= 1)
+                is_legal_srgb = np.all(rgb >= 0) and np.all(rgb <= 1)
             col = srgb.to_rgb1(rgb) if is_legal_srgb else "white"
             ecol = srgb.to_rgb1(rgb) if is_legal_srgb else "black"
             plt.plot(dd[0], dd[1], "o", color=col, markeredgecolor=ecol)
@@ -80,16 +80,16 @@ def _compute_ellipse_residual(cs, xyy100_centers, xyy100_points):
         cs_ellips = cs.from_xyz100(_xyy100_to_xyz100(xyy100_pts))
         # compute distances to ellipse center
         diff = (cs_center - cs_ellips.T).T
-        distances.append(numpy.sqrt(numpy.einsum("ij,ij->j", diff, diff)))
+        distances.append(np.sqrt(np.einsum("ij,ij->j", diff, diff)))
 
-    distances = numpy.concatenate(distances)
-    alpha = numpy.average(distances)
-    return numpy.sqrt(numpy.sum((alpha - distances) ** 2) / numpy.sum(distances ** 2))
+    distances = np.concatenate(distances)
+    alpha = np.average(distances)
+    return np.sqrt(np.sum((alpha - distances) ** 2) / np.sum(distances ** 2))
 
 
 def _xyy100_to_xyz100(xyy):
     x, y, Y = xyy
-    return numpy.array([Y / y * x, Y, Y / y * (1 - x - y)])
+    return np.array([Y / y * x, Y, Y / y * (1 - x - y)])
 
 
 def _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling=1.0):
@@ -102,8 +102,8 @@ def _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling=1.0):
         cs_points = cs.from_xyz100(_xyy100_to_xyz100(points))
 
         # project out lightness component
-        tcenter = numpy.delete(cs_center, cs.k0)
-        tvals = numpy.delete(cs_points, cs.k0, axis=0)
+        tcenter = np.delete(cs_center, cs.k0)
+        tvals = np.delete(cs_points, cs.k0, axis=0)
 
         # Given these new transformed vals, find the ellipse that best fits those
         # points
@@ -111,8 +111,8 @@ def _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling=1.0):
 
         def f_ellipse(a_b_theta):
             a, b, theta = a_b_theta
-            sin_t = numpy.sin(theta)
-            cos_t = numpy.cos(theta)
+            sin_t = np.sin(theta)
+            cos_t = np.cos(theta)
             return (
                 +(a ** 2) * (X[0] * cos_t + X[1] * sin_t) ** 2
                 + b ** 2 * (X[0] * sin_t - X[1] * cos_t) ** 2
@@ -121,11 +121,11 @@ def _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling=1.0):
 
         def jac(a_b_theta):
             a, b, theta = a_b_theta
-            x0sin = X[0] * numpy.sin(theta)
-            x0cos = X[0] * numpy.cos(theta)
-            x1sin = X[1] * numpy.sin(theta)
-            x1cos = X[1] * numpy.cos(theta)
-            return numpy.array(
+            x0sin = X[0] * np.sin(theta)
+            x0cos = X[0] * np.cos(theta)
+            x1sin = X[1] * np.sin(theta)
+            x1cos = X[1] * np.cos(theta)
+            return np.array(
                 [
                     +2 * a * (x0cos + x1sin) ** 2,
                     +2 * b * (x0sin - x1cos) ** 2,
@@ -143,7 +143,7 @@ def _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling=1.0):
             xy=tcenter,
             width=ellipse_scaling * 2 / a,
             height=ellipse_scaling * 2 / b,
-            angle=theta / numpy.pi * 180,
+            angle=theta / np.pi * 180,
             # label=label,
         )
         plt.gca().add_patch(e)
@@ -165,12 +165,12 @@ def _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling=1.0):
     tcenters = []
     for center, points in zip(xyy100_centers, xyy100_points):
         cs_center = cs.from_xyz100(_xyy100_to_xyz100(center))
-        tcenters.append(numpy.delete(cs_center, cs.k0))
-    tcenters = numpy.asarray(tcenters).T
-    xmin = numpy.min(tcenters[0])
-    xmax = numpy.max(tcenters[0])
-    ymin = numpy.min(tcenters[1])
-    ymax = numpy.max(tcenters[1])
+        tcenters.append(np.delete(cs_center, cs.k0))
+    tcenters = np.asarray(tcenters).T
+    xmin = np.min(tcenters[0])
+    xmax = np.max(tcenters[0])
+    ymin = np.min(tcenters[1])
+    ymax = np.max(tcenters[1])
     width = xmax - xmin
     height = ymax - ymin
     plt.xlim(xmin - 0.2 * width, xmax + 0.2 * width)

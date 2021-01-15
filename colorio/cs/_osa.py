@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 
 from .._linalg import dot
 from ._color_space import ColorSpace
@@ -21,18 +21,18 @@ class OsaUcs(ColorSpace):
     def __init__(self):
         super().__init__("OSA-UCS", ("L", "g", "j"), 0)
 
-        self.M = numpy.array(
+        self.M = np.array(
             [
                 [+0.7990, 0.4194, -0.1648],
                 [-0.4493, 1.3265, +0.0927],
                 [-0.1149, 0.3394, +0.7170],
             ]
         )
-        self.Minv = numpy.linalg.inv(self.M)
+        self.Minv = np.linalg.inv(self.M)
 
     def from_xyz100(self, xyz100):
         X, Y, _ = xyz100
-        s = numpy.sum(xyz100, axis=0)
+        s = np.sum(xyz100, axis=0)
 
         # Avoid division by s, could be 0.
         YKs2 = (
@@ -43,24 +43,24 @@ class OsaUcs(ColorSpace):
             - 2.5643 * Y ** 2 * s
             + 1.8103 * Y * s ** 2
         )
-        Y0 = numpy.zeros_like(Y)
-        idx = numpy.abs(s) > 1.0e-15
+        Y0 = np.zeros_like(Y)
+        idx = np.abs(s) > 1.0e-15
         Y0[idx] = YKs2[idx] / s[idx] ** 2
 
         #  L' is L in original article
-        L_prime = 5.9 * (numpy.cbrt(Y0) - 2 / 3 + 0.042 * numpy.cbrt(Y0 - 30))
+        L_prime = 5.9 * (np.cbrt(Y0) - 2 / 3 + 0.042 * np.cbrt(Y0 - 30))
 
-        C = L_prime / (5.9 * (numpy.cbrt(Y0) - 2 / 3))
+        C = L_prime / (5.9 * (np.cbrt(Y0) - 2 / 3))
         R, G, B = dot(self.M, xyz100)
 
-        a = -13.7 * numpy.cbrt(R) + 17.7 * numpy.cbrt(G) - 4 * numpy.cbrt(B)
-        b = 1.7 * numpy.cbrt(R) + 8 * numpy.cbrt(G) - 9.7 * numpy.cbrt(B)
+        a = -13.7 * np.cbrt(R) + 17.7 * np.cbrt(G) - 4 * np.cbrt(B)
+        b = 1.7 * np.cbrt(R) + 8 * np.cbrt(G) - 9.7 * np.cbrt(B)
 
-        L = (L_prime - 14.3993) / numpy.sqrt(2)
+        L = (L_prime - 14.3993) / np.sqrt(2)
         g = C * a
         j = C * b
 
-        return numpy.array([L, g, j])
+        return np.array([L, g, j])
 
     def to_xyz100(self, lgj, tol=1.0e-13, max_num_newton_steps=100):
         # Renbo Cao, H. Joel Trussell, and Renzo Shamey,
@@ -70,7 +70,7 @@ class OsaUcs(ColorSpace):
         # <https://doi.org/10.1364/JOSAA.30.001508>.
         L, g, j = lgj
 
-        L_prime = L * numpy.sqrt(2) + 14.3993
+        L_prime = L * np.sqrt(2) + 14.3993
 
         # Use Cardano to find cbrt(Y0) =: t
         # 0 = (L' / 5.9 + 2/3 - t) ** 3 - 0.042**3 * (t**3 - 30)
@@ -93,10 +93,10 @@ class OsaUcs(ColorSpace):
         #
         # No need to assert this: We already know from the original expression that the
         # equation has exactly one solution, so this must be >0.
-        # assert numpy.all((p / 3) ** 3 + (q / 2) ** 2 > 0)
+        # assert np.all((p / 3) ** 3 + (q / 2) ** 2 > 0)
         #
-        s = numpy.sqrt((q / 2) ** 2 + (p / 3) ** 3)
-        t = numpy.cbrt(-q / 2 + s) + numpy.cbrt(-q / 2 - s)
+        s = np.sqrt((q / 2) ** 2 + (p / 3) ** 3)
+        t = np.cbrt(-q / 2 + s) + np.cbrt(-q / 2 - s)
         t -= b / (3 * a)
 
         Y0 = t ** 3
@@ -104,8 +104,8 @@ class OsaUcs(ColorSpace):
         a = g / C
         b = j / C
 
-        # a = -13.7 * numpy.cbrt(R) + 17.7 * numpy.cbrt(G) - 4 * numpy.cbrt(B)
-        # b = 1.7 * numpy.cbrt(R) + 8 * numpy.cbrt(G) - 9.7 * numpy.cbrt(B)
+        # a = -13.7 * np.cbrt(R) + 17.7 * np.cbrt(G) - 4 * np.cbrt(B)
+        # b = 1.7 * np.cbrt(R) + 8 * np.cbrt(G) - 9.7 * np.cbrt(B)
         # A = [[17.7, -4], [8, -9.7]]
         det = -17.7 * 9.7 + 4 * 8
         ap = (-9.7 * a + 4 * b) / det
@@ -113,22 +113,22 @@ class OsaUcs(ColorSpace):
         # inv = [[-9.7, 4], [-8, 17.7]] / det
 
         def f_df(omega):
-            omega = numpy.full_like(ap, omega)
-            cbrt_RGB = numpy.array([omega, omega + ap, omega + bp])
-            # A = numpy.array([[-13.7, 17.7, -4], [1.7, 8, -9.7], [0.0, 1.0, 0.0]])
-            # Ainv = numpy.linalg.inv(A)
-            # rhs = numpy.array(
-            #     [numpy.full(omega.shape, a), numpy.full(omega.shape, b), omega]
+            omega = np.full_like(ap, omega)
+            cbrt_RGB = np.array([omega, omega + ap, omega + bp])
+            # A = np.array([[-13.7, 17.7, -4], [1.7, 8, -9.7], [0.0, 1.0, 0.0]])
+            # Ainv = np.linalg.inv(A)
+            # rhs = np.array(
+            #     [np.full(omega.shape, a), np.full(omega.shape, b), omega]
             # )
             # cbrt_RGB = dot(Ainv, rhs)
-            # # a = -13.7 * numpy.cbrt(R) + 17.7 * numpy.cbrt(G) - 4 * numpy.cbrt(B)
-            # # b = 1.7 * numpy.cbrt(R) + 8 * numpy.cbrt(G) - 9.7 * numpy.cbrt(B)
+            # # a = -13.7 * np.cbrt(R) + 17.7 * np.cbrt(G) - 4 * np.cbrt(B)
+            # # b = 1.7 * np.cbrt(R) + 8 * np.cbrt(G) - 9.7 * np.cbrt(B)
 
             RGB = cbrt_RGB ** 3
             xyz100 = dot(self.Minv, RGB)
 
             X, Y, _ = xyz100
-            sum_xyz = numpy.sum(xyz100, axis=0)
+            sum_xyz = np.sum(xyz100, axis=0)
             x = X / sum_xyz
             y = Y / sum_xyz
             K = (
@@ -148,7 +148,7 @@ class OsaUcs(ColorSpace):
             dxyz100 = dot(self.Minv, dRGB)
 
             dX, dY, _ = dxyz100
-            dsum_xyz = numpy.sum(dxyz100, axis=0)
+            dsum_xyz = np.sum(dxyz100, axis=0)
             dx = (dX * sum_xyz - X * dsum_xyz) / sum_xyz ** 2
             dy = (dY * sum_xyz - Y * dsum_xyz) / sum_xyz ** 2
             dK = (
@@ -185,10 +185,10 @@ class OsaUcs(ColorSpace):
         # solution; there, the function seems well-behaved. Hence, chose the value
         # cbrt_R max, with X=Y=100, Z=0.
         #
-        omega = numpy.cbrt((0.7990 + 0.4194) * 100)
+        omega = np.cbrt((0.7990 + 0.4194) * 100)
         fomega, dfdomega_val, xyz100 = f_df(omega)
         k = 0
-        while numpy.any(numpy.abs(fomega) > tol):
+        while np.any(np.abs(fomega) > tol):
             if k >= max_num_newton_steps:
                 raise RuntimeError(
                     "OSA-USC.to_xyz100 exceeded max number of Newton steps"

@@ -2,7 +2,7 @@ import pathlib
 
 import dufte
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
 import yaml
 
 
@@ -12,8 +12,8 @@ def load():
         data = yaml.safe_load(f)
 
     for key in data:
-        data[key]["lightness"] = numpy.asarray(data[key]["lightness"])
-        data[key]["xyz"] = numpy.asarray(data[key]["xyz"])
+        data[key]["lightness"] = np.asarray(data[key]["lightness"])
+        data[key]["xyz"] = np.asarray(data[key]["xyz"])
     return data
 
 
@@ -45,7 +45,7 @@ def plot(cs, key: str):
     Y = data["xyz"][:, 1]
     plt.plot(Y, L, "o", label="experimental")
 
-    alpha = numpy.dot(L, L_) / numpy.dot(L, L)
+    alpha = np.dot(L, L_) / np.dot(L, L)
     plt.plot(Y, L_ / alpha, "-", label=f"{cs.name} (scaled)")
 
     plt.xlabel("Y")
@@ -64,9 +64,9 @@ def residual(cs, key: str):
     # predicted lightness
     L_ = cs.from_xyz100(d["xyz"].T)[cs.k0]
 
-    alpha = numpy.dot(L, L_) / numpy.dot(L, L)
+    alpha = np.dot(L, L_) / np.dot(L, L)
     diff = alpha * L - L_
-    return numpy.sqrt(numpy.dot(diff, diff) / numpy.dot(L_, L_))
+    return np.sqrt(np.dot(diff, diff) / np.dot(L_, L_))
 
 
 def stress(*args):

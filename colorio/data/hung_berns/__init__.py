@@ -1,7 +1,7 @@
 import pathlib
 
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
 import yaml
 
 from ...illuminants import whitepoints_cie1931
@@ -14,7 +14,7 @@ def load():
         data = yaml.safe_load(f)
 
     wp = whitepoints_cie1931["C"]
-    d = [numpy.array(list(color.values())).T for color in data.values()]
+    d = [np.array(list(color.values())).T for color in data.values()]
     return wp, d
 
 

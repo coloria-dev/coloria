@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 import pytest
 
 import colorio
@@ -14,7 +14,5 @@ import colorio
 )
 def test_reference_xyz(xyz100, ref):
     rlab = colorio.cs.RLAB()
-    xyz100 = numpy.array(xyz100)
-    assert numpy.all(
-        numpy.abs(rlab.from_xyz100(xyz100) - ref) < 1.0e-4 * numpy.abs(ref)
-    )
+    xyz100 = np.array(xyz100)
+    assert np.all(np.abs(rlab.from_xyz100(xyz100) - ref) < 1.0e-4 * np.abs(ref))

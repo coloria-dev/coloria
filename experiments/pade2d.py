@@ -1,12 +1,12 @@
-import numpy
+import numpy as np
 
 
 def _create_tree(alpha, degree):
     return [
-        numpy.array([alpha[d * (d + 1) // 2 + i] for i in range(d + 1)])
+        np.array([alpha[d * (d + 1) // 2 + i] for i in range(d + 1)])
         for d in range(degree + 1)
     ]
-    # return numpy.split(alpha, numpy.arange(1, degree+1))
+    # return np.split(alpha, np.arange(1, degree+1))
 
 
 def _get_xy_tree(xy, degree):
@@ -21,9 +21,9 @@ def _get_xy_tree(xy, degree):
           ...      ...      ...
     """
     x, y = xy
-    tree = [numpy.array([numpy.ones(x.shape, dtype=int)])]
+    tree = [np.array([np.ones(x.shape, dtype=int)])]
     for d in range(degree):
-        tree.append(numpy.concatenate([tree[-1] * x, [tree[-1][-1] * y]]))
+        tree.append(np.concatenate([tree[-1] * x, [tree[-1][-1] * y]]))
     return tree
 
 
@@ -38,11 +38,11 @@ def _get_dx_tree(xy, degree):
     x, y = xy
 
     # build smaller tree
-    one = numpy.array([numpy.ones(x.shape, dtype=int)])
+    one = np.array([np.ones(x.shape, dtype=int)])
     tree = [one]
     for d in range(1, degree):
         tree.append(
-            numpy.concatenate(
+            np.concatenate(
                 [
                     # Integer division `//` would be nice here, but
                     # <https://github.com/sympy/sympy/issues/14542>.
@@ -53,8 +53,8 @@ def _get_dx_tree(xy, degree):
         )
 
     # append zeros
-    zero = numpy.array([numpy.zeros(x.shape, dtype=int)])
-    tree = [zero] + [numpy.concatenate([t, zero]) for t in tree]
+    zero = np.array([np.zeros(x.shape, dtype=int)])
+    tree = [zero] + [np.concatenate([t, zero]) for t in tree]
     return tree
 
 
@@ -68,11 +68,11 @@ def _get_dy_tree(xy, degree):
     """
     x, y = xy
 
-    one = numpy.array([numpy.ones(x.shape, dtype=int)])
+    one = np.array([np.ones(x.shape, dtype=int)])
     tree = [one]
     for d in range(1, degree):
         tree.append(
-            numpy.concatenate(
+            np.concatenate(
                 [
                     tree[-1] * x,
                     # Integer division `//` would be nice here, but
@@ -83,8 +83,8 @@ def _get_dy_tree(xy, degree):
         )
 
     # prepend zeros
-    zero = numpy.array([numpy.zeros(x.shape, dtype=int)])
-    tree = [zero] + [numpy.concatenate([zero, t]) for t in tree]
+    zero = np.array([np.zeros(x.shape, dtype=int)])
+    tree = [zero] + [np.concatenate([zero, t]) for t in tree]
     return tree
 
 
@@ -117,47 +117,47 @@ class Pade2d:
         self.xy = xy
 
         xy_tree = _get_xy_tree(xy, max(self.degrees))
-        self.xy_list = numpy.array([item for branch in xy_tree for item in branch])
+        self.xy_list = np.array([item for branch in xy_tree for item in branch])
 
         dx_tree = _get_dx_tree(xy, max(self.degrees))
-        self.dx_list = numpy.array([item for branch in dx_tree for item in branch])
+        self.dx_list = np.array([item for branch in dx_tree for item in branch])
 
         dy_tree = _get_dy_tree(xy, max(self.degrees))
-        self.dy_list = numpy.array([item for branch in dy_tree for item in branch])
+        self.dy_list = np.array([item for branch in dy_tree for item in branch])
         return
 
     def eval(self, xy=None):
         if xy is not None:
             self.set_xy(xy)
 
-        ux = numpy.dot(self.ax, self.xy_list[: len(self.ax)])
-        vx = numpy.dot(self.bx, self.xy_list[: len(self.bx)])
-        uy = numpy.dot(self.ay, self.xy_list[: len(self.ay)])
-        vy = numpy.dot(self.by, self.xy_list[: len(self.by)])
+        ux = np.dot(self.ax, self.xy_list[: len(self.ax)])
+        vx = np.dot(self.bx, self.xy_list[: len(self.bx)])
+        uy = np.dot(self.ay, self.xy_list[: len(self.ay)])
+        vy = np.dot(self.by, self.xy_list[: len(self.by)])
 
-        return numpy.array([ux / vx, uy / vy])
+        return np.array([ux / vx, uy / vy])
 
     def jac(self, xy=None):
         """Get the Jacobian at (x, y)."""
         if xy is not None:
             self.set_xy(xy)
 
-        ux = numpy.dot(self.ax, self.xy_list[: len(self.ax)])
-        vx = numpy.dot(self.bx, self.xy_list[: len(self.bx)])
-        uy = numpy.dot(self.ay, self.xy_list[: len(self.ay)])
-        vy = numpy.dot(self.by, self.xy_list[: len(self.by)])
+        ux = np.dot(self.ax, self.xy_list[: len(self.ax)])
+        vx = np.dot(self.bx, self.xy_list[: len(self.bx)])
+        uy = np.dot(self.ay, self.xy_list[: len(self.ay)])
+        vy = np.dot(self.by, self.xy_list[: len(self.by)])
 
-        ux_dx = numpy.dot(self.ax, self.dx_list[: len(self.ax)])
-        vx_dx = numpy.dot(self.bx, self.dx_list[: len(self.bx)])
-        uy_dx = numpy.dot(self.ay, self.dx_list[: len(self.ay)])
-        vy_dx = numpy.dot(self.by, self.dx_list[: len(self.by)])
+        ux_dx = np.dot(self.ax, self.dx_list[: len(self.ax)])
+        vx_dx = np.dot(self.bx, self.dx_list[: len(self.bx)])
+        uy_dx = np.dot(self.ay, self.dx_list[: len(self.ay)])
+        vy_dx = np.dot(self.by, self.dx_list[: len(self.by)])
 
-        ux_dy = numpy.dot(self.ax, self.dy_list[: len(self.ax)])
-        vx_dy = numpy.dot(self.bx, self.dy_list[: len(self.bx)])
-        uy_dy = numpy.dot(self.ay, self.dy_list[: len(self.ay)])
-        vy_dy = numpy.dot(self.by, self.dy_list[: len(self.by)])
+        ux_dy = np.dot(self.ax, self.dy_list[: len(self.ax)])
+        vx_dy = np.dot(self.bx, self.dy_list[: len(self.bx)])
+        uy_dy = np.dot(self.ay, self.dy_list[: len(self.ay)])
+        vy_dy = np.dot(self.by, self.dy_list[: len(self.by)])
 
-        jac = numpy.array(
+        jac = np.array(
             [
                 [
                     (ux_dx * vx - vx_dx * ux) / vx ** 2,

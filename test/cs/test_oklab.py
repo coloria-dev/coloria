@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 import pytest
 
 import colorio
@@ -22,10 +22,8 @@ import colorio
 )
 def test_reference_xyz(xyz100, ref):
     cs = colorio.cs.OKLAB()
-    xyz100 = numpy.asarray(xyz100)
-    assert numpy.all(
-        numpy.abs(cs.from_xyz100(xyz100) - ref) < 1.0e-4 * numpy.abs(ref) + 1.0e-4
-    )
+    xyz100 = np.asarray(xyz100)
+    assert np.all(np.abs(cs.from_xyz100(xyz100) - ref) < 1.0e-4 * np.abs(ref) + 1.0e-4)
 
 
 if __name__ == "__main__":

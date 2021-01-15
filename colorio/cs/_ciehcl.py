@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 
 from ..illuminants import whitepoints_cie1931
 from ._cieluv import CIELUV
@@ -12,12 +12,12 @@ class CIEHCL(ColorSpace):
 
     def from_xyz100(self, xyz):
         L, u, v = self.cieluv.from_xyz100(xyz)
-        C = numpy.hypot(u, v)
-        h = numpy.mod(numpy.arctan2(v, u), 2 * numpy.pi) / numpy.pi * 180
-        return numpy.array([L, C, h])
+        C = np.hypot(u, v)
+        h = np.mod(np.arctan2(v, u), 2 * np.pi) / np.pi * 180
+        return np.array([L, C, h])
 
     def to_xyz100(self, lch):
         L, C, h = lch
-        h_ = h * numpy.pi / 180
-        luv = numpy.array([L, C * numpy.cos(h_), C * numpy.sin(h_)])
+        h_ = h * np.pi / 180
+        luv = np.array([L, C * np.cos(h_), C * np.sin(h_)])
         return self.cieluv.to_xyz100(luv)

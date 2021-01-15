@@ -1,10 +1,10 @@
-import numpy
+import numpy as np
 
 import colorio
 
 color_spaces = [
-    colorio.cs.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
-    colorio.cs.CAM16UCS(0.69, 20, 64 / numpy.pi / 5),
+    colorio.cs.CAM02("UCS", 0.69, 20, 64 / np.pi / 5),
+    colorio.cs.CAM16UCS(0.69, 20, 64 / np.pi / 5),
     colorio.cs.CIELAB(),
     colorio.cs.CIELUV(),
     colorio.cs.ICtCp(),

@@ -1,9 +1,9 @@
-import numpy
+import numpy as np
 import pytest
 
 import colorio
 
-numpy.random.seed(2)
+np.random.seed(2)
 
 
 @pytest.mark.parametrize(
@@ -16,13 +16,13 @@ numpy.random.seed(2)
 )
 def test_reference_srgb(vals, ref):
     hsv = colorio.cs.HSV()
-    assert numpy.all(abs(hsv.from_srgb256(vals) - ref) < 1.0e-14 * numpy.array(ref))
+    assert np.all(abs(hsv.from_srgb256(vals) - ref) < 1.0e-14 * np.array(ref))
 
 
 @pytest.mark.parametrize(
-    "vals", [numpy.random.rand(3), numpy.random.rand(3, 7), numpy.random.rand(3, 4, 5)]
+    "vals", [np.random.rand(3), np.random.rand(3, 7), np.random.rand(3, 4, 5)]
 )
 def test_conversion(vals):
     hsv = colorio.cs.HSV()
     out = hsv.to_srgb1(hsv.from_srgb1(vals))
-    assert numpy.all(abs(vals - out) < 1.0e-14)
+    assert np.all(abs(vals - out) < 1.0e-14)

@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
 import pytest
 
 import colorio
@@ -19,7 +19,7 @@ import colorio
 )
 def test_values(illuminant, decimals, values):
     _, data = illuminant
-    rdata = numpy.around(data, decimals=decimals)
+    rdata = np.around(data, decimals=decimals)
     assert rdata[0] == values[0]
     assert rdata[1] == values[1]
     assert rdata[2] == values[2]
@@ -36,8 +36,8 @@ def test_values(illuminant, decimals, values):
 )
 def test_white_point(illuminant, ref, tol):
     values = colorio.illuminants.white_point(illuminant)
-    ref = 100 * numpy.array(ref)
-    assert numpy.all(abs(values - ref) < tol * abs(ref))
+    ref = 100 * np.array(ref)
+    assert np.all(abs(values - ref) < tol * abs(ref))
     return
 
 
