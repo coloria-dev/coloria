@@ -15,13 +15,14 @@ def test_show():
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     # cs = colorio.cs.JzAzBz()
     # cs = colorio.cs.XYY(1)
-    colorio.data.witt.show(cs, "red")
+    colorio.data.witt.show(cs, "yellow")
     with tempfile.TemporaryDirectory() as tmpdir:
         colorio.data.witt.savefig(Path(tmpdir) / "out.png", cs, "green")
 
 
 def test_residual():
     # cs = colorio.cs.CAM02("UCS", 0.69, 20, 4.074)
+    # ref = 31.632878143273928
     cs = colorio.cs.CIELAB()
     ref = 51.984566654885334
     res = colorio.data.witt.stress(cs)
@@ -30,5 +31,5 @@ def test_residual():
 
 
 if __name__ == "__main__":
-    test_show()
-    # test_residual()
+    # test_show()
+    test_residual()
