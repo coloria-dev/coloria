@@ -53,9 +53,12 @@ for (label, data), p in zip(data_sets.items(), pos):
 ax.set_ylabel("p_STRESS")
 ax.set_xticks(x)
 ax.set_xticklabels(xlabels)
+plt.xticks(rotation=45)
 plt.ylim(0, 100)
 ax.legend()
 
 fig.tight_layout()
 # plt.show()
-tikzplotlib.save("pstress.tex")
+tikzplotlib.save(
+    "pstress.tex", extra_axis_parameters=["width=\\textwidth", "height=0.5\\textwidth"]
+)
