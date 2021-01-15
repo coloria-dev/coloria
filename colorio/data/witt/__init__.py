@@ -14,7 +14,7 @@ from ..._exceptions import ColorioError
 from ...cs import XYY
 
 
-def _load_data():
+def _load_data(remove_yellow_8=True):
     this_dir = pathlib.Path(__file__).resolve().parent
 
     with open(this_dir / "table_a1.yaml") as f:
@@ -27,6 +27,9 @@ def _load_data():
         "red": xyy_samples[:, 3],
         "blue": xyy_samples[:, 4],
     }
+
+    if remove_yellow_8:
+        xyy_samples["yellow"][8] = numpy.nan
 
     with open(this_dir / "table_a2.yaml") as f:
         data = yaml.safe_load(f)
@@ -41,6 +44,10 @@ def _load_data():
         "red": numpy.array([item[8] for item in data]),
         "blue": numpy.array([item[10] for item in data]),
     }
+
+    if remove_yellow_8:
+        distances["yellow"][numpy.any(pairs == 8, axis=1)] = numpy.nan
+
     return xyy_samples, pairs, distances
 
 
@@ -82,12 +89,29 @@ def plot(cs, key):
 
 
 def residual(cs):
-    d, pairs, xyz100_tiles = _load_data()
+    xyy_samples, pairs, target_distances = _load_data()
 
-    pts = cs.from_xyz100(xyz100_tiles)
+    delta = []
+    d = []
+    for key in xyy_samples:
+        isnan = numpy.isnan(target_distances[key])
+        d.append(target_distances[key][~isnan])
+        # compute the actual distances in the color space `cs`
+        xyz_samples = XYY(100).to_xyz100(xyy_samples[key].T)
+        cs_samples = cs.from_xyz100(xyz_samples).T
+        cs_diff = cs_samples[pairs[~isnan, 0]] - cs_samples[pairs[~isnan, 1]]
+        cs_dist = numpy.sqrt(numpy.einsum("ij,ij->i", cs_diff, cs_diff))
+        # print(numpy.column_stack([pairs[~isnan, 0], pairs[~isnan, 1], target_distances[key][~isnan], cs_dist]))
+        # exit(1)
+        delta.append(cs_dist)
 
-    diff = pts[:, pairs]
-    delta = numpy.linalg.norm(diff[..., 0] - diff[..., 1], axis=0)
+    d = numpy.concatenate(d)
+    delta = numpy.concatenate(delta)
+
+    assert d.shape == delta.shape
+    # The original article lists 418 pairs, but Yellow-8 is most likely printed with an
+    # error in the article. After its removal, 414 sample pairs remain.
+    assert len(d) == 414
 
     alpha = numpy.dot(d, delta) / numpy.dot(d, d)
     val = numpy.dot(alpha * d - delta, alpha * d - delta) / numpy.dot(delta, delta)

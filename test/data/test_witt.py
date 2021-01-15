@@ -15,14 +15,14 @@ def test_show():
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     # cs = colorio.cs.JzAzBz()
     # cs = colorio.cs.XYY(1)
-    colorio.data.witt.show(cs, "green")
+    colorio.data.witt.show(cs, "yellow")
     with tempfile.TemporaryDirectory() as tmpdir:
         colorio.data.witt.savefig(Path(tmpdir) / "out.png", cs, "green")
 
 
 def test_residual():
     cs = colorio.cs.CIELAB()
-    ref = 24.53191916738762
+    ref = 51.984566654885334
     res = colorio.data.witt.stress(cs)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
