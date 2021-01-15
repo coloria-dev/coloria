@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 
 from .._linalg import dot
 from ..illuminants import whitepoints_cie1931
@@ -31,20 +31,20 @@ class CAM16:
         c_vals = [0.525, 0.59, 0.69]  # 0.525 vs. 0.535 in CIECAM02
         F_Nc_vals = [0.8, 0.9, 1.0]
         assert 0.525 <= c <= 0.69
-        F = numpy.interp(c, c_vals, F_Nc_vals)
+        F = np.interp(c, c_vals, F_Nc_vals)
         self.c = c
         self.N_c = F
 
-        self.M16 = numpy.array(
+        self.M16 = np.array(
             [
                 [+0.401288, +0.650173, -0.051461],
                 [-0.250268, +1.204414, +0.045854],
                 [-0.002079, +0.048952, +0.953127],
             ]
         )
-        RGB_w = numpy.dot(self.M16, whitepoint)
+        RGB_w = np.dot(self.M16, whitepoint)
 
-        D = F * (1 - 1 / 3.6 * numpy.exp((-L_A - 42) / 92))
+        D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
         D = min(D, 1.0)
         D = max(D, 0.0)
 
@@ -52,29 +52,29 @@ class CAM16:
 
         k = 1 / (5 * L_A + 1)
         l4 = 1 - k ** 4
-        k4_L_A = 0.0 if L_A == numpy.inf else k ** 4 * L_A
-        self.F_L = k4_L_A + 0.1 * l4 ** 2 * numpy.cbrt(5 * L_A)
+        k4_L_A = 0.0 if L_A == np.inf else k ** 4 * L_A
+        self.F_L = k4_L_A + 0.1 * l4 ** 2 * np.cbrt(5 * L_A)
 
         self.n = Y_b / Y_w
-        self.z = 1.48 + numpy.sqrt(self.n)
+        self.z = 1.48 + np.sqrt(self.n)
         self.N_bb = 0.725 / self.n ** 0.2
         self.N_cb = self.N_bb
 
         RGB_wc = self.D_RGB * RGB_w
         alpha = (self.F_L * RGB_wc / 100) ** 0.42
-        RGB_aw_ = numpy.array(
-            [400.1 if a == numpy.inf else 400 * a / (a + 27.13) + 0.1 for a in alpha]
+        RGB_aw_ = np.array(
+            [400.1 if a == np.inf else 400 * a / (a + 27.13) + 0.1 for a in alpha]
         )
-        self.A_w = (numpy.dot([2, 1, 1 / 20], RGB_aw_) - 0.305) * self.N_bb
+        self.A_w = (np.dot([2, 1, 1 / 20], RGB_aw_) - 0.305) * self.N_bb
 
-        self.h = numpy.array([20.14, 90.00, 164.25, 237.53, 380.14])
-        self.e = numpy.array([0.8, 0.7, 1.0, 1.2, 0.8])
-        self.H = numpy.array([0.0, 100.0, 200.0, 300.0, 400.0])
+        self.h = np.array([20.14, 90.00, 164.25, 237.53, 380.14])
+        self.e = np.array([0.8, 0.7, 1.0, 1.2, 0.8])
+        self.H = np.array([0.0, 100.0, 200.0, 300.0, 400.0])
 
         self.M_ = (self.M16.T * self.D_RGB).T
         # The standard acutally recommends using this approximation as
         # inversion operation.
-        approx_inv_M16 = numpy.array(
+        approx_inv_M16 = np.array(
             [
                 [+1.86206786, -1.01125463, +0.14918677],
                 [+0.38752654, +0.62144744, -0.00897398],
@@ -82,9 +82,7 @@ class CAM16:
             ]
         )
         self.invM_ = (
-            numpy.linalg.inv(self.M_)
-            if exact_inversion
-            else approx_inv_M16 / self.D_RGB
+            np.linalg.inv(self.M_) if exact_inversion else approx_inv_M16 / self.D_RGB
         )
         return
 
@@ -125,14 +123,14 @@ class CAM16UCS(ColorSpace):
     def from_xyz100(self, xyz):
         J, C, H, h, M, s, Q = self.cam16.from_xyz100(xyz)
         J_ = (1 + 100 * self.c1) * J / (1 + self.c1 * J)
-        M_ = 1 / self.c2 * numpy.log(1 + self.c2 * M)
-        h_ = h * numpy.pi / 180
-        return numpy.array([J_, M_ * numpy.cos(h_), M_ * numpy.sin(h_)])
+        M_ = 1 / self.c2 * np.log(1 + self.c2 * M)
+        h_ = h * np.pi / 180
+        return np.array([J_, M_ * np.cos(h_), M_ * np.sin(h_)])
 
     def to_xyz100(self, jab):
         J_, a, b = jab
         J = J_ / (1 - (J_ - 100) * self.c1)
-        h = numpy.mod(numpy.arctan2(b, a) / numpy.pi * 180, 360)
-        M_ = numpy.hypot(a, b)
-        M = (numpy.exp(M_ * self.c2) - 1) / self.c2
-        return self.cam16.to_xyz100(numpy.array([J, M, h]), "JMh")
+        h = np.mod(np.arctan2(b, a) / np.pi * 180, 360)
+        M_ = np.hypot(a, b)
+        M = (np.exp(M_ * self.c2) - 1) / self.c2
+        return self.cam16.to_xyz100(np.array([J, M, h]), "JMh")

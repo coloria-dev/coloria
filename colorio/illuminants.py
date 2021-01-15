@@ -1,6 +1,6 @@
 import pathlib
 
-import numpy
+import numpy as np
 import yaml
 
 from . import observers
@@ -8,23 +8,23 @@ from . import observers
 # The "standard" 2 degree observer (CIE 1931). From
 # <https://github.com/njsmith/colorspacious/blob/master/colorspacious/illuminants.py>
 whitepoints_cie1931 = {
-    "A": numpy.array([109.850, 100, 35.585]),
-    "C": numpy.array([98.074, 100, 118.232]),
-    "D50": numpy.array([96.422, 100, 82.521]),
-    "D55": numpy.array([95.682, 100, 92.149]),
-    "D65": numpy.array([95.047, 100, 108.883]),
-    "D75": numpy.array([94.972, 100, 122.638]),
+    "A": np.array([109.850, 100, 35.585]),
+    "C": np.array([98.074, 100, 118.232]),
+    "D50": np.array([96.422, 100, 82.521]),
+    "D55": np.array([95.682, 100, 92.149]),
+    "D65": np.array([95.047, 100, 108.883]),
+    "D75": np.array([94.972, 100, 122.638]),
 }
 
 # The "supplementary" 10 degree observer (CIE 1964). From
 # <https://github.com/njsmith/colorspacious/blob/master/colorspacious/illuminants.py>
 whitepoints_cie1964 = {
-    "A": numpy.array([111.144, 100, 35.200]),
-    "C": numpy.array([97.285, 100, 116.145]),
-    "D50": numpy.array([96.720, 100, 81.427]),
-    "D55": numpy.array([95.799, 100, 90.926]),
-    "D65": numpy.array([94.811, 100, 107.304]),
-    "D75": numpy.array([94.416, 100, 120.641]),
+    "A": np.array([111.144, 100, 35.200]),
+    "C": np.array([97.285, 100, 116.145]),
+    "D50": np.array([96.720, 100, 81.427]),
+    "D55": np.array([95.799, 100, 90.926]),
+    "D65": np.array([94.811, 100, 107.304]),
+    "D75": np.array([94.416, 100, 120.641]),
 }
 
 
@@ -72,7 +72,7 @@ def spectrum_to_xyz100(spectrum, observer):
     lambda_s, data_s = spectrum
 
     # form the union of lambdas
-    lmbda = numpy.sort(numpy.unique(numpy.concatenate([lambda_o, lambda_s])))
+    lmbda = np.sort(np.unique(np.concatenate([lambda_o, lambda_s])))
 
     # The technical document prescribes that the integration be performed over
     # the wavelength range corresponding to the entire visible spectrum, 360 nm
@@ -81,7 +81,7 @@ def spectrum_to_xyz100(spectrum, observer):
     assert lmbda[-1] > 829e-9
 
     # interpolate data
-    idata_o = numpy.array([numpy.interp(lmbda, lambda_o, dt) for dt in data_o])
+    idata_o = np.array([np.interp(lmbda, lambda_o, dt) for dt in data_o])
     # The technical report specifies the interpolation techniques, too:
     # ```
     # Use one of the four following methods to calculate needed but unmeasured
@@ -95,16 +95,16 @@ def spectrum_to_xyz100(spectrum, observer):
     # ```
     # Well, don't do that but simply use linear interpolation now. We only use the
     # midpoint rule for integration anyways.
-    idata_s = numpy.interp(lmbda, lambda_s, data_s)
+    idata_s = np.interp(lmbda, lambda_s, data_s)
 
     # step sizes
-    delta = numpy.zeros(len(lmbda))
+    delta = np.zeros(len(lmbda))
     diff = lmbda[1:] - lmbda[:-1]
     delta[1:] += diff
     delta[:-1] += diff
     delta /= 2
 
-    values = numpy.dot(idata_o, idata_s * delta)
+    values = np.dot(idata_o, idata_s * delta)
 
     return values * 100
 
@@ -122,16 +122,16 @@ def white_point(illuminant, observer=observers.cie_1931_2()):
 
 
 def planckian_radiator(temperature):
-    lmbda = 1.0e-9 * numpy.arange(300, 831)
+    lmbda = 1.0e-9 * np.arange(300, 831)
     # light speed
     c = 299792458.0
     # Plank constant
     h = 6.62607004e-34
     # Boltzmann constant
     k = 1.38064852e-23
-    c1 = 2 * numpy.pi * h * c ** 2
+    c1 = 2 * np.pi * h * c ** 2
     c2 = h * c / k
-    return lmbda, c1 / lmbda ** 5 / (numpy.exp(c2 / lmbda / temperature) - 1)
+    return lmbda, c1 / lmbda ** 5 / (np.exp(c2 / lmbda / temperature) - 1)
 
 
 def a(interval=1.0e-9):
@@ -144,16 +144,16 @@ def a(interval=1.0e-9):
     illuminant.
     """
     # https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_A
-    lmbda = numpy.arange(300e-9, 831e-9, interval)
+    lmbda = np.arange(300e-9, 831e-9, interval)
     c2 = 1.435e-2
     color_temp = 2848
-    numpy.exp(c2 / (color_temp * 560e-9))
+    np.exp(c2 / (color_temp * 560e-9))
     vals = (
         100
         * (560e-9 / lmbda) ** 5
         * (
-            (numpy.exp(c2 / (color_temp * 560e-9)) - 1)
-            / (numpy.exp(c2 / (color_temp * lmbda)) - 1)
+            (np.exp(c2 / (color_temp * 560e-9)) - 1)
+            / (np.exp(c2 / (color_temp * lmbda)) - 1)
         )
     )
     return lmbda, vals
@@ -194,13 +194,13 @@ def d(nominal_temperature):
     m1 = (-1.3515 - 1.7703 * xd + 5.9114 * yd) / (0.0241 + 0.2562 * xd - 0.7341 * yd)
     m2 = (+0.0300 - 31.4424 * xd + 30.0717 * yd) / (0.0241 + 0.2562 * xd - 0.7341 * yd)
 
-    m1 = numpy.around(m1, decimals=3)
-    m2 = numpy.around(m2, decimals=3)
+    m1 = np.around(m1, decimals=3)
+    m2 = np.around(m2, decimals=3)
 
     this_dir = pathlib.Path(__file__).resolve().parent
     with open(this_dir / "data/illuminants/d.yaml") as f:
         data = yaml.safe_load(f)
-    data = numpy.array(data).T
+    data = np.array(data).T
 
     lmbda = data[0]
     s = data[1:]
@@ -232,8 +232,8 @@ def e():
     """This is a hypothetical reference radiator. All wavelengths in CIE illuminant E
     are weighted equally with a relative spectral power of 100.0.
     """
-    lmbda = 1.0e-9 * numpy.arange(300, 831)
-    data = numpy.full(lmbda.shape, 100.0)
+    lmbda = 1.0e-9 * np.arange(300, 831)
+    data = np.full(lmbda.shape, 100.0)
     return lmbda, data
 
 
@@ -241,4 +241,4 @@ def f2():
     this_dir = pathlib.Path(__file__).resolve().parent
     with open(this_dir / "data/illuminants/f2.yaml") as f:
         data = yaml.safe_load(f)
-    return numpy.array(data["lambda"]), numpy.array(data["values"])
+    return np.array(data["lambda"]), np.array(data["values"])

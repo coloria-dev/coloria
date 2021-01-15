@@ -1,23 +1,23 @@
-import numpy
+import numpy as np
 
 
 class HSL:
     def from_srgb1(self, srgb1):
-        srgb = numpy.asarray(srgb1, dtype=float)
+        srgb = np.asarray(srgb1, dtype=float)
         orig_shape = srgb.shape
         srgb = srgb.reshape(3, -1)
-        assert numpy.all(srgb >= 0)
-        assert numpy.all(srgb <= 1)
+        assert np.all(srgb >= 0)
+        assert np.all(srgb <= 1)
 
-        argmax = numpy.argmax(srgb, axis=0)
-        max_val = numpy.max(srgb, axis=0)
-        min_val = numpy.min(srgb, axis=0)
+        argmax = np.argmax(srgb, axis=0)
+        max_val = np.max(srgb, axis=0)
+        min_val = np.min(srgb, axis=0)
 
         diff = max_val - min_val
 
         is_diff_0 = diff == 0.0
 
-        H = numpy.empty(srgb.shape[1:], dtype=float)
+        H = np.empty(srgb.shape[1:], dtype=float)
         # Set hue to 0.0 for grey values. Could do anything here, nan would be
         # reasonable too.
         H[is_diff_0] = 0.0
@@ -27,11 +27,11 @@ class HSL:
         H[i] = 60 * (2 + (srgb[2][i] - srgb[0][i]) / diff[i])
         i = (argmax == 2) & ~is_diff_0
         H[i] = 60 * (4 + (srgb[0][i] - srgb[1][i]) / diff[i])
-        H = numpy.mod(H, 360)
+        H = np.mod(H, 360)
 
-        S = numpy.empty(srgb.shape[1:], dtype=float)
+        S = np.empty(srgb.shape[1:], dtype=float)
         idx = (max_val > 0) & (min_val < 1)
-        S[idx] = diff[idx] / (1 - numpy.abs(max_val[idx] + min_val[idx] - 1))
+        S[idx] = diff[idx] / (1 - np.abs(max_val[idx] + min_val[idx] - 1))
         S[~idx] = 0.0
 
         L = (max_val + min_val) / 2
@@ -39,25 +39,25 @@ class HSL:
         H = H.reshape(orig_shape[1:])
         S = S.reshape(orig_shape[1:])
         L = L.reshape(orig_shape[1:])
-        return numpy.array([H, S, L])
+        return np.array([H, S, L])
 
     def to_srgb1(self, hsl):
         H, S, L = hsl
-        assert numpy.all(H >= 0)
-        assert numpy.all(H <= 360)
-        assert numpy.all(S >= 0)
-        assert numpy.all(S <= 1)
-        assert numpy.all(L >= 0)
-        assert numpy.all(L <= 1)
+        assert np.all(H >= 0)
+        assert np.all(H <= 360)
+        assert np.all(S >= 0)
+        assert np.all(S <= 1)
+        assert np.all(L >= 0)
+        assert np.all(L <= 1)
 
-        C = (1 - numpy.abs(2 * L - 1)) * S
+        C = (1 - np.abs(2 * L - 1)) * S
         H_dash = H / 60
-        X = C * (1 - numpy.abs(numpy.mod(H_dash, 2) - 1))
-        Z = numpy.zeros(C.shape)
+        X = C * (1 - np.abs(np.mod(H_dash, 2) - 1))
+        Z = np.zeros(C.shape)
 
-        R1 = numpy.empty(C.shape)
-        G1 = numpy.empty(C.shape)
-        B1 = numpy.empty(C.shape)
+        R1 = np.empty(C.shape)
+        G1 = np.empty(C.shape)
+        B1 = np.empty(C.shape)
         i = (0 <= H_dash) & (H_dash <= 1)
         R1[i], G1[i], B1[i] = C[i], X[i], Z[i]
         i = (1 < H_dash) & (H_dash <= 2)
@@ -72,7 +72,7 @@ class HSL:
         R1[i], G1[i], B1[i] = C[i], Z[i], X[i]
 
         m = L - C / 2
-        return numpy.array([R1 + m, G1 + m, B1 + m])
+        return np.array([R1 + m, G1 + m, B1 + m])
 
     def from_srgb256(self, srgb256):
-        return self.from_srgb1(numpy.asarray(srgb256) / 255.0)
+        return self.from_srgb1(np.asarray(srgb256) / 255.0)

@@ -1,7 +1,7 @@
 import pathlib
 
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
 import yaml
 
 from ..helpers import _compute_straight_line_residuals, _plot_hue_linearity_data
@@ -12,9 +12,9 @@ def load():
     with open(this_dir / "ebner_fairchild.yaml") as f:
         data = yaml.safe_load(f)
 
-    wp = numpy.array(data["white point"])
+    wp = np.array(data["white point"])
     d = [
-        numpy.column_stack([dat["reference xyz"], numpy.array(dat["same"]).T])
+        np.column_stack([dat["reference xyz"], np.array(dat["same"]).T])
         for dat in data["data"]
     ]
     return wp, d

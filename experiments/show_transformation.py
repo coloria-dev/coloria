@@ -2,7 +2,7 @@ import argparse
 
 import matplotlib.pyplot as plt
 import meshzoo
-import numpy
+import numpy as np
 from dolfin import Function, FunctionSpace, Mesh, MeshEditor
 
 import colorio
@@ -11,7 +11,7 @@ import colorio
 def _main():
     args = _parse_cmd_arguments()
 
-    content = numpy.load(args.infile)
+    content = np.load(args.infile)
 
     data = content.item()["data"]
     n = content.item()["n"]
@@ -32,7 +32,7 @@ def _main():
     )
 
     points, cells = meshzoo.triangle(
-        corners=numpy.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]), n=n
+        corners=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]), n=n
     )
 
     # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
@@ -67,10 +67,10 @@ def _main():
     def transform(XY, data=data):
         is_solo = len(XY.shape) == 1
         if is_solo:
-            XY = numpy.array([XY]).T
+            XY = np.array([XY]).T
         # print(XY)
         ux, uy = get_u(data)
-        out = numpy.array([[ux(x, y) for x, y in XY.T], [uy(x, y) for x, y in XY.T]])
+        out = np.array([[ux(x, y) for x, y in XY.T], [uy(x, y) for x, y in XY.T]])
         if is_solo:
             out = out[..., 0]
         return out

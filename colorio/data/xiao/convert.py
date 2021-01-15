@@ -1,7 +1,7 @@
 """
 Helper tool for converting XLSX data to YAML.
 """
-import numpy
+import numpy as np
 import openpyxl
 import yaml
 
@@ -24,7 +24,7 @@ session3_x = [str(ws[f"K{k}"].value) for k in range(4, 1669)]
 session3_y = [str(ws[f"L{k}"].value) for k in range(4, 1669)]
 session3_z = [str(ws[f"M{k}"].value) for k in range(4, 1669)]
 
-data = numpy.array(
+data = np.array(
     [
         [session1_x, session2_x, session3_x],
         [session1_y, session2_y, session3_y],
@@ -33,7 +33,7 @@ data = numpy.array(
 ).T
 
 data = data.reshape(-1, 9, 3, 3)
-data = numpy.moveaxis(data, 1, 2)
+data = np.moveaxis(data, 1, 2)
 
 with open(filename, "w") as outfile:
     yaml.dump(data.tolist(), outfile)

@@ -1,20 +1,20 @@
 # import colour
 import colorspacious
-import numpy
+import numpy as np
 from cam16_legacy import CAM16Legacy
 
 import colorio
 
-numpy.random.seed(0)
+np.random.seed(0)
 
 
 def test_0():
     Y_b = 20
-    L_A = 64 / numpy.pi / 5
+    L_A = 64 / np.pi / 5
     c = 0.69  # average
     cam16 = colorio.cs.CAM16(c, Y_b, L_A)
 
-    xyz = numpy.zeros(3)
+    xyz = np.zeros(3)
     J, C, _, h, M, s, Q = cam16.from_xyz100(xyz)
 
     assert J == 0.0
@@ -32,11 +32,11 @@ def test_0():
 
 def test_from():
     """Compare colorio with colorspacius and colour."""
-    xyz = 100 * numpy.random.rand(3)
+    xyz = 100 * np.random.rand(3)
 
     Y_b = 20
     whitepoint = colorio.illuminants.whitepoints_cie1931["D65"]
-    L_A = 64 / numpy.pi / 5
+    L_A = 64 / np.pi / 5
 
     c = 0.69  # average
     cs2 = colorio.cs.CIECAM02(c, Y_b, L_A)
@@ -71,14 +71,14 @@ def performance_comparison_from():
     import perfplot
 
     def setup(n):
-        out = numpy.empty((3, n))
-        rgb = numpy.random.rand(3)
+        out = np.empty((3, n))
+        rgb = np.random.rand(3)
         for k in range(3):
             out[k] = rgb[k]
         return out
 
     Y_b = 20
-    L_A = 64 / numpy.pi / 5
+    L_A = 64 / np.pi / 5
     c = 0.69  # average
     cam16 = colorio.cs.CAM16(c, Y_b, L_A)
 
@@ -88,7 +88,7 @@ def performance_comparison_from():
         setup=setup,
         kernels=[cam16.from_xyz100, cam16_legacy.from_xyz100],
         labels=["new", "legacy"],
-        n_range=1000 * numpy.arange(6),
+        n_range=1000 * np.arange(6),
         equality_check=False,
     )
 
@@ -97,7 +97,7 @@ def performance_comparison_to():
     import perfplot
 
     Y_b = 20
-    L_A = 64 / numpy.pi / 5
+    L_A = 64 / np.pi / 5
 
     c = 0.69  # average
     cam16 = colorio.cs.CAM16(c, Y_b, L_A)
@@ -111,9 +111,9 @@ def performance_comparison_to():
         return cam16_legacy.to_xyz100(x, "JCh")
 
     perfplot.plot(
-        setup=lambda n: numpy.random.rand(3, n),
+        setup=lambda n: np.random.rand(3, n),
         kernels=[cio, cio_legacy],
-        n_range=100000 * numpy.arange(11),
+        n_range=100000 * np.arange(11),
         xlabel="Number of input samples",
     )
 

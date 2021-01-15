@@ -2,7 +2,7 @@
 Curve-fit observer curves with sums of exp(-x**2).
 """
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
 import scipy.optimize
 import scipy.special
 
@@ -10,24 +10,14 @@ import colorio
 
 
 def f(x, *p):
-    return (
-        p[0]
-        / numpy.sqrt(2 * numpy.pi)
-        * numpy.exp(-((x - p[1]) ** 2) / (2 * p[2] ** 2))
-    )
+    return p[0] / np.sqrt(2 * np.pi) * np.exp(-((x - p[1]) ** 2) / (2 * p[2] ** 2))
 
 
 def f3(x, *p):
     return (
-        +p[0]
-        / numpy.sqrt(2 * numpy.pi)
-        * numpy.exp(-((x - p[1]) ** 2) / (2 * p[2] ** 2))
-        + p[3]
-        / numpy.sqrt(2 * numpy.pi)
-        * numpy.exp(-((x - p[4]) ** 2) / (2 * p[5] ** 2))
-        + p[6]
-        / numpy.sqrt(2 * numpy.pi)
-        * numpy.exp(-((x - p[7]) ** 2) / (2 * p[8] ** 2))
+        +p[0] / np.sqrt(2 * np.pi) * np.exp(-((x - p[1]) ** 2) / (2 * p[2] ** 2))
+        + p[3] / np.sqrt(2 * np.pi) * np.exp(-((x - p[4]) ** 2) / (2 * p[5] ** 2))
+        + p[6] / np.sqrt(2 * np.pi) * np.exp(-((x - p[7]) ** 2) / (2 * p[8] ** 2))
     )
 
 
@@ -36,8 +26,8 @@ def g(x, *p):
     return (
         p[0]
         * 1
-        / numpy.sqrt(2 * numpy.pi)
-        * numpy.exp(-((x - p[1]) ** 2) / (2 * p[2] ** 2))
+        / np.sqrt(2 * np.pi)
+        * np.exp(-((x - p[1]) ** 2) / (2 * p[2] ** 2))
         * (1 + scipy.special.erf(p[3] * (x - p[1]) / 2 / p[2]))
     )
 

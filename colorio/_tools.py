@@ -1,33 +1,33 @@
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
 
 from . import observers
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
 
 def _xyy_from_xyz100(xyz):
-    sum_xyz = numpy.sum(xyz, axis=0)
+    sum_xyz = np.sum(xyz, axis=0)
     x = xyz[0]
     y = xyz[1]
-    return numpy.array([x / sum_xyz, y / sum_xyz, y / 100])
+    return np.array([x / sum_xyz, y / sum_xyz, y / 100])
 
 
 def _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=True):
     # draw outline of monochromatic spectra
-    lmbda = 1.0e-9 * numpy.arange(380, 701)
+    lmbda = 1.0e-9 * np.arange(380, 701)
     values = []
     # TODO vectorize (see <https://github.com/numpy/numpy/issues/10439>)
     for k, _ in enumerate(lmbda):
-        data = numpy.zeros(len(lmbda))
+        data = np.zeros(len(lmbda))
         data[k] = 1.0
         values.append(_xyy_from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[:2])
-    values = numpy.array(values)
+    values = np.array(values)
 
     # Add the values between the first and the last point of the horseshoe
-    t = numpy.linspace(0.0, 1.0, 101)
-    connect = xy_to_2d(numpy.outer(values[0], t) + numpy.outer(values[-1], 1 - t))
+    t = np.linspace(0.0, 1.0, 101)
+    connect = xy_to_2d(np.outer(values[0], t) + np.outer(values[-1], 1 - t))
     values = xy_to_2d(values.T).T
-    full = numpy.concatenate([values, connect.T])
+    full = np.concatenate([values, connect.T])
 
     # fill horseshoe area
     if fill_horseshoe:
@@ -46,12 +46,12 @@ def _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=True):
 def _plot_planckian_locus(observer, xy_to_2d):
     # plot planckian locus
     values = []
-    for temp in numpy.arange(1000, 20001, 100):
+    for temp in np.arange(1000, 20001, 100):
         xyy_vals = xy_to_2d(
             _xyy_from_xyz100(spectrum_to_xyz100(planckian_radiator(temp), observer))
         )
         values.append(xyy_vals)
-    values = numpy.array(values)
+    values = np.array(values)
     plt.plot(values[:, 0], values[:, 1], ":k", label="Planckian locus")
 
 
@@ -97,17 +97,17 @@ def xy_gamut_mesh(lcar):
     observer = observers.cie_1931_2()
 
     # Gather all points on the horseshoe outline
-    lmbda = 1.0e-9 * numpy.arange(380, 701)
-    all_points = numpy.empty((len(lmbda), 2))
+    lmbda = 1.0e-9 * np.arange(380, 701)
+    all_points = np.empty((len(lmbda), 2))
     for k in range(len(lmbda)):
-        data = numpy.zeros(len(lmbda))
+        data = np.zeros(len(lmbda))
         data[k] = 1.0
         all_points[k] = _xyy_from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[
             :2
         ]
 
     # Generate gmsh geometry: spline + straight line
-    all_points = numpy.column_stack([all_points, numpy.zeros(len(all_points))])
+    all_points = np.column_stack([all_points, np.zeros(len(all_points))])
     with pygmsh.geo.Geometry() as geom:
         gmsh_points = [geom.add_point(pt, lcar) for pt in all_points]
         s1 = geom.add_spline(gmsh_points)
@@ -131,7 +131,7 @@ def get_mono_outline_xy(observer, max_stepsize):
     lmbda, _ = observer
 
     m = lmbda.shape[0]
-    mono = numpy.zeros(m)
+    mono = np.zeros(m)
 
     # first the straight connector at the bottom
     mono[:] = 0.0
@@ -142,12 +142,12 @@ def get_mono_outline_xy(observer, max_stepsize):
     last = _xyy_from_xyz100(spectrum_to_xyz100((lmbda, mono), observer))[:2]
     #
     diff = first - last
-    dist = numpy.sqrt(numpy.sum(diff ** 2))
+    dist = np.sqrt(np.sum(diff ** 2))
     num_steps = dist / max_stepsize
     num_steps = int(num_steps) + 2
     # connection between lowest and highest frequencies
-    vals_conn = numpy.array(
-        [first * (1 - t) + last * t for t in numpy.linspace(0, 1, num_steps)]
+    vals_conn = np.array(
+        [first * (1 - t) + last * t for t in np.linspace(0, 1, num_steps)]
     )
 
     vals_mono = [vals_conn[-1]]
@@ -157,11 +157,11 @@ def get_mono_outline_xy(observer, max_stepsize):
         val = _xyy_from_xyz100(spectrum_to_xyz100((lmbda, mono), observer))[:2]
 
         diff = vals_mono[-1] - val
-        dist = numpy.sqrt(numpy.dot(diff, diff))
+        dist = np.sqrt(np.dot(diff, diff))
 
         if dist > max_stepsize:
             vals_mono.append(val)
     vals_mono.append(vals_conn[0])
-    vals_mono = numpy.array(vals_mono)
+    vals_mono = np.array(vals_mono)
 
     return vals_mono, vals_conn

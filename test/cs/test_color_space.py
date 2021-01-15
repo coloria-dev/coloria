@@ -1,7 +1,7 @@
 import tempfile
 from pathlib import Path
 
-import numpy
+import numpy as np
 import pytest
 
 import colorio
@@ -26,7 +26,7 @@ def test_visible_slice(cs, k0, level):
     [
         colorio.cs.CIELAB(),
         # colorio.cs.XYY(1),
-        colorio.cs.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
+        colorio.cs.CAM02("UCS", 0.69, 20, 64 / np.pi / 5),
     ],
 )
 def test_srgb_gamut(variant, colorspace, n=10):
@@ -39,7 +39,7 @@ def test_srgb_gamut(variant, colorspace, n=10):
     [
         colorio.cs.CIELAB(),
         colorio.cs.XYY(1),
-        colorio.cs.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
+        colorio.cs.CAM02("UCS", 0.69, 20, 64 / np.pi / 5),
     ],
 )
 def test_cone_gamut(colorspace, n=10):
@@ -53,7 +53,7 @@ def test_cone_gamut(colorspace, n=10):
     [
         # colorio.cs.CIELAB(),
         # colorio.cs.XYY(1),
-        colorio.cs.CAM02("UCS", 0.69, 20, 64 / numpy.pi / 5),
+        colorio.cs.CAM02("UCS", 0.69, 20, 64 / np.pi / 5),
     ],
 )
 def test_visible_gamut(colorspace):

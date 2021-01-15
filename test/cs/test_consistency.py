@@ -1,9 +1,9 @@
-import numpy
+import numpy as np
 import pytest
 
 import colorio
 
-numpy.random.seed(0)
+np.random.seed(0)
 
 
 @pytest.mark.parametrize(
@@ -29,9 +29,9 @@ numpy.random.seed(0)
 @pytest.mark.parametrize(
     "xyz",
     [
-        100 * numpy.random.rand(3),
-        100 * numpy.random.rand(3, 7),
-        100 * numpy.random.rand(3, 4, 5),
+        100 * np.random.rand(3),
+        100 * np.random.rand(3, 7),
+        100 * np.random.rand(3, 4, 5),
     ],
 )
 def test_conversion(cs, tol, xyz):
@@ -39,8 +39,8 @@ def test_conversion(cs, tol, xyz):
     print(xyz)
     out = cs.to_xyz100(cs.from_xyz100(xyz))
     # make sure that xyz doesn't change during the calls
-    assert numpy.all(numpy.abs(xyz - xyz_orig) < tol * numpy.abs(xyz_orig))
+    assert np.all(np.abs(xyz - xyz_orig) < tol * np.abs(xyz_orig))
     print(xyz)
     print(cs)
     print(out)
-    assert numpy.all(numpy.abs(xyz - out) < tol * numpy.abs(xyz))
+    assert np.all(np.abs(xyz - out) < tol * np.abs(xyz))

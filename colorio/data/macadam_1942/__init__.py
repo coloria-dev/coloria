@@ -8,7 +8,7 @@ https://doi.org/10.1364/JOSA.32.000247
 import pathlib
 
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
 import yaml
 
 from ...cs import XYY
@@ -26,16 +26,16 @@ def _load_data():
     xy_offsets = []
     for datak in data:
         # collect ellipse points
-        _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak["data"]).T
+        _, _, _, _, delta_y_delta_x, delta_s = np.array(datak["data"]).T
         offset = (
-            numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
-            / numpy.sqrt(1 + delta_y_delta_x ** 2)
+            np.array([np.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
+            / np.sqrt(1 + delta_y_delta_x ** 2)
             * delta_s
         )
         if offset.shape[1] < 2:
             continue
-        xy_centers.append(numpy.array([datak["x"], datak["y"]]))
-        xy_offsets.append(numpy.column_stack([+offset, -offset]))
+        xy_centers.append(np.array([datak["x"], datak["y"]]))
+        xy_offsets.append(np.column_stack([+offset, -offset]))
     return xy_centers, xy_offsets
 
 
@@ -60,9 +60,9 @@ def plot(cs, ellipse_scaling=10.0):
     xyy100_centers = []
     xyy100_points = []
     for c, off in zip(xy_centers, xy_offsets):
-        xyy100_centers.append(numpy.array([*c, Y]))
+        xyy100_centers.append(np.array([*c, Y]))
         p = (c + off.T).T
-        xyy100_points.append(numpy.array([*p, numpy.full(p.shape[1], Y)]))
+        xyy100_points.append(np.array([*p, np.full(p.shape[1], Y)]))
 
     _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling)
     plt.title(f"MacAdam ellipses for {cs.name}")
@@ -86,21 +86,21 @@ def residual(cs, Y100: float) -> float:
         pts = (c + off.T).T
 
         # get ellipse center in transformed space
-        xyY1_center = numpy.append(c, Y100)
+        xyY1_center = np.append(c, Y100)
         c = cs.from_xyz100(xyy100.to_xyz100(xyY1_center))
 
         # get ellipse points in transformed space
-        xyY1_pts = numpy.array([*pts, numpy.full(pts.shape[1], Y100)])
+        xyY1_pts = np.array([*pts, np.full(pts.shape[1], Y100)])
         pts = cs.from_xyz100(xyy100.to_xyz100(xyY1_pts))
 
         # compute the distance in the transformed space
         diff = (c - pts.T).T
-        dists.append(numpy.sqrt(numpy.einsum("ij,ij->j", diff, diff)))
+        dists.append(np.sqrt(np.einsum("ij,ij->j", diff, diff)))
 
-    delta = numpy.concatenate(dists)
+    delta = np.concatenate(dists)
 
-    alpha = numpy.average(delta)
-    val = numpy.sqrt(numpy.dot(alpha - delta, alpha - delta) / numpy.dot(delta, delta))
+    alpha = np.average(delta)
+    val = np.sqrt(np.dot(alpha - delta, alpha - delta) / np.dot(delta, delta))
     return val
 
 

@@ -1,7 +1,7 @@
 import os
 
 import meshzoo
-import numpy
+import numpy as np
 import yaml
 from dolfin import (
     BoundingBoxTree,
@@ -32,8 +32,8 @@ from scipy.sparse.linalg import LinearOperator
 
 def f_ellipse(a_b_theta, x):
     a, b, theta = a_b_theta
-    cos = numpy.cos(theta)
-    sin = numpy.sin(theta)
+    cos = np.cos(theta)
+    sin = np.sin(theta)
     return (
         +(a ** 2) * (x[0] * cos + x[1] * sin) ** 2
         + b ** 2 * (x[0] * sin - x[1] * cos) ** 2
@@ -43,9 +43,9 @@ def f_ellipse(a_b_theta, x):
 
 def jac_ellipse(a_b_theta, x):
     a, b, theta = a_b_theta
-    cos = numpy.cos(theta)
-    sin = numpy.sin(theta)
-    return numpy.array(
+    cos = np.cos(theta)
+    sin = np.sin(theta)
+    return np.array(
         [
             +2 * a * (x[0] * cos + x[1] * sin) ** 2,
             #
@@ -74,15 +74,15 @@ def _get_luo_rigg():
             centers.append([x, y])
 
             J.append(
-                numpy.array(
+                np.array(
                     [
-                        [a * numpy.cos(theta), -b * numpy.sin(theta)],
-                        [a * numpy.sin(theta), b * numpy.cos(theta)],
+                        [a * np.cos(theta), -b * np.sin(theta)],
+                        [a * np.sin(theta), b * np.cos(theta)],
                     ]
                 )
             )
 
-    return numpy.array(centers), numpy.moveaxis(numpy.array(J), 0, -1)
+    return np.array(centers), np.moveaxis(np.array(J), 0, -1)
 
 
 def _get_macadam():
@@ -94,30 +94,28 @@ def _get_macadam():
     points = []
     for datak in data:
         # collect ellipse points
-        _, _, _, _, delta_y_delta_x, delta_s = numpy.array(datak["data"]).T
+        _, _, _, _, delta_y_delta_x, delta_s = np.array(datak["data"]).T
         if len(delta_s) < 2:
             continue
         center = [datak["x"], datak["y"]]
         centers.append(center)
         offset = (
-            numpy.array([numpy.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
-            / numpy.sqrt(1 + delta_y_delta_x ** 2)
+            np.array([np.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
+            / np.sqrt(1 + delta_y_delta_x ** 2)
             * delta_s
         )
-        points.append(
-            numpy.column_stack([(center + offset.T).T, (center - offset.T).T])
-        )
+        points.append(np.column_stack([(center + offset.T).T, (center - offset.T).T]))
 
-    centers = numpy.array(centers)
+    centers = np.array(centers)
     J = get_local_linearizations1(centers, points)
-    return centers, numpy.moveaxis(J, 0, -1)
+    return centers, np.moveaxis(J, 0, -1)
     # return centers, self.get_local_linearizations2(centers, points)
 
 
 def get_local_linearizations1(centers, points):
     # Get ellipse parameters
     X = [(pts.T - center).T for center, pts in zip(centers, points)]
-    a_b_theta = numpy.array(
+    a_b_theta = np.array(
         [
             # Solve least squares problem for [1/a, 1/b, theta]
             # and pick [a, b, theta]
@@ -129,37 +127,35 @@ def get_local_linearizations1(centers, points):
             for x in X
         ]
     )
-    a_b_theta = numpy.array(
-        [1 / a_b_theta[:, 0], 1 / a_b_theta[:, 1], a_b_theta[:, 2]]
-    ).T
+    a_b_theta = np.array([1 / a_b_theta[:, 0], 1 / a_b_theta[:, 1], a_b_theta[:, 2]]).T
     # Construct 2x2 matrices that approximately convert unit circles into
     # the ellipse defined by the points.
     J = []
     for abt in a_b_theta:
         a, b, theta = abt
         J.append(
-            numpy.array(
+            np.array(
                 [
-                    [a * numpy.cos(theta), -b * numpy.sin(theta)],
-                    [a * numpy.sin(theta), b * numpy.cos(theta)],
+                    [a * np.cos(theta), -b * np.sin(theta)],
+                    [a * np.sin(theta), b * np.cos(theta)],
                 ]
             )
         )
 
-    return numpy.array(J)
+    return np.array(J)
 
 
 def get_local_linearizations2(centers, points):
     X = [(pts.T - center).T for center, pts in zip(centers, points)]
 
     def f_linear_function(j, x):
-        Jx = numpy.dot(j.reshape(2, 2), x)
-        out = numpy.einsum("ij,ij->j", Jx, Jx) - 1.0
+        Jx = np.dot(j.reshape(2, 2), x)
+        out = np.einsum("ij,ij->j", Jx, Jx) - 1.0
         return out
 
     def jac_linear_function(j, x):
         J = j.reshape(2, 2)
-        return numpy.array(
+        return np.array(
             [
                 2 * J[0, 0] * x[0] ** 2 + 2 * J[0, 1] * x[0] * x[1],
                 2 * J[0, 1] * x[1] ** 2 + 2 * J[0, 0] * x[0] * x[1],
@@ -176,9 +172,9 @@ def get_local_linearizations2(centers, points):
             Dfun=lambda J: jac_linear_function(J, x),
             # full_output=True
         )
-        J.append(numpy.linalg.inv(j.reshape(2, 2)))
+        J.append(np.linalg.inv(j.reshape(2, 2)))
 
-    return numpy.array(J)
+    return np.array(J)
 
 
 class PadeEllipse:
@@ -201,21 +197,21 @@ class PadeEllipse:
         ]
 
         # Choose the coefficiens to create the identity function
-        ax = numpy.zeros(num_coefficients[0])
+        ax = np.zeros(num_coefficients[0])
         ax[1] = 1
-        bx = numpy.zeros(num_coefficients[1] - 1)
-        ay = numpy.zeros(num_coefficients[2])
+        bx = np.zeros(num_coefficients[1] - 1)
+        ay = np.zeros(num_coefficients[2])
         ay[2] = 1
-        by = numpy.zeros(num_coefficients[3] - 1)
+        by = np.zeros(num_coefficients[3] - 1)
 
-        self.alpha = numpy.concatenate([ax, bx, ay, by])
+        self.alpha = np.concatenate([ax, bx, ay, by])
 
-        bx = numpy.concatenate([[1.0], bx])
-        by = numpy.concatenate([[1.0], by])
+        bx = np.concatenate([[1.0], bx])
+        by = np.concatenate([[1.0], by])
 
         self.pade2d = Pade2d(self.centers.T, degrees, ax, bx, ay, by)
 
-        # self.J = numpy.array(self.get_local_linearizations2(centers, points))
+        # self.J = np.array(self.get_local_linearizations2(centers, points))
 
         # # plot
         # for center, pts, j in zip(centers, points, self.J):
@@ -223,12 +219,12 @@ class PadeEllipse:
         #     p = (pts.T - center).T
         #     plt.plot(*p, '.')
         #     # plot circle
-        #     t = numpy.linspace(0.0, 2.0*numpy.pi, 1000)
-        #     xy = numpy.array([numpy.cos(t), numpy.sin(t)])
-        #     plt.plot(*numpy.dot(j, xy), '-', label='ellipse')
+        #     t = np.linspace(0.0, 2.0*np.pi, 1000)
+        #     xy = np.array([np.cos(t), np.sin(t)])
+        #     plt.plot(*np.dot(j, xy), '-', label='ellipse')
         #     plt.legend()
         #     # # plot transformation
-        #     # xy_new = numpy.dot(j, p)
+        #     # xy_new = np.dot(j, p)
         #     # plt.plot(*xy_new, 'x')
         #     plt.axis('equal')
         #     plt.show()
@@ -245,9 +241,9 @@ class PadeEllipse:
         num_coefficients[1] -= 1
         num_coefficients[3] -= 1
 
-        ax, bx, ay, by = numpy.split(alpha, numpy.cumsum(num_coefficients[:-1]))
-        bx = numpy.concatenate([[1.0], bx])
-        by = numpy.concatenate([[1.0], by])
+        ax, bx, ay, by = np.split(alpha, np.cumsum(num_coefficients[:-1]))
+        bx = np.concatenate([[1.0], bx])
+        by = np.concatenate([[1.0], by])
 
         self.pade2d.set_coefficients(ax, bx, ay, by)
         return
@@ -258,12 +254,12 @@ class PadeEllipse:
         # jacs and J are of shape (2, 2, k). M must be of the same shape and
         # contain the result of the k 2x2 dot products. Perhaps there's a
         # dot() for this.
-        M = numpy.einsum("ijl,jkl->ikl", self.pade2d.jac(), self.J)
+        M = np.einsum("ijl,jkl->ikl", self.pade2d.jac(), self.J)
 
         # One could use
         #
-        #     M = numpy.moveaxis(M, -1, 0)
-        #     _, sigma, _ = numpy.linalg.svd(M)
+        #     M = np.moveaxis(M, -1, 0)
+        #     _, sigma, _ = np.linalg.svd(M)
         #
         # but computing the singular values explicitly via
         # <https://scicomp.stackexchange.com/a/14103/3980> is faster.
@@ -284,18 +280,18 @@ class PadeEllipse:
         return q2, r2
 
     def get_ellipse_axes(self, alpha):
-        q, r = numpy.sqrt(self.get_q2_r2(alpha))
-        sigma = numpy.array([q + r, q - r]) * self.target
+        q, r = np.sqrt(self.get_q2_r2(alpha))
+        sigma = np.array([q + r, q - r]) * self.target
         return sigma
 
     def cost(self, alpha):
         q2, r2 = self.get_q2_r2(alpha)
 
-        out = numpy.array([q2 - 1.0, r2]).flatten()
+        out = np.array([q2 - 1.0, r2]).flatten()
 
         self.num_f_eval += 1
         if self.num_f_eval % 10000 == 0:
-            cost = numpy.sum(out ** 2)
+            cost = np.sum(out ** 2)
             print(f"{self.num_f_eval:7d}     {cost}")
         return out
 
@@ -328,10 +324,10 @@ def build_grad_matrices(V, points):
         datax.append(v[:, 0])
         datay.append(v[:, 1])
 
-    rows = numpy.concatenate(rows)
-    cols = numpy.concatenate(cols)
-    datax = numpy.concatenate(datax)
-    datay = numpy.concatenate(datay)
+    rows = np.concatenate(rows)
+    cols = np.concatenate(cols)
+    datax = np.concatenate(datax)
+    datay = np.concatenate(datay)
 
     m = len(points)
     n = V.dim()
@@ -352,15 +348,15 @@ class PiecewiseEllipse:
         # with open(os.path.join(dir_path, '../colorio/data/gamut_triangulation.yaml')) as f:
         #     data = yaml.safe_load(f)
 
-        # self.points = numpy.column_stack([
-        #     data['points'], numpy.zeros(len(data['points']))
+        # self.points = np.column_stack([
+        #     data['points'], np.zeros(len(data['points']))
         #     ])
-        # self.cells = numpy.array(data['cells'])
+        # self.cells = np.array(data['cells'])
 
         # self.points, self.cells = colorio.xy_gamut_mesh(0.15)
 
         self.points, self.cells = meshzoo.triangle(
-            n, corners=numpy.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
+            n, corners=np.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
         )
 
         # https://bitbucket.org/fenics-project/dolfin/issues/845/initialize-mesh-from-vertices
@@ -382,8 +378,8 @@ class PiecewiseEllipse:
         # self.uy0 = Function(self.V)
 
         # 0 starting guess
-        # ax = numpy.zeros(self.V.dim())
-        # ay = numpy.zeros(self.V.dim())
+        # ax = np.zeros(self.V.dim())
+        # ay = np.zeros(self.V.dim())
 
         # Use F(x, y) = (x, y) as starting guess
         self.ux0 = project(Expression("x[0]", degree=1), self.V)
@@ -393,7 +389,7 @@ class PiecewiseEllipse:
         # Note that alpha doesn't contain the values in the order that one might expect,
         # see
         # <https://www.allanswered.com/post/awevg/projectexpressionx0-v-vector-get_local-not-in-order/>.
-        self.alpha = numpy.concatenate([ax, ay])
+        self.alpha = np.concatenate([ax, ay])
 
         self.num_f_eval = 0
 
@@ -415,15 +411,15 @@ class PiecewiseEllipse:
 
     def apply_M(self, ax, ay):
         """Linear operator that converts ax, ay to abcd."""
-        jac = numpy.array(
+        jac = np.array(
             [[self.dx.dot(ax), self.dy.dot(ax)], [self.dx.dot(ay), self.dy.dot(ay)]]
         )
 
         # jacs and J are of shape (2, 2, k). M must be of the same shape and
         # contain the result of the k 2x2 dot products. Perhaps there's a
         # dot() for this.
-        M = numpy.einsum("ijl,jkl->ikl", jac, self.J)
-        # M = numpy.array([
+        M = np.einsum("ijl,jkl->ikl", jac, self.J)
+        # M = np.array([
         #     [
         #         jac[0][0]*self.J[0][0] + jac[0][1]*self.J[1][0],
         #         jac[0][0]*self.J[0][1] + jac[0][1]*self.J[1][1],
@@ -436,8 +432,8 @@ class PiecewiseEllipse:
 
         # One could use
         #
-        #     M = numpy.moveaxis(M, -1, 0)
-        #     _, sigma, _ = numpy.linalg.svd(M)
+        #     M = np.moveaxis(M, -1, 0)
+        #     _, sigma, _ = np.linalg.svd(M)
         #
         # but computing the singular values explicitly via
         # <https://scicomp.stackexchange.com/a/14103/3980> is faster and more
@@ -450,11 +446,11 @@ class PiecewiseEllipse:
         return a, b, c, d
 
     def apply_M_alt(self, ax, ay):
-        X = numpy.array(
+        X = np.array(
             [self.dx.dot(ax), self.dy.dot(ax), self.dx.dot(ay), self.dy.dot(ay)]
         )
 
-        Y = numpy.array(
+        Y = np.array(
             [
                 X[0] * self.J[0][0] + X[1] * self.J[1][0],
                 X[0] * self.J[0][1] + X[1] * self.J[1][1],
@@ -463,14 +459,14 @@ class PiecewiseEllipse:
             ]
         )
 
-        Z = 0.5 * numpy.array([Y[0] + Y[3], Y[0] - Y[3], Y[2] + Y[1], Y[2] - Y[1]])
+        Z = 0.5 * np.array([Y[0] + Y[3], Y[0] - Y[3], Y[2] + Y[1], Y[2] - Y[1]])
         return Z
 
     def apply_MT(self, abcd):
         a, b, c, d = abcd
-        X = 0.5 * numpy.array([a + b, c - d, c + d, a - b])
+        X = 0.5 * np.array([a + b, c - d, c + d, a - b])
 
-        Y = numpy.array(
+        Y = np.array(
             [
                 X[0] * self.J[0][0] + X[1] * self.J[0][1],
                 X[0] * self.J[1][0] + X[1] * self.J[1][1],
@@ -479,7 +475,7 @@ class PiecewiseEllipse:
             ]
         )
 
-        Z = numpy.array(
+        Z = np.array(
             [
                 self.dxT.dot(Y[0]) + self.dyT.dot(Y[1]),
                 self.dxT.dot(Y[2]) + self.dyT.dot(Y[3]),
@@ -510,14 +506,14 @@ class PiecewiseEllipse:
     def jacT_q2_r2(self, ax, ay, out1, out2):
         a, b, c, d = self.apply_M(ax, ay)
         #
-        X = 2 * numpy.array([a * out1, b * out2, c * out2, d * out1])
+        X = 2 * np.array([a * out1, b * out2, c * out2, d * out1])
         Y = self.apply_MT(X)
         return Y
 
     def get_ellipse_axes(self, alpha):
-        ax, ay = numpy.split(alpha, 2)
-        q, r = numpy.sqrt(self.get_q2_r2(ax, ay))
-        sigma = numpy.array([q + r, q - r]) * self.target
+        ax, ay = np.split(alpha, 2)
+        q, r = np.sqrt(self.get_q2_r2(ax, ay))
+        sigma = np.array([q + r, q - r]) * self.target
         return sigma
 
     def cost_ls(self, alpha):
@@ -525,7 +521,7 @@ class PiecewiseEllipse:
         ax = alpha[:n]
         ay = alpha[n:]
 
-        # res_x, res_y = self.L.dot(numpy.column_stack([ax, ay])).T
+        # res_x, res_y = self.L.dot(np.column_stack([ax, ay])).T
         res_x = self.L.dot(ax)
         res_y = self.L.dot(ay)
 
@@ -543,14 +539,14 @@ class PiecewiseEllipse:
         # additional measurements do not decrease the weights on the other measurements.
         # As consequence, more measurements as a set take a higher relative weight in
         # the cost function. This is what we want.
-        out = numpy.array([res_x, res_y, q2 - 1.0, r2])
+        out = np.array([res_x, res_y, q2 - 1.0, r2])
 
         self.num_f_eval += 1
         if self.num_f_eval % 100 == 0:
-            cost = numpy.array([numpy.dot(ot, ot) for ot in out])
+            cost = np.array([np.dot(ot, ot) for ot in out])
             print("{:7d}     {:e} {:e} {:e} {:e}".format(self.num_f_eval, *cost))
 
-        return numpy.concatenate(out)
+        return np.concatenate(out)
 
     def jac_ls(self, alpha):
         m = 2 * self.V.dim() + 2 * self.centers.shape[0]
@@ -562,10 +558,10 @@ class PiecewiseEllipse:
 
         ax = alpha[:d]
         ay = alpha[d:]
-        jac_alpha = numpy.array(
+        jac_alpha = np.array(
             [[self.dx.dot(ax), self.dy.dot(ax)], [self.dx.dot(ay), self.dy.dot(ay)]]
         )
-        M_alpha = numpy.einsum("ijl,jkl->ikl", jac_alpha, self.J)
+        M_alpha = np.einsum("ijl,jkl->ikl", jac_alpha, self.J)
         a_alpha = (M_alpha[0, 0] + M_alpha[1, 1]) / 2
         b_alpha = (M_alpha[0, 0] - M_alpha[1, 1]) / 2
         c_alpha = (M_alpha[1, 0] + M_alpha[0, 1]) / 2
@@ -584,10 +580,10 @@ class PiecewiseEllipse:
             res_y = self.L.dot(ay)
 
             # q2, r2 part
-            jac_phi = numpy.array(
+            jac_phi = np.array(
                 [[self.dx.dot(ax), self.dy.dot(ax)], [self.dx.dot(ay), self.dy.dot(ay)]]
             )
-            M_phi = numpy.einsum("ijl,jkl->ikl", jac_phi, self.J)
+            M_phi = np.einsum("ijl,jkl->ikl", jac_phi, self.J)
             a_phi = M_phi[0, 0] + M_phi[1, 1]
             b_phi = M_phi[0, 0] - M_phi[1, 1]
             c_phi = M_phi[1, 0] + M_phi[0, 1]
@@ -595,7 +591,7 @@ class PiecewiseEllipse:
             dq2_phi = a_alpha * a_phi + d_alpha * d_phi
             dr2_phi = b_alpha * b_phi + c_alpha * c_phi
 
-            return numpy.concatenate([res_x, res_y, dq2_phi, dr2_phi])
+            return np.concatenate([res_x, res_y, dq2_phi, dr2_phi])
 
         def rmatvec(vec):
             res_x = vec[:d]
@@ -603,7 +599,7 @@ class PiecewiseEllipse:
             dq2_phi = vec[2 * d : 2 * d + c]
             dr2_phi = vec[2 * d + c :]
 
-            X = numpy.array(
+            X = np.array(
                 [
                     a_alpha * dq2_phi,
                     b_alpha * dr2_phi,
@@ -611,8 +607,8 @@ class PiecewiseEllipse:
                     d_alpha * dq2_phi,
                 ]
             )
-            Y = numpy.array([X[0] + X[1], X[2] - X[3], X[2] + X[3], X[0] - X[1]])
-            Z = numpy.array(
+            Y = np.array([X[0] + X[1], X[2] - X[3], X[2] + X[3], X[0] - X[1]])
+            Z = np.array(
                 [
                     self.J[0][0] * Y[0] + self.J[0][1] * Y[1],
                     self.J[1][0] * Y[0] + self.J[1][1] * Y[1],
@@ -621,7 +617,7 @@ class PiecewiseEllipse:
                 ]
             )
 
-            return numpy.concatenate(
+            return np.concatenate(
                 [
                     self.LT.dot(res_x) + self.dxT.dot(Z[0]) + self.dyT.dot(Z[1]),
                     self.LT.dot(res_y) + self.dxT.dot(Z[2]) + self.dyT.dot(Z[3]),
@@ -630,9 +626,9 @@ class PiecewiseEllipse:
 
         # # test matvec
         # u = alpha
-        # numpy.random.seed(0)
-        # du = numpy.random.rand(n)
-        # # du = numpy.zeros(n)
+        # np.random.seed(0)
+        # du = np.random.rand(n)
+        # # du = np.zeros(n)
         # # du[0] = 1.0
         # eps = 1.0e-10
         # fupdu = self.cost(u + eps*du)
@@ -642,7 +638,7 @@ class PiecewiseEllipse:
         # ndiff2 = (fu - fumdu) / eps
         # ndiff3 = (fupdu - fumdu) / (2*eps)
         # jdiff1 = matvec(du)
-        # jdiff2 = numpy.dot(matrix, du)
+        # jdiff2 = np.dot(matrix, du)
         # print()
         # d = self.V.dim()
         # print(ndiff1[-4:])
@@ -665,17 +661,17 @@ class PiecewiseEllipse:
         q2, r2 = self.get_q2_r2(ax, ay)
 
         out = [
-            0.5 * numpy.dot(Lax, Lax),
-            0.5 * numpy.dot(Lay, Lay),
-            0.5 * numpy.dot(q2 - 1, q2 - 1),
-            0.5 * numpy.dot(r2, r2),
+            0.5 * np.dot(Lax, Lax),
+            0.5 * np.dot(Lay, Lay),
+            0.5 * np.dot(q2 - 1, q2 - 1),
+            0.5 * np.dot(r2, r2),
         ]
 
         if self.num_f_eval % 10000 == 0:
             print("{:7d}     {:e} {:e} {:e} {:e}".format(self.num_f_eval, *out))
 
         self.num_f_eval += 1
-        return numpy.sum(out)
+        return np.sum(out)
 
     def grad_min(self, alpha, assert_equality=False):
         n = self.V.dim()
@@ -683,41 +679,41 @@ class PiecewiseEllipse:
         if assert_equality:
             M = []
             for k in range(30):
-                e = numpy.zeros(30)
+                e = np.zeros(30)
                 e[k] = 1.0
                 ax = e[:n]
                 ay = e[n:]
-                M.append(numpy.concatenate(self.apply_M_alt(ax, ay)))
-            M = numpy.column_stack(M)
+                M.append(np.concatenate(self.apply_M_alt(ax, ay)))
+            M = np.column_stack(M)
 
             MT = []
             for k in range(100):
-                e = numpy.zeros(100)
+                e = np.zeros(100)
                 e[k] = 1.0
-                abcd = numpy.array([e[:25], e[25:50], e[50:75], e[75:]])
-                MT.append(numpy.concatenate(self.apply_MT(abcd)))
-            MT = numpy.column_stack(MT)
-            assert numpy.all(abs(M.T - MT) < 1.0e-13)
+                abcd = np.array([e[:25], e[25:50], e[50:75], e[75:]])
+                MT.append(np.concatenate(self.apply_MT(abcd)))
+            MT = np.column_stack(MT)
+            assert np.all(abs(M.T - MT) < 1.0e-13)
 
         if assert_equality:
             M = []
             for k in range(30):
-                e = numpy.zeros(30)
+                e = np.zeros(30)
                 e[k] = 1.0
                 bx = e[:n]
                 by = e[n:]
-                M.append(numpy.concatenate(self.jac_q2_r2(ax, ay, bx, by)))
-            M = numpy.column_stack(M)
+                M.append(np.concatenate(self.jac_q2_r2(ax, ay, bx, by)))
+            M = np.column_stack(M)
 
             MT = []
             for k in range(50):
-                e = numpy.zeros(50)
+                e = np.zeros(50)
                 e[k] = 1.0
                 out1 = e[:25]
                 out2 = e[25:]
-                MT.append(numpy.concatenate(self.jacT_q2_r2(ax, ay, out1, out2)))
-            MT = numpy.column_stack(MT)
-            assert numpy.all(abs(M.T - MT) < 1.0e-13)
+                MT.append(np.concatenate(self.jacT_q2_r2(ax, ay, out1, out2)))
+            MT = np.column_stack(MT)
+            assert np.all(abs(M.T - MT) < 1.0e-13)
 
         ax = alpha[:n]
         ay = alpha[n:]
@@ -731,18 +727,18 @@ class PiecewiseEllipse:
             n = len(alpha)
             g = []
             for k in range(n):
-                e = numpy.zeros(n)
+                e = np.zeros(n)
                 e[k] = 1.0
                 eps = 1.0e-5
                 f0 = self.cost_min(alpha - eps * e)
                 f1 = self.cost_min(alpha + eps * e)
                 g.append((f1 - f0) / (2 * eps))
 
-            # print(numpy.array(g))
-            # print(numpy.concatenate(out))
-            assert numpy.all(abs(numpy.array(g) - numpy.concatenate(out)) < 1.0e-5)
+            # print(np.array(g))
+            # print(np.concatenate(out))
+            assert np.all(abs(np.array(g) - np.concatenate(out)) < 1.0e-5)
 
-        return numpy.concatenate(out)
+        return np.concatenate(out)
 
     def cost_min2(self, alpha):
         """Residual formulation, Hessian is a low-rank update of the identity."""
@@ -757,7 +753,7 @@ class PiecewiseEllipse:
         # print(self.L)
         # print()
         # x = ml.solve(ax, tol=1e-10)
-        # print('residual: {}'.format(numpy.linalg.norm(ax - self.L*x)))
+        # print('residual: {}'.format(np.linalg.norm(ax - self.L*x)))
         # print()
         # print(ax)
         # print()
@@ -765,7 +761,7 @@ class PiecewiseEllipse:
         # exit(1)
 
         # x = sparse.linalg.spsolve(self.L, ax)
-        # print('residual: {}'.format(numpy.linalg.norm(ax - self.L*x)))
+        # print('residual: {}'.format(np.linalg.norm(ax - self.L*x)))
         # exit(1)
 
         q2, r2 = self.get_q2_r2(ax, ay)
@@ -774,17 +770,17 @@ class PiecewiseEllipse:
         Lay = self.L * ay
 
         out = [
-            0.5 * numpy.dot(Lax, Lax),
-            0.5 * numpy.dot(Lay, Lay),
-            0.5 * numpy.dot(q2 - 1, q2 - 1),
-            0.5 * numpy.dot(r2, r2),
+            0.5 * np.dot(Lax, Lax),
+            0.5 * np.dot(Lay, Lay),
+            0.5 * np.dot(q2 - 1, q2 - 1),
+            0.5 * np.dot(r2, r2),
         ]
 
         if self.num_f_eval % 10000 == 0:
             print("{:7d}     {:e} {:e} {:e} {:e}".format(self.num_f_eval, *out))
 
         self.num_f_eval += 1
-        return numpy.sum(out)
+        return np.sum(out)
 
     def get_u(self, alpha):
         n = self.V.dim()
@@ -821,13 +817,13 @@ def test_invariance():
     alpha = alpha.reshape(2, -1).T
     coords = alpha[v2d]
     # rotate
-    theta = 0.35 * numpy.pi
-    sin = numpy.sin(theta)
-    cos = numpy.cos(theta)
-    R = numpy.array([[cos, -sin], [sin, cos]])
-    rcoords = numpy.dot(R, coords.T)
+    theta = 0.35 * np.pi
+    sin = np.sin(theta)
+    cos = np.cos(theta)
+    R = np.array([[cos, -sin], [sin, cos]])
+    rcoords = np.dot(R, coords.T)
     # map back to alpha)
-    alpha = numpy.concatenate(rcoords[:, d2v])
+    alpha = np.concatenate(rcoords[:, d2v])
     c2 = problem.cost_min(alpha)
     assert abs(c0 - c2) < 1.0e-12 * c0
     return
@@ -879,24 +875,24 @@ def _main():
         alpha = out.x.reshape(2, -1).T
         coords = alpha[v2d]
         # move point[0] to [0, 0]
-        assert numpy.all(numpy.abs(problem.points[0] - [0, 0]) < 1.0e-12)
+        assert np.all(np.abs(problem.points[0] - [0, 0]) < 1.0e-12)
         coords = coords - coords[0]
         # rotate point[n] to [..., 0]
-        assert numpy.all(numpy.abs(problem.points[n] - [1, 0]) < 1.0e-12)
-        theta = numpy.arctan2(coords[n, 1], coords[n, 0])
-        sin = numpy.sin(-theta)
-        cos = numpy.cos(-theta)
-        R = numpy.array([[cos, -sin], [sin, cos]])
-        coords = numpy.dot(R, coords.T).T
+        assert np.all(np.abs(problem.points[n] - [1, 0]) < 1.0e-12)
+        theta = np.arctan2(coords[n, 1], coords[n, 0])
+        sin = np.sin(-theta)
+        cos = np.cos(-theta)
+        R = np.array([[cos, -sin], [sin, cos]])
+        coords = np.dot(R, coords.T).T
         # scale
         coords /= coords[n, 0]
         # translate back to alpha
         d2v = dof_to_vertex_map(problem.V)
-        alpha = numpy.concatenate(coords[d2v].T)
+        alpha = np.concatenate(coords[d2v].T)
 
         filename = f"optimal-{n:03d}.npy"
         print(f"Writing data to {filename}")
-        numpy.save(filename, {"n": n, "data": alpha})
+        np.save(filename, {"n": n, "data": alpha})
 
     return
 

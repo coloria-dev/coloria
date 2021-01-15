@@ -38,9 +38,9 @@ def test(lab1, lab2, ref):
 
 
 # def test_vector():
-#     numpy.random.seed(0)
-#     lab1 = numpy.random.rand(3, 100)
-#     lab2 = numpy.random.rand(3, 100)
+#     np.random.seed(0)
+#     lab1 = np.random.rand(3, 100)
+#     lab2 = np.random.rand(3, 100)
 #     refs = colorio.diff.cie94(lab1, lab2)
 #     for l1, l2, ref in zip(lab1.T, lab2.T, refs):
 #         val = colorio.diff.cie94(l1, l2)
@@ -48,9 +48,9 @@ def test(lab1, lab2, ref):
 #
 #     # test against reference
 #     norms = [67.2870261020616, 7.158538843539354, 1.2231307454350822]
-#     print(numpy.linalg.norm(refs, 1))
-#     print(numpy.linalg.norm(refs, 2))
-#     print(numpy.linalg.norm(refs, numpy.inf))
-#     assert abs(numpy.linalg.norm(refs, 1) - norms[0]) < 1.0e-14 * abs(norms[0])
-#     assert abs(numpy.linalg.norm(refs, 2) - norms[1]) < 1.0e-14 * abs(norms[1])
-#     assert abs(numpy.linalg.norm(refs, numpy.inf) - norms[2]) < 1.0e-14 * abs(norms[2])
+#     print(np.linalg.norm(refs, 1))
+#     print(np.linalg.norm(refs, 2))
+#     print(np.linalg.norm(refs, np.inf))
+#     assert abs(np.linalg.norm(refs, 1) - norms[0]) < 1.0e-14 * abs(norms[0])
+#     assert abs(np.linalg.norm(refs, 2) - norms[1]) < 1.0e-14 * abs(norms[1])
+#     assert abs(np.linalg.norm(refs, np.inf) - norms[2]) < 1.0e-14 * abs(norms[2])

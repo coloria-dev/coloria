@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
@@ -12,9 +12,9 @@ class CIELUV(ColorSpace):
     def from_xyz100(self, xyz):
         def f(t):
             delta = 6.0 / 29.0
-            out = numpy.array(t, dtype=float)
+            out = np.array(t, dtype=float)
             is_greater = out > delta ** 3
-            out[is_greater] = 116 * numpy.cbrt(out[is_greater]) - 16
+            out[is_greater] = 116 * np.cbrt(out[is_greater]) - 16
             out[~is_greater] = out[~is_greater] / (delta / 2) ** 3
             return out
 
@@ -29,11 +29,11 @@ class CIELUV(ColorSpace):
         q = wx + 15 * wy + 3 * wz
         un = 4 * wx / q
         vn = 9 * wy / q
-        return numpy.array([L, 13 * L * (u - un), 13 * L * (v - vn)])
+        return np.array([L, 13 * L * (u - un), 13 * L * (v - vn)])
 
     def to_xyz100(self, luv):
         def f1(t):
-            out = numpy.array(t, dtype=float)
+            out = np.array(t, dtype=float)
             is_greater = out > 8
             out[is_greater] = ((out[is_greater] + 16) / 116) ** 3
             out[~is_greater] = out[~is_greater] * (3.0 / 29.0) ** 3
@@ -52,4 +52,4 @@ class CIELUV(ColorSpace):
         Y = wy * f1(L)
         X = Y * 9 * uu / (4 * vv)
         Z = Y * (12 - 3 * uu - 20 * vv) / (4 * vv)
-        return numpy.array([X, Y, Z])
+        return np.array([X, Y, Z])
