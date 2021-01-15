@@ -5,6 +5,7 @@ from . import (
     macadam_1942,
     macadam_1974,
     munsell,
+    witt,
     xiao,
 )
 
@@ -15,5 +16,6 @@ __all__ = [
     "macadam_1942",
     "macadam_1974",
     "munsell",
+    "witt",
     "xiao",
 ]
