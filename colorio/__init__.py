@@ -5,7 +5,6 @@ from ._tools import show_flat_gamut, xy_gamut_mesh
 
 __all__ = [
     "__version__",
-    "ciede2000",
     "data",
     "cs",
     "diff",
