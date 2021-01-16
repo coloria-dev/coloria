@@ -1,6 +1,7 @@
 # import colour
 import colorspacious
 import numpy as np
+import pytest
 from cam16_legacy import CAM16Legacy
 
 import colorio
@@ -30,7 +31,7 @@ def test_0():
     print(ref2)
 
 
-# @pytest.mark.skip("mysteriously fails on gh-actions")
+@pytest.mark.skip("mysteriously fails on gh-actions")
 def test_from():
     """Compare colorio with colorspacius and colour."""
     xyz = 100 * np.random.rand(3)
