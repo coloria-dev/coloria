@@ -49,11 +49,8 @@ class CielabRotated:
 @pytest.mark.parametrize(
     "fun",
     [
-        colorio.data.ebner_fairchild.stress,
-        colorio.data.hung_berns.stress,
         colorio.data.macadam_1974.stress,
         colorio.data.witt.stress,
-        colorio.data.xiao.stress,
     ],
 )
 @pytest.mark.parametrize("ct", [CielabScaled(), CielabTranslated(), CielabRotated()])
@@ -68,10 +65,14 @@ def test_invariance(fun, ct):
     assert np.all(np.abs(val0 - val1) < 1.0e-14 * np.abs(val0))
 
 
-# test lightness separately because they are not rotation invariant
+# lightness and hue linearityare are not rotation invariant
 @pytest.mark.parametrize(
     "fun",
     [
+        colorio.data.ebner_fairchild.stress,
+        colorio.data.hung_berns.stress,
+        colorio.data.xiao.stress,
+        #
         lambda cs: colorio.data.fairchild_chen.stress(cs, "SL1"),
         lambda cs: colorio.data.fairchild_chen.stress(cs, "SL2"),
         colorio.data.munsell.stress_lightness,
