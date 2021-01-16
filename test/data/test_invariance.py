@@ -6,7 +6,7 @@ import colorio
 np.random.seed(0)
 
 
-class CielabScaled():
+class CielabScaled:
     def __init__(self):
         self.cielab = colorio.cs.CIELAB()
         self.alpha = 2.41
@@ -19,7 +19,7 @@ class CielabScaled():
         return self.cielab.to_xyz100(lab) / self.alpha
 
 
-class CielabTranslated():
+class CielabTranslated:
     def __init__(self):
         self.cielab = colorio.cs.CIELAB()
         self.x = np.random.rand(3)
@@ -32,7 +32,7 @@ class CielabTranslated():
         return self.cielab.to_xyz100(xyz100 - self.x)
 
 
-class CielabRotated():
+class CielabRotated:
     def __init__(self):
         self.cielab = colorio.cs.CIELAB()
         self.R, _ = np.linalg.qr(np.random.rand(3, 3))
@@ -46,15 +46,16 @@ class CielabRotated():
         return self.cielab.to_xyz100(self.Rinv @ lab)
 
 
-@pytest.mark.parametrize("fun", [
-    colorio.data.ebner_fairchild.stress,
-    lambda cs: colorio.data.fairchild_chen.stress(cs, "SL1"),
-    lambda cs: colorio.data.fairchild_chen.stress(cs, "SL2"),
-    colorio.data.hung_berns.stress,
-    colorio.data.macadam_1974.stress,
-    colorio.data.witt.stress,
-    colorio.data.xiao.stress,
-])
+@pytest.mark.parametrize(
+    "fun",
+    [
+        colorio.data.ebner_fairchild.stress,
+        colorio.data.hung_berns.stress,
+        colorio.data.macadam_1974.stress,
+        colorio.data.witt.stress,
+        colorio.data.xiao.stress,
+    ],
+)
 @pytest.mark.parametrize("ct", [CielabScaled(), CielabTranslated(), CielabRotated()])
 def test_invariance(fun, ct):
     cs = colorio.cs.CIELAB()
@@ -66,6 +67,26 @@ def test_invariance(fun, ct):
     print(val1)
     assert np.all(np.abs(val0 - val1) < 1.0e-14 * np.abs(val0))
 
+
+# test lightness separately because they are not rotation invariant
+@pytest.mark.parametrize(
+    "fun",
+    [
+        lambda cs: colorio.data.fairchild_chen.stress(cs, "SL1"),
+        lambda cs: colorio.data.fairchild_chen.stress(cs, "SL2"),
+        colorio.data.munsell.stress_lightness,
+    ],
+)
+@pytest.mark.parametrize("ct", [CielabScaled(), CielabTranslated()])
+def test_lightness(fun, ct):
+    cs = colorio.cs.CIELAB()
+
+    val0 = fun(cs)
+    val1 = fun(ct)
+    print(fun, ct)
+    print(val0)
+    print(val1)
+    assert np.all(np.abs(val0 - val1) < 1.0e-14 * np.abs(val0))
 
 
 if __name__ == "__main__":

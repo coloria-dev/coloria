@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
-from ...cs import SrgbLinear, XYY
+from ...cs import XYY, SrgbLinear
 
 
 def load():
@@ -72,14 +72,13 @@ def plot(cs, V):
 def residual_lightness(cs):
     _, V, _, xyy100 = load()
 
-    L_ = cs.from_xyz100(XYY(100).to_xyz100(xyy100))[cs.k0]
-    print(L_)
+    # Move L0 into origin for translation invariance
+    L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
+    L_ = cs.from_xyz100(XYY(100).to_xyz100(xyy100))[cs.k0] - L0_
 
     alpha = np.dot(V, L_) / np.dot(V, V)
     diff = alpha * V - L_
     val = np.sqrt(np.dot(diff, diff) / np.dot(L_, L_))
-    print(val)
-    exit(1)
     return val
 
 

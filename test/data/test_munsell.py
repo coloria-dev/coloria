@@ -21,6 +21,5 @@ def test_stress():
     assert abs(res - ref) < 1.0e-14 * ref
 
 
-
 if __name__ == "__main__":
     test_stress()

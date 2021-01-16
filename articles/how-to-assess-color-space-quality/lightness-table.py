@@ -36,9 +36,7 @@ data_sets = {
     "Fairchild-Chen (SL2)": [
         colorio.data.fairchild_chen.stress(cs, "SL2") for cs in color_spaces
     ],
-    "Munsell value": [
-        colorio.data.munsell.stress_lightness(cs) for cs in color_spaces
-    ],
+    "Munsell value": [colorio.data.munsell.stress_lightness(cs) for cs in color_spaces],
 }
 
 plt.style.use(dufte.style)
