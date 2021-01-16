@@ -1,7 +1,6 @@
 # import colour
 import colorspacious
 import numpy as np
-import pytest
 from cam16_legacy import CAM16Legacy
 
 import colorio
