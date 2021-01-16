@@ -21,21 +21,22 @@ color_spaces = [
     colorio.cs.XYY(1),
 ]
 
-for cs in color_spaces:
-    vals = [
-        colorio.data.fairchild_chen.stress(cs, "SL1"),
-        colorio.data.fairchild_chen.stress(cs, "SL2"),
-    ]
-    print(f"{cs.name} & {vals[0]:.1f} & {vals[1]:.1f}\\\\")
+# for cs in color_spaces:
+#     vals = [
+#         colorio.data.fairchild_chen.stress(cs, "SL1"),
+#         colorio.data.fairchild_chen.stress(cs, "SL2"),
+#     ]
+#     print(f"{cs.name} & {vals[0]:.1f} & {vals[1]:.1f}\\\\")
 
 xlabels = [cs.name for cs in color_spaces]
 data_sets = {
-    "Fairchild-Chen (SL1)": [
+    "Fairchild-Chen (SL1) \\cite{fairchildchen}": [
         colorio.data.fairchild_chen.stress(cs, "SL1") for cs in color_spaces
     ],
     "Fairchild-Chen (SL2)": [
         colorio.data.fairchild_chen.stress(cs, "SL2") for cs in color_spaces
     ],
+    "Munsell value": [colorio.data.munsell.stress_lightness(cs) for cs in color_spaces],
 }
 
 plt.style.use(dufte.style)

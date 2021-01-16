@@ -9,21 +9,11 @@ from ..helpers import _compute_straight_line_residuals, _plot_hue_linearity_data
 
 def load():
     this_dir = pathlib.Path(__file__).resolve().parent
-    filenames = [
-        "unique_blue.yaml",
-        "unique_green.yaml",
-        "unique_red.yaml",
-        "unique_yellow.yaml",
-    ]
 
     data = []
-    for filename in filenames:
-        with open(this_dir / filename) as f:
-            dat = np.array(yaml.safe_load(f))
-        # average over all observers and sessions
-        data.append(np.sum(dat, axis=(0, 1)) / np.prod(dat.shape[:2]))
-
-    data = np.array(data)
+    with open(this_dir / "averages.yaml") as f:
+        data = yaml.safe_load(f)
+    data = np.array(list(data.values()))
 
     # Use Xiao's 'neutral gray' as white point.
     with open(this_dir / "neutral_gray.yaml") as f:
