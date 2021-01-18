@@ -5,11 +5,11 @@ from . import (
     luo_rigg,
     macadam_1942,
     macadam_1974,
-    munsell,
     rit_dupont,
     witt,
     xiao,
 )
+from .munsell import Munsell
 
 __all__ = [
     "ebner_fairchild",
@@ -18,7 +18,7 @@ __all__ = [
     "luo_rigg",
     "macadam_1942",
     "macadam_1974",
-    "munsell",
+    "Munsell",
     "rit_dupont",
     "witt",
     "xiao",

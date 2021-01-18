@@ -7,8 +7,8 @@ from ..cs import SrgbLinear
 def _compute_straight_line_residuals(cs, wp, d):
     """Compute the TLS residuals for each of the arms."""
     # remove the row corresponding to lightness
-    idx = [0, 1, 2]
-    idx.pop(cs.k0)
+    idx = [True, True, True]
+    idx[cs.k0] = False
     wp_cs = cs.from_xyz100(wp)[idx]
     s2 = []
     for dd in d:

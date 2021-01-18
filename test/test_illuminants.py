@@ -23,7 +23,6 @@ def test_values(illuminant, decimals, values):
     assert rdata[0] == values[0]
     assert rdata[1] == values[1]
     assert rdata[2] == values[2]
-    return
 
 
 @pytest.mark.parametrize(
@@ -38,7 +37,6 @@ def test_white_point(illuminant, ref, tol):
     values = colorio.illuminants.white_point(illuminant)
     ref = 100 * np.array(ref)
     assert np.all(abs(values - ref) < tol * abs(ref))
-    return
 
 
 def test_show():
@@ -49,14 +47,12 @@ def test_show():
     #     plt.plot(lmbda, data)
     plt.ylim(ymin=0)
     plt.show()
-    return
 
 
 def test_spectrum_to_xyz100():
     spectrum = colorio.illuminants.d65()
     observer = colorio.observers.cie_1931_2()
     colorio.illuminants.spectrum_to_xyz100(spectrum, observer)
-    return
 
 
 if __name__ == "__main__":
