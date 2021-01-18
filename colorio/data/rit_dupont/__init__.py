@@ -15,15 +15,6 @@ def _load_data():
 
     d = {}
     for key, value in data.items():
-        # Color center (first two columns);
-        # Tolerance estimates (T50, LFL, UFL, S, P:CHISQ);
-        # Color L*
-        # Center a*
-        # Coordiante b*
-        # First eigenvector (delta L*, delta a*, delta b*);
-        # Eigenvalue
-        #
-        # remove first two columns before converting to numpy array
         value = np.array([row[2:] for row in value])
         # the vectors are already normalized, but only given in low precision. Normalize
         # them to full precision.
@@ -34,7 +25,6 @@ def _load_data():
             "vectors": vectors,
             "t50": value[:, 0],
         }
-
     return d
 
 
