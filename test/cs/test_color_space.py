@@ -25,7 +25,8 @@ def test_visible_slice(cs, k0, level):
     "colorspace",
     [
         colorio.cs.CIELAB(),
-        # colorio.cs.XYY(1),
+        # test against xyy to trigger ~self.is_origin_well_defined
+        colorio.cs.XYY(1),
         colorio.cs.CAM02("UCS", 0.69, 20, 64 / np.pi / 5),
     ],
 )
