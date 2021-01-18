@@ -75,6 +75,7 @@ class MacAdam1974(Dataset):
             )
 
         plt.gca().set_aspect("equal")
+        plt.title(f"MacAdam 1974 color distance data for {cs.name}")
 
     def stress(self, cs):
         pts = cs.from_xyz100(self.xyz100_tiles)

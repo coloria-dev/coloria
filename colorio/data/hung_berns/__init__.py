@@ -1,5 +1,6 @@
 import pathlib
 
+import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
@@ -18,6 +19,7 @@ class HungBerns(Dataset):
 
     def plot(self, cs):
         _plot_hue_linearity_data(self.d, self.wp, cs)
+        plt.title(f"Hung-Berns hue linearity data for {cs.name}")
 
     def stress(self, cs):
         return _compute_straight_line_stress(cs, self.wp, self.d)

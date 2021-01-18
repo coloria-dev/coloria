@@ -1,5 +1,6 @@
 import pathlib
 
+import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
@@ -23,6 +24,7 @@ class Xiao(Dataset):
 
     def plot(self, cs):
         _plot_hue_linearity_data(self.data, self.ng, cs)
+        plt.title(f"Xiao hue linearity data for {cs.name}")
 
     def stress(self, cs):
         return _compute_straight_line_stress(cs, self.ng, self.data)
