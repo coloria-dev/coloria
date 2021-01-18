@@ -53,7 +53,6 @@ def plot(cs, key: str):
     plt.title(f"Fairchild-Chen {key} lightness data")
     # dufte.legend()
     plt.legend()
-    plt.show()
 
 
 def residual(cs, key: str):

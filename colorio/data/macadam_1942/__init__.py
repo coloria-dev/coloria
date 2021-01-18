@@ -99,9 +99,8 @@ def residual(cs, Y100: float) -> float:
 
     delta = np.concatenate(dists)
 
-    alpha = np.average(delta)
-    val = np.sqrt(np.dot(alpha - delta, alpha - delta) / np.dot(delta, delta))
-    return val
+    diff = np.average(delta) - delta
+    return np.sqrt(np.dot(diff, diff) / np.dot(delta, delta))
 
 
 def stress(cs, Y100: float) -> float:

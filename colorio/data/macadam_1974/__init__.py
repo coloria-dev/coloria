@@ -87,7 +87,6 @@ def plot(cs):
         plt.arrow(base[0], base[1], v[0], v[1], length_includes_head=True, color="k")
 
     plt.gca().set_aspect("equal")
-    plt.show()
 
 
 def residual(cs):
