@@ -11,15 +11,11 @@ class Xiao(Dataset):
     def __init__(self):
         this_dir = pathlib.Path(__file__).resolve().parent
 
-        data = []
         with open(this_dir / "averages.yaml") as f:
             data = yaml.safe_load(f)
-        data = np.array(list(data.values()))
 
-        # Use Xiao's 'neutral gray' as white point.
-        with open(this_dir / "neutral_gray.yaml") as f:
-            ng_data = np.array(yaml.safe_load(f))
-        self.ng = np.sum(ng_data, axis=0) / np.prod(ng_data.shape[:1])
+        self.ng = np.array(data.pop("neutral-gray")[0])
+        data = np.array(list(data.values()))
         self.data = np.moveaxis(data, 1, 2)
 
     def plot(self, cs):
