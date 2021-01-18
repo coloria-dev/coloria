@@ -32,13 +32,13 @@ color_spaces = [
 
 xlabels = [cs.name for cs in color_spaces]
 data_sets = {
-    "MacAdam \cite{macadam1942} (Y=50)": [
+    "MacAdam \\cite{macadam1942} ($Y=50$)": [
         colorio.data.macadam_1942.stress(cs, 50) for cs in color_spaces
     ],
-    "MacAdam \cite{macadam1974}": [
+    "MacAdam \\cite{macadam1974}": [
         colorio.data.macadam_1974.stress(cs) for cs in color_spaces
     ],
-    "RIT--Du Pont \cite{berns}": [
+    "RIT--Du Pont \\cite{berns}": [
         colorio.data.rit_dupont.stress(cs) for cs in color_spaces
     ],
     "Witt": [colorio.data.witt.stress(cs) for cs in color_spaces],
