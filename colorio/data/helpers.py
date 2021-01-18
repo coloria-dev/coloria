@@ -4,11 +4,28 @@ import numpy as np
 from ..cs import SrgbLinear
 
 
-def _compute_straight_line_residuals(cs, wp, d):
+class Dataset:
+    def plot(self):
+        raise NotImplementedError("Derived classes must implement plot().")
+
+    def show(self, *args):
+        plt.figure()
+        self.plot(*args)
+        plt.show()
+        plt.close()
+
+    def savefig(self, filename, *args):
+        plt.figure()
+        self.plot(*args)
+        plt.savefig(filename, transparent=True, bbox_inches="tight")
+        plt.close()
+
+
+def _compute_straight_line_stress(cs, wp, d):
     """Compute the TLS residuals for each of the arms."""
     # remove the row corresponding to lightness
-    idx = [0, 1, 2]
-    idx.pop(cs.k0)
+    idx = [True, True, True]
+    idx[cs.k0] = False
     wp_cs = cs.from_xyz100(wp)[idx]
     s2 = []
     for dd in d:
@@ -21,7 +38,7 @@ def _compute_straight_line_residuals(cs, wp, d):
         # plt.plot(vals[0], vals[1], "x")
         # plt.gca().set_aspect("equal")
         # plt.show()
-    return np.array(s2)
+    return 100 * np.array(s2)
 
 
 def _plot_hue_linearity_data(

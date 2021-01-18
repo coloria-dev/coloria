@@ -224,11 +224,11 @@ article](https://doi.org/10.1364%2FJOSA.32.000247)) can be plotted with
 import colorio
 
 # xyy = colorio.cs.XYY(100)
-# colorio.data.macadam_1942.show(xyy, 0.4)
-# colorio.data.macadam_1942.savefig("macadam-xyy.png", xyy, 0.4)
+# colorio.data.MacAdam1942().show(xyy, 0.4)
+# colorio.data.MacAdam1942().savefig("macadam-xyy.png", xyy, 0.4)
 
 cieluv = colorio.cs.CIELUV()
-colorio.data.macadam_1942.show(cieluv, 50.0)
+colorio.data.MacAdam1942().show(cieluv, 50.0)
 ```
 
 ###### Luo-Rigg
@@ -243,11 +243,11 @@ Likewise for [Luo-Rigg](https://doi.org/10.1002/col.5080110107).
 import colorio
 
 # xyy = colorio.cs.XYY(100)
-# colorio.data.luo_rigg.show(xyy, 0.4)
-# colorio.data.luo_rigg.savefig("luo-rigg-xyy.png", xyy, 0.4)
+# colorio.data.LuoRigg(8).show(xyy, 0.4)
+# colorio.data.LuoRigg(8).savefig("luo-rigg-xyy.png", xyy, 0.4)
 
 cieluv = colorio.cs.CIELUV()
-colorio.data.luo_rigg.show(cieluv, 50)
+colorio.data.LuoRigg(8).show(cieluv, 50)
 ```
 
 ###### Ebner-Fairchild
@@ -261,7 +261,7 @@ For example
 import colorio
 
 colorspace = colorio.cs.JzAzBz()
-colorio.data.ebner_fairchild.show(colorspace)
+colorio.data.EbnerFairchild().show(colorspace)
 ```
 shows constant-hue data from [the Ebner-Fairchild
 experiments](https://doi.org/10.1117/12.298269) in the hue-plane of some color spaces.
@@ -281,7 +281,7 @@ Note the dark blue distortion in CIELAB and CAM16.
 import colorio
 
 colorspace = colorio.cs.JzAzBz()
-colorio.data.hung_berns.show(colorspace)
+colorio.data.HungBerns().show(colorspace)
 ```
 
 ###### Xiao et al.
@@ -295,7 +295,7 @@ xyY             | CIELAB          |  CAM16             |
 import colorio
 
 colorspace = colorio.cs.CIELAB()
-colorio.data.xiao.show(colorspace)
+colorio.data.Xiao().show(colorspace)
 ```
 
 ##### Fairchild-Chen
@@ -315,14 +315,19 @@ visualized with
 import colorio
 
 cs = colorio.cs.CIELUV()
-colorio.data.munsell.show(cs, V=5)
+colorio.data.Munsell().show(cs, V=5)
 ```
 
 To retrieve the Munsell data in xyY format, use
 ```python
 import colorio
 
-h, V, C, xyy = colorio.data.munsell.load()
+munsell = colorio.data.Munsell()
+
+# munsell.h
+# munsell.V
+# munsell.C
+# munsell.xyy
 ```
 
 ##### MacAdam color distances

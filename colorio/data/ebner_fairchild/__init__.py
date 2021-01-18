@@ -4,45 +4,25 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
-from ..helpers import _compute_straight_line_residuals, _plot_hue_linearity_data
+from ..helpers import Dataset, _compute_straight_line_stress, _plot_hue_linearity_data
+
+this_dir = pathlib.Path(__file__).resolve().parent
 
 
-def load():
-    this_dir = pathlib.Path(__file__).resolve().parent
-    with open(this_dir / "ebner_fairchild.yaml") as f:
-        data = yaml.safe_load(f)
+class EbnerFairchild(Dataset):
+    def __init__(self):
+        with open(this_dir / "ebner_fairchild.yaml") as f:
+            data = yaml.safe_load(f)
 
-    wp = np.array(data["white point"])
-    d = [
-        np.column_stack([dat["reference xyz"], np.array(dat["same"]).T])
-        for dat in data["data"]
-    ]
-    return wp, d
+        self.wp = np.array(data["white point"])
+        self.d = [
+            np.column_stack([dat["reference xyz"], np.array(dat["same"]).T])
+            for dat in data["data"]
+        ]
 
+    def plot(self, cs):
+        _plot_hue_linearity_data(self.d, self.wp, cs)
+        plt.title(f"Ebner-Fairchild hue linearity data for {cs.name}")
 
-def show(cs):
-    plt.figure()
-    plot(cs)
-    plt.show()
-    plt.close()
-
-
-def savefig(cs, filename):
-    plt.figure()
-    plot(cs)
-    plt.savefig(filename, transparent=True, bbox_inches="tight")
-    plt.close()
-
-
-def plot(cs):
-    wp, d = load()
-    _plot_hue_linearity_data(d, wp, cs)
-
-
-def residuals(cs):
-    wp, d = load()
-    return _compute_straight_line_residuals(cs, wp, d)
-
-
-def stress(cs):
-    return 100 * residuals(cs)
+    def stress(self, cs):
+        return _compute_straight_line_stress(cs, self.wp, self.d)
