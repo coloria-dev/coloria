@@ -42,21 +42,14 @@ def test_srgb_gamut(variant, colorspace, n=10):
         colorio.cs.CAM02("UCS", 0.69, 20, 64 / np.pi / 5),
     ],
 )
-def test_cone_gamut(colorspace, n=10):
+def test_cone_gamut(colorspace):
     observer = colorio.observers.cie_1931_2()
     with tempfile.TemporaryDirectory() as tmpdir:
         colorspace.save_cone_gamut(Path(tmpdir) / "cone.vtu", observer, max_Y=1)
 
 
-@pytest.mark.parametrize(
-    "colorspace",
-    [
-        # colorio.cs.CIELAB(),
-        # colorio.cs.XYY(1),
-        colorio.cs.CAM02("UCS", 0.69, 20, 64 / np.pi / 5),
-    ],
-)
-def test_visible_gamut(colorspace):
+def test_visible_gamut():
+    colorspace = colorio.cs.XYY(1)
     illuminant = colorio.illuminants.d65()
     observer = colorio.observers.cie_1931_2()
     with tempfile.TemporaryDirectory() as tmpdir:
