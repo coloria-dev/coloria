@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 import colorio
@@ -36,20 +37,20 @@ def test(lab1, lab2, ref):
     # assert abs(delta_e - ref) < 1.0e-12 * abs(delta_e)
 
 
-# def test_vector():
-#     np.random.seed(0)
-#     lab1 = np.random.rand(3, 100)
-#     lab2 = np.random.rand(3, 100)
-#     refs = colorio.diff.cie94(lab1, lab2)
-#     for l1, l2, ref in zip(lab1.T, lab2.T, refs):
-#         val = colorio.diff.cie94(l1, l2)
-#         assert abs(val - ref) < 1.0e-14 * abs(ref)
-#
-#     # test against reference
-#     norms = [67.2870261020616, 7.158538843539354, 1.2231307454350822]
-#     print(np.linalg.norm(refs, 1))
-#     print(np.linalg.norm(refs, 2))
-#     print(np.linalg.norm(refs, np.inf))
-#     assert abs(np.linalg.norm(refs, 1) - norms[0]) < 1.0e-14 * abs(norms[0])
-#     assert abs(np.linalg.norm(refs, 2) - norms[1]) < 1.0e-14 * abs(norms[1])
-#     assert abs(np.linalg.norm(refs, np.inf) - norms[2]) < 1.0e-14 * abs(norms[2])
+def test_vector():
+    np.random.seed(0)
+    lab1 = np.random.rand(3, 100)
+    lab2 = np.random.rand(3, 100)
+    refs = colorio.diff.cmc(lab1, lab2)
+    for l1, l2, ref in zip(lab1.T, lab2.T, refs):
+        val = colorio.diff.cmc(l1, l2)
+        assert abs(val - ref) < 1.0e-14 * abs(ref)
+
+    # test against reference
+    norms = [90.07328087001274, 9.658725504074305, 1.7824474726191633]
+    print(np.linalg.norm(refs, 1))
+    print(np.linalg.norm(refs, 2))
+    print(np.linalg.norm(refs, np.inf))
+    assert abs(np.linalg.norm(refs, 1) - norms[0]) < 1.0e-14 * abs(norms[0])
+    assert abs(np.linalg.norm(refs, 2) - norms[1]) < 1.0e-14 * abs(norms[1])
+    assert abs(np.linalg.norm(refs, np.inf) - norms[2]) < 1.0e-14 * abs(norms[2])
