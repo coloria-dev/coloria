@@ -15,9 +15,9 @@ def test_show():
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     # cs = colorio.cs.JzAzBz()
     # cs = colorio.cs.XYY(1)
-    colorio.data.rit_dupont.show(cs, "light brown")
+    colorio.data.rit_dupont.show(cs, "moderate yellow")
     with tempfile.TemporaryDirectory() as tmpdir:
-        colorio.data.rit_dupont.savefig(Path(tmpdir) / "out.png", cs, "blue")
+        colorio.data.rit_dupont.savefig(Path(tmpdir) / "out.png", cs, "medium gray")
 
 
 def test_residual():
