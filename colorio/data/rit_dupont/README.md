@@ -1,3 +1,6 @@
+The experiment is divided into two phases and two corresponding articles. The data in
+the second article contains those of the first.
+
 * `alman1989.dat`
 
   David H. Alman, Roy S. Berns, Gregory D. Snyder, Wayne A. Larsen,

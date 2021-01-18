@@ -10,21 +10,31 @@ from ...cs import CIELAB
 def _load_data():
     this_dir = pathlib.Path(__file__).resolve().parent
 
-    with open(this_dir / "alman1989.yaml") as f:
+    with open(this_dir / "berns.yaml") as f:
         data = yaml.safe_load(f)
 
     d = {}
     for key, value in data.items():
-        value = np.array(value)
+        # Color center (first two columns);
+        # Tolerance estimates (T50, LFL, UFL, S, P:CHISQ);
+        # Color L*
+        # Center a*
+        # Coordiante b*
+        # First eigenvector (delta L*, delta a*, delta b*);
+        # Eigenvalue
+        #
+        # remove first two columns before converting to numpy array
+        value = np.array([row[2:] for row in value])
         # the vectors are already normalized, but only given in low precision. Normalize
         # them to full precision.
-        vectors = value[:, 3:6]
+        vectors = value[:, 8:11]
         vectors = (vectors.T / np.linalg.norm(vectors, axis=1)).T
         d[key.lower()] = {
-            "centers": value[:, 0:3],
+            "centers": value[:, 5:8],
             "vectors": vectors,
-            "t50": value[:, 7],
+            "t50": value[:, 0],
         }
+
     return d
 
 
