@@ -27,6 +27,14 @@ class ColorSpace:
     def __repr__(self):
         return f"<colorio color space {self.name}>"
 
+    def to_rgb1(self, cs_coords):
+        srgb_linear = SrgbLinear()
+        rgb_linear = srgb_linear.from_xyz100(self.to_xyz100(cs_coords))
+        return srgb_linear.to_rgb1(rgb_linear)
+
+    def to_rgb255(self, cs_coords):
+        return 255 * self.to_rgb255(cs_coords)
+
     def save_visible_gamut(self, observer, illuminant, filename):
         import meshio
         from scipy.spatial import ConvexHull
