@@ -64,5 +64,4 @@ def ciede2000(lab1, lab2, k_L=1.0, k_C=1.0, k_H=1.0):
         + (dHp / k_H / S_H) ** 2
         + R_T * (dCp / k_C / S_C) * (dHp / k_H / S_H)
     )
-
     return dE00

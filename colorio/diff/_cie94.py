@@ -23,8 +23,6 @@ def cie94(lab1, lab2, k_L=1.0, K_1=0.045, K_2=0.015):
     db = b1 - b2
     # dH2 is mathematically >=0, but round-off can lead to small negatives
     dH2 = da ** 2 + db ** 2 - dC ** 2
-    dH2 = np.maximum(dH2, np.zeros_like(dH2))
-    dH = np.sqrt(dH2)
 
     S_L = 1.0
     S_C = 1 + K_1 * C1
@@ -32,5 +30,5 @@ def cie94(lab1, lab2, k_L=1.0, K_1=0.045, K_2=0.015):
 
     k_C = 1.0
     k_H = 1.0
-    dE = np.sqrt((dL / k_L / S_L) ** 2 + (dC / k_C / S_C) ** 2 + (dH / k_H / S_H) ** 2)
+    dE = np.sqrt((dL / k_L / S_L) ** 2 + (dC / k_C / S_C) ** 2 + dH2 / (k_H * S_H) ** 2)
     return dE
