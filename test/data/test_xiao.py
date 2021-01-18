@@ -10,14 +10,14 @@ def test_show():
     cs = colorio.cs.OsaUcs()
     # cs = colorio.cs.IPT()
     # cs = colorio.cs.XYY()
-    colorio.data.xiao.show(cs)
+    colorio.data.Xiao().show(cs)
     # colorio.data.ebner_fairchild.savefig(cs)
 
 
 def test_residuals():
     cs = colorio.cs.CIELAB()
     ref = 4.239559312073768
-    res = np.average(colorio.data.xiao.stress(cs))
+    res = np.average(colorio.data.Xiao().stress(cs))
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 

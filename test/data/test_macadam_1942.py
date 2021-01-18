@@ -15,15 +15,15 @@ def test_show():
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     # cs = colorio.cs.JzAzBz()
     # cs = colorio.cs.XYY(1)
-    colorio.data.macadam_1942.show(cs)
+    colorio.data.MacAdam1942().show(cs)
     with tempfile.TemporaryDirectory() as tmpdir:
-        colorio.data.macadam_1942.savefig(Path(tmpdir) / "out.png", cs, 50)
+        colorio.data.MacAdam1942().savefig(Path(tmpdir) / "out.png", cs, 50)
 
 
 def test_residuals():
     cs = colorio.cs.CIELAB()
     ref = 44.89521555157901
-    res = colorio.data.macadam_1942.stress(cs, 50.0)
+    res = colorio.data.MacAdam1942().stress(cs, 50.0)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 

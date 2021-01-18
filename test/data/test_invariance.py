@@ -49,8 +49,8 @@ class CielabRotated:
 @pytest.mark.parametrize(
     "fun",
     [
-        colorio.data.macadam_1974.stress,
-        colorio.data.witt.stress,
+        colorio.data.MacAdam1974().stress,
+        colorio.data.Witt().stress,
     ],
 )
 @pytest.mark.parametrize("ct", [CielabScaled(), CielabTranslated(), CielabRotated()])
@@ -69,13 +69,13 @@ def test_invariance(fun, ct):
 @pytest.mark.parametrize(
     "fun",
     [
-        colorio.data.ebner_fairchild.stress,
-        colorio.data.hung_berns.stress,
-        colorio.data.xiao.stress,
+        colorio.data.EbnerFairchild().stress,
+        colorio.data.HungBerns().stress,
+        colorio.data.Xiao().stress,
         #
-        lambda cs: colorio.data.fairchild_chen.stress(cs, "SL1"),
-        lambda cs: colorio.data.fairchild_chen.stress(cs, "SL2"),
-        colorio.data.munsell.stress_lightness,
+        colorio.data.FairchildChen("SL1").stress,
+        colorio.data.FairchildChen("SL2").stress,
+        colorio.data.Munsell().stress_lightness,
     ],
 )
 @pytest.mark.parametrize("ct", [CielabScaled(), CielabTranslated()])

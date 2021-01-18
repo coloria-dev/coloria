@@ -1,46 +1,23 @@
 import pathlib
 
-import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
 from ...illuminants import whitepoints_cie1931
-from ..helpers import _compute_straight_line_residuals, _plot_hue_linearity_data
+from ..helpers import Dataset, _compute_straight_line_stress, _plot_hue_linearity_data
 
 
-def load():
-    this_dir = pathlib.Path(__file__).resolve().parent
-    with open(this_dir / "table3.yaml") as f:
-        data = yaml.safe_load(f)
+class HungBerns(Dataset):
+    def __init__(self):
+        this_dir = pathlib.Path(__file__).resolve().parent
+        with open(this_dir / "table3.yaml") as f:
+            data = yaml.safe_load(f)
 
-    wp = whitepoints_cie1931["C"]
-    d = [np.array(list(color.values())).T for color in data.values()]
-    return wp, d
+        self.wp = whitepoints_cie1931["C"]
+        self.d = [np.array(list(color.values())).T for color in data.values()]
 
+    def plot(self, cs):
+        _plot_hue_linearity_data(self.d, self.wp, cs)
 
-def show(cs):
-    plt.figure()
-    plot(cs)
-    plt.show()
-    plt.close()
-
-
-def savefig(cs, filename):
-    plt.figure()
-    plot(cs)
-    plt.savefig(filename, transparent=True, bbox_inches="tight")
-    plt.close()
-
-
-def plot(cs):
-    wp, d = load()
-    _plot_hue_linearity_data(d, wp, cs)
-
-
-def residuals(cs):
-    wp, d = load()
-    return _compute_straight_line_residuals(cs, wp, d)
-
-
-def stress(cs):
-    return 100 * residuals(cs)
+    def stress(self, cs):
+        return _compute_straight_line_stress(cs, self.wp, self.d)
