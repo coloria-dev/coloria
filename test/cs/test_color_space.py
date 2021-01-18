@@ -8,16 +8,22 @@ import colorio
 
 
 @pytest.mark.parametrize(
-    "cs,k0,level",
+    "cs,lightness",
     [
-        [colorio.cs.XYY(1), 2, 0.4],
-        [colorio.cs.CIELAB(), 0, 50],
-        [colorio.cs.CAM16UCS(0.69, 20, 4.074), 0, 50],
+        [colorio.cs.XYY(1), 0.4],
+        [colorio.cs.CIELAB(), 50],
+        [colorio.cs.CAM16UCS(0.69, 20, 4.074), 50],
     ],
 )
-def test_visible_slice(cs, k0, level):
-    cs.show_visible_slice(k0, level)
-    # cs.save_visible_slice("visible-slice.png", k0, level)
+def test_visible_slice(cs, lightness):
+    cs.show_visible_slice(lightness)
+    # cs.save_visible_slice("visible-slice.png", lightness)
+
+
+def test_rgb_slice():
+    cs = colorio.cs.CIELAB()
+    lightness = 50
+    cs.show_rgb_slice(lightness, n=100)
 
 
 @pytest.mark.parametrize("variant", ["srgb", "hdr"])
@@ -57,3 +63,7 @@ def test_visible_gamut():
         colorspace.save_visible_gamut(
             observer, illuminant, Path(tmpdir) / "visible.vtu"
         )
+
+
+if __name__ == "__main__":
+    test_rgb_slice()
