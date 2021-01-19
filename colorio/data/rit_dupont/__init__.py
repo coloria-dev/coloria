@@ -52,7 +52,7 @@ class RitDupont(Dataset):
         # # Plot the tile points.
         # pts_2d = np.delete(pts, cs.k0, axis=0)
         for c, e in zip(cs_centers.T, cs_endpoints.T):
-            rgb = cs.to_srgb1(c)
+            rgb = cs.to_rgb1(c)
             if np.all((0 <= rgb) & (rgb <= 1)):
                 color = rgb
             else:
