@@ -65,5 +65,13 @@ def test_visible_gamut():
         )
 
 
+def test_srgb_gradient():
+    # cs = colorio.cs.CIELAB()
+    cs = colorio.cs.OKLAB()
+    # cs = colorio.cs.DIN99()
+    # cs = colorio.cs.CIELUV()
+    cs.show_srgb_gradient([0, 0, 255], [255, 255, 0])
+
+
 if __name__ == "__main__":
-    test_rgb_slice()
+    test_srgb_gradient()
