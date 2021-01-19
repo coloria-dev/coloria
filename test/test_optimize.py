@@ -26,6 +26,7 @@ class TestLab:
 
 
 def test_optimize():
+    luo_rigg = colorio.data.LuoRigg(8)
     macadam_1942 = colorio.data.MacAdam1942()
     macadam_1974 = colorio.data.MacAdam1974()
     rit_dupont = colorio.data.RitDupont()
@@ -43,17 +44,18 @@ def test_optimize():
         # res = colorio.data.macadam_1942.stress(TestLab(), 50)
         cs = TestLab(x)
         res = (
+            # luo_rigg.stress(cs)
             macadam_1942.stress(cs, 50)
-            + macadam_1974.stress(cs)
-            + witt.stress(cs)
-            + rit_dupont.stress(cs)
+            # + macadam_1974.stress(cs)
+            # + witt.stress(cs)
+            # + rit_dupont.stress(cs)
             #
-            + np.average(ebner_fairchild.stress(cs))
-            + np.average(hung_berns.stress(cs))
-            + np.average(xiao.stress(cs))
+            # + np.average(ebner_fairchild.stress(cs))
+            # + np.average(hung_berns.stress(cs))
+            # + np.average(xiao.stress(cs))
             #
-            + munsell.stress_lightness(cs)
-            + fairchild_chen.stress(cs)
+            # + munsell.stress_lightness(cs)
+            # + fairchild_chen.stress(cs)
         )
         if np.isnan(res):
             res = 1.0e10
@@ -64,46 +66,76 @@ def test_optimize():
         # print(cs.M2)
         return res
 
-    x0 = np.array(
-        [
-            1.0 / 3.0,
-            #
-            0.8189330101,
-            0.3618667424,
-            -0.1288597137,
-            0.0329845436,
-            0.9293118715,
-            0.0361456387,
-            0.0482003018,
-            0.2643662691,
-            0.6338517070,
-            #
-            0.2104542553,
-            +0.7936177850,
-            -0.0040720468,
-            +1.9779984951,
-            -2.4285922050,
-            +0.4505937099,
-            +0.0259040371,
-            +0.7827717662,
-            -0.8086757660,
-        ]
-    )
+    # np.random.seed(1)
+    x0 = np.random.rand(19)
 
-    # res = np.average(colorio.data.ebner_fairchild.stress(colorio.cs.CIELAB()))
-    # print(res)
-    # res = sum(colorio.data.ebner_fairchild.stress(OKLAB()))
-    # print(res)
+    # x0 = np.array(
+    #     [
+    #         1.0 / 3.0,
+    #         #
+    #         0.8189330101,
+    #         0.3618667424,
+    #         -0.1288597137,
+    #         0.0329845436,
+    #         0.9293118715,
+    #         0.0361456387,
+    #         0.0482003018,
+    #         0.2643662691,
+    #         0.6338517070,
+    #         #
+    #         0.2104542553,
+    #         +0.7936177850,
+    #         -0.0040720468,
+    #         +1.9779984951,
+    #         -2.4285922050,
+    #         +0.4505937099,
+    #         +0.0259040371,
+    #         +0.7827717662,
+    #         -0.8086757660,
+    #     ]
+    # )
+    # x0 = np.array(
+    #     [
+    #         1.0,
+    #         #
+    #         1.0, 0.0, 0.0,
+    #         0.0, 1.0, 0.0,
+    #         0.0, 0.0, 1.0,
+    #         #
+    #         1.0, 0.0, 0.0,
+    #         0.0, 1.0, 0.0,
+    #         0.0, 0.0, 1.0,
+    #     ]
+    # )
+
 
     # print(fun(x0))
 
-    out = minimize(fun, x0, options={"maxiter": 1})
+    out = minimize(
+            fun, x0,
+            # method="Nelder-Mead",
+            # method="Powell",
+            # method="CG",
+            method="BFGS",
+            # options={"maxiter": 1}
+            )
     print(out)
 
     cs = TestLab(out.x)
 
     print()
+    print("final residual:")
+    print(fun(out.x))
+
+    print()
+    print("final values:")
+    print(out.x[0])
+    print(out.x[1:10].reshape(3, 3))
+    print(out.x[10:19].reshape(3, 3))
+
+    print()
     print("final residuals:")
+    print(luo_rigg.stress(cs))
     print(macadam_1942.stress(cs, 50))
     print(macadam_1974.stress(cs))
     print(rit_dupont.stress(cs))
@@ -116,10 +148,12 @@ def test_optimize():
     print(munsell.stress_lightness(cs))
     print(fairchild_chen.stress(cs))
 
-    macadam_1942.show(cs, 50)
+    luo_rigg.show(cs)
+    macadam_1942.show(cs)
     macadam_1974.show(cs)
     hung_berns.show(cs)
     ebner_fairchild.show(cs)
+    xiao.show(cs)
     fairchild_chen.show(cs)
 
 
