@@ -25,7 +25,7 @@ class TestLab:
         return dot(self.M2, dot(self.M1, xyz) ** self.p)
 
 
-def test_optimize():
+def test_optimize(maxiter=1):
     luo_rigg = colorio.data.LuoRigg(8)
     macadam_1942 = colorio.data.MacAdam1942()
     macadam_1974 = colorio.data.MacAdam1974()
@@ -117,7 +117,7 @@ def test_optimize():
         # method="Powell",
         # method="CG",
         method="BFGS",
-        # options={"maxiter": 1}
+        options={"maxiter": maxiter},
     )
     print(out)
 
@@ -158,4 +158,4 @@ def test_optimize():
 
 
 if __name__ == "__main__":
-    test_optimize()
+    test_optimize(maxiter=10000)
