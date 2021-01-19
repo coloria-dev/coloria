@@ -1,11 +1,8 @@
 import dufte
 import matplotlib.pyplot as plt
 import numpy as np
-import tikzplotlib
 
 import colorio
-from colorio.data import ebner_fairchild
-from colorio.data.hung_berns import HungBerns
 
 color_spaces = [
     colorio.cs.CAM02("UCS", 0.69, 20, 64 / np.pi / 5),
@@ -92,4 +89,5 @@ ax.legend()
 
 plt.gcf().tight_layout()
 plt.show()
-# tikzplotlib.save("lstress.tex")
+# import tikzplotlib
+# tikzplotlib.save("hstress.tex")
