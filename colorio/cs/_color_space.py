@@ -30,6 +30,9 @@ class ColorSpace:
     def to_xyz100(self, cs_coords):
         raise NotImplementedError("ColorSpace needs to implement to_xyz100()")
 
+    def from_xyz100(self, cs_coords):
+        raise NotImplementedError("ColorSpace needs to implement from_xyz100()")
+
     def to_rgb1(self, cs_coords):
         srgb_linear = SrgbLinear()
         rgb_linear = srgb_linear.from_xyz100(self.to_xyz100(cs_coords))
@@ -255,6 +258,46 @@ class ColorSpace:
             cmap=cmap,
         )
         # plt.triplot(self_vals[:, k1], self_vals[:, k2], triangles=triangles)
+
+    def show_srgb_gradient(self, *args, **kwargs):
+        plt.figure()
+        self.plot_srgb_gradient(*args, **kwargs)
+        plt.show()
+        plt.close()
+
+    def plot_srgb_gradient(self, srgb0, srgb1, n=256):
+        srgb = self.srgb_gradient(srgb0, srgb1, n=n)
+
+        my_cmap2 = matplotlib.colors.LinearSegmentedColormap.from_list(
+            "my_colormap2", srgb, 100
+        )
+
+        gradient = np.linspace(0.0, 1.0, n)
+        gradient = np.vstack((gradient, gradient))
+        plt.imshow(gradient, aspect="auto", cmap=my_cmap2)
+        plt.axis("off")
+        plt.title(f"SRGB gradient in {self.name}")
+
+    def srgb_gradient(self, srgb0, srgb1, n):
+        srgb_linear = SrgbLinear()
+
+        # convert to colorspace
+        srgb = np.array([srgb0, srgb1]).T
+        lin = srgb_linear.from_rgb255(srgb)
+        xyz = srgb_linear.to_xyz100(lin)
+        cs = self.from_xyz100(xyz).T
+
+        # linspace
+        ls = np.linspace(cs[0], cs[1], endpoint=True, num=n, axis=0)
+
+        # back to srgb
+        xyz = self.to_xyz100(ls.T)
+        lin = srgb_linear.from_xyz100(xyz)
+        srgb = srgb_linear.to_rgb1(lin).T
+
+        srgb[srgb < 0] = 0.0
+        srgb[srgb > 1] = 1.0
+        return srgb
 
 
 def _xyy_to_xyz100(xyy):
