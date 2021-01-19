@@ -21,7 +21,6 @@ class DIN99(ColorSpace):
         e = a * cos16 + b * sin16
         f = 0.7 * (-a * sin16 + b * cos16)
 
-        print("ef", e, f)
         G = np.hypot(e, f)
 
         k = np.log(1 + 0.045 * G) / 0.045
