@@ -7,11 +7,12 @@ from ._color_space import ColorSpace
 
 class CIEHCL(ColorSpace):
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
-        super().__init__("CIEHCL", ["L", "C", "h"], 0)
+        super().__init__("CIEHCL", ("L", "C", "h"), 0, is_origin_well_defined=False)
         self.cieluv = CIELUV(whitepoint=whitepoint)
 
     def from_xyz100(self, xyz):
         L, u, v = self.cieluv.from_xyz100(xyz)
+        print("luv", L, u, v)
         C = np.hypot(u, v)
         h = np.mod(np.arctan2(v, u), 2 * np.pi) / np.pi * 180
         return np.array([L, C, h])

@@ -5,6 +5,7 @@ from ._cielab import CIELAB
 from ._cielch import CIELCH
 from ._cieluv import CIELUV
 from ._color_space import ColorSpace
+from ._din99 import DIN99
 from ._hdr import HdrLinear
 from ._hsl import HSL
 from ._hsv import HSV
@@ -29,6 +30,7 @@ __all__ = [
     "CIELCH",
     "CIELUV",
     "ColorSpace",
+    "DIN99",
     "HSL",
     "HSV",
     "ICtCp",

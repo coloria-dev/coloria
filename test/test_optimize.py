@@ -108,17 +108,17 @@ def test_optimize():
     #     ]
     # )
 
-
     # print(fun(x0))
 
     out = minimize(
-            fun, x0,
-            # method="Nelder-Mead",
-            # method="Powell",
-            # method="CG",
-            method="BFGS",
-            # options={"maxiter": 1}
-            )
+        fun,
+        x0,
+        # method="Nelder-Mead",
+        # method="Powell",
+        # method="CG",
+        method="BFGS",
+        # options={"maxiter": 1}
+    )
     print(out)
 
     cs = TestLab(out.x)
