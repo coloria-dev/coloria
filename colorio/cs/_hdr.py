@@ -26,6 +26,7 @@ class HdrLinear:
 
         self.alpha = 1.09929682680944
         self.beta = 0.018053968510807
+        self.is_origin_well_defined = True
 
     def from_xyz100(self, xyz100):
         # TODO NaN the values smaller than 0 and larger than 1

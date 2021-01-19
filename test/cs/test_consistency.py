@@ -5,27 +5,39 @@ import colorio
 
 np.random.seed(0)
 
+colorspaces = [
+    (colorio.cs.CIELCH(), 1.0e-14),
+    (colorio.cs.CIEHCL(), 1.0e-13),
+    (colorio.cs.CIELAB(), 1.0e-14),
+    (colorio.cs.CIELUV(), 1.0e-14),
+    (colorio.cs.DIN99(), 1.0e-14),
+    (colorio.cs.HdrLinear(), 1.0e-14),
+    (colorio.cs.IPT(), 1.0e-14),
+    (colorio.cs.JzAzBz(), 1.0e-12),
+    (colorio.cs.OKLAB(), 1.0e-14),
+    (colorio.cs.OsaUcs(), 1.0e-11),
+    (colorio.cs.PROLAB(), 1.0e-14),
+    (colorio.cs.RLAB(), 1.0e-14),
+    (colorio.cs.XYY(1), 1.0e-14),
+    (colorio.cs.XYY(100), 1.0e-14),
+    (colorio.cs.XYZ(1), 1.0e-14),
+    (colorio.cs.XYZ(100), 1.0e-14),
+]
+
 
 @pytest.mark.parametrize(
-    "cs, tol",
-    [
-        (colorio.cs.CIELCH(), 1.0e-14),
-        (colorio.cs.CIEHCL(), 1.0e-13),
-        (colorio.cs.CIELAB(), 1.0e-14),
-        (colorio.cs.CIELUV(), 1.0e-14),
-        (colorio.cs.HdrLinear(), 1.0e-14),
-        (colorio.cs.IPT(), 1.0e-14),
-        (colorio.cs.JzAzBz(), 1.0e-12),
-        (colorio.cs.OKLAB(), 1.0e-14),
-        (colorio.cs.OsaUcs(), 1.0e-11),
-        (colorio.cs.PROLAB(), 1.0e-14),
-        (colorio.cs.RLAB(), 1.0e-14),
-        (colorio.cs.XYY(1), 1.0e-14),
-        (colorio.cs.XYY(100), 1.0e-14),
-        (colorio.cs.XYZ(1), 1.0e-14),
-        (colorio.cs.XYZ(100), 1.0e-14),
-    ],
+    "cs, tol", [(cs, tol) for cs, tol in colorspaces if cs.is_origin_well_defined]
 )
+def test_zero(cs, tol):
+    print(cs)
+    xyz = np.zeros(3)
+    out = cs.to_xyz100(cs.from_xyz100(xyz))
+    print(xyz)
+    print(out)
+    assert np.all(np.abs(xyz - out) < tol)
+
+
+@pytest.mark.parametrize("cs, tol", colorspaces)
 @pytest.mark.parametrize(
     "xyz",
     [
