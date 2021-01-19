@@ -1,3 +1,5 @@
+from colorio.data import ebner_fairchild
+from colorio.data.hung_berns import HungBerns
 import dufte
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,26 +22,26 @@ color_spaces = [
     colorio.cs.XYY(1),
 ]
 
-for cs in color_spaces:
-    vals = [
-        colorio.data.hung_berns.stress(cs),
-        colorio.data.ebner_fairchild.stress(cs),
-        colorio.data.xiao.stress(cs),
-    ]
-    avg = np.average(np.concatenate(vals))
-    vals = [np.average(val) for val in vals]
-    # print(f"{cs.name}    {sum(vals)}")
-    print(f"{cs.name} & {vals[0]:.1f} & {vals[1]:.1f} & {vals[2]:.1f} & {avg:.1f}\\\\")
+# for cs in color_spaces:
+#     vals = [
+#         colorio.data.hung_berns.stress(cs),
+#         colorio.data.ebner_fairchild.stress(cs),
+#         colorio.data.xiao.stress(cs),
+#     ]
+#     avg = np.average(np.concatenate(vals))
+#     vals = [np.average(val) for val in vals]
+#     # print(f"{cs.name}    {sum(vals)}")
+#     print(f"{cs.name} & {vals[0]:.1f} & {vals[1]:.1f} & {vals[2]:.1f} & {avg:.1f}\\\\")
+
+hung_berns = colorio.data.HungBerns()
+ebner_fairchild = colorio.data.EbnerFairchild()
+xiao = colorio.data.Xiao()
 
 labels = [cs.name for cs in color_spaces]
 data_sets = {
-    "Hung-Berns": [
-        np.average(colorio.data.hung_berns.stress(cs)) for cs in color_spaces
-    ],
-    "Ebner-Fairchild": [
-        np.average(colorio.data.ebner_fairchild.stress(cs)) for cs in color_spaces
-    ],
-    "Xiao et al.": [np.average(colorio.data.xiao.stress(cs)) for cs in color_spaces],
+    "Hung-Berns": [hung_berns.stress(cs) for cs in color_spaces],
+    "Ebner-Fairchild": [ebner_fairchild.stress(cs) for cs in color_spaces],
+    "Xiao et al.": [xiao.stress(cs) for cs in color_spaces],
 }
 
 plt.style.use(dufte.style)
@@ -52,16 +54,42 @@ bar_width = 0.8 / n
 fig, ax = plt.subplots()
 
 pos = np.linspace(-(n - 1) * bar_width / 2, (n - 1) * bar_width / 2, n, endpoint=True)
-for (label, data), p in zip(data_sets.items(), pos):
-    ax.bar(x + p, data, bar_width, label=label)
+# cat 20 color pairs
+color_pairs = [
+    ("#1f77b4", "#aec7e8"),
+    ("#ff7f0e", "#ffbb78"),
+    ("#2ca02c", "#98df8a"),
+    ("#d62728", "#ff9896"),
+    ("#9467bd", "#c5b0d5"),
+    ("#8c564b", "#c49c94"),
+    ("#e377c2", "#f7b6d2"),
+    ("#7f7f7f", "#c7c7c7"),
+    ("#bcbd22", "#dbdb8d"),
+    ("#17becf", "#9edae5"),
+]
+
+for (label, data), p, cols in zip(data_sets.items(), pos, color_pairs):
+    average = [np.average(item) for item in data]
+    maxval = [np.max(item) for item in data]
+    minval = [np.min(item) for item in data]
+    ax.bar(
+        x + p,
+        average,
+        bar_width,
+        label=label,
+        yerr=np.array([minval, maxval]),
+        color=cols[0],
+        ecolor=cols[1],
+    )
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel("l_STRESS")
-ax.set_xticks(x)
+ax.set_ylabel("$h_{STRESS}$", rotation=0)
+ax.yaxis.set_label_coords(-0.1, 1.02)
+plt.xticks(x, rotation=45, ha="right")
 ax.set_xticklabels(labels)
-# iplt.ylim(0, 100)
+plt.ylim(0, 30)
 ax.legend()
 
 plt.gcf().tight_layout()
-# plt.show()
-tikzplotlib.save("lstress.tex")
+plt.show()
+# tikzplotlib.save("lstress.tex")
