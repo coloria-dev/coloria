@@ -32,6 +32,7 @@ class XYY(ColorSpace):
         return np.array([x / sum_xyz, y / sum_xyz, y])
 
     def to_xyz100(self, xyy):
+        xyy = np.asarray(xyy)
         if np.any(xyy < 0):
             raise ColorioError("Negative xyY value.")
         x, y, Y = xyy
