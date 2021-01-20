@@ -5,31 +5,53 @@ from ._color_space import ColorSpace
 
 
 class DIN99(ColorSpace):
-    def __init__(self, k_E=1.0, k_CH=1.0):
-        super().__init__("DIN99", ("L99", "a99", "b99"), 0)
+    def __init__(self, k_E=1.0, k_CH=1.0, variant=None):
+        # variants from
+        #
+        # G. Cui, M.R. Luo, B. Rigg, G. Roesler, K. Witt,
+        # Uniform colour spaces based on the DIN99 colour-difference formula
+        # <https://doi.org/10.1002/col.10066>.
+        name = "DIN99"
+        if variant is not None:
+            name += variant
+        super().__init__(
+            f"DIN99{variant}", (f"L99{variant}", f"a99{variant}", f"b99{variant}"), 0
+        )
         self.k_E = k_E
         self.k_CH = k_CH
         self.cielab = CIELAB()
 
+        if variant is None:
+            self.p = [105.51, 0.0158, 16.0, 0.7, 200 / 9, 9 / 200, 0.0]
+        elif variant == "b":
+            self.p = [303.67, 0.0039, 26.0, 0.83, 23.0, 0.075, 26 / 180 * np.pi]
+        elif variant == "c":
+            self.p = [317.65, 0.0037, 0.0, 0.94, 23.0, 0.066, 0.0]
+        else:
+            assert variant == "d"
+            self.p = [325.22, 0.0036, 50.0, 1.14, 22.5, 0.06, 50 / 180 * np.pi]
+
     def from_xyz100(self, xyz):
         L, a, b = self.cielab.from_xyz100(xyz)
-        L99 = 105.51 * np.log(1 + 0.0158 * L) / self.k_E
+        L99 = self.p[0] * np.log(1 + self.p[1] * L) / self.k_E
 
-        sin16 = np.sin(np.radians(16))
-        cos16 = np.cos(np.radians(16))
+        sin = np.sin(np.radians(self.p[2]))
+        cos = np.cos(np.radians(self.p[2]))
 
-        e = a * cos16 + b * sin16
-        f = 0.7 * (-a * sin16 + b * cos16)
+        e = a * cos + b * sin
+        f = self.p[3] * (-a * sin + b * cos)
 
         G = np.hypot(e, f)
 
-        k = np.log(1 + 0.045 * G) / 0.045
+        C99 = self.p[4] * np.log(1 + self.p[5] * G)
 
-        a99 = k * e / G
-        b99 = k * f / G
+        h99 = np.arctan2(f, e) + self.p[6]
 
-        a99 = np.nan_to_num(a99, nan=0.0)
-        b99 = np.nan_to_num(b99, nan=0.0)
+        a99 = C99 * np.cos(h99)
+        b99 = C99 * np.sin(h99)
+
+        # a99 = np.nan_to_num(a99, nan=0.0)
+        # b99 = np.nan_to_num(b99, nan=0.0)
 
         return np.array([L99, a99, b99])
 
