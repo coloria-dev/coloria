@@ -4,11 +4,11 @@ Chromaticity Discrimination Ellipses for Surface Colours,
 Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25-42,
 <https://doi.org/10.1002/col.5080110107>.
 """
+import json
 import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
-import yaml
 
 from ..helpers import Dataset, _compute_ellipse_residual, _plot_ellipses
 
@@ -17,8 +17,10 @@ class LuoRigg(Dataset):
     def __init__(self, num_offset_points: int):
         # Extract ellipse centers and offsets from MacAdams data
         this_dir = pathlib.Path(__file__).resolve().parent
-        with open(this_dir / "luo-rigg.yaml") as f:
-            data = yaml.safe_load(f)
+
+        with open(this_dir / "luo-rigg.json") as f:
+            data = json.load(f)
+
         #
         self.xyy100_centers = []
         self.xyy100_points = []

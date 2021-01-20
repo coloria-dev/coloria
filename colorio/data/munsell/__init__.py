@@ -1,8 +1,8 @@
+import json
 import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
-import yaml
 
 from ...cs import XYY, SrgbLinear
 
@@ -11,8 +11,8 @@ this_dir = pathlib.Path(__file__).resolve().parent
 
 class Munsell:
     def __init__(self):
-        with open(this_dir / "real.yaml") as f:
-            data = yaml.safe_load(f)
+        with open(this_dir / "real.json") as f:
+            data = json.load(f)
 
         self.h = np.array(data["h"])
         self.V = np.array(data["V"])

@@ -1,9 +1,9 @@
+import json
 import pathlib
 
 import dufte
 import matplotlib.pyplot as plt
 import numpy as np
-import yaml
 
 from ..helpers import Dataset
 
@@ -13,8 +13,8 @@ this_dir = pathlib.Path(__file__).resolve().parent
 class FairchildChen(Dataset):
     def __init__(self, key: str):
         assert key in ["SL1", "SL2"]
-        with open(this_dir / "fairchild_chen.yaml") as f:
-            data = yaml.safe_load(f)
+        with open(this_dir / "fairchild_chen.json") as f:
+            data = json.load(f)
 
         self.data = data[key]
         self.key = key

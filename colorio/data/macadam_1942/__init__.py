@@ -5,11 +5,11 @@ Journal of the Optional Society of America,
 Volume 32, May, 1942, Number 5,
 https://doi.org/10.1364/JOSA.32.000247
 """
+import json
 import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
-import yaml
 
 from ...cs import XYY
 from ..helpers import Dataset, _plot_ellipses
@@ -19,8 +19,8 @@ class MacAdam1942(Dataset):
     def __init__(self):
         # Extract ellipse centers and offsets from MacAdams data
         this_dir = pathlib.Path(__file__).resolve().parent
-        with open(this_dir / "table3.yaml") as f:
-            data = yaml.safe_load(f)
+        with open(this_dir / "table3.json") as f:
+            data = json.load(f)
         #
         # collect the ellipse centers and offsets
         self.xy_centers = []

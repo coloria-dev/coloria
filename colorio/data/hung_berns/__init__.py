@@ -1,8 +1,8 @@
+import json
 import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
-import yaml
 
 from ...illuminants import whitepoints_cie1931
 from ..helpers import Dataset, _compute_straight_line_stress, _plot_hue_linearity_data
@@ -11,8 +11,8 @@ from ..helpers import Dataset, _compute_straight_line_stress, _plot_hue_linearit
 class HungBerns(Dataset):
     def __init__(self):
         this_dir = pathlib.Path(__file__).resolve().parent
-        with open(this_dir / "table3.yaml") as f:
-            data = yaml.safe_load(f)
+        with open(this_dir / "table3.json") as f:
+            data = json.load(f)
 
         self.wp = whitepoints_cie1931["C"]
         self.d = [np.array(list(color.values())).T for color in data.values()]

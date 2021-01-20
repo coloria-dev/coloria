@@ -17,9 +17,9 @@ def test_show():
 
 def test_residual():
     # cs = colorio.cs.CAM02("UCS", 0.69, 20, 4.074)
-    # ref = 31.632878143273928
+    # ref = 31.713764504733337
     cs = colorio.cs.CIELAB()
-    ref = 51.984566654885334
+    ref = 52.0435566262912
     res = colorio.data.Witt().stress(cs)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
