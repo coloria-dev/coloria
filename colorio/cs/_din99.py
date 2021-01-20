@@ -45,13 +45,22 @@ class DIN99(ColorSpace):
 
         C99 = self.p[4] * np.log(1 + self.p[5] * G)
 
-        h99 = np.arctan2(f, e) + self.p[6]
+        # h99 = np.arctan2(f, e) + self.p[6]
+        # cos_h99 = np.cos(h99)
+        # sin_h99 = np.sin(h99)
 
-        a99 = C99 * np.cos(h99)
-        b99 = C99 * np.sin(h99)
+        cosarctan_f_e = e / G
+        sinarctan_f_e = f / G
+        sin_p6 = np.sin(self.p[6])
+        cos_p6 = np.cos(self.p[6])
+        cos_h99 = cosarctan_f_e * cos_p6 - sinarctan_f_e * sin_p6
+        sin_h99 = sinarctan_f_e * cos_p6 + cosarctan_f_e * sin_p6
 
-        # a99 = np.nan_to_num(a99, nan=0.0)
-        # b99 = np.nan_to_num(b99, nan=0.0)
+        a99 = C99 * cos_h99
+        b99 = C99 * sin_h99
+
+        a99 = np.nan_to_num(a99, nan=0.0)
+        b99 = np.nan_to_num(b99, nan=0.0)
 
         return np.array([L99, a99, b99])
 
