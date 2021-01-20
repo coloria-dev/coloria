@@ -1,3 +1,4 @@
+from .bfd_p import BfdP
 from .ebner_fairchild import EbnerFairchild
 from .fairchild_chen import FairchildChen
 from .hung_berns import HungBerns
@@ -11,6 +12,7 @@ from .witt import Witt
 from .xiao import Xiao
 
 __all__ = [
+    "BfdP",
     "EbnerFairchild",
     "FairchildChen",
     "HungBerns",
