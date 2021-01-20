@@ -18,8 +18,8 @@ class RitDupont(Dataset):
         self.d = {}
         for key, value in data.items():
             value = np.array([row[2:] for row in value])
-            # the vectors are already normalized, but only given in low precision. Normalize
-            # them to full precision.
+            # the vectors are already normalized, but only given in low precision.
+            # Normalize them to full precision.
             vectors = value[:, 8:11]
             vectors = (vectors.T / np.linalg.norm(vectors, axis=1)).T
             self.d[key.lower()] = {
