@@ -298,31 +298,33 @@ class ColorSpace:
         return srgb
 
     def show_primary_srgb_gradients(self, *args, **kwargs):
-        plt.figure()
         self.plot_primary_srgb_gradients(*args, **kwargs)
         plt.show()
         plt.close()
 
     def plot_primary_srgb_gradients(self, n=256):
-        pairs = {
-            "red-green": ([255, 0, 0], [0, 255, 0]),
-            "green-blue": ([0, 255, 0], [0, 0, 255]),
-            "blue-red": ([0, 0, 255], [255, 0, 0]),
-            "red-cyan": ([255, 0, 0], [0, 255, 255]),
-            "green-magenta": ([0, 255, 0], [255, 0, 255]),
-            "blue-yellow": ([0, 0, 255], [255, 255, 0]),
-        }
-        _, axes = plt.subplots(len(pairs), 1)
-        for ax, (name, pair) in zip(axes, pairs.items()):
-            srgb = self.get_srgb_gradient(pair[0], pair[1], n=n)
+        pairs = [
+            [([255, 0, 0], [255, 255, 255]), ([255, 0, 0], [0, 255, 0])],
+            [([0, 255, 0], [255, 255, 255]), ([0, 255, 0], [0, 0, 255])],
+            [([0, 0, 255], [255, 255, 255]), ([0, 0, 255], [255, 0, 0])],
+            [([255, 0, 0], [0, 0, 0]), ([255, 0, 0], [0, 255, 255])],
+            [([0, 255, 0], [0, 0, 0]), ([0, 255, 0], [255, 0, 255])],
+            [([0, 0, 255], [0, 0, 0]), ([0, 0, 255], [255, 255, 0])],
+        ]
+        fig, axes = plt.subplots(len(pairs), 2)
+        for i in range(len(pairs)):
+            for j in range(2):
+                pair = pairs[i][j]
+                ax = axes[i][j]
+                srgb = self.get_srgb_gradient(pair[0], pair[1], n=n)
 
-            cmap = matplotlib.colors.LinearSegmentedColormap.from_list( name, srgb, n)
+                cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", srgb, n)
 
-            gradient = np.linspace(0.0, 1.0, n)
-            gradient = np.vstack((gradient, gradient))
-            ax.imshow(gradient, aspect="auto", cmap=cmap)
-            ax.axis("off")
-        # plt.title(f"SRGB gradient in {self.name}")
+                gradient = np.linspace(0.0, 1.0, n)
+                gradient = np.vstack((gradient, gradient))
+                ax.imshow(gradient, aspect="auto", cmap=cmap)
+                ax.axis("off")
+        fig.suptitle(f"primary SRGB gradients in {self.name}")
 
 
 def _xyy_to_xyz100(xyy):
