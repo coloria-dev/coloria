@@ -1,5 +1,6 @@
 import numpy as np
 
+from .._exceptions import ColorioError
 from .._linalg import dot, solve
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
@@ -62,7 +63,9 @@ class JzAzBz(ColorSpace):
         jz, az, bz = jzazbz
         iz = (jz + self.d0) / (1 + self.d - self.d * (jz + self.d0))
         lms_ = solve(self.M2, np.array([iz, az, bz]))
-        assert np.all(lms_ >= 0.0)
+        if np.any(lms_ < 0.0):
+            raise ColorioError("Illegal LMS value.")
+
         lms = 10000 * (
             (self.c1 - lms_ ** (1 / self.p))
             / (self.c3 * lms_ ** (1 / self.p) - self.c2)

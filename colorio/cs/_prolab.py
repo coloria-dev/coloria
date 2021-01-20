@@ -44,6 +44,7 @@ class PROLAB(ColorSpace):
         # self.p = np.array([0.7947, 3.8666, 1.5373])
 
     def from_xyz100(self, xyz):
+        xyz = np.asarray(xyz)
         xyz = (xyz.T / self.wp).T
         return dot(self.Q, xyz) / (dot(self.q, xyz) + 1)
 

@@ -44,6 +44,8 @@ def test_zero(cs, tol):
         100 * np.random.rand(3),
         100 * np.random.rand(3, 7),
         100 * np.random.rand(3, 4, 5),
+        # make sure the thing works with lists and input, too
+        [1.0, 2.0, 3.0],
     ],
 )
 def test_conversion(cs, tol, xyz):
@@ -51,8 +53,12 @@ def test_conversion(cs, tol, xyz):
     print(xyz)
     out = cs.to_xyz100(cs.from_xyz100(xyz))
     # make sure that xyz doesn't change during the calls
-    assert np.all(np.abs(xyz - xyz_orig) < tol * np.abs(xyz_orig))
+    assert np.all(np.abs(np.asarray(xyz) - xyz_orig) < tol * np.abs(xyz_orig))
     print(xyz)
     print(cs)
     print(out)
-    assert np.all(np.abs(xyz - out) < tol * np.abs(xyz))
+    assert np.all(np.abs(np.array(xyz) - out) < tol * np.abs(xyz))
+
+    # # make sure it works the other way around, too
+    # out = cs.from_xyz100(cs.to_xyz100(xyz))
+    # assert np.all(np.abs(np.array(xyz) - out) < tol * np.abs(xyz))

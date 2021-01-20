@@ -30,7 +30,7 @@ class HdrLinear:
 
     def from_xyz100(self, xyz100):
         # TODO NaN the values smaller than 0 and larger than 1
-        return solve(self.invM, xyz100 / 100)
+        return solve(self.invM, np.asarray(xyz100) / 100)
 
     def to_xyz100(self, hdr_linear):
         return 100 * dot(self.invM, hdr_linear)
