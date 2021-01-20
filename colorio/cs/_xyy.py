@@ -20,6 +20,7 @@ class XYY(ColorSpace):
         self.Y_scaling = Y_scaling
 
     def from_xyz100(self, xyz100):
+        xyz100 = np.asarray(xyz100)
         if np.any(xyz100 < 0):
             raise ColorioError("Negative XYZ100 value.")
 

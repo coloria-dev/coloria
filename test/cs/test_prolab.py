@@ -24,4 +24,7 @@ def test_reference_xyz(xyz1, ref):
     xyz100 = np.array(xyz1) * 100
     cs = colorio.cs.PROLAB()
     xyz100 = np.asarray(xyz100)
-    assert np.all(np.abs(cs.from_xyz100(xyz100) - ref) < 1.0e-4 * np.abs(ref) + 1.0e-4)
+    val = cs.from_xyz100(xyz100)
+    print(ref)
+    print(val)
+    assert np.all(np.abs(val - ref) < 1.0e-4 * np.abs(ref) + 1.0e-4)

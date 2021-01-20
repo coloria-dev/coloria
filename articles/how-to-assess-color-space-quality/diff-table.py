@@ -30,18 +30,23 @@ color_spaces = [
 #     ]
 #     print(f"{cs.name} & {vals[0]:.1f} & {vals[1]:.1f} & {vals[2]:.1f}\\\\")
 
+bfdp = colorio.data.BfdP()
+leeds = colorio.data.Leeds()
+macadam_1942 = colorio.data.MacAdam1942()
+macadam_1974 = colorio.data.MacAdam1974()
+rit_dupont = colorio.data.RitDupont()
+witt = colorio.data.Witt()
+
 xlabels = [cs.name for cs in color_spaces]
 data_sets = {
+    "BFD-P \\cite{luorigg}": [bfdp.stress(cs) for cs in color_spaces],
+    "Leeds \\cite{leeds}": [leeds.stress(cs) for cs in color_spaces],
     "MacAdam \\cite{macadam1942} ($Y=50$)": [
-        colorio.data.macadam_1942.stress(cs, 50) for cs in color_spaces
+        macadam_1942.stress(cs, 50) for cs in color_spaces
     ],
-    "MacAdam \\cite{macadam1974}": [
-        colorio.data.macadam_1974.stress(cs) for cs in color_spaces
-    ],
-    "RIT--Du Pont \\cite{berns}": [
-        colorio.data.rit_dupont.stress(cs) for cs in color_spaces
-    ],
-    "Witt": [colorio.data.witt.stress(cs) for cs in color_spaces],
+    "MacAdam \\cite{macadam1974}": [macadam_1974.stress(cs) for cs in color_spaces],
+    "RIT--Du Pont \\cite{berns}": [rit_dupont.stress(cs) for cs in color_spaces],
+    "Witt \\cite{witt}": [witt.stress(cs) for cs in color_spaces],
 }
 
 plt.style.use(dufte.style)
