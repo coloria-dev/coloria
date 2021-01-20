@@ -1,7 +1,7 @@
+import json
 import pathlib
 
 import numpy as np
-import yaml
 
 from . import observers
 
@@ -198,8 +198,8 @@ def d(nominal_temperature):
     m2 = np.around(m2, decimals=3)
 
     this_dir = pathlib.Path(__file__).resolve().parent
-    with open(this_dir / "data/illuminants/d.yaml") as f:
-        data = yaml.safe_load(f)
+    with open(this_dir / "data/illuminants/d.json") as f:
+        data = json.load(f)
     data = np.array(data).T
 
     lmbda = data[0]
@@ -239,6 +239,6 @@ def e():
 
 def f2():
     this_dir = pathlib.Path(__file__).resolve().parent
-    with open(this_dir / "data/illuminants/f2.yaml") as f:
-        data = yaml.safe_load(f)
+    with open(this_dir / "data/illuminants/f2.json") as f:
+        data = json.load(f)
     return np.array(data["lambda"]), np.array(data["values"])
