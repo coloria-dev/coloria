@@ -266,19 +266,17 @@ class ColorSpace:
         plt.close()
 
     def plot_srgb_gradient(self, srgb0, srgb1, n=256):
-        srgb = self.srgb_gradient(srgb0, srgb1, n=n)
+        srgb = self.get_srgb_gradient(srgb0, srgb1, n=n)
 
-        my_cmap2 = matplotlib.colors.LinearSegmentedColormap.from_list(
-            "my_colormap2", srgb, 100
-        )
+        cmap = matplotlib.colors.LinearSegmentedColormap.from_list("empty", srgb, n)
 
         gradient = np.linspace(0.0, 1.0, n)
         gradient = np.vstack((gradient, gradient))
-        plt.imshow(gradient, aspect="auto", cmap=my_cmap2)
+        plt.imshow(gradient, aspect="auto", cmap=cmap)
         plt.axis("off")
         plt.title(f"SRGB gradient in {self.name}")
 
-    def srgb_gradient(self, srgb0, srgb1, n):
+    def get_srgb_gradient(self, srgb0, srgb1, n):
         srgb_linear = SrgbLinear()
 
         # convert to colorspace
@@ -298,6 +296,33 @@ class ColorSpace:
         srgb[srgb < 0] = 0.0
         srgb[srgb > 1] = 1.0
         return srgb
+
+    def show_primary_srgb_gradients(self, *args, **kwargs):
+        plt.figure()
+        self.plot_primary_srgb_gradients(*args, **kwargs)
+        plt.show()
+        plt.close()
+
+    def plot_primary_srgb_gradients(self, n=256):
+        pairs = {
+            "red-green": ([255, 0, 0], [0, 255, 0]),
+            "green-blue": ([0, 255, 0], [0, 0, 255]),
+            "blue-red": ([0, 0, 255], [255, 0, 0]),
+            "red-cyan": ([255, 0, 0], [0, 255, 255]),
+            "green-magenta": ([0, 255, 0], [255, 0, 255]),
+            "blue-yellow": ([0, 0, 255], [255, 255, 0]),
+        }
+        _, axes = plt.subplots(len(pairs), 1)
+        for ax, (name, pair) in zip(axes, pairs.items()):
+            srgb = self.get_srgb_gradient(pair[0], pair[1], n=n)
+
+            cmap = matplotlib.colors.LinearSegmentedColormap.from_list( name, srgb, n)
+
+            gradient = np.linspace(0.0, 1.0, n)
+            gradient = np.vstack((gradient, gradient))
+            ax.imshow(gradient, aspect="auto", cmap=cmap)
+            ax.axis("off")
+        # plt.title(f"SRGB gradient in {self.name}")
 
 
 def _xyy_to_xyz100(xyy):
