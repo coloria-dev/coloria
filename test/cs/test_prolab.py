@@ -4,6 +4,7 @@ import pytest
 import colorio
 
 
+@pytest.mark.skip("no agreement with upstream data")
 @pytest.mark.parametrize(
     "xyz1,ref",
     [
