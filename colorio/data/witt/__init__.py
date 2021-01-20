@@ -35,13 +35,13 @@ class Witt(Dataset):
 
         # each line has 12 entries:
         # pair, yellow (mean + sigma), grey (m+s), green (m+s), red (m+s), blue (m+s)
-        self.pairs = np.array([item[:2] for item in data])
+        self.pairs = np.array([item[0] for item in data])
         self.distances = {
-            "yellow": np.array([item[2] for item in data]),
-            "grey": np.array([item[4] for item in data]),
-            "green": np.array([item[6] for item in data]),
-            "red": np.array([item[8] for item in data]),
-            "blue": np.array([item[10] for item in data]),
+            "yellow": np.array([item[1][0] for item in data]),
+            "grey": np.array([item[2][0] for item in data]),
+            "green": np.array([item[3][0] for item in data]),
+            "red": np.array([item[4][0] for item in data]),
+            "blue": np.array([item[5][0] for item in data]),
         }
 
     def plot(self, cs, key):
