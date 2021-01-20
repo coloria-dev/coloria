@@ -1,8 +1,8 @@
+import json
 import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
-import yaml
 
 from ..helpers import Dataset, _compute_straight_line_stress, _plot_hue_linearity_data
 
@@ -11,8 +11,8 @@ this_dir = pathlib.Path(__file__).resolve().parent
 
 class EbnerFairchild(Dataset):
     def __init__(self):
-        with open(this_dir / "ebner_fairchild.yaml") as f:
-            data = yaml.safe_load(f)
+        with open(this_dir / "ebner_fairchild.json") as f:
+            data = json.load(f)
 
         self.wp = np.array(data["white point"])
         self.d = [

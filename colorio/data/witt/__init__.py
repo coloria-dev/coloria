@@ -5,10 +5,10 @@ Color Research and Application, Volume 24, Issue 2, April 1999, Pages 78-92,
 <https://doi.org/10.1002/(SICI)1520-6378(199904)24:2<78::AID-COL3>3.0.CO;2-M>.
 """
 import pathlib
+import json
 
 import matplotlib.pyplot as plt
 import numpy as np
-import yaml
 
 from ..._exceptions import ColorioError
 from ...cs import XYY
@@ -19,8 +19,8 @@ class Witt(Dataset):
     def __init__(self):
         this_dir = pathlib.Path(__file__).resolve().parent
 
-        with open(this_dir / "table_a1.yaml") as f:
-            xyy_samples = yaml.safe_load(f)
+        with open(this_dir / "table_a1.json") as f:
+            xyy_samples = json.load(f)
         xyy_samples = np.array([s for s in xyy_samples.values()])
         self.xyy_samples = {
             "yellow": xyy_samples[:, 0],
@@ -30,8 +30,8 @@ class Witt(Dataset):
             "blue": xyy_samples[:, 4],
         }
 
-        with open(this_dir / "table_a2.yaml") as f:
-            data = yaml.safe_load(f)
+        with open(this_dir / "table_a2.json") as f:
+            data = json.load(f)
 
         # each line has 12 entries:
         # pair, yellow (mean + sigma), grey (m+s), green (m+s), red (m+s), blue (m+s)

@@ -5,11 +5,11 @@ Journal of the Optical Society of America, Vol. 64, Issue 12, pp. 1691-1702,
 1974,
 <https://doi.org/10.1364/JOSA.64.001691>.
 """
+import json
 import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
-import yaml
 
 from ...cs import XYY
 from ..helpers import Dataset
@@ -20,15 +20,15 @@ class MacAdam1974(Dataset):
         # Extract ellipse centers and offsets from MacAdams data
         this_dir = pathlib.Path(__file__).resolve().parent
 
-        with open(this_dir / "table2.yaml") as f:
-            data = yaml.safe_load(f)
+        with open(this_dir / "table2.json") as f:
+            data = json.load(f)
 
         t = dict(zip(data.keys(), range(len(data))))
         xyy1_tiles = np.array([[val[0], val[1], val[2]] for val in data.values()])
         self.xyz100_tiles = XYY(100).to_xyz100(xyy1_tiles.T)
 
-        with open(this_dir / "table1.yaml") as f:
-            data = yaml.safe_load(f)
+        with open(this_dir / "table1.json") as f:
+            data = json.load(f)
 
         self.d = np.array([item[3] for item in data])
         self.pairs = np.array([[t[item[1]], t[item[2]]] for item in data])
