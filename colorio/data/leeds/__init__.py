@@ -4,8 +4,6 @@ import pathlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..._exceptions import ColorioError
-from ...cs import XYY
 from ..helpers import Dataset
 
 
