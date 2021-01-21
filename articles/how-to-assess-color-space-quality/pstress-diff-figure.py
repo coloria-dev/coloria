@@ -1,23 +1,15 @@
-# import matplotlib
 import dufte
 import matplotlib.pyplot as plt
 import numpy as np
-import tikzplotlib
 
 import colorio
 
-color_spaces = [
-    colorio.cs.CAM02("UCS", 0.69, 20, 64 / np.pi / 5),
-    colorio.cs.CAM16UCS(0.69, 20, 64 / np.pi / 5),
-    colorio.cs.CIELAB(),
-    colorio.cs.CIELUV(),
-    colorio.cs.IPT(),
-    colorio.cs.ICtCp(),
-    colorio.cs.JzAzBz(),
-    colorio.cs.OKLAB(),
-    colorio.cs.OsaUcs(),
-    colorio.cs.XYY(1),
-]
+diff_formulas = {
+    "CIE76": colorio.diff.cie76,
+    "CIE94": colorio.diff.cie94,
+    "CIEDE2000": colorio.diff.ciede2000,
+    "CMC 2:1": colorio.diff.cmc,
+}
 
 bfdp = colorio.data.BfdP()
 leeds = colorio.data.Leeds()
@@ -26,16 +18,22 @@ macadam_1974 = colorio.data.MacAdam1974()
 rit_dupont = colorio.data.RitDupont()
 witt = colorio.data.Witt()
 
-xlabels = [cs.name for cs in color_spaces]
+xlabels = list(diff_formulas.keys())
 data_sets = {
-    "BFD-P \\cite{luorigg}": [bfdp.stress(cs) for cs in color_spaces],
-    "Leeds \\cite{leeds}": [leeds.stress(cs) for cs in color_spaces],
-    "MacAdam \\cite{macadam1942} ($Y=50$)": [
-        macadam_1942.stress(cs) for cs in color_spaces
+    "BFD-P \\cite{luorigg}": [
+        bfdp.stress_lab_diff(cs) for cs in diff_formulas.values()
     ],
-    "MacAdam \\cite{macadam1974}": [macadam_1974.stress(cs) for cs in color_spaces],
-    "RIT--DuPont \\cite{berns}": [rit_dupont.stress(cs) for cs in color_spaces],
-    "Witt \\cite{witt}": [witt.stress(cs) for cs in color_spaces],
+    "Leeds \\cite{leeds}": [leeds.stress_lab_diff(cs) for cs in diff_formulas.values()],
+    "MacAdam \\cite{macadam1942} ($Y=50$)": [
+        macadam_1942.stress_lab_diff(cs) for cs in diff_formulas.values()
+    ],
+    "MacAdam \\cite{macadam1974}": [
+        macadam_1974.stress_lab_diff(cs) for cs in diff_formulas.values()
+    ],
+    "RIT--DuPont \\cite{berns}": [
+        rit_dupont.stress_lab_diff(cs) for cs in diff_formulas.values()
+    ],
+    "Witt \\cite{witt}": [witt.stress_lab_diff(cs) for cs in diff_formulas.values()],
 }
 
 plt.style.use(dufte.style)
@@ -60,6 +58,7 @@ ax.legend()
 
 fig.tight_layout()
 # plt.show()
+import tikzplotlib
 tikzplotlib.save(
-    "pstress.tex", extra_axis_parameters=["width=\\textwidth", "height=0.6\\textwidth"]
+    "pstress-diff.tex", extra_axis_parameters=["width=\\textwidth", "height=0.6\\textwidth"]
 )
