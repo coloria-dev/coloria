@@ -47,4 +47,4 @@ def test_reference_xyz(xyz1, ref):
     val = cs.from_xyz100(xyz100)
     print(ref)
     print(val)
-    assert np.all(np.abs(val - ref) < 1.0e-4 * np.abs(ref) + 1.0e-4)
+    assert np.all(np.abs(val - ref) < 1.0e-13 * np.abs(ref) + 1.0e-13)
