@@ -1,85 +1,14 @@
 import json
 import pathlib
 
-import matplotlib.pyplot as plt
-import numpy as np
-
-from ...cs import CIELAB
-from ..helpers import Dataset
+from ..helpers import ColorDifferenceDataset
 
 
-class RitDupont(Dataset):
+class RitDupont(ColorDifferenceDataset):
     def __init__(self):
         this_dir = pathlib.Path(__file__).resolve().parent
 
-        with open(this_dir / "berns.json") as f:
+        with open(this_dir / "rit-dupont.json") as f:
             data = json.load(f)
 
-        self.d = {}
-        for key, value in data.items():
-            value = np.array([row[2:] for row in value])
-            # the vectors are already normalized, but only given in low precision.
-            # Normalize them to full precision.
-            vectors = value[:, 8:11]
-            vectors = (vectors.T / np.linalg.norm(vectors, axis=1)).T
-            self.d[key.lower()] = {
-                "centers": value[:, 5:8],
-                "vectors": vectors,
-                "t50": value[:, 0],
-            }
-
-    def plot(self, cs, key):
-        if key not in self.d:
-            string = ", ".join(self.d.keys())
-            raise KeyError(f"Choose one of {string}.")
-
-        centers = self.d[key]["centers"]
-        vectors = self.d[key]["vectors"]
-        t50 = self.d[key]["t50"]
-
-        endpoints = centers + (t50 * vectors.T).T
-
-        cielab = CIELAB()
-        cs_centers = cs.from_xyz100(cielab.to_xyz100(centers.T))
-        cs_endpoints = cs.from_xyz100(cielab.to_xyz100(endpoints.T))
-
-        # reorder the coords such that the lightness in the last (the z-)component
-        cs_centers = np.roll(cs_centers, 2 - cs.k0, axis=0)
-        cs_endpoints = np.roll(cs_endpoints, 2 - cs.k0, axis=0)
-        labels = np.roll(cs.labels, 2 - cs.k0, axis=0)
-
-        ax = plt.axes(projection="3d")
-        # # Plot the tile points.
-        # pts_2d = np.delete(pts, cs.k0, axis=0)
-        for c, e in zip(cs_centers.T, cs_endpoints.T):
-            rgb = cs.to_rgb1(c)
-            if np.all((0 <= rgb) & (rgb <= 1)):
-                color = rgb
-            else:
-                color = "k"
-            plt.plot([c[0]], [c[1]], [c[2]], "o", color=color)
-            plt.plot([c[0], e[0]], [c[1], e[1]], [c[2], e[2]], "-", color=color)
-
-        ax.set_xlabel(labels[0])
-        ax.set_ylabel(labels[1])
-        ax.set_zlabel(labels[2])
-
-    def stress(self, cs):
-        delta = []
-        cielab = CIELAB()
-        for value in self.d.values():
-            centers = value["centers"]
-            vectors = value["vectors"]
-            t50 = value["t50"]
-
-            endpoints = centers + (t50 * vectors.T).T
-
-            cs_centers = cs.from_xyz100(cielab.to_xyz100(centers.T))
-            cs_endpoints = cs.from_xyz100(cielab.to_xyz100(endpoints.T))
-
-            diff = cs_centers - cs_endpoints
-            delta.append(np.linalg.norm(diff, axis=0))
-
-        delta = np.concatenate(delta)
-        diff = np.average(delta) - delta
-        return 100 * np.sqrt(np.dot(diff, diff) / np.dot(delta, delta))
+        super().__init__("RIT-DuPont", data["dv"], data["pairs"])
