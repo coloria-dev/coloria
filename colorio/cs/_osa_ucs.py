@@ -10,7 +10,7 @@ class OsaUcs(ColorSpace):
     Uniform color scales,
     Journal of the Optical Society of America,
     Volume 64, Number 12, December 1974,
-    <https://doi.org/10.1364/JOSAA.24.001823>,
+    <https://doi.org/10.1364/JOSA.64.001691>,
     <https://en.wikipedia.org/wiki/OSA-UCS>.
 
     Nico Schlömer,
@@ -19,7 +19,7 @@ class OsaUcs(ColorSpace):
     """
 
     def __init__(self):
-        super().__init__("OSA-UCS", ("L", "g", "j"), 0)
+        super().__init__("OSA-UCS", ("L", "j", "g"), 0)
 
         self.M = np.array(
             [
@@ -60,15 +60,15 @@ class OsaUcs(ColorSpace):
         g = C * a
         j = C * b
 
-        return np.array([L, g, j])
+        return np.array([L, j, g])
 
-    def to_xyz100(self, lgj, tol=1.0e-13, max_num_newton_steps=100):
+    def to_xyz100(self, ljg, tol=1.0e-13, max_num_newton_steps=100):
         # Renbo Cao, H. Joel Trussell, and Renzo Shamey,
         # Comparison of the performance of inverse transformation methods from OSA-UCS
         # to CIEXYZ,
         # J Opt Soc Am A Opt Image Sci Vis., 2013 Aug 1,30(8):1508-15,
         # <https://doi.org/10.1364/JOSAA.30.001508>.
-        L, g, j = lgj
+        L, j, g = ljg
 
         L_prime = L * np.sqrt(2) + 14.3993
 
