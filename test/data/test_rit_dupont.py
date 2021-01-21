@@ -12,12 +12,13 @@ def test_show():
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     # cs = colorio.cs.JzAzBz()
     # cs = colorio.cs.XYY(1)
-    colorio.data.RitDupont().show(cs, "moderate yellow")
+    colorio.data.RitDupont().show(cs)
 
 
 def test_residual():
     cs = colorio.cs.CIELAB()
-    ref = 32.85162431714214
+    # ref = 32.85162431714214
+    ref = 33.36473531796298
     res = colorio.data.RitDupont().stress(cs)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref

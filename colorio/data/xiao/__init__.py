@@ -1,26 +1,18 @@
 import json
 import pathlib
 
-import matplotlib.pyplot as plt
 import numpy as np
 
-from ..helpers import Dataset, _compute_straight_line_stress, _plot_hue_linearity_data
+from ..helpers import HueLinearityDataset
 
 
-class Xiao(Dataset):
+class Xiao(HueLinearityDataset):
     def __init__(self):
         this_dir = pathlib.Path(__file__).resolve().parent
 
         with open(this_dir / "averages.json") as f:
             data = json.load(f)
 
-        self.ng = np.array(data.pop("neutral-gray")[0])
-        data = np.array(list(data.values()))
-        self.data = np.moveaxis(data, 1, 2)
-
-    def plot(self, cs):
-        _plot_hue_linearity_data(self.data, self.ng, cs)
-        plt.title(f"Xiao hue linearity data for {cs.name}")
-
-    def stress(self, cs):
-        return _compute_straight_line_stress(cs, self.ng, self.data)
+        neutral_gray = np.array(data.pop("neutral-gray")[0])
+        arms = np.moveaxis(list(data.values()), 1, 2)
+        super().__init__("Xiao", neutral_gray, arms)

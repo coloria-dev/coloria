@@ -6,6 +6,14 @@ import colorio
 np.random.seed(0)
 
 
+def dot(a, b):
+    """Take arrays `a` and `b` and form the dot product between the last axis
+    of `a` and the first of `b`.
+    """
+    b = np.asarray(b)
+    return np.dot(a, b.reshape(b.shape[0], -1)).reshape(a.shape[:-1] + b.shape[1:])
+
+
 class CielabScaled:
     def __init__(self):
         self.cielab = colorio.cs.CIELAB()
@@ -40,10 +48,10 @@ class CielabRotated:
         self.k0 = self.cielab.k0
 
     def from_xyz100(self, xyz100):
-        return self.R @ self.cielab.from_xyz100(xyz100)
+        return dot(self.R, self.cielab.from_xyz100(xyz100))
 
     def to_xyz100(self, lab):
-        return self.cielab.to_xyz100(self.Rinv @ lab)
+        return self.cielab.to_xyz100(dot(self.Rinv, lab))
 
 
 @pytest.mark.parametrize(

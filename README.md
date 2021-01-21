@@ -226,11 +226,11 @@ article](https://doi.org/10.1364%2FJOSA.32.000247)) can be plotted with
 import colorio
 
 # xyy = colorio.cs.XYY(100)
-# colorio.data.MacAdam1942().show(xyy, 0.4)
-# colorio.data.MacAdam1942().savefig("macadam-xyy.png", xyy, 0.4)
+# colorio.data.MacAdam1942(50.0).show(xyy)
+# colorio.data.MacAdam1942(50.0).savefig("macadam-xyy.png", xyy)
 
 cieluv = colorio.cs.CIELUV()
-colorio.data.MacAdam1942().show(cieluv, 50.0)
+colorio.data.MacAdam1942(50.0).show(cieluv)
 ```
 
 ###### Luo-Rigg

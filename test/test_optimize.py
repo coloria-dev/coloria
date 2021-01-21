@@ -27,7 +27,7 @@ class TestLab:
 
 def test_optimize(maxiter=1):
     luo_rigg = colorio.data.LuoRigg(8)
-    macadam_1942 = colorio.data.MacAdam1942()
+    macadam_1942 = colorio.data.MacAdam1942(Y=50)
     macadam_1974 = colorio.data.MacAdam1974()
     rit_dupont = colorio.data.RitDupont()
     witt = colorio.data.Witt()
@@ -45,7 +45,7 @@ def test_optimize(maxiter=1):
         cs = TestLab(x)
         res = (
             # luo_rigg.stress(cs)
-            macadam_1942.stress(cs, 50)
+            macadam_1942.stress(cs)
             # + macadam_1974.stress(cs)
             # + witt.stress(cs)
             # + rit_dupont.stress(cs)
@@ -136,7 +136,7 @@ def test_optimize(maxiter=1):
     print()
     print("final residuals:")
     print(luo_rigg.stress(cs))
-    print(macadam_1942.stress(cs, 50))
+    print(macadam_1942.stress(cs))
     print(macadam_1974.stress(cs))
     print(rit_dupont.stress(cs))
     print(witt.stress(cs))
