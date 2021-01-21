@@ -17,22 +17,12 @@ color_spaces = [
     colorio.cs.OKLAB(),
     colorio.cs.OsaUcs(),
     colorio.cs.PROLAB(),
-    colorio.cs.RLAB(),
     colorio.cs.XYY(1),
 ]
 
-# for cs in color_spaces:
-#     vals = [
-#         colorio.data.macadam_1942.stress(cs, 50),
-#         colorio.data.macadam_1974.stress(cs),
-#         colorio.data.rit_dupont.stress(cs),
-#         colorio.data.witt.stress(cs),
-#     ]
-#     print(f"{cs.name} & {vals[0]:.1f} & {vals[1]:.1f} & {vals[2]:.1f}\\\\")
-
 bfdp = colorio.data.BfdP()
 leeds = colorio.data.Leeds()
-macadam_1942 = colorio.data.MacAdam1942()
+macadam_1942 = colorio.data.MacAdam1942(Y=50.0)
 macadam_1974 = colorio.data.MacAdam1974()
 rit_dupont = colorio.data.RitDupont()
 witt = colorio.data.Witt()
@@ -42,7 +32,7 @@ data_sets = {
     "BFD-P \\cite{luorigg}": [bfdp.stress(cs) for cs in color_spaces],
     "Leeds \\cite{leeds}": [leeds.stress(cs) for cs in color_spaces],
     "MacAdam \\cite{macadam1942} ($Y=50$)": [
-        macadam_1942.stress(cs, 50) for cs in color_spaces
+        macadam_1942.stress(cs) for cs in color_spaces
     ],
     "MacAdam \\cite{macadam1974}": [macadam_1974.stress(cs) for cs in color_spaces],
     "RIT--Du Pont \\cite{berns}": [rit_dupont.stress(cs) for cs in color_spaces],
@@ -61,12 +51,12 @@ for (label, data), p in zip(data_sets.items(), pos):
     ax.bar(x + p, data, bar_width, label=label)
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel("$p_{STRESS}$")
+ax.set_title("$p_{STRESS}$")
 ax.set_xticks(x)
 ax.set_xticklabels(xlabels)
 plt.xticks(rotation=45, ha="left")
 plt.xlim(-0.6, len(xlabels) - 1 + 0.6)
-plt.ylim(0, 100)
+plt.ylim(0, 120)
 ax.legend()
 
 fig.tight_layout()

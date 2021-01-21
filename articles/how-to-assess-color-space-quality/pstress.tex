@@ -15,17 +15,17 @@ legend cell align={left},
 legend style={fill opacity=0.8, draw opacity=1, text opacity=1, at={(0.03,0.97)}, anchor=north west, draw=white!80!black},
 tick align=outside,
 tick pos=left,
+title={\(\displaystyle p_{STRESS}\)},
 width=\textwidth,
 x grid style={white!58.8235294117647!black},
-xmin=-0.6, xmax=11.6,
+xmin=-0.6, xmax=10.6,
 xtick style={color=white!58.8235294117647!black},
-xtick={0,1,2,3,4,5,6,7,8,9,10,11},
+xtick={0,1,2,3,4,5,6,7,8,9,10},
 xticklabel style = {rotate=45.0},
-xticklabels={CAM02 (UCS),CAM16 (UCS),CIELAB,CIELUV,IPT,IC\_TC\_P,J\_z a\_z b\_z,Oklab,OSA-UCS,proLab,RLAB,xyY\_1},
+xticklabels={CAM02 (UCS),CAM16 (UCS),CIELAB,CIELUV,IPT,IC\_TC\_P,J\_z a\_z b\_z,Oklab,OSA-UCS,proLab,xyY\_1},
 y grid style={white!58.8235294117647!black},
-ylabel={\(\displaystyle p_{STRESS}\)},
 ymajorgrids,
-ymin=0, ymax=100,
+ymin=0, ymax=120,
 ytick style={color=white!58.8235294117647!black}
 ]
 \draw[draw=none,fill=color0] (axis cs:-0.4,0) rectangle (axis cs:-0.266666666666667,34.3596434663818);
@@ -40,9 +40,8 @@ ytick style={color=white!58.8235294117647!black}
 \draw[draw=none,fill=color0] (axis cs:5.6,0) rectangle (axis cs:5.73333333333333,37.7060022609256);
 \draw[draw=none,fill=color0] (axis cs:6.6,0) rectangle (axis cs:6.73333333333333,47.7764714788197);
 \draw[draw=none,fill=color0] (axis cs:7.6,0) rectangle (axis cs:7.73333333333333,40.1671462111925);
-\draw[draw=none,fill=color0] (axis cs:8.6,0) rectangle (axis cs:8.73333333333333,44.5158173062797);
-\draw[draw=none,fill=color0] (axis cs:9.6,0) rectangle (axis cs:9.73333333333333,41.3328569385096);
-\draw[draw=none,fill=color0] (axis cs:10.6,0) rectangle (axis cs:10.7333333333333,60.376562069045);
+\draw[draw=none,fill=color0] (axis cs:8.6,0) rectangle (axis cs:8.73333333333333,44.5158173129999);
+\draw[draw=none,fill=color0] (axis cs:9.6,0) rectangle (axis cs:9.73333333333333,60.376562069045);
 \draw[draw=none,fill=color1] (axis cs:-0.266666666666667,0) rectangle (axis cs:-0.133333333333333,28.6919923366331);
 \addlegendimage{ybar,ybar legend,draw=none,fill=color1};
 \addlegendentry{Leeds \cite{leeds}}
@@ -55,9 +54,8 @@ ytick style={color=white!58.8235294117647!black}
 \draw[draw=none,fill=color1] (axis cs:5.73333333333333,0) rectangle (axis cs:5.86666666666667,40.1250346751512);
 \draw[draw=none,fill=color1] (axis cs:6.73333333333333,0) rectangle (axis cs:6.86666666666667,45.0479667569395);
 \draw[draw=none,fill=color1] (axis cs:7.73333333333333,0) rectangle (axis cs:7.86666666666667,41.6629221789247);
-\draw[draw=none,fill=color1] (axis cs:8.73333333333333,0) rectangle (axis cs:8.86666666666667,39.3509598970332);
-\draw[draw=none,fill=color1] (axis cs:9.73333333333333,0) rectangle (axis cs:9.86666666666667,41.337101933465);
-\draw[draw=none,fill=color1] (axis cs:10.7333333333333,0) rectangle (axis cs:10.8666666666667,67.2537962599619);
+\draw[draw=none,fill=color1] (axis cs:8.73333333333333,0) rectangle (axis cs:8.86666666666667,39.3509600201887);
+\draw[draw=none,fill=color1] (axis cs:9.73333333333333,0) rectangle (axis cs:9.86666666666667,67.2537962599619);
 \draw[draw=none,fill=color2] (axis cs:-0.133333333333333,0) rectangle (axis cs:2.77555756156289e-17,32.4164992368733);
 \addlegendimage{ybar,ybar legend,draw=none,fill=color2};
 \addlegendentry{MacAdam \cite{macadam1942} ($Y=50$)}
@@ -70,9 +68,8 @@ ytick style={color=white!58.8235294117647!black}
 \draw[draw=none,fill=color2] (axis cs:5.86666666666667,0) rectangle (axis cs:6,33.2757088119242);
 \draw[draw=none,fill=color2] (axis cs:6.86666666666667,0) rectangle (axis cs:7,37.6772548200669);
 \draw[draw=none,fill=color2] (axis cs:7.86666666666667,0) rectangle (axis cs:8,42.4396646797378);
-\draw[draw=none,fill=color2] (axis cs:8.86666666666667,0) rectangle (axis cs:9,34.7531018984239);
-\draw[draw=none,fill=color2] (axis cs:9.86666666666667,0) rectangle (axis cs:10,46.581942046651);
-\draw[draw=none,fill=color2] (axis cs:10.8666666666667,0) rectangle (axis cs:11,53.7506022511023);
+\draw[draw=none,fill=color2] (axis cs:8.86666666666667,0) rectangle (axis cs:9,34.7531020570885);
+\draw[draw=none,fill=color2] (axis cs:9.86666666666667,0) rectangle (axis cs:10,53.7506022511023);
 \draw[draw=none,fill=color3] (axis cs:4.16333634234434e-17,0) rectangle (axis cs:0.133333333333333,19.0009867390654);
 \addlegendimage{ybar,ybar legend,draw=none,fill=color3};
 \addlegendentry{MacAdam \cite{macadam1974}}
@@ -85,39 +82,36 @@ ytick style={color=white!58.8235294117647!black}
 \draw[draw=none,fill=color3] (axis cs:6,0) rectangle (axis cs:6.13333333333333,23.2111338532765);
 \draw[draw=none,fill=color3] (axis cs:7,0) rectangle (axis cs:7.13333333333333,32.7178547285273);
 \draw[draw=none,fill=color3] (axis cs:8,0) rectangle (axis cs:8.13333333333333,19.8475379525657);
-\draw[draw=none,fill=color3] (axis cs:9,0) rectangle (axis cs:9.13333333333333,27.1198914690809);
-\draw[draw=none,fill=color3] (axis cs:10,0) rectangle (axis cs:10.1333333333333,23.5028573394472);
-\draw[draw=none,fill=color3] (axis cs:11,0) rectangle (axis cs:11.1333333333333,50.0184864244504);
-\draw[draw=none,fill=color4] (axis cs:0.133333333333333,0) rectangle (axis cs:0.266666666666667,20.4545132821738);
+\draw[draw=none,fill=color3] (axis cs:9,0) rectangle (axis cs:9.13333333333333,27.1198915665126);
+\draw[draw=none,fill=color3] (axis cs:10,0) rectangle (axis cs:10.1333333333333,50.0184864244504);
+\draw[draw=none,fill=color4] (axis cs:0.133333333333333,0) rectangle (axis cs:0.266666666666667,19.569871306816);
 \addlegendimage{ybar,ybar legend,draw=none,fill=color4};
 \addlegendentry{RIT--Du Pont \cite{berns}}
 
-\draw[draw=none,fill=color4] (axis cs:1.13333333333333,0) rectangle (axis cs:1.26666666666667,20.2056013977758);
-\draw[draw=none,fill=color4] (axis cs:2.13333333333333,0) rectangle (axis cs:2.26666666666667,32.8516243171421);
-\draw[draw=none,fill=color4] (axis cs:3.13333333333333,0) rectangle (axis cs:3.26666666666667,36.8498052149805);
-\draw[draw=none,fill=color4] (axis cs:4.13333333333333,0) rectangle (axis cs:4.26666666666667,29.2367169724054);
-\draw[draw=none,fill=color4] (axis cs:5.13333333333333,0) rectangle (axis cs:5.26666666666667,50.293188154606);
-\draw[draw=none,fill=color4] (axis cs:6.13333333333333,0) rectangle (axis cs:6.26666666666667,28.3631310307662);
-\draw[draw=none,fill=color4] (axis cs:7.13333333333333,0) rectangle (axis cs:7.26666666666667,32.1818564157314);
-\draw[draw=none,fill=color4] (axis cs:8.13333333333333,0) rectangle (axis cs:8.26666666666667,30.1557845243711);
-\draw[draw=none,fill=color4] (axis cs:9.13333333333333,0) rectangle (axis cs:9.26666666666667,30.3731480388915);
-\draw[draw=none,fill=color4] (axis cs:10.1333333333333,0) rectangle (axis cs:10.2666666666667,33.2993029128068);
-\draw[draw=none,fill=color4] (axis cs:11.1333333333333,0) rectangle (axis cs:11.2666666666667,47.6010340040916);
-\draw[draw=none,fill=color5] (axis cs:0.266666666666667,0) rectangle (axis cs:0.4,31.7137459831053);
+\draw[draw=none,fill=color4] (axis cs:1.13333333333333,0) rectangle (axis cs:1.26666666666667,19.2202900174604);
+\draw[draw=none,fill=color4] (axis cs:2.13333333333333,0) rectangle (axis cs:2.26666666666667,33.364735317963);
+\draw[draw=none,fill=color4] (axis cs:3.13333333333333,0) rectangle (axis cs:3.26666666666667,36.512099455662);
+\draw[draw=none,fill=color4] (axis cs:4.13333333333333,0) rectangle (axis cs:4.26666666666667,29.4471440740507);
+\draw[draw=none,fill=color4] (axis cs:5.13333333333333,0) rectangle (axis cs:5.26666666666667,50.8123209534158);
+\draw[draw=none,fill=color4] (axis cs:6.13333333333333,0) rectangle (axis cs:6.26666666666667,28.2990979991378);
+\draw[draw=none,fill=color4] (axis cs:7.13333333333333,0) rectangle (axis cs:7.26666666666667,31.8174145515984);
+\draw[draw=none,fill=color4] (axis cs:8.13333333333333,0) rectangle (axis cs:8.26666666666667,31.4864205191271);
+\draw[draw=none,fill=color4] (axis cs:9.13333333333333,0) rectangle (axis cs:9.26666666666667,30.1688321414754);
+\draw[draw=none,fill=color4] (axis cs:10.1333333333333,0) rectangle (axis cs:10.2666666666667,47.9688035650522);
+\draw[draw=none,fill=color5] (axis cs:0.266666666666667,0) rectangle (axis cs:0.4,31.4752235293589);
 \addlegendimage{ybar,ybar legend,draw=none,fill=color5};
 \addlegendentry{Witt \cite{witt}}
 
-\draw[draw=none,fill=color5] (axis cs:1.26666666666667,0) rectangle (axis cs:1.4,32.2820907703781);
-\draw[draw=none,fill=color5] (axis cs:2.26666666666667,0) rectangle (axis cs:2.4,52.0435566262912);
-\draw[draw=none,fill=color5] (axis cs:3.26666666666667,0) rectangle (axis cs:3.4,53.6345292231793);
-\draw[draw=none,fill=color5] (axis cs:4.26666666666667,0) rectangle (axis cs:4.4,46.7942036538384);
-\draw[draw=none,fill=color5] (axis cs:5.26666666666667,0) rectangle (axis cs:5.4,60.5745704771068);
-\draw[draw=none,fill=color5] (axis cs:6.26666666666667,0) rectangle (axis cs:6.4,48.9109932127749);
-\draw[draw=none,fill=color5] (axis cs:7.26666666666667,0) rectangle (axis cs:7.4,45.5094725773093);
-\draw[draw=none,fill=color5] (axis cs:8.26666666666667,0) rectangle (axis cs:8.4,47.7458622476438);
-\draw[draw=none,fill=color5] (axis cs:9.26666666666667,0) rectangle (axis cs:9.4,52.2686332485528);
-\draw[draw=none,fill=color5] (axis cs:10.2666666666667,0) rectangle (axis cs:10.4,50.153271892121);
-\draw[draw=none,fill=color5] (axis cs:11.2666666666667,0) rectangle (axis cs:11.4,56.1700478114188);
+\draw[draw=none,fill=color5] (axis cs:1.26666666666667,0) rectangle (axis cs:1.4,32.1074653627709);
+\draw[draw=none,fill=color5] (axis cs:2.26666666666667,0) rectangle (axis cs:2.4,51.6740349454926);
+\draw[draw=none,fill=color5] (axis cs:3.26666666666667,0) rectangle (axis cs:3.4,53.1956747201631);
+\draw[draw=none,fill=color5] (axis cs:4.26666666666667,0) rectangle (axis cs:4.4,46.4831674913256);
+\draw[draw=none,fill=color5] (axis cs:5.26666666666667,0) rectangle (axis cs:5.4,60.4387087033335);
+\draw[draw=none,fill=color5] (axis cs:6.26666666666667,0) rectangle (axis cs:6.4,48.530027737537);
+\draw[draw=none,fill=color5] (axis cs:7.26666666666667,0) rectangle (axis cs:7.4,45.2276225067435);
+\draw[draw=none,fill=color5] (axis cs:8.26666666666667,0) rectangle (axis cs:8.4,47.3978125741753);
+\draw[draw=none,fill=color5] (axis cs:9.26666666666667,0) rectangle (axis cs:9.4,51.8663701281029);
+\draw[draw=none,fill=color5] (axis cs:10.2666666666667,0) rectangle (axis cs:10.4,55.9376839807271);
 \end{axis}
 
 \end{tikzpicture}

@@ -308,29 +308,6 @@ In case only the actual ellipses are given (e.g., \cite{luorigg}), one can place
 number of points onto their boundaries (e.g., 8 or 16) and compute the residual with
 from them.
 
-\begin{table}
-  \centering
-  \begin{tabular}{lrr}
-    \toprule
-    & MacAdam & Luo-Rigg(8) \cite{luorigg}\\
-    \midrule
-CAM02 (UCS)   & \textbf{27.2} &         30.1\\
-CAM16 (UCS)   &         29.0  & \textbf{28.4}\\
-CIELAB        &         57.3  &         48.5\\
-CIELUV        &         36.5  &         45.3\\
-IPT           &         38.5  &         47.5\\
-$IC_TC_P$     &         75.9  &         61.2\\
-$J_z a_z b_z$ &         40.7  &         40.3\\
-Oklab         &         37.7  &         39.1\\
-OSA-UCS       &         63.6  &         42.2\\
-RLAB          &         46.6  &         46.6\\
-xyY           &         53.8  &         44.0\\
-    \bottomrule
-  \end{tabular}
-  \caption{$e_\text{STRESS}$ for a number of color spaces. CAM02 and its close relative
-  CAM16 far outperform the other color spaces, particularly for the Luo-Rigg data set.}
-\end{table}
-
 \subsection{Cost functional for hue linearity}
 
 There are multiple experiments which data about which colors are perceived to be of
@@ -412,7 +389,7 @@ if $\xt$ and $\yt$ are linearly dependent, i.e., if the points $(x_i, y_i)$ sit 
 straight line through the origin.
 
 Since $0\le l_2\le 1$, the value can be given in terms of STRESS,
-\begin{equation}\label{eq:lstress}
+\begin{equation}\label{eq:hstress}
   l_\text{STRESS} = 100 \frac{\sigma_{\min}(A)}{\sigma_{\max}(A)}.
 \end{equation}
 
@@ -451,10 +428,12 @@ l_p
 
 \begin{figure}
   \centering
-  \input{lstress.tex}
-  \caption{$l_\text{STRESS}$ averaged over all arms of each data set.  While all listed
-  color spaces perform quite well, OSA-UCS is the overall best color space for hue
-  linearity.}
+  \input{hstress.tex}
+  \caption{$h_\text{STRESS}$ for different data sets. The bar represents the average
+  $h_\text{STRESS}$ over all arms in the data set and the thin lines the minimum and
+  maximum values.
+  The largest maxima are CIELAB's and CAM16's famous nonlinearities for blue.
+  Oklab has the smallest maximum STRESS for all data sets.}
 \end{figure}
 
 \subsection{Cost functional for lightness data}
