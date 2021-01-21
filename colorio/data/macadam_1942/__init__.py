@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ...cs import XYY
-from ..helpers import Dataset, _plot_ellipses
+from ..helpers import Dataset
 
 
 class MacAdam1942(Dataset):
@@ -59,7 +59,7 @@ class MacAdam1942(Dataset):
         #     cs.plot_rgb_slice(lightness)
 
     def stress(self, cs, Y100: float) -> float:
-        xyy100 = XYY(Y_scaling=100)
+        xyy100 = XYY(100)
 
         dists = []
         for c, off in zip(self.xy_centers, self.xy_offsets):

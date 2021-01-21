@@ -1,5 +1,5 @@
 """
-M. R. Luo, B. Rigg,
+M.R. Luo, B. Rigg,
 Chromaticity Discrimination Ellipses for Surface Colours,
 Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25-42,
 <https://doi.org/10.1002/col.5080110107>.
@@ -7,13 +7,12 @@ Color Research and Application, Volume 11, Issue 1, Spring 1986, Pages 25-42,
 import json
 import pathlib
 
-import matplotlib.pyplot as plt
 import numpy as np
 
-from ..helpers import Dataset, _compute_ellipse_residual, _plot_ellipses
+from ..helpers import EllipseDataset
 
 
-class LuoRigg(Dataset):
+class LuoRigg(EllipseDataset):
     def __init__(self, num_offset_points: int):
         # Extract ellipse centers and offsets from MacAdams data
         this_dir = pathlib.Path(__file__).resolve().parent
@@ -21,9 +20,8 @@ class LuoRigg(Dataset):
         with open(this_dir / "luo-rigg.json") as f:
             data = json.load(f)
 
-        #
-        self.xyy100_centers = []
-        self.xyy100_points = []
+        xyy100_centers = []
+        xyy100_points = []
         # collect the ellipse centers and offsets
         alpha = np.linspace(0.0, 2 * np.pi, num_offset_points, endpoint=False)
         circle_pts = np.array([np.cos(alpha), np.sin(alpha)])
@@ -46,14 +44,7 @@ class LuoRigg(Dataset):
                 offsets = np.dot(J, circle_pts)
                 pts = (c + offsets.T).T
 
-                self.xyy100_centers.append(np.array([*c, Y]))
-                self.xyy100_points.append(np.array([*pts, np.full(pts.shape[1], Y)]))
+                xyy100_centers.append(np.array([*c, Y]))
+                xyy100_points.append(np.array([*pts, np.full(pts.shape[1], Y)]))
 
-    def plot(self, cs, ellipse_scaling: float = 2.0):
-        _plot_ellipses(self.xyy100_centers, self.xyy100_points, cs, ellipse_scaling)
-        plt.title(f"Luo-Rigg ellipses for {cs.name}")
-
-    def stress(self, cs):
-        return 100 * _compute_ellipse_residual(
-            cs, self.xyy100_centers, self.xyy100_points
-        )
+        super().__init__("Luo-Rigg", xyy100_centers, xyy100_points)
