@@ -13,7 +13,7 @@ from ._ictcp import ICtCp
 from ._ipt import IPT
 from ._jzazbz import JzAzBz
 from ._oklab import OKLAB
-from ._osa import OsaUcs
+from ._osa_ucs import OsaUcs
 from ._prolab import PROLAB
 from ._rlab import RLAB
 from ._srgb import SrgbLinear
