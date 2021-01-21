@@ -20,14 +20,14 @@ def test_show():
         colorio.data.MacAdam1942().savefig(Path(tmpdir) / "out.png", cs, 50)
 
 
-def test_residuals():
+def test_stress():
     cs = colorio.cs.CIELAB()
     ref = 44.89521555157901
-    res = colorio.data.MacAdam1942().stress(cs, 50.0)
+    res = colorio.data.MacAdam1942(50.0).stress(cs)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 
 
 if __name__ == "__main__":
-    test_show()
-    # test_residuals()
+    # test_show()
+    test_stress()

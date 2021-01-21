@@ -1,10 +1,10 @@
 import json
 import pathlib
 
-from ..helpers import ColorDifferenceDataset
+from ..helpers import ColorDistanceDataset
 
 
-class Witt(ColorDifferenceDataset):
+class Witt(ColorDistanceDataset):
     def __init__(self):
         this_dir = pathlib.Path(__file__).resolve().parent
 

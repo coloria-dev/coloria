@@ -5,11 +5,10 @@ import numpy as np
 
 from ..helpers import HueLinearityDataset
 
-this_dir = pathlib.Path(__file__).resolve().parent
-
 
 class EbnerFairchild(HueLinearityDataset):
     def __init__(self):
+        this_dir = pathlib.Path(__file__).resolve().parent
         with open(this_dir / "ebner_fairchild.json") as f:
             data = json.load(f)
 

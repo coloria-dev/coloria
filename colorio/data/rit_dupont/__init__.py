@@ -1,10 +1,10 @@
 import json
 import pathlib
 
-from ..helpers import ColorDifferenceDataset
+from ..helpers import ColorDistanceDataset
 
 
-class RitDupont(ColorDifferenceDataset):
+class RitDupont(ColorDistanceDataset):
     def __init__(self):
         this_dir = pathlib.Path(__file__).resolve().parent
 

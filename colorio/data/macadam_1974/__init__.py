@@ -12,10 +12,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ...cs import XYY
-from ..helpers import ColorDifferenceDataset
+from ..helpers import ColorDistanceDataset
 
 
-class MacAdam1974(ColorDifferenceDataset):
+class MacAdam1974(ColorDistanceDataset):
     def __init__(self):
         # Extract ellipse centers and offsets from MacAdams data
         this_dir = pathlib.Path(__file__).resolve().parent

@@ -21,7 +21,7 @@ class Dataset:
         plt.close()
 
 
-class ColorDifferenceDataset(Dataset):
+class ColorDistanceDataset(Dataset):
     def __init__(self, name, dist, xyz_pairs):
         self.name = name
         self.dist = np.asarray(dist)
