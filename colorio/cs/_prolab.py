@@ -32,10 +32,7 @@ class PROLAB(ColorSpace):
         self.Qinv = np.linalg.inv(self.Q)
         self.wp = whitepoint
 
-        self.wp = 100 * np.array(
-            [0.950469988842714, 1.000000013046455, 1.088830006023924]
-        )
-
+        # P is Q with whitepoint normalization
         # self.P = np.array([
         #     [79.4725, 486.6610, 153.7311],
         #     [649.9038, -595.4477, -20.4498],
