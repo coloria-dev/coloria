@@ -54,72 +54,78 @@ class ColorDifferenceDataset(Dataset):
         return 100 * np.sqrt(np.dot(diff, diff) / np.dot(delta, delta))
 
 
-def _compute_straight_line_stress(cs, wp, d):
-    """Compute the TLS residuals for each of the arms."""
-    # remove the row corresponding to lightness
-    idx = [True, True, True]
-    idx[cs.k0] = False
-    wp_cs = cs.from_xyz100(wp)[idx]
-    s2 = []
-    for dd in d:
-        vals = cs.from_xyz100(dd)[idx]
-        # move values such that whitepoint is in the origin
-        vals = (vals.T - wp_cs).T
-        # could also be computed explicitly
-        s_max, s_min = np.linalg.svd(vals, compute_uv=False)
-        s2.append(s_min / s_max)
-        # plt.plot(vals[0], vals[1], "x")
-        # plt.gca().set_aspect("equal")
-        # plt.show()
-    return 100 * np.array(s2)
+class HueLinearityDataset(Dataset):
+    def __init__(self, name: str, whitepoint, arms):
+        self.name = name
+        self.whitepoint = np.asarray(whitepoint)
+        self.arms = arms
 
+    def plot(self, colorspace, approximate_colors_in_srgb=False):
+        # k0 is the coordinate that corresponds to "lightness"
+        k0 = colorspace.k0
+        k1, k2 = [k for k in [0, 1, 2] if k != k0]
 
-def _plot_hue_linearity_data(
-    data_xyz100, wp_xyz100, colorspace, approximate_colors_in_srgb=False
-):
-    # k0 is the coordinate that corresponds to "lightness"
-    k0 = colorspace.k0
-    k1, k2 = [k for k in [0, 1, 2] if k != k0]
+        wp = colorspace.from_xyz100(self.whitepoint)[[k1, k2]]
+        srgb = SrgbLinear()
+        for xyz in self.arms:
+            d = colorspace.from_xyz100(xyz)[[k1, k2]]
 
-    wp = colorspace.from_xyz100(wp_xyz100)[[k1, k2]]
-    srgb = SrgbLinear()
-    for xyz in data_xyz100:
-        d = colorspace.from_xyz100(xyz)[[k1, k2]]
+            # get the eigenvector corresponding to the larger eigenvalue
+            d_wp = (d.T - wp).T
+            vals, vecs = np.linalg.eigh(d_wp @ d_wp.T)
+            v = vecs[:, 0] if vals[0] > vals[1] else vecs[:, 1]
 
-        # get the eigenvector corresponding to the larger eigenvalue
-        d_wp = (d.T - wp).T
-        vals, vecs = np.linalg.eigh(d_wp @ d_wp.T)
-        v = vecs[:, 0] if vals[0] > vals[1] else vecs[:, 1]
+            if np.dot(v, np.average(d, axis=1)) < 0:
+                v = -v
 
-        if np.dot(v, np.average(d, axis=1)) < 0:
-            v = -v
+            length = np.sqrt(np.max(np.einsum("ij,ij->i", d.T - wp, d.T - wp)))
+            end_point = wp + length * v
+            plt.plot([wp[0], end_point[0]], [wp[1], end_point[1]], "-", color="0.5")
 
-        length = np.sqrt(np.max(np.einsum("ij,ij->i", d.T - wp, d.T - wp)))
-        end_point = wp + length * v
-        plt.plot([wp[0], end_point[0]], [wp[1], end_point[1]], "-", color="0.5")
+            for dd, rgb in zip(d.T, srgb.from_xyz100(xyz).T):
+                if approximate_colors_in_srgb:
+                    is_legal_srgb = True
+                    rgb[rgb > 1] = 1
+                    rgb[rgb < 0] = 0
+                else:
+                    is_legal_srgb = np.all(rgb >= 0) and np.all(rgb <= 1)
+                col = srgb.to_rgb1(rgb) if is_legal_srgb else "white"
+                ecol = srgb.to_rgb1(rgb) if is_legal_srgb else "black"
+                plt.plot(dd[0], dd[1], "o", color=col, markeredgecolor=ecol)
 
-        for dd, rgb in zip(d.T, srgb.from_xyz100(xyz).T):
-            if approximate_colors_in_srgb:
-                is_legal_srgb = True
-                rgb[rgb > 1] = 1
-                rgb[rgb < 0] = 0
-            else:
-                is_legal_srgb = np.all(rgb >= 0) and np.all(rgb <= 1)
-            col = srgb.to_rgb1(rgb) if is_legal_srgb else "white"
-            ecol = srgb.to_rgb1(rgb) if is_legal_srgb else "black"
-            plt.plot(dd[0], dd[1], "o", color=col, markeredgecolor=ecol)
+        plt.xlabel(colorspace.labels[k1])
+        plt.ylabel(colorspace.labels[k2])
+        plt.axis("equal")
 
-    plt.xlabel(colorspace.labels[k1])
-    plt.ylabel(colorspace.labels[k2])
-    plt.axis("equal")
+        # plt.grid()
+        plt.grid(False)
+        ax = plt.gca()
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        plt.title(f"{self.name} hue linearity data for {colorspace.name}")
 
-    # plt.grid()
-    plt.grid(False)
-    ax = plt.gca()
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["bottom"].set_visible(False)
-    ax.spines["left"].set_visible(False)
+    def stress(self, cs):
+        """Compute the TLS residuals for each of the arms."""
+        # return _compute_straight_line_stress(cs, self.whitepoint, self.arms)
+        # def _compute_straight_line_stress(cs, wp, d):
+        # remove the row corresponding to lightness
+        idx = [True, True, True]
+        idx[cs.k0] = False
+        wp_cs = cs.from_xyz100(self.whitepoint)[idx]
+        s2 = []
+        for dd in self.arms:
+            vals = cs.from_xyz100(dd)[idx]
+            # move values such that whitepoint is in the origin
+            vals = (vals.T - wp_cs).T
+            # could also be computed explicitly
+            s_max, s_min = np.linalg.svd(vals, compute_uv=False)
+            s2.append(s_min / s_max)
+            # plt.plot(vals[0], vals[1], "x")
+            # plt.gca().set_aspect("equal")
+            # plt.show()
+        return 100 * np.array(s2)
 
 
 def _compute_ellipse_residual(cs, xyy100_centers, xyy100_points):
