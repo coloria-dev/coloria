@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ...cs import XYY
-from ..helpers import ColorDistanceDataset
+from ..helpers import ColorDistanceDataset, _plot_ellipses
 
 
 class MacAdam1942(ColorDistanceDataset):
@@ -59,7 +59,7 @@ class MacAdam1942(ColorDistanceDataset):
             p = (c + off.T).T
             xyy100_points.append(np.array([*p, np.full(p.shape[1], Y)]))
 
-        _plot_ellipses(xyy100_centers, xyy100_points, cs, ellipse_scaling)
+        _plot_ellipses(cs, xyy100_centers, xyy100_points, ellipse_scaling)
         plt.title(f"MacAdam ellipses for {cs.name}")
 
         # cs.plot_visible_slice(
