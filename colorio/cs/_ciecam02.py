@@ -88,7 +88,7 @@ def compute_to(data, description, cs):
     if description[0] == "J":
         J = data[0]
         # Q perhaps needed for C
-        Q = (4 / cs.c) * np.sqrt(J / 100) * (cs.A_w + 4) * cs.F_L ** 0.25
+        # Q = (4 / cs.c) * np.sqrt(J / 100) * (cs.A_w + 4) * cs.F_L ** 0.25
     else:
         # Step 1-1: Compute J from Q (if start from Q)
         assert description[0] == "Q"
@@ -103,10 +103,9 @@ def compute_to(data, description, cs):
         else:
             C = data[1]
 
-        # If C or M is given and equal 0, the value of `t` cannot
-        # algebraically deduced just by C or M. However, from other
-        # considerations we know that it must be 0. Hence, allow division
-        # by 0 and set nans to 0 afterwards.
+        # If C or M is given and equal 0, the value of `t` cannot algebraically deduced
+        # just by C or M. However, from other considerations we know that it must be 0.
+        # Hence, allow division by 0 and set nans to 0 afterwards.
         with np.errstate(invalid="ignore"):
             alpha = C / np.sqrt(J / 100)
         alpha = np.nan_to_num(alpha)
