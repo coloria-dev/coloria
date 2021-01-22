@@ -1,6 +1,7 @@
 import dufte
 import matplotlib.pyplot as plt
 import numpy as np
+import tikzplotlib
 
 import colorio
 
@@ -36,9 +37,11 @@ xiao = colorio.data.Xiao()
 
 labels = [cs.name for cs in color_spaces]
 data_sets = {
-    "Hung-Berns": [hung_berns.stress(cs) for cs in color_spaces],
-    "Ebner-Fairchild": [ebner_fairchild.stress(cs) for cs in color_spaces],
-    "Xiao et al.": [xiao.stress(cs) for cs in color_spaces],
+    "Hung--Berns \\cite{hung}": [hung_berns.stress(cs) for cs in color_spaces],
+    "Ebner--Fairchild \\cite{ebner}": [
+        ebner_fairchild.stress(cs) for cs in color_spaces
+    ],
+    "Xiao et al. \\cite{xiao}": [xiao.stress(cs) for cs in color_spaces],
 }
 
 plt.style.use(dufte.style)
@@ -80,14 +83,16 @@ for (label, data), p, cols in zip(data_sets.items(), pos, color_pairs):
     )
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel("$h_{STRESS}$", rotation=0)
+ax.set_title("$h_{STRESS}$")
 ax.yaxis.set_label_coords(-0.1, 1.02)
 plt.xticks(x, rotation=45, ha="right")
 ax.set_xticklabels(labels)
+plt.xlim(-0.6, len(labels) - 1 + 0.6)
 plt.ylim(0, 30)
 ax.legend()
 
 plt.gcf().tight_layout()
-plt.show()
-# import tikzplotlib
-# tikzplotlib.save("hstress.tex")
+# plt.show()
+tikzplotlib.save(
+    "hstress.tex", extra_axis_parameters=["width=\\textwidth", "height=0.5\\textwidth"]
+)

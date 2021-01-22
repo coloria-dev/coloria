@@ -64,15 +64,24 @@ class Munsell:
         plt.ylabel(cs.labels[k2])
         plt.axis("equal")
 
-    def residual_lightness(self, cs):
+    def stress_lightness(self, cs):
+        # # Each level (1-9) in Munsell is associated with a fixed Y value. Associated
+        # # them with another.
+        # d = {}
+        # d[0] = 0.0
+        # for k in range(1, 10):
+        #     idx = np.searchsorted(self.V, k)
+        #     d[k] = self.xyy100[2, idx]
+        # d[10] = 102.5
+        # # TODO 406 S. M. NEWHALL, D. NICKERSON, AND D. B. JUDD
+
+        # print(d)
+        # exit(1)
+
         # Move L0 into origin for translation invariance
         L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
         L_ = cs.from_xyz100(XYY(100).to_xyz100(self.xyy100))[cs.k0] - L0_
 
         alpha = np.dot(self.V, L_) / np.dot(self.V, self.V)
         diff = alpha * self.V - L_
-        val = np.sqrt(np.dot(diff, diff) / np.dot(L_, L_))
-        return val
-
-    def stress_lightness(self, *args):
-        return 100 * self.residual_lightness(*args)
+        return 100 * np.sqrt(np.dot(diff, diff) / np.dot(L_, L_))

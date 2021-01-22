@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..cs import SrgbLinear
+from ..cs import CIELAB, SrgbLinear
 
 
 class Dataset:
@@ -44,10 +44,21 @@ class ColorDistanceDataset(Dataset):
         ax.set_title(f"{self.name} dataset in {cs.name}")
 
     def stress(self, cs):
+        # compute Euclidean distance in colorspace cs
         cs_pairs = cs.from_xyz100(self.xyz_pairs.T).T
         cs_diff = cs_pairs[:, 1] - cs_pairs[:, 0]
-
         delta = np.sqrt(np.einsum("ij,ij->i", cs_diff, cs_diff))
+
+        alpha = np.dot(self.dist, delta) / np.dot(self.dist, self.dist)
+        diff = alpha * self.dist - delta
+        return 100 * np.sqrt(np.dot(diff, diff) / np.dot(delta, delta))
+
+    def stress_lab_diff(self, fun):
+        """Same a stress(), but you can provide a color difference function that
+        receives two LAB values and returns their scalar distance.
+        """
+        lab_pairs = CIELAB().from_xyz100(self.xyz_pairs.T)
+        delta = fun(lab_pairs[:, 0], lab_pairs[:, 1])
 
         alpha = np.dot(self.dist, delta) / np.dot(self.dist, self.dist)
         diff = alpha * self.dist - delta

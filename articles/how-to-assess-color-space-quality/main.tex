@@ -36,6 +36,7 @@
 % <https://tex.stackexchange.com/a/43009/13262>
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}%
 \DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\DeclareMathOperator{\avg}{avg}
 
 \usepackage[T1]{fontenc}
 \usepackage{newtxtext}
@@ -71,6 +72,7 @@
 
 % \usepackage{amsfonts}
 \usepackage{bm}
+\newcommand\rr{\ensuremath{\bm{r}}}
 \newcommand\R{\ensuremath{\mathbb{R}}}
 \newcommand\xt{\ensuremath{\bm{\tilde{x}}}}
 \newcommand\yt{\ensuremath{\bm{\tilde{y}}}}
@@ -114,6 +116,57 @@ TODO desirable properties of cost functionals:
   \item are rotation invariant
   \item are translation invariant
 \end{itemize}
+
+
+\section{Average, root mean square, and how to combine results}
+
+In several stages of the assessment or optimization process, we will have to combine
+several positive result values (e.g., residuals from different data sets) into one.
+There are multiple meaningful ways of doing so. The most common are certainly the
+\emph{average} and the \emph{root mean square} of different results
+$\rr = \{r_i\}_{i=1}^n$,
+\[
+  \avg_1(\rr) = \frac{1}{n}\sum_{i=1}^n |r_i|,\quad
+  \avg_2(\rr) = \sqrt{\frac{1}{n}\sum_{i=1}^n |r_i|^2}.
+\]
+This is readily generalized to the $p$-average
+\[
+  \avg_p(\rr) \coloneqq \left(\frac{1}{n}\sum_{i=1}^n |r_i|^p\right)^{1/p} =
+  \frac{1}{n^{1/p}} \|\rr\|_p
+\]
+with any given $0 < p < \infty$. In the limits $p\to 0+$ and $p\to +\infty$, this
+becomes the \emph{geometric mean} and the \emph{maximum}
+\[
+  \avg_0(\rr) \coloneqq \left(\prod_{i=1}^n |r_i|\right)^{1/n}, \quad
+  \avg_{\infty}(\rr) \coloneqq \max_{i\in\{1,\dots,n\}} |r_i|.
+\]
+Note that, for every $\rr$, $\avg_p(\rr)$ as a function in $p$ is smooth and monotonic
+increasing
+\[
+  \avg_0(\rr) \le \avg_p(\rr) \le \avg_q(\rr) \le \avg_{\infty}(\rr) \quad (p\le q).
+\]
+(Compare figure \ref{fig:1}.)
+Hence, the larger $p$, the closer $\avg_p(\rr)$ will be to $\max(|\rr|)$.
+This makes a larger $p$ suitable, for example, for an optimization process that tries to
+minimize the maximum STRESS (see section~\ref{}).
+
+Choosing $p < 1$, on the other hand, puts more emphasis on the smaller values in $\rr$.
+Note that, in particular, $\avg_0(\rr)=0$ if only one $r_i=0$. One almost never wants
+this in the context of experimental validation or optimzation.
+
+\begin{figure}
+  \centering
+  \input{averages.tex}
+  \caption{$p$-averages for the three sequences of length $n=20$, $s_\text{equal} = \{1,
+  \dots, 1\}$, $s_\text{uniform} = \{0, h, \dots,
+  1\}$ (with $h = 1 / (n-1)$), and $s_\text{outlier} = \{1, 0,\dots, 0\}$. Note how the
+  $\avg_p$ are monotonic increasing and smooth. For large $p$ (not shown), all curves
+  approach the maximum value in the set, $1$.}
+  \label{fig:1}
+\end{figure}
+
+
+\section{Residuals and STRESS}
 
 % There are numerous experiments~\cite{ebner,xiao,hung,macadam,macadam,luo} which try to
 % gauge perceptual distances between colors or to determine which colors of different
@@ -288,6 +341,13 @@ called the STRESS (STandardized REsidual Sum of Squares) metric for target dista
   spaces perform well for all data sets.}
 \end{figure}
 
+\begin{figure}
+  \centering
+  \input{pstress-diff.tex}
+  \caption{$p_\text{STRESS}$ for a number of color diffence formulae.
+  Note that CIE76 is really just the Euclidean distance in CIELAB.}
+\end{figure}
+
 A common special case of this setting is distance data given in terms of ellipse points,
 i.e., a color center with a number of standard deviations (or similar) in various
 directions. The famous MacAdam ellipses (\cite{macadam1942}) are derived from such data.
@@ -307,29 +367,6 @@ over all $\delta_i$ and we have
 In case only the actual ellipses are given (e.g., \cite{luorigg}), one can place a
 number of points onto their boundaries (e.g., 8 or 16) and compute the residual with
 from them.
-
-\begin{table}
-  \centering
-  \begin{tabular}{lrr}
-    \toprule
-    & MacAdam & Luo-Rigg(8) \cite{luorigg}\\
-    \midrule
-CAM02 (UCS)   & \textbf{27.2} &         30.1\\
-CAM16 (UCS)   &         29.0  & \textbf{28.4}\\
-CIELAB        &         57.3  &         48.5\\
-CIELUV        &         36.5  &         45.3\\
-IPT           &         38.5  &         47.5\\
-$IC_TC_P$     &         75.9  &         61.2\\
-$J_z a_z b_z$ &         40.7  &         40.3\\
-Oklab         &         37.7  &         39.1\\
-OSA-UCS       &         63.6  &         42.2\\
-RLAB          &         46.6  &         46.6\\
-xyY           &         53.8  &         44.0\\
-    \bottomrule
-  \end{tabular}
-  \caption{$e_\text{STRESS}$ for a number of color spaces. CAM02 and its close relative
-  CAM16 far outperform the other color spaces, particularly for the Luo-Rigg data set.}
-\end{table}
 
 \subsection{Cost functional for hue linearity}
 
@@ -412,7 +449,7 @@ if $\xt$ and $\yt$ are linearly dependent, i.e., if the points $(x_i, y_i)$ sit 
 straight line through the origin.
 
 Since $0\le l_2\le 1$, the value can be given in terms of STRESS,
-\begin{equation}\label{eq:lstress}
+\begin{equation}\label{eq:hstress}
   l_\text{STRESS} = 100 \frac{\sigma_{\min}(A)}{\sigma_{\max}(A)}.
 \end{equation}
 
@@ -451,10 +488,12 @@ l_p
 
 \begin{figure}
   \centering
-  \input{lstress.tex}
-  \caption{$l_\text{STRESS}$ averaged over all arms of each data set.  While all listed
-  color spaces perform quite well, OSA-UCS is the overall best color space for hue
-  linearity.}
+  \input{hstress.tex}
+  \caption{$h_\text{STRESS}$ for different data sets. The bar represents the average
+  $h_\text{STRESS}$ over all arms in the data set and the thin lines the minimum and
+  maximum values.
+  The largest maxima are CIELAB's and CAM16's famous nonlinearities for blue.
+  Oklab has the smallest maximum STRESS for all data sets.}
 \end{figure}
 
 \subsection{Cost functional for lightness data}
