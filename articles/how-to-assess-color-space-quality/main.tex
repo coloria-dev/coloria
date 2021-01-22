@@ -36,6 +36,7 @@
 % <https://tex.stackexchange.com/a/43009/13262>
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}%
 \DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\DeclareMathOperator{\avg}{avg}
 
 \usepackage[T1]{fontenc}
 \usepackage{newtxtext}
@@ -71,6 +72,7 @@
 
 % \usepackage{amsfonts}
 \usepackage{bm}
+\newcommand\rr{\ensuremath{\bm{r}}}
 \newcommand\R{\ensuremath{\mathbb{R}}}
 \newcommand\xt{\ensuremath{\bm{\tilde{x}}}}
 \newcommand\yt{\ensuremath{\bm{\tilde{y}}}}
@@ -114,6 +116,72 @@ TODO desirable properties of cost functionals:
   \item are rotation invariant
   \item are translation invariant
 \end{itemize}
+
+
+\section{Average, root mean square, and how to combine results}
+
+In several stages of the assessment or optimization process, we will have to combine
+several positive result values (e.g., residuals from different data sets) into one.
+There are multiple meaningful ways of doing so. The most common are certainly the
+\emph{average} and the \emph{root mean square} of different results
+$\rr = \{r_i\}_{i=1}^n$,
+\[
+  \avg_1(\rr) = \frac{1}{n}\sum_{i=1}^n |r_i|,\quad
+  \avg_2(\rr) = \sqrt{\frac{1}{n}\sum_{i=1}^n |r_i|^2}.
+\]
+This is readily generalized to the $p$-average
+\[
+  \avg_p(\rr) \coloneqq \left(\frac{1}{n}\sum_{i=1}^n |r_i|^p\right)^{1/p} =
+  \frac{1}{n^{1/p}} \|\rr\|_p
+\]
+with any given $0 < p < \infty$. In the limits $p\to 0+$ and $p\to +\infty$, this
+becomes the \emph{geometric mean} and the \emph{maximum}
+\[
+  \avg_0(\rr) \coloneqq \left(\prod_{i=1}^n |r_i|\right)^{1/n}, \quad
+  \avg_{\infty}(\rr) \coloneqq \max_{i\in\{1,\dots,n\}} |r_i|.
+\]
+Note that, for every $\rr$, $\avg_p(\rr)$ as a function in $p$ is smooth and monotonic
+increasing
+\[
+  \avg_0(\rr) \le \avg_p(\rr) \le \avg_q(\rr) \le \avg_{\infty}(\rr) \quad (p\le q).
+\]
+(Compare figure \ref{fig:1}.)
+Hence, the larger $p$, the closer $\avg_p(\rr)$ will be to $\max(|\rr|)$.
+This makes a larger $p$ suitable, for example, for an optimization process that tries to
+minimize the maximum STRESS (see section~\ref{}).
+
+
+\begin{figure}
+  \centering
+  \input{norms.tex}
+  \caption{$p$-averages for the three sequences of length $n=20$, $s_\text{outlier} =
+  \{1, 0,\dots, 0\}$, $s_\text{uniform} = \{0, h, \dots, 1\}$ (with $h = 1 / (n-1)$),
+  and $s_\text{equal} = \{1, \dots, 1\}$.}
+  \label{fig:1}
+\end{figure}
+
+% Each of the $\avg_p$ forms some sort of ``mean value''. Indeed, for $\rr=\{a,\dots,a\}$
+% constant, $\avg_p(r) = |a|$ for all $p$.
+%
+% Which one should you choose? To answer this
+% question, first note that $\avg_p(\rr) \le \avg_q(\rr)$ iff $p \le q$ for all $r$, so all
+% $p$-averages are bound from below by the geometric mean and from above by the maximum.
+%
+% Consider the three sets of length $n$
+% \[
+%   \begin{split}
+%     s_\text{outlier} &= \{1, 0,\dots, 0\},\\
+%     s_\text{uniform} &= \{0, h, \dots, 1\} \text{ with } h = 1 / (n-1)\\
+%     s_\text{equal} &= \{1, 1, \dots, 1\}.
+%   \end{split}
+% \]
+% Clearly $\avg_p(s_\text{equal}) = 1$ for all $p$. Also $\avg_p(s_\text{outlier}) =
+% n^{-1/p}$.
+% \[
+%   \avg_p(s_\text{uniform}) =
+% \]
+
+
 
 % There are numerous experiments~\cite{ebner,xiao,hung,macadam,macadam,luo} which try to
 % gauge perceptual distances between colors or to determine which colors of different
