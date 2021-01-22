@@ -150,13 +150,18 @@ Hence, the larger $p$, the closer $\avg_p(\rr)$ will be to $\max(|\rr|)$.
 This makes a larger $p$ suitable, for example, for an optimization process that tries to
 minimize the maximum STRESS (see section~\ref{}).
 
+Choosing $p < 1$, on the other hand, puts more emphasis on the smaller values in $\rr$.
+Note that, in particular, $\avg_0(\rr)=0$ if only one $r_i=0$. One almost never wants
+this in the context of experimental validation or optimzation.
 
 \begin{figure}
   \centering
-  \input{norms.tex}
-  \caption{$p$-averages for the three sequences of length $n=20$, $s_\text{outlier} =
-  \{1, 0,\dots, 0\}$, $s_\text{uniform} = \{0, h, \dots, 1\}$ (with $h = 1 / (n-1)$),
-  and $s_\text{equal} = \{1, \dots, 1\}$.}
+  \input{averages.tex}
+  \caption{$p$-averages for the three sequences of length $n=20$, $s_\text{equal} = \{1,
+  \dots, 1\}$, $s_\text{uniform} = \{0, h, \dots,
+  1\}$ (with $h = 1 / (n-1)$), and $s_\text{outlier} = \{1, 0,\dots, 0\}$. Note how the
+  $\avg_p$ are monotonic increasing and smooth. For large $p$ (not shown), all curves
+  approach the maximum value in the set, $1$.}
   \label{fig:1}
 \end{figure}
 
