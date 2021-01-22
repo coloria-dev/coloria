@@ -58,14 +58,15 @@ def test_optimize(maxiter=1):
 
     def fun(x):
         cs = TestLab(x)
+        variant = "c"
         d = np.array(
             [
-                [1.0, bfd_p.stress_relative(cs)],
-                [1.0, leeds.stress_relative(cs)],
-                # [1.0, macadam_1942.stress(cs)],
-                [1.0, macadam_1974.stress_relative(cs)],
-                [1.0, rit_dupont.stress_relative(cs)],
-                [1.0, witt.stress_relative(cs)],
+                [1.0, bfd_p.stress(cs, variant)],
+                [1.0, leeds.stress(cs, variant)],
+                # [1.0, macadam_1942.stress(cs, variant)],
+                [1.0, macadam_1974.stress(cs, variant)],
+                [1.0, rit_dupont.stress(cs, variant)],
+                [1.0, witt.stress(cs, variant)],
                 #
                 [1.0, average(ebner_fairchild.stress(cs), 2.0)],
                 [1.0, average(hung_berns.stress(cs), 2.0)],
@@ -149,41 +150,25 @@ def test_optimize(maxiter=1):
 
     print()
     print("final residuals:")
-    print(
-        "BFD-P......... {:.3f} {:.3f}".format(
-            bfd_p.stress(cs), bfd_p.stress_relative(cs)
-        )
-    )
-    print(
-        "Leeds......... {:.3f} {:.3f}".format(
-            leeds.stress(cs), leeds.stress_relative(cs)
-        )
-    )
-    print(
-        "MacAdam 1942.. {:.3f} {:.3f}".format(
-            macadam_1942.stress(cs), macadam_1942.stress_relative(cs)
-        )
-    )
-    print(
-        "MacAdam 1974.. {:.3f} {:.3f}".format(
-            macadam_1974.stress(cs), macadam_1974.stress_relative(cs)
-        )
-    )
-    print(
-        "RIT-DuPont.... {:.3f} {:.3f}".format(
-            rit_dupont.stress(cs), rit_dupont.stress_relative(cs)
-        )
-    )
-    print(
-        "Witt.......... {:.3f} {:.3f}".format(witt.stress(cs), witt.stress_relative(cs))
-    )
+    d = {
+        "  BFD-P............": bfd_p,
+        "  Leeds............": leeds,
+        "  MacAdam 1942.....": macadam_1942,
+        "  MacAdam 1974.....": macadam_1974,
+        "  RIT-DuPont.......": rit_dupont,
+        "  Witt.............": witt,
+    }
+    for name, module in d.items():
+        vals = [module.stress(cs, variant) for variant in ["a", "b", "c"]]
+        string = name + " {:.3f}  {:.3f}  {:.3f}"
+        print(string.format(*vals))
     print()
-    print("Hung-Berns......", average(hung_berns.stress(cs), 1.0))
-    print("EbnerFairchild..", average(ebner_fairchild.stress(cs), 1.0))
-    print("Xiao............", average(xiao.stress(cs), 1.0))
+    print("  Hung-Berns....... {:.3f}".format(average(hung_berns.stress(cs), 1.0)))
+    print("  Ebner-Fairchild.. {:.3f}".format(average(ebner_fairchild.stress(cs), 1.0)))
+    print("  Xiao............. {:.3f}".format(average(xiao.stress(cs), 1.0)))
     print()
-    print("Munsell.........", munsell.stress_lightness(cs))
-    print("FairchildChen...", fairchild_chen.stress(cs))
+    print("  Munsell.......... {:.3f}".format(munsell.stress_lightness(cs)))
+    print("  Fairchild-Chen... {:.3f}".format(fairchild_chen.stress(cs)))
 
     cs.show_primary_srgb_gradients()
     macadam_1942.show(cs)
