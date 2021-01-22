@@ -12,7 +12,7 @@ def dot(a, b):
     return np.dot(a, b.reshape(b.shape[0], -1)).reshape(a.shape[:-1] + b.shape[1:])
 
 
-class TestLab:
+class TestLab(colorio.cs.ColorSpace):
     def __init__(self, x):
         self.p = x[0]
         self.M1 = x[1:10].reshape(3, 3)
@@ -23,6 +23,11 @@ class TestLab:
 
     def from_xyz100(self, xyz):
         return dot(self.M2, dot(self.M1, xyz) ** self.p)
+
+    def to_xyz100(self, xyz):
+        self.M1inv = np.linalg.inv(self.M1)
+        self.M2inv = np.linalg.inv(self.M2)
+        return dot(self.M1inv, dot(self.M2inv, xyz) ** (1.0 / self.p))
 
 
 def test_optimize(maxiter=1):
@@ -41,23 +46,37 @@ def test_optimize(maxiter=1):
     munsell = colorio.data.Munsell()
     fairchild_chen = colorio.data.FairchildChen("SL2")
 
+    def average(a, p):
+        n = len(a)
+        if p == 0:
+            return np.prod(np.abs(a)) ** (1 / n)
+        elif p == np.infty:
+            return np.max(np.abs(a))
+        return np.linalg.norm(a, p) / n ** (1 / p)
+
     def fun(x):
         cs = TestLab(x)
-        res = (
-            2.0 * bfd_p.stress(cs)
-            + 2.0 * leeds.stress(cs)
-            # + 2.0 * macadam_1942.stress(cs)
-            + 2.0 * macadam_1974.stress(cs)
-            + 4.0 * rit_dupont.stress(cs)
-            + 2.0 * witt.stress(cs)
-            #
-            + np.average(ebner_fairchild.stress(cs))
-            + np.average(hung_berns.stress(cs))
-            + np.average(xiao.stress(cs))
-            #
-            + munsell.stress_lightness(cs)
-            + fairchild_chen.stress(cs)
+        d = np.array(
+            [
+                [1.0, bfd_p.stress(cs)],
+                [1.0, leeds.stress(cs)],
+                # [1.0, macadam_1942.stress(cs)],
+                [1.0, macadam_1974.stress(cs)],
+                [1.0, rit_dupont.stress(cs)],
+                [1.0, witt.stress(cs)],
+                #
+                [0.1, average(ebner_fairchild.stress(cs), 3.0)],
+                [0.4, average(hung_berns.stress(cs), np.infty)],
+                [0.1, average(xiao.stress(cs), 3.0)],
+                #
+                [1.0, munsell.stress_lightness(cs)],
+                [1.0, fairchild_chen.stress(cs)],
+            ]
         )
+        # make sure the weights add up to one
+        d[:, 0] /= np.sum(d[:, 0])
+
+        res = average(d[:, 0] * d[:, 1], 1.0)
         if np.isnan(res):
             res = 1.0e10
         # print(res)
@@ -96,7 +115,7 @@ def test_optimize(maxiter=1):
     # print(fun(x0))
 
     # global search
-    out = dual_annealing(fun, np.column_stack([np.full(19, -2.0), np.full(19, +2.0)]))
+    out = dual_annealing(fun, np.column_stack([np.full(19, -3.0), np.full(19, +3.0)]))
     print("intermediate residual:")
     print(fun(out.x))
     # refine with bfgs
@@ -131,13 +150,14 @@ def test_optimize(maxiter=1):
     print("RIT-DuPont....", rit_dupont.stress(cs))
     print("Witt..........", witt.stress(cs))
     print()
-    print("Hung-Berns......", np.average(hung_berns.stress(cs)))
-    print("EbnerFairchild..", np.average(ebner_fairchild.stress(cs)))
-    print("Xiao............", np.average(xiao.stress(cs)))
+    print("Hung-Berns......", average(hung_berns.stress(cs), 1.0))
+    print("EbnerFairchild..", average(ebner_fairchild.stress(cs), 1.0))
+    print("Xiao............", average(xiao.stress(cs), 1.0))
     print()
     print("Munsell.........", munsell.stress_lightness(cs))
     print("FairchildChen...", fairchild_chen.stress(cs))
 
+    cs.show_primary_srgb_gradients()
     macadam_1942.show(cs)
     macadam_1974.show(cs)
     hung_berns.show(cs)
