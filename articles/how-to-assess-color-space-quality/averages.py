@@ -1,6 +1,6 @@
-import numpy as np
 import dufte
 import matplotlib.pyplot as plt
+import numpy as np
 import tikzplotlib
 
 plt.style.use(dufte.style)
@@ -47,5 +47,5 @@ plt.ylim(0.0, 1.1)
 plt.legend()
 # plt.show()
 tikzplotlib.save(
-   "norms.tex", extra_axis_parameters=["width=\\textwidth", "height=0.4\\textwidth"]
-   )
+    "norms.tex", extra_axis_parameters=["width=\\textwidth", "height=0.4\\textwidth"]
+)

@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 from scipy.optimize import dual_annealing, minimize
 
 import colorio
@@ -30,6 +31,7 @@ class TestLab(colorio.cs.ColorSpace):
         return dot(self.M1inv, dot(self.M2inv, xyz) ** (1.0 / self.p))
 
 
+@pytest.mark.skip
 def test_optimize(maxiter=1):
     # luo_rigg = colorio.data.LuoRigg(8)
     bfd_p = colorio.data.BfdP()
@@ -115,7 +117,11 @@ def test_optimize(maxiter=1):
     # print(fun(x0))
 
     # global search
-    out = dual_annealing(fun, np.column_stack([np.full(19, -3.0), np.full(19, +3.0)]))
+    out = dual_annealing(
+        fun,
+        np.column_stack([np.full(19, -3.0), np.full(19, +3.0)]),
+        # maxiter=maxiter
+    )
     print("intermediate residual:")
     print(fun(out.x))
     # refine with bfgs
@@ -167,4 +173,4 @@ def test_optimize(maxiter=1):
 
 
 if __name__ == "__main__":
-    test_optimize(maxiter=10000)
+    test_optimize(maxiter=100000)

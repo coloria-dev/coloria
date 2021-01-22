@@ -1,6 +1,7 @@
 import dufte
 import matplotlib.pyplot as plt
 import numpy as np
+import tikzplotlib
 
 import colorio
 
@@ -92,8 +93,6 @@ ax.legend()
 
 plt.gcf().tight_layout()
 # plt.show()
-import tikzplotlib
-
 tikzplotlib.save(
     "hstress.tex", extra_axis_parameters=["width=\\textwidth", "height=0.5\\textwidth"]
 )
