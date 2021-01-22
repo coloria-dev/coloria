@@ -60,16 +60,16 @@ def test_optimize(maxiter=1):
         cs = TestLab(x)
         d = np.array(
             [
-                [1.0, bfd_p.stress(cs)],
-                [1.0, leeds.stress(cs)],
+                [1.0, bfd_p.stress_relative(cs)],
+                [1.0, leeds.stress_relative(cs)],
                 # [1.0, macadam_1942.stress(cs)],
-                [1.0, macadam_1974.stress(cs)],
-                [1.0, rit_dupont.stress(cs)],
-                [1.0, witt.stress(cs)],
+                [1.0, macadam_1974.stress_relative(cs)],
+                [1.0, rit_dupont.stress_relative(cs)],
+                [1.0, witt.stress_relative(cs)],
                 #
-                [0.1, average(ebner_fairchild.stress(cs), 3.0)],
-                [0.4, average(hung_berns.stress(cs), np.infty)],
-                [0.1, average(xiao.stress(cs), 3.0)],
+                [1.0, average(ebner_fairchild.stress(cs), 2.0)],
+                [1.0, average(hung_berns.stress(cs), 2.0)],
+                [1.0, average(xiao.stress(cs), 2.0)],
                 #
                 [1.0, munsell.stress_lightness(cs)],
                 [1.0, fairchild_chen.stress(cs)],
@@ -119,7 +119,7 @@ def test_optimize(maxiter=1):
     # global search
     out = dual_annealing(
         fun,
-        np.column_stack([np.full(19, -3.0), np.full(19, +3.0)]),
+        np.column_stack([np.full(19, -5.0), np.full(19, +5.0)]),
         # maxiter=maxiter
     )
     print("intermediate residual:")
@@ -149,12 +149,34 @@ def test_optimize(maxiter=1):
 
     print()
     print("final residuals:")
-    print("BFD-P.........", bfd_p.stress(cs))
-    print("Leeds.........", leeds.stress(cs))
-    print("MacAdam 1942..", macadam_1942.stress(cs))
-    print("MacAdam 1974..", macadam_1974.stress(cs))
-    print("RIT-DuPont....", rit_dupont.stress(cs))
-    print("Witt..........", witt.stress(cs))
+    print(
+        "BFD-P......... {:.3f} {:.3f}".format(
+            bfd_p.stress(cs), bfd_p.stress_relative(cs)
+        )
+    )
+    print(
+        "Leeds......... {:.3f} {:.3f}".format(
+            leeds.stress(cs), leeds.stress_relative(cs)
+        )
+    )
+    print(
+        "MacAdam 1942.. {:.3f} {:.3f}".format(
+            macadam_1942.stress(cs), macadam_1942.stress_relative(cs)
+        )
+    )
+    print(
+        "MacAdam 1974.. {:.3f} {:.3f}".format(
+            macadam_1974.stress(cs), macadam_1974.stress_relative(cs)
+        )
+    )
+    print(
+        "RIT-DuPont.... {:.3f} {:.3f}".format(
+            rit_dupont.stress(cs), rit_dupont.stress_relative(cs)
+        )
+    )
+    print(
+        "Witt.......... {:.3f} {:.3f}".format(witt.stress(cs), witt.stress_relative(cs))
+    )
     print()
     print("Hung-Berns......", average(hung_berns.stress(cs), 1.0))
     print("EbnerFairchild..", average(ebner_fairchild.stress(cs), 1.0))
