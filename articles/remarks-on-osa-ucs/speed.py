@@ -1,7 +1,7 @@
-import colorio
-import perfplot
 import numpy as np
+import perfplot
 
+import colorio
 
 np.random.seed(1)
 osa = colorio.cs.OsaUcs()

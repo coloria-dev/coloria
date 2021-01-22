@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.optimize import minimize, dual_annealing
+from scipy.optimize import dual_annealing, minimize
 
 import colorio
 
@@ -96,10 +96,7 @@ def test_optimize(maxiter=1):
     # print(fun(x0))
 
     # global search
-    out = dual_annealing(
-        fun,
-        np.column_stack([np.full(19, -2.0),np.full(19, +2.0)])
-    )
+    out = dual_annealing(fun, np.column_stack([np.full(19, -2.0), np.full(19, +2.0)]))
     print("intermediate residual:")
     print(fun(out.x))
     # refine with bfgs

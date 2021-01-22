@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..cs import SrgbLinear, CIELAB
+from ..cs import CIELAB, SrgbLinear
 
 
 class Dataset:

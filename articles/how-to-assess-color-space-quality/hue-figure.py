@@ -37,7 +37,9 @@ xiao = colorio.data.Xiao()
 labels = [cs.name for cs in color_spaces]
 data_sets = {
     "Hung--Berns \\cite{hung}": [hung_berns.stress(cs) for cs in color_spaces],
-    "Ebner--Fairchild \\cite{ebner}": [ebner_fairchild.stress(cs) for cs in color_spaces],
+    "Ebner--Fairchild \\cite{ebner}": [
+        ebner_fairchild.stress(cs) for cs in color_spaces
+    ],
     "Xiao et al. \\cite{xiao}": [xiao.stress(cs) for cs in color_spaces],
 }
 

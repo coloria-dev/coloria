@@ -16,19 +16,14 @@ class PROLAB(ColorSpace):
         #  Q = ( Q 0 )
         #      ( q 1 )
         #
-
-        # full-precision Q from
-        # https://github.com/konovalenko-iitp/proLab/blob/main/matlab/proLab_param.m
-        self.Q = 100 * np.array(
+        self.Q = np.array(
             [
-                [0.755362206159585, 4.866609636500914, 1.673869831378788],
-                [6.177140886995143, -5.954477384591136, -0.222663502404010],
-                [0.483432883468812, 1.949376826435850, -2.432809709904663],
+                [75.54, 486.66, 167.39],
+                [617.72, -595.45, -22.27],
+                [48.34, 194.94, -243.28],
             ]
         )
-        self.q = 100 * np.array(
-            [0.007553621984060, 0.038666096468163, 0.016738698288170]
-        )
+        self.q = np.array([0.7554, 3.8666, 1.6739])
         self.Qinv = np.linalg.inv(self.Q)
         self.wp = whitepoint
 
