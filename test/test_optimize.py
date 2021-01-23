@@ -15,9 +15,10 @@ def dot(a, b):
 
 class TestLab(colorio.cs.ColorSpace):
     def __init__(self, x):
-        self.p = x[0]
-        self.M1 = x[1:10].reshape(3, 3)
-        self.M2 = x[10:19].reshape(3, 3)
+        # self.p = x[0]
+        self.p = 1.0 / 3.0
+        self.M1 = x[0:9].reshape(3, 3)
+        self.M2 = x[9:18].reshape(3, 3)
         self.k0 = 0
         self.labels = ["L", "a", "b"]
         self.name = "TestLab"
@@ -58,7 +59,12 @@ def test_optimize(maxiter=1):
 
     def fun(x):
         cs = TestLab(x)
-        variant = "c"
+        # A typical hazard in this optimization is the collapse of the color space into
+        # two dimensions (one lightness). This satisfies the hue linearity functionals
+        # since all points are in one line then. The variant-a stress does not provide
+        # enough counterweight. A brute-force remedy is to use small weights for the
+        # hue-linearity functionals.
+        variant = "a"
         d = np.array(
             [
                 [1.0, bfd_p.stress(cs, variant)],
@@ -68,9 +74,9 @@ def test_optimize(maxiter=1):
                 [1.0, rit_dupont.stress(cs, variant)],
                 [1.0, witt.stress(cs, variant)],
                 #
-                [1.0, average(ebner_fairchild.stress(cs), 2.0)],
-                [1.0, average(hung_berns.stress(cs), 2.0)],
-                [1.0, average(xiao.stress(cs), 2.0)],
+                [0.1, average(ebner_fairchild.stress(cs), 2.0)],
+                [0.1, average(hung_berns.stress(cs), 2.0)],
+                [0.1, average(xiao.stress(cs), 2.0)],
                 #
                 [1.0, munsell.stress_lightness(cs)],
                 [1.0, fairchild_chen.stress(cs)],
@@ -85,13 +91,8 @@ def test_optimize(maxiter=1):
         # print(res)
         return res
 
-    # np.random.seed(1)
-    # x0 = np.random.rand(19)
-
     # x0 = np.array(
     #     [
-    #         1.0 / 3.0,
-    #         #
     #         0.8189330101, 0.3618667424, -0.1288597137,
     #         0.0329845436, 0.9293118715, 0.0361456387,
     #         0.0482003018, 0.2643662691, 0.6338517070,
@@ -101,28 +102,12 @@ def test_optimize(maxiter=1):
     #         +0.0259040371, +0.7827717662, -0.8086757660,
     #     ]
     # )
-    # x0 = np.array(
-    #     [
-    #         1.0,
-    #         #
-    #         1.0, 0.0, 0.0,
-    #         0.0, 1.0, 0.0,
-    #         0.0, 0.0, 1.0,
-    #         #
-    #         1.0, 0.0, 0.0,
-    #         0.0, 1.0, 0.0,
-    #         0.0, 0.0, 1.0,
-    #     ]
-    # )
-
-    # print(fun(x0))
 
     # global search
-    out = dual_annealing(
-        fun,
-        np.column_stack([np.full(19, -5.0), np.full(19, +5.0)]),
-        # maxiter=maxiter
-    )
+    bounds = np.empty((18, 2))
+    bounds[:, 0] = -3.0
+    bounds[:, 1] = 3.0
+    out = dual_annealing(fun, bounds)
     print("intermediate residual:")
     print(fun(out.x))
     # refine with bfgs
@@ -144,9 +129,9 @@ def test_optimize(maxiter=1):
 
     print()
     print("final values:")
-    print(out.x[0])
-    print(out.x[1:10].reshape(3, 3))
-    print(out.x[10:19].reshape(3, 3))
+    # print(out.x[0])
+    print(out.x[0:9].reshape(3, 3))
+    print(out.x[9:18].reshape(3, 3))
 
     print()
     print("final residuals:")
@@ -163,9 +148,15 @@ def test_optimize(maxiter=1):
         string = name + " {:.3f}  {:.3f}  {:.3f}"
         print(string.format(*vals))
     print()
-    print("  Hung-Berns....... {:.3f}".format(average(hung_berns.stress(cs), 1.0)))
-    print("  Ebner-Fairchild.. {:.3f}".format(average(ebner_fairchild.stress(cs), 1.0)))
-    print("  Xiao............. {:.3f}".format(average(xiao.stress(cs), 1.0)))
+    d = {
+        "Hung-Berns.......": hung_berns,
+        "Ebner-Fairchild..": ebner_fairchild,
+        "Xiao.............": xiao,
+    }
+    for name, module in d.items():
+        stress = module.stress(cs)
+        vals = [average(stress, p) for p in [1.0, 2.0, np.infty]]
+        print("  " + name + " {:.3f}  {:.3f}  {:.3f}".format(*vals))
     print()
     print("  Munsell.......... {:.3f}".format(munsell.stress_lightness(cs)))
     print("  Fairchild-Chen... {:.3f}".format(fairchild_chen.stress(cs)))
