@@ -25,8 +25,9 @@ class OKLAB(ColorSpace):
         )
         self.M2inv = np.linalg.inv(self.M2)
 
-    def from_xyz100(self, xyz):
+    def from_xyz100(self, xyz100):
+        xyz = np.asarray(xyz100) / 100
         return dot(self.M2, np.cbrt(dot(self.M1, xyz)))
 
     def to_xyz100(self, lab):
-        return dot(self.M1inv, dot(self.M2inv, lab) ** 3)
+        return dot(self.M1inv, dot(self.M2inv, lab) ** 3) * 100

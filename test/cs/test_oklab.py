@@ -7,15 +7,20 @@ import colorio
 @pytest.mark.parametrize(
     "xyz100,ref",
     [
-        ([10, 20, 30], [2.6182234, -0.80594911, -0.1744219]),
-        ([80, 90, 10], [4.46477722, -0.20482869, 0.96314782]),
-        ([0.5, 0.6, 0.4], [0.83699281, -0.04863374, 0.06420135]),
         (
-            colorio.illuminants.whitepoints_cie1931["D65"],
-            [4.64158795e00, -4.68417772e-05, -3.99681552e-04],
+            [10.0, 20.0, 30.0],
+            [0.5640791324061505, -0.17363647246705063, -0.03757807340002353],
         ),
         (
-            colorio.illuminants.whitepoints_cie1931["D65"] / 100,
+            [80.0, 90.0, 10.0],
+            [0.9619070925241717, -0.04412900436798305, 0.2075039070964543],
+        ),
+        (
+            [0.5, 0.6, 0.4],
+            [0.1803246353234263, -0.010477821543242925, 0.013831761402855879],
+        ),
+        (
+            colorio.illuminants.whitepoints_cie1931["D65"],
             [1.0, 0.0, 0.0],
         ),
     ],
@@ -23,10 +28,12 @@ import colorio
 def test_reference_xyz(xyz100, ref):
     cs = colorio.cs.OKLAB()
     xyz100 = np.asarray(xyz100)
-    assert np.all(np.abs(cs.from_xyz100(xyz100) - ref) < 1.0e-4 * np.abs(ref) + 1.0e-4)
+    val = cs.from_xyz100(xyz100)
+    print(ref)
+    print(val.tolist())
+    assert np.all(np.abs(val - ref) < 1.0e-4 * np.abs(ref) + 1.0e-4)
 
 
 if __name__ == "__main__":
     cs = colorio.cs.OKLAB()
     # cs.save_srgb_gamut("oklab.vtk", n=50)
-    cs.show_ebner_fairchild()
