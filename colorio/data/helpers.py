@@ -43,26 +43,40 @@ class ColorDistanceDataset(Dataset):
         ax.set_zlabel(labels[2])
         ax.set_title(f"{self.name} dataset in {cs.name}")
 
-    def stress(self, cs):
+    def stress(self, cs, variant="a"):
         # compute Euclidean distance in colorspace cs
         cs_pairs = cs.from_xyz100(self.xyz_pairs.T).T
         cs_diff = cs_pairs[:, 1] - cs_pairs[:, 0]
         delta = np.sqrt(np.einsum("ij,ij->i", cs_diff, cs_diff))
+        return self._stress(delta, variant)
 
-        alpha = np.dot(self.dist, delta) / np.dot(self.dist, self.dist)
-        diff = alpha * self.dist - delta
-        return 100 * np.sqrt(np.dot(diff, diff) / np.dot(delta, delta))
-
-    def stress_lab_diff(self, fun):
+    def stress_lab_diff(self, fun, variant="a"):
         """Same a stress(), but you can provide a color difference function that
         receives two LAB values and returns their scalar distance.
         """
         lab_pairs = CIELAB().from_xyz100(self.xyz_pairs.T)
         delta = fun(lab_pairs[:, 0], lab_pairs[:, 1])
+        return self._stress(delta, variant)
 
-        alpha = np.dot(self.dist, delta) / np.dot(self.dist, self.dist)
-        diff = alpha * self.dist - delta
-        return 100 * np.sqrt(np.dot(diff, diff) / np.dot(delta, delta))
+    def _stress(self, delta, variant):
+        if variant == "a":
+            # regular old stress
+            alpha = np.dot(self.dist, delta) / np.dot(self.dist, self.dist)
+            diff = alpha * self.dist - delta
+            val = np.dot(diff, diff) / np.dot(delta, delta)
+        elif variant == "b":
+            alpha = np.sum(self.dist) / np.sum(self.dist ** 2 / delta)
+            diff = alpha * self.dist - delta
+            val = np.sum(diff ** 2 / delta) / np.sum(delta)
+        else:
+            assert variant == "c"
+            dd = self.dist / delta
+            alpha = np.sum(dd) / np.dot(dd, dd)
+            n = len(self.dist)
+            diff = alpha * dd - 1.0
+            val = np.dot(diff, diff) / (n - 1)
+
+        return 100 * np.sqrt(val)
 
 
 class HueLinearityDataset(Dataset):
