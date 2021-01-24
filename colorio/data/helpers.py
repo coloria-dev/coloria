@@ -185,14 +185,14 @@ def _plot_ellipses(cs, xyy100_centers, xyy100_points, ellipse_scaling):
     from matplotlib.patches import Ellipse
     from scipy.optimize import leastsq
 
+    keep = [True, True, True]
+    keep[cs.k0] = False
     for center, points in zip(xyy100_centers, xyy100_points):
         # cut off the irrelevant index
         cs_center = cs.from_xyz100(_xyy100_to_xyz100(center))
         cs_points = cs.from_xyz100(_xyy100_to_xyz100(points))
 
         # project out lightness component
-        keep = [True, True, True]
-        keep[cs.k0] = False
         tcenter = cs_center[keep]
         tvals = cs_points[keep]
 
@@ -246,7 +246,7 @@ def _plot_ellipses(cs, xyy100_centers, xyy100_points, ellipse_scaling):
         # plt.show()
 
     plt.gca().set_aspect("equal")
-    labels = cs.labels[: cs.k0] + cs.labels[cs.k0 + 1 :]
+    labels = cs.labels[keep]
     plt.xlabel(labels[0])
     plt.ylabel(labels[1])
 

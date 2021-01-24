@@ -65,32 +65,33 @@ class MacAdam1974(ColorDistanceDataset):
         alpha = np.dot(d, delta) / np.dot(d, d)
         d *= alpha
 
+        keep = [True, True, True]
+        keep[cs.k0] = False
         # plot arrows
         for target_dist, pair in zip(d, pairs):
             # arrow from pair[0] to pair[1]
-            base = pair[0]
+            base = pair[0][keep]
             diff = pair[1] - pair[0]
             v = diff / np.linalg.norm(diff, 2) * target_dist / 2
-            base = np.delete(base, cs.k0)
-            v = np.delete(v, cs.k0)
+            base = base[keep]
+            v = v[keep]
             plt.arrow(
                 base[0], base[1], v[0], v[1], length_includes_head=True, color="k"
             )
             # arrow from pair[1] to pair[0]
-            base = pair[1]
-            base = np.delete(base, cs.k0)
+            base = pair[1][keep]
             v = -v
             plt.arrow(
                 base[0], base[1], v[0], v[1], length_includes_head=True, color="k"
             )
 
         # remove lightness coord
-        pairs = np.delete(pairs, cs.k0, axis=-1)
+        pairs = pairs[..., keep]
         plt.scatter(pairs[..., 0], pairs[..., 1], color="k")
 
         plt.gca().set_aspect("equal")
         plt.title(f"MacAdam 1974 color distance data for {cs.name}")
 
-        labels = cs.labels[: cs.k0] + cs.labels[cs.k0 + 1 :]
+        labels = cs.labels[keep]
         plt.xlabel(labels[0])
         plt.ylabel(labels[1])

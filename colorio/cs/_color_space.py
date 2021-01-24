@@ -271,14 +271,14 @@ class ColorSpace:
         )
         # plt.triplot(self_vals[:, k1], self_vals[:, k2], triangles=triangles)
 
-    def show_srgb_gradient(self, *args, **kwargs):
+    def show_srgb1_gradient(self, *args, **kwargs):
         plt.figure()
-        self.plot_srgb_gradient(*args, **kwargs)
+        self.plot_srgb1_gradient(*args, **kwargs)
         plt.show()
         plt.close()
 
-    def plot_srgb_gradient(self, srgb0, srgb1, n=256):
-        srgb = self.get_srgb_gradient(srgb0, srgb1, n=n)
+    def plot_srgb1_gradient(self, srgb0, srgb1, n=256):
+        srgb = self.get_srgb1_gradient(srgb0, srgb1, n=n)
 
         cmap = matplotlib.colors.LinearSegmentedColormap.from_list("empty", srgb, n)
 
@@ -288,11 +288,9 @@ class ColorSpace:
         plt.axis("off")
         plt.title(f"SRGB gradient in {self.name}")
 
-    def get_srgb_gradient(self, srgb0, srgb1, n):
-        srgb_linear = SrgbLinear()
-
+    def get_srgb1_gradient(self, srgb0, srgb1, n):
         # convert to colorspace
-        cs = [self.from_rgb255(srgb0), self.from_rgb255(srgb1)]
+        cs = [self.from_rgb1(srgb0), self.from_rgb1(srgb1)]
 
         # linspace
         ls = np.linspace(cs[0], cs[1], endpoint=True, num=n, axis=0)
@@ -304,6 +302,21 @@ class ColorSpace:
         srgb[srgb > 1] = 1.0
         return srgb
 
+    def show_srgb255_gradient(self, srgb0, srgb1, n=256):
+        srgb0 = np.asarray(srgb0)
+        srgb1 = np.asarray(srgb1)
+        self.show_srgb1_gradient(srgb0 / 255, srgb1 / 255, n)
+
+    def plot_srgb255_gradient(self, srgb0, srgb1, n=256):
+        srgb0 = np.asarray(srgb0)
+        srgb1 = np.asarray(srgb1)
+        self.plot_srgb1_gradient(srgb0 / 255, srgb1 / 255, n)
+
+    def get_srgb255_gradient(self, srgb0, srgb1, n):
+        srgb0 = np.asarray(srgb0)
+        srgb1 = np.asarray(srgb1)
+        return self.get_srgb1_gradient(srgb0 / 255, srgb1 / 255, n) * 255
+
     def show_primary_srgb_gradients(self, *args, **kwargs):
         self.plot_primary_srgb_gradients(*args, **kwargs)
         plt.show()
@@ -311,19 +324,19 @@ class ColorSpace:
 
     def plot_primary_srgb_gradients(self, n=256):
         pairs = [
-            [([255, 255, 255], [255, 0, 0]), ([255, 0, 0], [0, 255, 0])],
-            [([255, 255, 255], [0, 255, 0]), ([0, 255, 0], [0, 0, 255])],
-            [([255, 255, 255], [0, 0, 255]), ([0, 0, 255], [255, 0, 0])],
-            [([0, 0, 0], [255, 0, 0]), ([255, 0, 0], [0, 255, 255])],
-            [([0, 0, 0], [0, 255, 0]), ([0, 255, 0], [255, 0, 255])],
-            [([0, 0, 0], [0, 0, 255]), ([0, 0, 255], [255, 255, 0])],
+            [([1, 1, 1], [1, 0, 0]), ([1, 0, 0], [0, 1, 0])],
+            [([1, 1, 1], [0, 1, 0]), ([0, 1, 0], [0, 0, 1])],
+            [([1, 1, 1], [0, 0, 1]), ([0, 0, 1], [1, 0, 0])],
+            [([0, 0, 0], [1, 0, 0]), ([1, 0, 0], [0, 1, 1])],
+            [([0, 0, 0], [0, 1, 0]), ([0, 1, 0], [1, 0, 1])],
+            [([0, 0, 0], [0, 0, 1]), ([0, 0, 1], [1, 1, 0])],
         ]
         fig, axes = plt.subplots(len(pairs), 2)
         for i in range(len(pairs)):
             for j in range(2):
                 pair = pairs[i][j]
                 ax = axes[i][j]
-                srgb = self.get_srgb_gradient(pair[0], pair[1], n=n)
+                srgb = self.get_srgb1_gradient(pair[0], pair[1], n=n)
 
                 cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", srgb, n)
 

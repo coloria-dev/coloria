@@ -70,7 +70,7 @@ def test_srgb_gradient():
     cs = colorio.cs.OKLAB()
     # cs = colorio.cs.DIN99()
     # cs = colorio.cs.CIELUV()
-    cs.show_srgb_gradient([0, 0, 255], [255, 255, 0])
+    cs.show_srgb255_gradient([0, 0, 255], [255, 255, 0])
 
 
 def test_primary_srgb_gradient():
