@@ -292,18 +292,13 @@ class ColorSpace:
         srgb_linear = SrgbLinear()
 
         # convert to colorspace
-        srgb = np.array([srgb0, srgb1]).T
-        lin = srgb_linear.from_rgb255(srgb)
-        xyz = srgb_linear.to_xyz100(lin)
-        cs = self.from_xyz100(xyz).T
+        cs = [self.from_rgb255(srgb0), self.from_rgb255(srgb1)]
 
         # linspace
         ls = np.linspace(cs[0], cs[1], endpoint=True, num=n, axis=0)
 
         # back to srgb
-        xyz = self.to_xyz100(ls.T)
-        lin = srgb_linear.from_xyz100(xyz)
-        srgb = srgb_linear.to_rgb1(lin).T
+        srgb = self.to_rgb1(ls.T).T
 
         srgb[srgb < 0] = 0.0
         srgb[srgb > 1] = 1.0
@@ -316,12 +311,12 @@ class ColorSpace:
 
     def plot_primary_srgb_gradients(self, n=256):
         pairs = [
-            [([255, 0, 0], [255, 255, 255]), ([255, 0, 0], [0, 255, 0])],
-            [([0, 255, 0], [255, 255, 255]), ([0, 255, 0], [0, 0, 255])],
-            [([0, 0, 255], [255, 255, 255]), ([0, 0, 255], [255, 0, 0])],
-            [([255, 0, 0], [0, 0, 0]), ([255, 0, 0], [0, 255, 255])],
-            [([0, 255, 0], [0, 0, 0]), ([0, 255, 0], [255, 0, 255])],
-            [([0, 0, 255], [0, 0, 0]), ([0, 0, 255], [255, 255, 0])],
+            [([255, 255, 255], [255, 0, 0]), ([255, 0, 0], [0, 255, 0])],
+            [([255, 255, 255], [0, 255, 0]), ([0, 255, 0], [0, 0, 255])],
+            [([255, 255, 255], [0, 0, 255]), ([0, 0, 255], [255, 0, 0])],
+            [([0, 0, 0], [255, 0, 0]), ([255, 0, 0], [0, 255, 255])],
+            [([0, 0, 0], [0, 255, 0]), ([0, 255, 0], [255, 0, 255])],
+            [([0, 0, 0], [0, 0, 255]), ([0, 0, 255], [255, 255, 0])],
         ]
         fig, axes = plt.subplots(len(pairs), 2)
         for i in range(len(pairs)):
