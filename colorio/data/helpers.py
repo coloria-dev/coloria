@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..cs import CIELAB, SrgbLinear
+from ..cs import CIELAB
 
 
 class Dataset:
@@ -91,7 +91,6 @@ class HueLinearityDataset(Dataset):
         no_lightness[colorspace.k0] = False
 
         wp = colorspace.from_xyz100(self.whitepoint)[no_lightness]
-        srgb_linear = SrgbLinear()
         for xyz in self.arms:
             pts = colorspace.from_xyz100(xyz)
             rgb1 = colorspace.to_rgb1(pts)
@@ -101,7 +100,7 @@ class HueLinearityDataset(Dataset):
             pts_wp = (pts.T - wp).T
             vals, vecs = np.linalg.eigh(pts_wp @ pts_wp.T)
             v = vecs[:, 0] if vals[0] > vals[1] else vecs[:, 1]
-
+            # invert if necessary
             if np.dot(v, np.average(pts_wp, axis=1)) < 0:
                 v = -v
 

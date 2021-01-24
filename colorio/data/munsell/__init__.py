@@ -4,7 +4,7 @@ import pathlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import XYY, SrgbLinear
+from ...cs import XYY
 
 this_dir = pathlib.Path(__file__).resolve().parent
 
@@ -37,29 +37,29 @@ class Munsell:
 
         x, y, Y = xyy
         xyz100 = np.array([Y / y * x, Y, Y / y * (1 - x - y)])
-        vals = cs.from_xyz100(xyz100)
+        pts = cs.from_xyz100(xyz100)
 
-        srgb = SrgbLinear()
-        rgb = srgb.from_xyz100(xyz100)
+        rgb = cs.to_rgb1(pts)
         is_legal_srgb = np.all((0 <= rgb) & (rgb <= 1), axis=0)
+
+        # plot the ones that cannot be represented in SRGB in black
+        is_legal_srgb = np.all((0 <= rgb) & (rgb <= 1), axis=0)
+        fill = rgb.T.copy()
+        fill[~is_legal_srgb] = [1.0, 1.0, 1.0]
+        edge = rgb.T.copy()
+        edge[~is_legal_srgb] = [0.0, 0.0, 0.0]
 
         idx = [0, 1, 2]
         k1, k2 = idx[: cs.k0] + idx[cs.k0 + 1 :]
 
-        # plot the ones that cannot be represented in SRGB in black
-        plt.plot(
-            vals[k1, ~is_legal_srgb],
-            vals[k2, ~is_legal_srgb],
-            "o",
-            color="white",
-            markeredgecolor="black",
-        )
-        # plot the srgb dots in color
-        for val, rgb_ in zip(vals[:, is_legal_srgb].T, rgb[:, is_legal_srgb].T):
-            plt.plot(val[k1], val[k2], "o", color=srgb.to_rgb1(rgb_))
+        plt.scatter(pts[k1], pts[k2], marker="o", color=fill, edgecolors=edge)
 
-        plt.grid()
-        plt.title(f"V={V}")
+        plt.title(f"Munsell points at lightness V={V} in {cs.name}")
+        ax = plt.gca()
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
         plt.xlabel(cs.labels[k1])
         plt.ylabel(cs.labels[k2])
         plt.axis("equal")
