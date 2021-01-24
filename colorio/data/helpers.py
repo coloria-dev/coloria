@@ -85,41 +85,43 @@ class HueLinearityDataset(Dataset):
         self.whitepoint = np.asarray(whitepoint)
         self.arms = arms
 
-    def plot(self, colorspace, approximate_colors_in_srgb=False):
+    def plot(self, colorspace):
         # k0 is the coordinate that corresponds to "lightness"
-        k0 = colorspace.k0
-        k1, k2 = [k for k in [0, 1, 2] if k != k0]
+        no_lightness = [True, True, True]
+        no_lightness[colorspace.k0] = False
 
-        wp = colorspace.from_xyz100(self.whitepoint)[[k1, k2]]
-        srgb = SrgbLinear()
+        wp = colorspace.from_xyz100(self.whitepoint)[no_lightness]
+        srgb_linear = SrgbLinear()
         for xyz in self.arms:
-            d = colorspace.from_xyz100(xyz)[[k1, k2]]
+            pts = colorspace.from_xyz100(xyz)
+            rgb1 = colorspace.to_rgb1(pts)
+            pts = pts[no_lightness]
 
             # get the eigenvector corresponding to the larger eigenvalue
-            d_wp = (d.T - wp).T
-            vals, vecs = np.linalg.eigh(d_wp @ d_wp.T)
+            pts_wp = (pts.T - wp).T
+            vals, vecs = np.linalg.eigh(pts_wp @ pts_wp.T)
             v = vecs[:, 0] if vals[0] > vals[1] else vecs[:, 1]
 
-            if np.dot(v, np.average(d, axis=1)) < 0:
+            if np.dot(v, np.average(pts_wp, axis=1)) < 0:
                 v = -v
 
-            length = np.sqrt(np.max(np.einsum("ij,ij->i", d.T - wp, d.T - wp)))
+            length = np.max(np.linalg.norm(pts_wp, axis=0))
             end_point = wp + length * v
-            plt.plot([wp[0], end_point[0]], [wp[1], end_point[1]], "-", color="0.5")
+            plt.plot(
+                [wp[0], end_point[0]], [wp[1], end_point[1]], "-", color="0.5", zorder=0
+            )
 
-            for dd, rgb in zip(d.T, srgb.from_xyz100(xyz).T):
-                if approximate_colors_in_srgb:
-                    is_legal_srgb = True
-                    rgb[rgb > 1] = 1
-                    rgb[rgb < 0] = 0
-                else:
-                    is_legal_srgb = np.all(rgb >= 0) and np.all(rgb <= 1)
-                col = srgb.to_rgb1(rgb) if is_legal_srgb else "white"
-                ecol = srgb.to_rgb1(rgb) if is_legal_srgb else "black"
-                plt.plot(dd[0], dd[1], "o", color=col, markeredgecolor=ecol)
+            # plot points
+            is_legal_srgb = np.all((0 <= rgb1) & (rgb1 <= 1), axis=0)
+            fill = rgb1.T.copy()
+            fill[~is_legal_srgb] = [1.0, 1.0, 1.0]  # white
+            edge = rgb1.T.copy()
+            edge[~is_legal_srgb] = [0.0, 0.0, 0.0]  # black
+            plt.scatter(pts[0], pts[1], marker="o", color=fill, edgecolors=edge)
 
-        plt.xlabel(colorspace.labels[k1])
-        plt.ylabel(colorspace.labels[k2])
+        l0, l1 = colorspace.labels[no_lightness]
+        plt.xlabel(l0)
+        plt.ylabel(l1)
         plt.axis("equal")
 
         # plt.grid()

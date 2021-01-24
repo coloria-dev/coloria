@@ -22,13 +22,23 @@ All color spaces implement the two methods
 vals = colorspace.from_xyz100(xyz)
 xyz = colorspace.to_xyz100(vals)
 ```
-for conversion from and to XYZ100. Adding new color spaces is as easy as
-writing a class that provides those two methods.
+for conversion from and to XYZ100. Adding new color spaces is as easy as writing a class
+that provides those two methods.
+<!--exdown-skip-->
+```python
+colorspace.to_rgb_linear(vals)
+colorspace.to_rgb1(vals)
+colorspace.to_rgb255(vals)
+
+# same for from_rgb*
+```
 
 The following color spaces are implemented:
 
- * [XYZ](https://en.wikipedia.org/wiki/CIE_1931_color_space) (`colorio.cs.XYZ(100)`)
- * [xyY](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space) (`colorio.cs.XYY(100)`)
+ * [XYZ](https://en.wikipedia.org/wiki/CIE_1931_color_space) (`colorio.cs.XYZ(100)`, the
+   parameter determining the scaling)
+ * [xyY](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space)
+   (`colorio.cs.XYY(100)`, the paramter determining the scaling of `Y`)
  * [Linear SRGB](https://en.wikipedia.org/wiki/SRGB)  (`colorio.SrgbLinear()`)
    This class has the two additional methods
    ```
