@@ -1,7 +1,10 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
 from . import observers
+from ._helpers import _find_Y
+from .cs import HdrLinear, SrgbLinear
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
 
@@ -165,3 +168,313 @@ def get_mono_outline_xy(observer, max_stepsize):
     vals_mono = np.array(vals_mono)
 
     return vals_mono, vals_conn
+
+
+def save_visible_gamut(colorspace, observer, illuminant, filename):
+    import meshio
+    from scipy.spatial import ConvexHull
+
+    lmbda, illu = illuminant
+    values = []
+
+    # Iterate over every possible illuminant input and store it in values
+    n = len(lmbda)
+    values = np.empty((n * (n - 1) + 2, 3))
+    k = 0
+
+    # No light
+    data = np.zeros(n)
+    values[k] = spectrum_to_xyz100((lmbda, illu * data), observer=observer)
+    k += 1
+    # frequency blocks
+    for width in range(1, n):
+        data = np.zeros(n)
+        data[:width] = 1.0
+        for _ in range(n):
+            values[k] = spectrum_to_xyz100((lmbda, illu * data), observer=observer)
+            k += 1
+            data = np.roll(data, shift=1)
+    # Full illuminant
+    data = np.ones(len(lmbda))
+    values[k] = spectrum_to_xyz100((lmbda, illu * data), observer=observer)
+    k += 1
+
+    # scale the values such that the Y-coordinate of the white point (last entry)
+    # has value 100.
+    values *= 100 / values[-1][1]
+
+    cells = ConvexHull(values).simplices
+
+    if not colorspace.is_origin_well_defined:
+        values = values[1:]
+        cells = cells[~np.any(cells == 0, axis=1)]
+        cells -= 1
+
+    pts = colorspace.from_xyz100(values.T).T
+
+    meshio.write_points_cells(filename, pts, cells={"triangle": cells})
+
+
+def save_rgb_gamut(colorspace, filename: str, variant: str = "srgb", n: int = 50):
+    import meshio
+    import meshzoo
+
+    if variant.lower() in ["srgb", "rec709"]:
+        rgb_linear = SrgbLinear()
+    else:
+        assert variant.lower() in ["hdr", "rec2020", "rec2100"]
+        rgb_linear = HdrLinear()
+
+    points, cells = meshzoo.cube(nx=n, ny=n, nz=n)
+
+    if not colorspace.is_origin_well_defined:
+        # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
+        points = points[1:]
+        cells = cells[~np.any(cells == 0, axis=1)]
+        cells -= 1
+
+    pts = colorspace.from_rgb_linear(points.T).T
+    # pts = colorspace.from_xyz100(rgb_linear.to_xyz100(points.T)).T
+    assert pts.shape[1] == 3
+    rgb = rgb_linear.to_rgb1(points)
+    meshio.write_points_cells(filename, pts, {"tetra": cells}, point_data={"srgb": rgb})
+
+
+def save_cone_gamut(colorspace, filename, observer, max_Y):
+    import meshio
+    import pygmsh
+
+    with pygmsh.geo.Geometry() as geom:
+        max_stepsize = 4.0e-2
+        xy, _ = get_mono_outline_xy(observer, max_stepsize=max_stepsize)
+
+        # append third component
+        xy = np.column_stack([xy, np.full(xy.shape[0], 1.0e-5)])
+
+        # Draw a cross.
+        poly = geom.add_polygon(xy, mesh_size=max_stepsize)
+
+        axis = [0, 0, max_Y]
+
+        geom.extrude(poly, translation_axis=axis)
+
+        mesh = geom.generate_mesh(verbose=False)
+    # meshio.write(filename, mesh)
+
+    pts = colorspace.from_xyz100(_xyy_to_xyz100(mesh.points.T)).T
+    meshio.write_points_cells(filename, pts, {"tetra": mesh.get_cells_type("tetra")})
+
+
+def show_visible_slice(*args, **kwargs):
+    plt.figure()
+    plot_visible_slice(*args, **kwargs)
+    plt.show()
+    plt.close()
+
+
+def save_visible_slice(filename, *args, **kwargs):
+    plt.figure()
+    plot_visible_slice(*args, **kwargs)
+    plt.savefig(filename, transparent=True, bbox_inches="tight")
+    plt.close()
+
+
+def plot_visible_slice(colorspace, lightness, outline_prec=1.0e-2, fill_color="0.8"):
+    # first plot the monochromatic outline
+    mono_xy, conn_xy = get_mono_outline_xy(
+        observer=observers.cie_1931_2(), max_stepsize=outline_prec
+    )
+
+    mono_vals = np.array([_find_Y(colorspace, xy, lightness) for xy in mono_xy])
+    conn_vals = np.array([_find_Y(colorspace, xy, lightness) for xy in conn_xy])
+
+    k1, k2 = [k for k in [0, 1, 2] if k != colorspace.k0]
+    plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
+    plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
+    #
+    if fill_color is not None:
+        xyz = np.vstack([mono_vals, conn_vals[1:]])
+        plt.fill(xyz[:, k1], xyz[:, k2], facecolor=fill_color, zorder=0)
+
+    plt.axis("equal")
+    plt.xlabel(colorspace.labels[k1])
+    plt.ylabel(colorspace.labels[k2])
+    plt.title(f"{colorspace.labels[colorspace.k0]} = {lightness}")
+
+
+def show_rgb_slice(*args, **kwargs):
+    plt.figure()
+    plot_rgb_slice(*args, **kwargs)
+    plt.show()
+    plt.close()
+
+
+def save_rgb_slice(filename, *args, **kwargs):
+    plt.figure()
+    plot_rgb_slice(*args, **kwargs)
+    plt.savefig(filename, transparent=True, bbox_inches="tight")
+    plt.close()
+
+
+def plot_rgb_slice(colorspace, lightness: float, n: int = 50, variant: str = "srgb"):
+    import meshzoo
+
+    # TODO HDR
+    assert variant in ["srgb", "rec709"]
+
+    # Get all RGB values that sum up to 1.
+    srgb_vals, triangles = meshzoo.triangle(n=n)
+    srgb_vals = srgb_vals.T
+
+    # Use bisection to
+    srgb_linear = SrgbLinear()
+    tol = 1.0e-5
+    # Use zeros() instead of empty() here to avoid invalid values when setting up
+    # the cmap below.
+    colorspace_vals = np.zeros((srgb_vals.shape[0], 3))
+    srgb_linear_vals = np.zeros((srgb_vals.shape[0], 3))
+    mask = np.ones(srgb_vals.shape[0], dtype=bool)
+    for k, val in enumerate(srgb_vals):
+        alpha_min = 0.0
+        xyz100 = srgb_linear.to_xyz100(val * alpha_min)
+        colorspace_val_min = colorspace.from_xyz100(xyz100)[colorspace.k0]
+        if colorspace_val_min > lightness:
+            mask[k] = False
+            continue
+
+        alpha_max = 1.0 / np.max(val)
+
+        xyz100 = srgb_linear.to_xyz100(val * alpha_max)
+        colorspace_val_max = colorspace.from_xyz100(xyz100)[colorspace.k0]
+        if colorspace_val_max < lightness:
+            mask[k] = False
+            continue
+
+        # bisection
+        while True:
+            alpha = (alpha_max + alpha_min) / 2
+            srgb_linear_vals[k] = val * alpha
+            xyz100 = srgb_linear.to_xyz100(srgb_linear_vals[k])
+            colorspace_val = colorspace.from_xyz100(xyz100)
+            if abs(colorspace_val[colorspace.k0] - lightness) < tol:
+                break
+            elif colorspace_val[colorspace.k0] < lightness:
+                alpha_min = alpha
+            else:
+                assert colorspace_val[colorspace.k0] > lightness
+                alpha_max = alpha
+        colorspace_vals[k] = colorspace_val
+
+    # Remove all triangles which have masked corner points
+    tri_mask = np.all(mask[triangles], axis=1)
+    if ~np.any(tri_mask):
+        return
+    triangles = triangles[tri_mask]
+
+    # Unfortunately, one cannot use tripcolors with explicit RGB specification (see
+    # <https://github.com/matplotlib/matplotlib/issues/10265>). As a workaround,
+    # associate range(n) data with the points and create a colormap that associates
+    # the integer values with the respective RGBs.
+    z = np.arange(srgb_vals.shape[0])
+    rgb = srgb_linear.to_rgb1(srgb_linear_vals)
+    cmap = matplotlib.colors.LinearSegmentedColormap.from_list("gamut", rgb, N=len(rgb))
+
+    k1, k2 = [k for k in [0, 1, 2] if k != colorspace.k0]
+
+    plt.tripcolor(
+        colorspace_vals[:, k1],
+        colorspace_vals[:, k2],
+        triangles,
+        z,
+        shading="gouraud",
+        cmap=cmap,
+    )
+    # plt.triplot(colorspace_vals[:, k1], colorspace_vals[:, k2], triangles=triangles)
+
+
+def show_srgb1_gradient(*args, **kwargs):
+    plt.figure()
+    plot_srgb1_gradient(*args, **kwargs)
+    plt.show()
+    plt.close()
+
+
+def plot_srgb1_gradient(colorspace, srgb0, srgb1, n=256):
+    srgb = get_srgb1_gradient(colorspace, srgb0, srgb1, n=n)
+
+    cmap = matplotlib.colors.LinearSegmentedColormap.from_list("empty", srgb, n)
+
+    gradient = np.linspace(0.0, 1.0, n)
+    gradient = np.vstack((gradient, gradient))
+    plt.imshow(gradient, aspect="auto", cmap=cmap)
+    plt.axis("off")
+    plt.title(f"SRGB gradient in {colorspace.name}")
+
+
+def get_srgb1_gradient(colorspace, srgb0, srgb1, n):
+    # convert to colorspace
+    cs = [colorspace.from_rgb1(srgb0), colorspace.from_rgb1(srgb1)]
+
+    # linspace
+    ls = np.linspace(cs[0], cs[1], endpoint=True, num=n, axis=0)
+
+    # back to srgb
+    srgb = colorspace.to_rgb1(ls.T).T
+
+    srgb[srgb < 0] = 0.0
+    srgb[srgb > 1] = 1.0
+    return srgb
+
+
+def show_srgb255_gradient(colorspace, srgb0, srgb1, n=256):
+    srgb0 = np.asarray(srgb0)
+    srgb1 = np.asarray(srgb1)
+    show_srgb1_gradient(colorspace, srgb0 / 255, srgb1 / 255, n)
+
+
+def plot_srgb255_gradient(colorspace, srgb0, srgb1, n=256):
+    srgb0 = np.asarray(srgb0)
+    srgb1 = np.asarray(srgb1)
+    plot_srgb1_gradient(colorspace, srgb0 / 255, srgb1 / 255, n)
+
+
+def get_srgb255_gradient(colorspace, srgb0, srgb1, n):
+    srgb0 = np.asarray(srgb0)
+    srgb1 = np.asarray(srgb1)
+    return get_srgb1_gradient(colorspace, srgb0 / 255, srgb1 / 255, n) * 255
+
+
+def show_primary_srgb_gradients(*args, **kwargs):
+    plot_primary_srgb_gradients(*args, **kwargs)
+    plt.show()
+    plt.close()
+
+
+def plot_primary_srgb_gradients(colorspace, n=256):
+    pairs = [
+        [([1, 1, 1], [1, 0, 0]), ([1, 0, 0], [0, 1, 0])],
+        [([1, 1, 1], [0, 1, 0]), ([0, 1, 0], [0, 0, 1])],
+        [([1, 1, 1], [0, 0, 1]), ([0, 0, 1], [1, 0, 0])],
+        [([0, 0, 0], [1, 0, 0]), ([1, 0, 0], [0, 1, 1])],
+        [([0, 0, 0], [0, 1, 0]), ([0, 1, 0], [1, 0, 1])],
+        [([0, 0, 0], [0, 0, 1]), ([0, 0, 1], [1, 1, 0])],
+    ]
+    fig, axes = plt.subplots(len(pairs), 2)
+    for i in range(len(pairs)):
+        for j in range(2):
+            pair = pairs[i][j]
+            ax = axes[i][j]
+            srgb = get_srgb1_gradient(colorspace, pair[0], pair[1], n=n)
+
+            cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", srgb, n)
+
+            gradient = np.linspace(0.0, 1.0, n)
+            gradient = np.vstack((gradient, gradient))
+            ax.imshow(gradient, aspect="auto", cmap=cmap)
+            ax.axis("off")
+    fig.suptitle(f"primary SRGB gradients in {colorspace.name}")
+
+
+def _xyy_to_xyz100(xyy):
+    x, y, Y = xyy
+    return np.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
