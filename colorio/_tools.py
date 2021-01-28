@@ -1,3 +1,4 @@
+from operator import is_
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -316,11 +317,147 @@ def save_rgb_slice(filename, *args, **kwargs):
     plt.close()
 
 
-def plot_rgb_slice(colorspace, lightness: float, n: int = 50, variant: str = "srgb"):
+def _bisect(f, a, b, tol, max_num_steps=np.infty):
+    fa = f(a)
+    fb = f(b)
+
+    assert np.all(np.logical_xor(fa > 0, fb > 0))
+    is_fa_positive = fa > 0
+    # sort points such that f(a) is negative, f(b) positive
+    tmp = fa[is_fa_positive]
+    fa[is_fa_positive] = fb[is_fa_positive]
+    fb[is_fa_positive] = tmp
+    #
+    tmp = a[:, is_fa_positive]
+    a[:, is_fa_positive] = b[:, is_fa_positive]
+    b[:, is_fa_positive] = tmp
+
+    diff = a - b
+    dist2 = np.einsum("ij,ij->j", diff, diff)
+
+    k = 0
+    while True:
+        if k >= max_num_steps:
+            break
+
+        mid = (a + b) / 2
+        fmid = f(mid)
+
+        is_fmid_positive = fmid > 0
+        a[:, ~is_fmid_positive] = mid[:, ~is_fmid_positive]
+        b[:, is_fmid_positive] = mid[:, is_fmid_positive]
+
+        diff = a - b
+        dist2 = np.einsum("ij,ij->j", diff, diff)
+
+        if np.all(dist2 < tol ** 2):
+            break
+
+        k += 1
+
+    return a, b
+
+
+def plot_rgb_slice(
+    colorspace,
+    lightness: float,
+    n: int = 51,
+    variant: str = "srgb",
+    tol: float = 1.0e-5,
+):
     import meshzoo
 
     # TODO HDR
     assert variant in ["srgb", "rec709"]
+
+    srgb_linear = SrgbLinear()
+
+    def f(pts):
+        # transform to colorspace coordinates
+        xyz100_coords = srgb_linear.to_xyz100(pts)
+        cs_coords = colorspace.from_xyz100(xyz100_coords)
+        return cs_coords[colorspace.k0] - lightness
+
+    srgb_points, cells = meshzoo.cube_hexa((0.0, 0.0, 0.0), (1.0, 1.0, 1.0), n)
+    is_lightness_above = f(srgb_points.T) > 0
+
+    cells_ila = is_lightness_above[cells]
+
+    # find all cells where at least one corner point is below and at least one is above
+    # the target lightness
+    is_intermediate_cell = np.any(cells_ila, axis=1) & np.any(~cells_ila, axis=1)
+
+    cells = cells[is_intermediate_cell]
+    cells_ila = cells_ila[is_intermediate_cell]
+
+    # Now collect all edges along which the target lightness is crossed
+    local_edges = [
+        (0, 1),
+        (0, 3),
+        (0, 4),
+        (1, 2),
+        (1, 5),
+        (2, 3),
+        (2, 6),
+        (3, 7),
+        (4, 5),
+        (4, 7),
+        (5, 6),
+        (6, 7),
+    ]
+    edges = []
+    for e0, e1 in local_edges:
+        a = np.logical_xor(cells_ila[:, e0], cells_ila[:, e1])
+        edges.append(np.column_stack([cells[a, e0], cells[a, e1]]))
+
+    edges = np.concatenate(edges)
+    print(edges)
+    print()
+
+    # make unique
+    edges = np.sort(edges, axis=1)
+    edges = np.unique(edges, axis=0)
+
+    # now bisect to identify the points with the target lightness
+    print()
+    print(srgb_points.shape)
+    print()
+    edge_pts = srgb_points[edges]
+
+    a = edge_pts[:, 0]
+    b = edge_pts[:, 1]
+
+    print(a)
+    print()
+    print(b)
+    print()
+
+    a, b = _bisect(f, a.T, b.T, tol=1.0e-5)
+    sol = (a + b) / 2
+    print(sol.T)
+    print(lightness, colorspace.k0)
+    print()
+
+    xyz100_coords = srgb_linear.to_xyz100(sol)
+    cs_coords = colorspace.from_xyz100(xyz100_coords)
+    # print(cs_coords.T)
+
+    plt.scatter(cs_coords[:, 1], cs_coords[:, 2], "x")
+    plt.gca().set_aspect("equal")
+    plt.show()
+    exit(1)
+
+    print(edges)
+
+    print(is_lightness_above[edges])
+    exit(1)
+
+    print(len(edges))
+    exit(1)
+    print(cells.shape)
+    print(cells_ila.shape)
+
+    exit(1)
 
     # Get all RGB values that sum up to 1.
     srgb_vals, triangles = meshzoo.triangle(n=n)

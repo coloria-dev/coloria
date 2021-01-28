@@ -7,8 +7,10 @@ from ._tools import (
     save_visible_gamut,
     show_flat_gamut,
     show_primary_srgb_gradients,
+    plot_rgb_slice,
     show_rgb_slice,
     show_srgb255_gradient,
+    plot_visible_slice,
     show_visible_slice,
     xy_gamut_mesh,
 )

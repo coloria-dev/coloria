@@ -1,6 +1,7 @@
 import tempfile
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
@@ -27,7 +28,9 @@ def test_xy_gamut_mesh():
     ],
 )
 def test_visible_slice(cs, lightness):
-    colorio.show_visible_slice(cs, lightness)
+    colorio.plot_visible_slice(cs, lightness)
+    colorio.plot_rgb_slice(cs, lightness)
+    plt.show()
     # colorio.save_visible_slice("visible-slice.png", cs, lightness)
 
 
@@ -87,5 +90,9 @@ def test_srgb_gradient():
 
 def test_primary_srgb_gradient():
     cs = colorio.cs.CIELAB()
-    # cs = colorio.cs.OKLAB()
     colorio.show_primary_srgb_gradients(cs)
+
+
+if __name__ == "__main__":
+    cs = colorio.cs.OKLAB()
+    test_visible_slice(cs, 0.5)
