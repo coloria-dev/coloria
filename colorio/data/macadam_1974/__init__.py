@@ -73,7 +73,6 @@ class MacAdam1974(ColorDistanceDataset):
             base = pair[0][keep]
             diff = pair[1] - pair[0]
             v = diff / np.linalg.norm(diff, 2) * target_dist / 2
-            base = base[keep]
             v = v[keep]
             plt.arrow(
                 base[0], base[1], v[0], v[1], length_includes_head=True, color="k"
