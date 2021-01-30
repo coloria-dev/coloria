@@ -5,7 +5,7 @@ import numpy as np
 
 from . import observers
 from ._helpers import _find_Y
-from ._nonlinear import bisect
+from ._nonlinear import bisect, regula_falsi
 from .cs import HdrLinear, SrgbLinear
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
@@ -325,6 +325,7 @@ def plot_rgb_slice(
     variant: str = "srgb",
     tol: float = 1.0e-5,
 ):
+    from scipy.spatial import Delaunay
     import meshzoo
 
     # TODO HDR
@@ -392,7 +393,8 @@ def plot_rgb_slice(
     print(b)
     print()
 
-    a, b = bisect(f, a.T, b.T, tol=1.0e-5)
+    # a, b = bisect(f, a.T, b.T, tol=1.0e-5)
+    a, b = regula_falsi(f, a.T, b.T, tol=1.0e-5)
     sol = (a + b) / 2
     print(sol.T)
     print(lightness, colorspace.k0)
@@ -403,7 +405,27 @@ def plot_rgb_slice(
     print(cs_coords.T)
     print(cs_coords.shape)
 
-    plt.scatter(cs_coords[1], cs_coords[2], marker="x")
+    # The cells could actually be derived from the connectivity info of the transformed
+    # cube. Since this is getting a little messy, rather get a triangulation of the
+    # convex hull and kick out all cells the barycenters of which aren't in the set.
+    cells = Delaunay(cs_coords[1:].T).simplices
+    barycenters = np.sum(cs_coords[1:, cells], axis=-1).T
+    barycenters = np.column_stack(
+        [np.full(barycenters.shape[0], lightness), barycenters]
+    )
+
+    # xyz100 = colorspace.to_xyz100(barycenters.T)
+    # srgb_vals = srgb_linear.from_xyz100(xyz100)
+    # is_legal_srgb = np.all(srgb_vals < 1.0, axis=0) & np.all(srgb_vals > 0.0, axis=0)
+    # cells = cells[is_legal_srgb]
+
+    for cell in cells:
+        for i0, i1 in [[0, 1], [1, 2], [2, 1]]:
+            p0 = cs_coords[1:, cell[i0]]
+            p1 = cs_coords[1:, cell[i1]]
+            plt.plot([p0[0], p1[0]], [p0[1], p1[1]], "k-")
+
+    plt.scatter(*cs_coords[1:], marker="x", color="k")
     plt.gca().set_aspect("equal")
     plt.show()
     exit(1)
