@@ -1,19 +1,20 @@
 from . import cs, data, diff, illuminants, observers
 from .__about__ import __version__
 from ._exceptions import ColorioError
+from ._rgb_gamut import (
+    plot_rgb_slice,
+    plot_rgb_slice_vtk,
+    save_rgb_gamut,
+    show_rgb_slice,
+)
 from ._tools import (
     save_cone_gamut,
-    save_rgb_gamut,
-    save_visible_gamut,
     show_flat_gamut,
     show_primary_srgb_gradients,
-    plot_rgb_slice,
-    show_rgb_slice,
     show_srgb255_gradient,
-    plot_visible_slice,
-    show_visible_slice,
     xy_gamut_mesh,
 )
+from ._visible_gamut import plot_visible_slice, save_visible_gamut, show_visible_slice
 
 __all__ = [
     "__version__",
