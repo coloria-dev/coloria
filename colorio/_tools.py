@@ -18,7 +18,7 @@ def _xyy_from_xyz100(xyz):
     return np.array([x / sum_xyz, y / sum_xyz, y / 100])
 
 
-def _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=True):
+def _plot_monochromatic(observer, fill_horseshoe=True):
     # draw outline of monochromatic spectra
     lmbda = 1.0e-9 * np.arange(380, 701)
     values = []
@@ -31,8 +31,7 @@ def _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=True):
 
     # Add the values between the first and the last point of the horseshoe
     t = np.linspace(0.0, 1.0, 101)
-    connect = xy_to_2d(np.outer(values[0], t) + np.outer(values[-1], 1 - t))
-    values = xy_to_2d(values.T).T
+    connect = np.outer(values[0], t) + np.outer(values[-1], 1 - t)
     full = np.concatenate([values, connect.T])
 
     # fill horseshoe area
@@ -49,30 +48,23 @@ def _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=True):
     plt.plot(connect[0], connect[1], ":k")
 
 
-def _plot_planckian_locus(observer, xy_to_2d):
+def _plot_planckian_locus(observer):
     # plot planckian locus
     values = []
     for temp in np.arange(1000, 20001, 100):
-        xyy_vals = xy_to_2d(
+        values.append(
             _xyy_from_xyz100(spectrum_to_xyz100(planckian_radiator(temp), observer))
         )
-        values.append(xyy_vals)
     values = np.array(values)
     plt.plot(values[:, 0], values[:, 1], ":k", label="Planckian locus")
 
 
-def show_flat_gamut(*args, **kwargs):
-    plot_flat_gamut(*args, **kwargs)
+def show_xy_gamut(*args, **kwargs):
+    plot_xy_gamut(*args, **kwargs)
     plt.show()
 
 
-def plot_flat_gamut(
-    xy_to_2d=lambda xy: xy,
-    axes_labels=("x", "y"),
-    # plot_rgb_triangle=True,
-    fill_horseshoe=True,
-    plot_planckian_locus=True,
-):
+def plot_xy_gamut(fill_horseshoe=True, plot_planckian_locus=True):
     """Show a flat color gamut, by default xy. There exists a chroma gamut for all
     color models which transform lines in XYZ to lines, and hence have a natural
     decomposition into lightness and chroma components. Also, the flat gamut is the
@@ -82,18 +74,18 @@ def plot_flat_gamut(
     observer = observers.cie_1931_2()
     # observer = observers.cie_1964_10()
 
-    _plot_monochromatic(observer, xy_to_2d, fill_horseshoe=fill_horseshoe)
+    _plot_monochromatic(observer, fill_horseshoe=fill_horseshoe)
     # plt.grid()
 
     # if plot_rgb_triangle:
-    #     _plot_rgb_triangle(xy_to_2d)
+    #     _plot_rgb_triangle()
     if plot_planckian_locus:
-        _plot_planckian_locus(observer, xy_to_2d)
+        _plot_planckian_locus(observer)
 
     plt.gca().set_aspect("equal")
     # plt.legend()
-    plt.xlabel(axes_labels[0])
-    plt.ylabel(axes_labels[1])
+    plt.xlabel("x")
+    plt.ylabel("y")
 
 
 def xy_gamut_mesh(lcar):

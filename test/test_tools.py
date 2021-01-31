@@ -95,5 +95,5 @@ def test_primary_srgb_gradient():
 
 if __name__ == "__main__":
     cs = colorio.cs.OKLAB()
-    # test_visible_slice(cs, 0.5)
-    colorio.plot_rgb_slice_vtk(cs, 0.5)
+    test_visible_slice(cs, 0.5)
+    # colorio.plot_rgb_slice_vtk(cs, 0.5)
