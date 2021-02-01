@@ -52,7 +52,10 @@ def regula_falsi(f, a, b, tol, max_num_steps=np.infty):
     # sort points such that f(a) is negative, f(b) positive
     is_fa_positive = fa > 0
     fa[is_fa_positive], fb[is_fa_positive] = fb[is_fa_positive], fa[is_fa_positive]
-    a[..., is_fa_positive], b[..., is_fa_positive] = b[..., is_fa_positive], a[..., is_fa_positive]
+    a[..., is_fa_positive], b[..., is_fa_positive] = (
+        b[..., is_fa_positive],
+        a[..., is_fa_positive],
+    )
 
     diff = a - b
     dist2 = np.sum(diff ** 2)

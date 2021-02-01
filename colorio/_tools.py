@@ -1,13 +1,8 @@
-from operator import is_
-
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
 from . import observers
-from ._helpers import _find_Y
-from ._nonlinear import bisect, regula_falsi
-from .cs import HdrLinear, SrgbLinear
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
 

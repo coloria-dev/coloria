@@ -159,7 +159,7 @@ colorspace = colorio.cs.CIELAB()
 colorio.show_rgb_slice(colorspace, lightness=0.5, n=51)
 # or
 # save_rgb_slice()
-# plot_rgb_slice() 
+# plot_rgb_slice()
 ```
 
 #### The visible gamut
