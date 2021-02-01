@@ -238,7 +238,6 @@ def plot_rgb_slice(
     srgb_vals, triangles = meshzoo.triangle(n=n)
     srgb_vals = srgb_vals.T
 
-    # Use bisection to
     srgb_linear = SrgbLinear()
     # Use zeros() instead of empty() here to avoid invalid values when setting up
     # the cmap below.
@@ -261,19 +260,18 @@ def plot_rgb_slice(
             mask[k] = False
             continue
 
-        # bisection
-        while True:
-            alpha = (alpha_max + alpha_min) / 2
+        def f(alpha):
             srgb_linear_vals[k] = val * alpha
             xyz100 = srgb_linear.to_xyz100(srgb_linear_vals[k])
             colorspace_val = colorspace.from_xyz100(xyz100)
-            if abs(colorspace_val[colorspace.k0] - lightness) < tol:
-                break
-            elif colorspace_val[colorspace.k0] < lightness:
-                alpha_min = alpha
-            else:
-                assert colorspace_val[colorspace.k0] > lightness
-                alpha_max = alpha
+            return colorspace_val[colorspace.k0] - lightness
+
+        a, b = regula_falsi(f, alpha_min, alpha_max, tol)
+        a = (a + b) / 2
+
+        srgb_linear_vals[k] = val * a
+        xyz100 = srgb_linear.to_xyz100(srgb_linear_vals[k])
+        colorspace_val = colorspace.from_xyz100(xyz100)
         colorspace_vals[k] = colorspace_val
 
     # Remove all triangles which have masked corner points
