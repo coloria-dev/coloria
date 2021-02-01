@@ -189,9 +189,9 @@ The gamut is shown in grey since sRGB screens are not able to display the colors
 
 #### The visible gamut
 
-<img src="https://nschloe.github.io/colorio/visible-gamut-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-cam16.png" width="100%">
-:---:|:-------:|:----------:|
-XYZ  |  CIELAB |  CAM16-UCS |
+<img src="https://nschloe.github.io/colorio/visible-gamut-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-oklab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-jzazbz.png" width="100%">
+:---:|:------:|:-------:|
+xyY  |  Oklab |  JzAzBz |
 
 Same as above, but with the gamut of visible colors up to a given lightness `Y`.
 ```python
