@@ -187,6 +187,22 @@ The gamut is shown in grey since sRGB screens are not able to display the colors
 
 #### visible gamut slices
 
+<img src="https://nschloe.github.io/colorio/visible-gamut-slice-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-oklab.png" width="100%">
+:---:|:-------:|:------:|
+XYZ  |  CIELAB |  Oklab |
+
+It is sometimes useful to plot lightness slices of the sRGB gamut. Use
+```python
+import colorio
+
+colorspace = colorio.cs.CIELAB()
+colorio.show_visible_slice(colorspace, lightness=0.5)
+# or
+# save_visible_slice()
+# plot_visible_slice()
+```
+The `plot_visible_slice()` method is especially useful for combining with other plots.
+
 #### Slices through the color spaces
 
 Instead of fiddling around with the proper 3D objects, colorio can plot slices through

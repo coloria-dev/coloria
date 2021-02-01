@@ -13,6 +13,11 @@ def _xyy_from_xyz100(xyz):
     return np.array([x / sum_xyz, y / sum_xyz, y / 100])
 
 
+def _xyy_to_xyz100(xyy):
+    x, y, Y = xyy
+    return np.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
+
+
 def _plot_monochromatic(observer, fill_horseshoe=True):
     # draw outline of monochromatic spectra
     lmbda = 1.0e-9 * np.arange(380, 701)
@@ -160,31 +165,6 @@ def get_mono_outline_xy(observer, max_stepsize):
     return vals_mono, vals_conn
 
 
-def save_cone_gamut(colorspace, filename, observer, max_Y):
-    import meshio
-    import pygmsh
-
-    with pygmsh.geo.Geometry() as geom:
-        max_stepsize = 4.0e-2
-        xy, _ = get_mono_outline_xy(observer, max_stepsize=max_stepsize)
-
-        # append third component
-        xy = np.column_stack([xy, np.full(xy.shape[0], 1.0e-5)])
-
-        # Draw a cross.
-        poly = geom.add_polygon(xy, mesh_size=max_stepsize)
-
-        axis = [0, 0, max_Y]
-
-        geom.extrude(poly, translation_axis=axis)
-
-        mesh = geom.generate_mesh(verbose=False)
-    # meshio.write(filename, mesh)
-
-    pts = colorspace.from_xyz100(_xyy_to_xyz100(mesh.points.T)).T
-    meshio.write_points_cells(filename, pts, {"tetra": mesh.get_cells_type("tetra")})
-
-
 def show_srgb1_gradient(*args, **kwargs):
     plt.figure()
     plot_srgb1_gradient(*args, **kwargs)
@@ -266,8 +246,3 @@ def plot_primary_srgb_gradients(colorspace, n=256):
             ax.imshow(gradient, aspect="auto", cmap=cmap)
             ax.axis("off")
     fig.suptitle(f"primary SRGB gradients in {colorspace.name}")
-
-
-def _xyy_to_xyz100(xyy):
-    x, y, Y = xyy
-    return np.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
