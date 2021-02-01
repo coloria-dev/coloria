@@ -93,4 +93,4 @@ class MacAdam1974(ColorDistanceDataset):
 
         labels = cs.labels[keep]
         plt.xlabel(labels[0])
-        plt.ylabel(labels[1])
+        plt.ylabel(labels[1], rotation=0)

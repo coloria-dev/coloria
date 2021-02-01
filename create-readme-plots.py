@@ -69,41 +69,55 @@ plt.style.use(dufte.style)
 #     plt.savefig(filename, transparent=True, bbox_inches="tight")
 #     plt.close()
 
-data = [
-    ("ebner-fairchild-xyy.svg", colorio.cs.XYY(1)),
-    ("ebner-fairchild-cielab.svg", colorio.cs.CIELAB()),
-    ("ebner-fairchild-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
-]
-for filename, cs in data:
-    colorio.data.EbnerFairchild().plot(cs)
-    plt.gca().set_aspect("equal")
-    plt.gca().grid(False)
-    # plt.show()
-    plt.savefig(filename, transparent=True, bbox_inches="tight")
-    plt.close()
+# data = [
+#     ("ebner-fairchild-xyy.svg", colorio.cs.XYY(1)),
+#     ("ebner-fairchild-cielab.svg", colorio.cs.CIELAB()),
+#     ("ebner-fairchild-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
+# ]
+# for filename, cs in data:
+#     colorio.data.EbnerFairchild().plot(cs)
+#     plt.gca().set_aspect("equal")
+#     plt.gca().grid(False)
+#     # plt.show()
+#     plt.savefig(filename, transparent=True, bbox_inches="tight")
+#     plt.close()
+#
+#
+# data = [
+#     ("hung-berns-xyy.svg", colorio.cs.XYY(1)),
+#     ("hung-berns-cielab.svg", colorio.cs.CIELAB()),
+#     ("hung-berns-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
+# ]
+# for filename, cs in data:
+#     colorio.data.HungBerns().plot(cs)
+#     plt.gca().set_aspect("equal")
+#     plt.gca().grid(False)
+#     # plt.show()
+#     plt.savefig(filename, transparent=True, bbox_inches="tight")
+#     plt.close()
+#
+#
+# data = [
+#     ("xiao-xyy.svg", colorio.cs.XYY(1)),
+#     ("xiao-cielab.svg", colorio.cs.CIELAB()),
+#     ("xiao-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
+# ]
+# for filename, cs in data:
+#     colorio.data.Xiao().plot(cs)
+#     plt.gca().set_aspect("equal")
+#     plt.gca().grid(False)
+#     # plt.show()
+#     plt.savefig(filename, transparent=True, bbox_inches="tight")
+#     plt.close()
 
 
 data = [
-    ("hung-berns-xyy.svg", colorio.cs.XYY(1)),
-    ("hung-berns-cielab.svg", colorio.cs.CIELAB()),
-    ("hung-berns-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
+    ("macadam1974-xyy.svg", colorio.cs.XYY(1)),
+    ("macadam1974-cielab.svg", colorio.cs.CIELAB()),
+    ("macadam1974-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
 ]
 for filename, cs in data:
-    colorio.data.HungBerns().plot(cs)
-    plt.gca().set_aspect("equal")
-    plt.gca().grid(False)
-    # plt.show()
-    plt.savefig(filename, transparent=True, bbox_inches="tight")
-    plt.close()
-
-
-data = [
-    ("xiao-xyy.svg", colorio.cs.XYY(1)),
-    ("xiao-cielab.svg", colorio.cs.CIELAB()),
-    ("xiao-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
-]
-for filename, cs in data:
-    colorio.data.Xiao().plot(cs)
+    colorio.data.MacAdam1974().plot(cs)
     plt.gca().set_aspect("equal")
     plt.gca().grid(False)
     # plt.show()

@@ -219,6 +219,30 @@ colorio.show_visible_slice(colorspace, lightness=0.5)
 colorio contains lots of experimental data sets some of which can be used to assess
 certain properties of color spaces. Most data sets can also be visualized.
 
+
+#### Color differences
+
+###### MacAdam (1974)
+<img src="https://nschloe.github.io/colorio/macadam1974-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1974-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1974-cam16.svg" width="100%">
+:--------------:|:---------------:|:------------------:|
+xyY             | CIELAB          |  CAM16             |
+
+Color difference data from [MacAdam (1974)](https://doi.org/10.1364/JOSA.64.001691). The
+above plots show the 43 color pairs that are of comparable lightness. The data is
+matched perfectly if the arrow tips meet in one point.
+
+```python
+import colorio
+
+cs = colorio.cs.CIELAB()
+colorio.data.MacAdam1974().show(cs)
+print(colorio.data.MacAdam1974().stress(cs))
+```
+```
+24.531919167387624
+```
+
+
 #### Munsell
 
 <img src="https://nschloe.github.io/colorio/munsell-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cam16.svg" width="100%">
@@ -342,15 +366,6 @@ colorio.data.Xiao().show(colorspace)
 ###### Fairchild-Chen
 
 Lightness experiment [Fairchild-Chen](https://doi.org/10.1117/12.872075).
-
-#### Color differences
-
-
-###### MacAdam (1974)
-
-TODO
-
-TODO
 
 ### Articles
 
