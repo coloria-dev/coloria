@@ -146,11 +146,11 @@ colorspace = colorio.cs.CIELAB()
 colorio.save_rgb_gamut(colorspace, "srgb.vtk", n=51)
 # all formats supported by https://github.com/nschloe/meshio
 ```
-an open it with a tool of your choice. SEe
+an open it with a tool of your choice. See
 [here](https://github.com/nschloe/colorio/wiki/Visualizing-VTK-files) for how to open
 the file in [ParaView](https://www.paraview.org/).
 
-It is sometimes useful to plot lightness slices of the sRGB gamut. Use
+For lightness slices of the sRGB gamut, use
 ```python
 import colorio
 
@@ -184,9 +184,10 @@ The gamut is shown in grey since sRGB screens are not able to display the colors
 
 #### The visible gamut
 
-<img src="https://nschloe.github.io/colorio/visible-gamut-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-oklab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-jzazbz.png" width="100%">
+xyY  |  JzAzBz |  Oklab |
 :---:|:------:|:-------:|
-xyY  |  Oklab |  JzAzBz |
+<img src="https://nschloe.github.io/colorio/visible-gamut-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-jzazbz.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-oklab.png" width="100%">
+<img src="https://nschloe.github.io/colorio/visible-gamut-slice-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-jzazbz.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-oklab.png" width="100%">
 
 Same as above, but with the gamut of visible colors up to a given lightness `Y`.
 ```python
@@ -201,13 +202,7 @@ colorio.show_visible_gamut(colorspace, observer, max_Y1=1)
 ```
 The gamut is shown in grey since sRGB screens are not able to display the colors anyway.
 
-#### Visible gamut slices
-
-<img src="https://nschloe.github.io/colorio/visible-gamut-slice-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-oklab.png" width="100%">
-:---:|:-------:|:------:|
-XYZ  |  CIELAB |  Oklab |
-
-It is sometimes useful to plot lightness slices of the sRGB gamut. Use
+For slices, use
 ```python
 import colorio
 
@@ -217,7 +212,6 @@ colorio.show_visible_slice(colorspace, lightness=0.5)
 # save_visible_slice()
 # plot_visible_slice()
 ```
-The `plot_visible_slice()` method is especially useful for combining with other plots.
 
 
 ### Experimental data
