@@ -3,7 +3,7 @@ import numpy as np
 
 from . import observers
 from ._helpers import _find_Y
-from ._tools import get_mono_outline_xy
+from ._tools import get_mono_outline_xy, spectrum_to_xyz100
 
 
 def _get_visible_gamut_mesh(colorspace, observer, illuminant):
@@ -54,6 +54,30 @@ def save_visible_gamut(colorspace, observer, illuminant, filename):
 
     pts, cells = _get_visible_gamut_mesh(colorspace, observer, illuminant)
     meshio.write_points_cells(filename, pts, cells={"triangle": cells})
+
+
+def show_visible_gamut(colorspace, observer, illuminant, show_grid=True):
+    import pyvista as pv
+    import vtk
+
+    points, cells = _get_visible_gamut_mesh(colorspace, observer, illuminant)
+    cells = np.column_stack([np.full(cells.shape[0], cells.shape[1]), cells])
+
+    # each cell is a VTK_HEXAHEDRON
+    celltypes = np.full(len(cells), vtk.VTK_TRIANGLE)
+
+    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, points, xlabel="Easting")
+    # grid.plot()
+
+    p = pv.Plotter()
+    p.add_mesh(grid)
+    if show_grid:
+        p.show_grid(
+            xlabel=colorspace.labels[0],
+            ylabel=colorspace.labels[1],
+            zlabel=colorspace.labels[2],
+        )
+    p.show()
 
 
 def show_visible_slice(*args, **kwargs):

@@ -32,13 +32,13 @@ def save_rgb_gamut(colorspace, filename: str, variant: str = "srgb", n: int = 50
     )
 
 
-def show_rgb_gamut(colorspace, n: int = 51):
+def show_rgb_gamut(colorspace, n: int = 51, show_grid: bool=True, camera_position=None):
     import meshzoo
     import pyvista as pv
     import vtk
 
     points, cells = meshzoo.cube_hexa((0.0, 0.0, 0.0), (1.0, 1.0, 1.0), n)
-    cells = np.column_stack([np.full(cells.shape[0], 8), cells])
+    cells = np.column_stack([np.full(cells.shape[0], cells.shape[1]), cells])
 
     srgb_linear = SrgbLinear()
     xyz100_coords = srgb_linear.to_xyz100(points.T)
@@ -53,13 +53,26 @@ def show_rgb_gamut(colorspace, n: int = 51):
     # single_slice = mesh.slice(normal=[0, 0, 1])
 
     p = pv.Plotter()
-    mesh = p.add_mesh(
+    p.add_mesh(
         grid,
         scalars=srgb_linear.to_rgb1(points.T).T,
         rgb=True,
         # show_edges=True,
     )
-    p.show()
+    if show_grid:
+        p.show_grid(
+            xlabel=colorspace.labels[0],
+            ylabel=colorspace.labels[1],
+            zlabel=colorspace.labels[2],
+        )
+    # camera_location = (0.5, 2.0, -2.0)
+    # focus_point = (0.5, 0.0, 0.0)
+    # viewup_vector = [0.0, 0.0, 0.0]
+    # viewup_vector[colorspace.k0] = 1.0
+    if camera_position is not None:
+        p.camera_position = camera_position
+    last_camera_position = p.show()
+    return last_camera_position
 
 
 def show_rgb_slice(*args, **kwargs):

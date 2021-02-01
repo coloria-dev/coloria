@@ -9,7 +9,12 @@ from ._tools import (
     show_xy_gamut,
     xy_gamut_mesh,
 )
-from ._visible_gamut import plot_visible_slice, save_visible_gamut, show_visible_slice
+from ._visible_gamut import (
+    plot_visible_slice,
+    save_visible_gamut,
+    show_visible_gamut,
+    show_visible_slice,
+)
 
 __all__ = [
     "__version__",
@@ -21,6 +26,7 @@ __all__ = [
     "ColorioError",
     #
     "show_xy_gamut",
+    "show_visible_gamut",
     "xy_gamut_mesh",
     "show_visible_slice",
     "show_rgb_slice",
