@@ -1,7 +1,6 @@
 import json
 import pathlib
 
-import dufte
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -22,8 +21,6 @@ class FairchildChen(Dataset):
             self.data[key] = np.asarray(self.data[key])
 
     def plot(self, cs):
-        plt.style.use(dufte.style)
-
         # experimental lightness
         L = self.data["lightness"]
         # predicted lightness

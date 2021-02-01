@@ -20,10 +20,8 @@ class Munsell:
         self.xyy100 = np.array([data["x"], data["y"], data["Y"]])
 
     def show(self, *args, **kwargs):
-        plt.figure()
         self.plot(*args, **kwargs)
         plt.show()
-        plt.close()
 
     def savefig(self, filename, *args, **kwargs):
         plt.figure()
@@ -56,12 +54,8 @@ class Munsell:
 
         plt.title(f"Munsell points at lightness V={V} in {cs.name}")
         ax = plt.gca()
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-        ax.spines["bottom"].set_visible(False)
-        ax.spines["left"].set_visible(False)
         plt.xlabel(cs.labels[k1])
-        plt.ylabel(cs.labels[k2])
+        plt.ylabel(cs.labels[k2], rotation=0)
         plt.axis("equal")
 
     def stress_lightness(self, cs):
