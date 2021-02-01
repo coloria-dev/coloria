@@ -6,7 +6,7 @@ from ._nonlinear import regula_falsi
 from .cs import HdrLinear, SrgbLinear
 
 
-def save_rgb_gamut(colorspace, filename: str, variant: str = "srgb", n: int = 50):
+def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50):
     import meshio
     import meshzoo
 
