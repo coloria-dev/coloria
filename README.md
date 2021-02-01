@@ -128,6 +128,9 @@ colorio provides a number of useful tools for analyzing and visualizing color sp
 <img src="https://nschloe.github.io/colorio/srgb-gamut-xyz.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-cam16.png" width="100%">
 :---:|:-------:|:----------:|
 XYZ  |  CIELAB |  CAM16-UCS |
+<img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cam16.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-oklab.png" width="100%">
+:-----:|:---------:|:---------:|
+CIELAB |  CAM16-UCS | Oklab  |
 
 The sRGB gamut is a perfect cube in sRGB space, and takes curious shapes when translated
 into other color spaces. The above images show the sRGB gamut in different color spaces.
@@ -148,12 +151,6 @@ colorio.save_rgb_gamut(colorspace, "srgb.vtk", n=51)
 an open it with a tool of your choice. SEe
 [here](https://github.com/nschloe/colorio/wiki/Visualizing-VTK-files) for how to open
 the file in [ParaView](https://www.paraview.org/).
-
-#### sRGB gamut slices
-
-<img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cam16.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-oklab.png" width="100%">
-:-----:|:---------:|:---------:|
-CIELAB |  CAM16-UCS | Oklab  |
 
 It is sometimes useful to plot lightness slices of the sRGB gamut. Use
 ```python
