@@ -270,9 +270,9 @@ colorio.data.MacAdam1942(50.0).show(cieluv)
 
 ##### Luo-Rigg ellipses
 
-<img src="https://nschloe.github.io/colorio/luo-rigg-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/luo-rigg-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/luo-rigg-cam16.png" width="100%">
-:--------------:|:------------------:|:----------------:|
-xyY (at Y=0.4)  |  CIELAB (at L=50)  |  CAM16 (at L=50) |
+<img src="https://nschloe.github.io/colorio/luo-rigg-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/luo-rigg-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/luo-rigg-cam16.svg" width="100%">
+:---:|:------------------:|:----------------:|
+xyY |  CIELAB |  CAM16 |
 
 Likewise for [Luo-Rigg](https://doi.org/10.1002/col.5080110107).
 

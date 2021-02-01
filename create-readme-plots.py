@@ -54,3 +54,17 @@ for filename, cs in data:
     # plt.show()
     plt.savefig(filename, transparent=True, bbox_inches="tight")
     plt.close()
+
+
+data = [
+    ("luo-rigg-xyy.svg", colorio.cs.XYY(1)),
+    ("luo-rigg-cielab.svg", colorio.cs.CIELAB()),
+    ("luo-rigg-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
+]
+for filename, cs in data:
+    colorio.data.LuoRigg(8).plot(cs)
+    plt.gca().set_aspect("equal")
+    plt.gca().grid(False)
+    # plt.show()
+    plt.savefig(filename, transparent=True, bbox_inches="tight")
+    plt.close()

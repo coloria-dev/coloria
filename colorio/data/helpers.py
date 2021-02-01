@@ -238,8 +238,8 @@ def _plot_ellipses(cs, xyy100_centers, xyy100_points, ellipse_scaling):
             # label=label,
         )
         plt.gca().add_patch(e)
-        e.set_alpha(0.5)
-        e.set_facecolor("k")
+        # e.set_alpha(0.5)
+        e.set_facecolor("#969696")
 
         # plt.plot(*tcenter, "xk")
         # plt.plot(*tvals, "ok")
