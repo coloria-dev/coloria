@@ -1,3 +1,4 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -102,136 +103,136 @@ def plot_rgb_slice(
     # TODO HDR
     assert variant in ["srgb", "rec709"]
 
-    srgb_linear = SrgbLinear()
+    # srgb_linear = SrgbLinear()
 
-    def f(pts):
-        # transform to colorspace coordinates
-        xyz100_coords = srgb_linear.to_xyz100(pts)
-        cs_coords = colorspace.from_xyz100(xyz100_coords)
-        return cs_coords[colorspace.k0] - lightness
+    # def f(pts):
+    #     # transform to colorspace coordinates
+    #     xyz100_coords = srgb_linear.to_xyz100(pts)
+    #     cs_coords = colorspace.from_xyz100(xyz100_coords)
+    #     return cs_coords[colorspace.k0] - lightness
 
-    srgb_points, cells = meshzoo.cube_hexa((0.0, 0.0, 0.0), (1.0, 1.0, 1.0), n)
-    is_lightness_above = f(srgb_points.T) > 0
+    # srgb_points, cells = meshzoo.cube_hexa((0.0, 0.0, 0.0), (1.0, 1.0, 1.0), n)
+    # is_lightness_above = f(srgb_points.T) > 0
 
-    cells_ila = is_lightness_above[cells]
+    # cells_ila = is_lightness_above[cells]
 
-    # find all cells where at least one corner point is below and at least one is above
-    # the target lightness
-    is_intermediate_cell = np.any(cells_ila, axis=1) & np.any(~cells_ila, axis=1)
+    # # find all cells where at least one corner point is below and at least one is above
+    # # the target lightness
+    # is_intermediate_cell = np.any(cells_ila, axis=1) & np.any(~cells_ila, axis=1)
 
-    cells = cells[is_intermediate_cell]
-    cells_ila = cells_ila[is_intermediate_cell]
+    # cells = cells[is_intermediate_cell]
+    # cells_ila = cells_ila[is_intermediate_cell]
 
-    # Now collect all edges along which the target lightness is crossed
-    local_edges = [
-        (0, 1),
-        (0, 3),
-        (0, 4),
-        (1, 2),
-        (1, 5),
-        (2, 3),
-        (2, 6),
-        (3, 7),
-        (4, 5),
-        (4, 7),
-        (5, 6),
-        (6, 7),
-    ]
-    edges = []
-    for e0, e1 in local_edges:
-        a = np.logical_xor(cells_ila[:, e0], cells_ila[:, e1])
-        edges.append(np.column_stack([cells[a, e0], cells[a, e1]]))
+    # # Now collect all edges along which the target lightness is crossed
+    # local_edges = [
+    #     (0, 1),
+    #     (0, 3),
+    #     (0, 4),
+    #     (1, 2),
+    #     (1, 5),
+    #     (2, 3),
+    #     (2, 6),
+    #     (3, 7),
+    #     (4, 5),
+    #     (4, 7),
+    #     (5, 6),
+    #     (6, 7),
+    # ]
+    # edges = []
+    # for e0, e1 in local_edges:
+    #     a = np.logical_xor(cells_ila[:, e0], cells_ila[:, e1])
+    #     edges.append(np.column_stack([cells[a, e0], cells[a, e1]]))
 
-    edges = np.concatenate(edges)
-    print(edges)
-    print()
-
-    # make unique
-    edges = np.sort(edges, axis=1)
-    edges = np.unique(edges, axis=0)
-
-    # now bisect to identify the points with the target lightness
-    print()
-    print(srgb_points.shape)
-    print()
-    edge_pts = srgb_points[edges]
-
-    a = edge_pts[:, 0]
-    b = edge_pts[:, 1]
-
-    print(a)
-    print()
-    print(b)
-    print()
-
-    # a, b = bisect(f, a.T, b.T, tol=1.0e-5)
-    a, b = regula_falsi(f, a.T, b.T, tol=1.0e-5)
-    sol = (a + b) / 2
-    print(sol.T)
-    print(lightness, colorspace.k0)
-    print()
-
-    xyz100_coords = srgb_linear.to_xyz100(sol)
-    cs_coords = colorspace.from_xyz100(xyz100_coords)
-    print(cs_coords.T)
-    print(cs_coords.shape)
-
-    # The cells could actually be derived from the connectivity info of the transformed
-    # cube. Since this is getting a little messy, rather get a triangulation of the
-    # convex hull and kick out all cells the barycenters of which aren't in the set.
-    cells = Delaunay(cs_coords[1:].T).simplices
-    barycenters = np.sum(cs_coords[1:, cells], axis=-1).T / 3
-    barycenters = np.column_stack(
-        [np.full(barycenters.shape[0], lightness), barycenters]
-    )
-    xyz100 = colorspace.to_xyz100(barycenters.T)
-    srgb_vals = srgb_linear.from_xyz100(xyz100)
-    tol = 1.0e-5
-    is_legal_srgb = np.all(srgb_vals < 1.0 + tol, axis=0) & np.all(
-        srgb_vals > -tol, axis=0
-    )
-
-    # print(np.where(~is_legal_srgb))
-    # print(srgb_vals[:, 0])
-    # print(cells[0])
-    # print(cs_coords[:, 1273])
-    # print(cs_coords[:, 75])
-    # print(cs_coords[:, 37])
+    # edges = np.concatenate(edges)
+    # print(edges)
     # print()
-    # print(srgb_linear.from_xyz100(colorspace.to_xyz100(cs_coords[:, 1273])))
-    # print(srgb_linear.from_xyz100(colorspace.to_xyz100(cs_coords[:, 75])))
-    # print(srgb_linear.from_xyz100(colorspace.to_xyz100(cs_coords[:, 37])))
+
+    # # make unique
+    # edges = np.sort(edges, axis=1)
+    # edges = np.unique(edges, axis=0)
+
+    # # now bisect to identify the points with the target lightness
+    # print()
+    # print(srgb_points.shape)
+    # print()
+    # edge_pts = srgb_points[edges]
+
+    # a = edge_pts[:, 0]
+    # b = edge_pts[:, 1]
+
+    # print(a)
+    # print()
+    # print(b)
+    # print()
+
+    # # a, b = bisect(f, a.T, b.T, tol=1.0e-5)
+    # a, b = regula_falsi(f, a.T, b.T, tol=1.0e-5)
+    # sol = (a + b) / 2
+    # print(sol.T)
+    # print(lightness, colorspace.k0)
+    # print()
+
+    # xyz100_coords = srgb_linear.to_xyz100(sol)
+    # cs_coords = colorspace.from_xyz100(xyz100_coords)
+    # print(cs_coords.T)
+    # print(cs_coords.shape)
+
+    # # The cells could actually be derived from the connectivity info of the transformed
+    # # cube. Since this is getting a little messy, rather get a triangulation of the
+    # # convex hull and kick out all cells the barycenters of which aren't in the set.
+    # cells = Delaunay(cs_coords[1:].T).simplices
+    # barycenters = np.sum(cs_coords[1:, cells], axis=-1).T / 3
+    # barycenters = np.column_stack(
+    #     [np.full(barycenters.shape[0], lightness), barycenters]
+    # )
+    # xyz100 = colorspace.to_xyz100(barycenters.T)
+    # srgb_vals = srgb_linear.from_xyz100(xyz100)
+    # tol = 1.0e-5
+    # is_legal_srgb = np.all(srgb_vals < 1.0 + tol, axis=0) & np.all(
+    #     srgb_vals > -tol, axis=0
+    # )
+
+    # # print(np.where(~is_legal_srgb))
+    # # print(srgb_vals[:, 0])
+    # # print(cells[0])
+    # # print(cs_coords[:, 1273])
+    # # print(cs_coords[:, 75])
+    # # print(cs_coords[:, 37])
+    # # print()
+    # # print(srgb_linear.from_xyz100(colorspace.to_xyz100(cs_coords[:, 1273])))
+    # # print(srgb_linear.from_xyz100(colorspace.to_xyz100(cs_coords[:, 75])))
+    # # print(srgb_linear.from_xyz100(colorspace.to_xyz100(cs_coords[:, 37])))
+    # # exit(1)
+
+    # # cells = cells[is_legal_srgb]
+
+    # print(is_legal_srgb.shape, is_legal_srgb.sum())
+
+    # for cell in cells:
+    #     for i0, i1 in [[0, 1], [1, 2], [2, 1]]:
+    #         p0 = cs_coords[1:, cell[i0]]
+    #         p1 = cs_coords[1:, cell[i1]]
+    #         plt.plot([p0[0], p1[0]], [p0[1], p1[1]], "k-")
+
+    # for x in barycenters[~is_legal_srgb]:
+    #     plt.plot(x[1], x[2], "x", color="C0")
+
+    # plt.scatter(*cs_coords[1:], marker="x", color="k")
+    # plt.gca().set_aspect("equal")
+    # plt.show()
     # exit(1)
 
-    # cells = cells[is_legal_srgb]
+    # print(edges)
 
-    print(is_legal_srgb.shape, is_legal_srgb.sum())
+    # print(is_lightness_above[edges])
+    # exit(1)
 
-    for cell in cells:
-        for i0, i1 in [[0, 1], [1, 2], [2, 1]]:
-            p0 = cs_coords[1:, cell[i0]]
-            p1 = cs_coords[1:, cell[i1]]
-            plt.plot([p0[0], p1[0]], [p0[1], p1[1]], "k-")
+    # print(len(edges))
+    # exit(1)
+    # print(cells.shape)
+    # print(cells_ila.shape)
 
-    for x in barycenters[~is_legal_srgb]:
-        plt.plot(x[1], x[2], "x", color="C0")
-
-    plt.scatter(*cs_coords[1:], marker="x", color="k")
-    plt.gca().set_aspect("equal")
-    plt.show()
-    exit(1)
-
-    print(edges)
-
-    print(is_lightness_above[edges])
-    exit(1)
-
-    print(len(edges))
-    exit(1)
-    print(cells.shape)
-    print(cells_ila.shape)
-
-    exit(1)
+    # exit(1)
 
     # Get all RGB values that sum up to 1.
     srgb_vals, triangles = meshzoo.triangle(n=n)
@@ -239,7 +240,6 @@ def plot_rgb_slice(
 
     # Use bisection to
     srgb_linear = SrgbLinear()
-    tol = 1.0e-5
     # Use zeros() instead of empty() here to avoid invalid values when setting up
     # the cmap below.
     colorspace_vals = np.zeros((srgb_vals.shape[0], 3))
@@ -301,3 +301,9 @@ def plot_rgb_slice(
         cmap=cmap,
     )
     # plt.triplot(colorspace_vals[:, k1], colorspace_vals[:, k2], triangles=triangles)
+    plt.title(
+        f"sRGB gamut slice in {colorspace.name} with "
+        f"{colorspace.labels[colorspace.k0]}={lightness}"
+    )
+    plt.xlabel(colorspace.labels[k1])
+    plt.ylabel(colorspace.labels[k2])

@@ -39,7 +39,7 @@ The following color spaces are implemented:
    parameter determining the scaling)
  * [xyY](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space)
    (`colorio.cs.XYY(100)`, the paramter determining the scaling of `Y`)
- * [Linear SRGB](https://en.wikipedia.org/wiki/SRGB)  (`colorio.SrgbLinear()`)
+ * [Linear sRGB](https://en.wikipedia.org/wiki/sRGB)  (`colorio.SrgbLinear()`)
    This class has the two additional methods
    ```
    from_rgb1()
@@ -119,46 +119,50 @@ All methods in colorio are fully vectorized, i.e., computation is _really_ fast.
    colorio.diff.cmc(lab1, lab2)
    ```
 
-### Tools
+### Gamut visualization
 
 colorio provides a number of useful tools for analyzing and visualizing color spaces.
 
-#### Visualizing the SRGB gamut
+#### sRGB gamut
 
 <img src="https://nschloe.github.io/colorio/srgb-gamut-xyz.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-cam16.png" width="100%">
 :---:|:-------:|:----------:|
 XYZ  |  CIELAB |  CAM16-UCS |
 
-The SRGB gamut is a perfect cube in SRGB space, and takes curious shapes when translated
-into other color spaces. The above image shows the SRGB gamut in XYZ space. The image
-data was created with
+The sRGB gamut is a perfect cube in sRGB space, and takes curious shapes when translated
+into other color spaces. The above images show the sRGB gamut in different color spaces.
 ```python
 import colorio
 
 colorspace = colorio.cs.CIELAB()
-colorspace.save_rgb_gamut("srgb.vtk", "srgb", n=50)
-
-# The HDR (Rec.2100, Rec.2020) gamut works the same way
-colorspace.save_rgb_gamut("hdr.vtk", "hdr", n=50)
+colorio.show_rgb_gamut(colorspace, n=51, show_grid=True, camera_position=None)
 ```
-The [VTK](https://www.vtk.org/VTK/img/file-formats.pdf) file can then be opened
-in, e.g., ParaView, where the following instructions apply:
-1. Open the file in ParaView and execute the following steps in the **Properties** tab
-   to the left.
-2. Press the **Apply** button.
-3. Under the **Coloring** section, change `Solid Color` to `srgb`.
-4. If necessary, press the gear button to the right of the search field to activate
-   advanced options.
-5. Under the **Scalar Coloring** section, uncheck **Map Scalars**.
+For more visualization options, you can store the sRGB data in a file 
+```python
+import colorio
 
-More images are [in the gh-pages
-branch](https://github.com/nschloe/colorio/tree/gh-pages).
+colorspace = colorio.cs.CIELAB()
+colorio.save_rgb_gamut(colorspace, "srgb.vtk", n=51)
+# all formats supported by https://github.com/nschloe/meshio
+```
+an open it with a tool of your choice. SEe
+[here](https://github.com/nschloe/colorio/wiki/Visualizing-VTK-files) for how to open
+the file in [ParaView](https://www.paraview.org/).
 
-The data can be written in most formats supported by
-[meshio](https://github.com/nschloe/meshio). (You might have to install additional
-packages for some formats.)
+#### sRGB gamut slices
 
-#### Visualizing the visible gamut
+It is sometimes useful to plot lightness slices of the sRGB gamut. Use
+```python
+import colorio
+
+colorspace = colorio.cs.CIELAB()
+colorio.show_rgb_slice(colorspace, lightness=0.5, n=51)
+# or
+# save_rgb_slice()
+# plot_rgb_slice() 
+```
+
+#### The visible gamut
 
 <img src="https://nschloe.github.io/colorio/visible-gamut-xyz.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-cam16.png" width="100%">
 :---:|:-------:|:----------:|
@@ -174,7 +178,9 @@ observer = colorio.observers.cie_1931_2()
 colorspace = colorio.cs.XYZ(100)
 colorspace.save_visible_gamut(observer, illuminant, "visible.vtk")
 ```
-The gamut is shown in grey since SRGB screens are not able to display the colors anyway.
+The gamut is shown in grey since sRGB screens are not able to display the colors anyway.
+
+#### visible gamut slices
 
 #### Slices through the color spaces
 
@@ -184,7 +190,7 @@ corresponds to "lightness" in the respective color space, e.g., 2 in xyY and 0 i
 CIELAB) and the slice level.
 
 The solid line corresponds to monochromatic light; for convenience, the slice through
-the SRGB gamut is also displayed.
+the sRGB gamut is also displayed.
 
 <img src="https://nschloe.github.io/colorio/xyy-visible-slice.png" width="100%"> | <img src="https://nschloe.github.io/colorio/cielab-visible-slice.png" width="100%"> | <img src="https://nschloe.github.io/colorio/cam16ucs-visible-slice.png" width="100%">
 :--------------:|:-------------------:|:---------------------:|
@@ -205,7 +211,7 @@ cam16.show_visible_slice(0, 50)
 ```
 
 For convenience, it is also possible to show the classical visible gamut in xy with
-[Planckian locus](https://en.wikipedia.org/wiki/Planckian_locus) and the SRGB colors (at
+[Planckian locus](https://en.wikipedia.org/wiki/Planckian_locus) and the sRGB colors (at
 maximum luminosity).
 
 <img src="https://nschloe.github.io/colorio/xy-gamut.png" width="30%">
@@ -217,13 +223,41 @@ colorio.show_xy_gamut()
 ```
 
 
-#### Show experimental data
+### Experimental data
 
 colorio contains lots of experimental data sets some of which can be used to assess
-certain properties of color spaces.
+certain properties of color spaces. Most data sets can also be visualized.
 
+#### Munsell
 
-###### MacAdam ellipses
+<img src="https://nschloe.github.io/colorio/munsell-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cam16.svg" width="100%">
+:--------------:|:---------------:|:---------------------:|
+xyY             | CIELAB          |  CAM16             |
+
+[Munsell color data](https://www.rit.edu/cos/colorscience/rc_munsell_renotation.php) is
+visualized with
+```python
+import colorio
+
+cs = colorio.cs.CIELUV()
+colorio.data.Munsell().show(cs, V=5)
+```
+
+To retrieve the Munsell data in xyY format, use
+```python
+import colorio
+
+munsell = colorio.data.Munsell()
+
+# munsell.h
+# munsell.V
+# munsell.C
+# munsell.xyy
+```
+
+#### Ellipses
+
+##### MacAdam ellipses (1942)
 
 <img src="https://nschloe.github.io/colorio/macadam-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam-cam16.png" width="100%">
 :--------------:|:------------------:|:----------------:|
@@ -243,7 +277,7 @@ cieluv = colorio.cs.CIELUV()
 colorio.data.MacAdam1942(50.0).show(cieluv)
 ```
 
-###### Luo-Rigg
+##### Luo-Rigg ellipses
 
 <img src="https://nschloe.github.io/colorio/luo-rigg-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/luo-rigg-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/luo-rigg-cam16.png" width="100%">
 :--------------:|:------------------:|:----------------:|
@@ -262,7 +296,9 @@ cieluv = colorio.cs.CIELUV()
 colorio.data.LuoRigg(8).show(cieluv, 50)
 ```
 
-###### Ebner-Fairchild
+#### Hue linearity
+
+##### Ebner-Fairchild
 
 <img src="https://nschloe.github.io/colorio/ebner-fairchild-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/ebner-fairchild-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/ebner-fairchild-cam16.svg" width="100%">
 :--------------:|:---------------:|:---------------------:|
@@ -310,43 +346,18 @@ colorspace = colorio.cs.CIELAB()
 colorio.data.Xiao().show(colorspace)
 ```
 
-##### Fairchild-Chen
+#### Lightness
+
+###### Fairchild-Chen
 
 Lightness experiment [Fairchild-Chen](https://doi.org/10.1117/12.872075).
 
+#### Color differences
 
-##### Munsell
 
-<img src="https://nschloe.github.io/colorio/munsell-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cam16.svg" width="100%">
-:--------------:|:---------------:|:---------------------:|
-xyY             | CIELAB          |  CAM16             |
-
-[Munsell color data](https://www.rit.edu/cos/colorscience/rc_munsell_renotation.php) is
-visualized with
-```python
-import colorio
-
-cs = colorio.cs.CIELUV()
-colorio.data.Munsell().show(cs, V=5)
-```
-
-To retrieve the Munsell data in xyY format, use
-```python
-import colorio
-
-munsell = colorio.data.Munsell()
-
-# munsell.h
-# munsell.V
-# munsell.C
-# munsell.xyy
-```
-
-##### MacAdam color distances
+###### MacAdam (1974)
 
 TODO
-
-#### Color differences
 
 TODO
 
