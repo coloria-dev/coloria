@@ -125,12 +125,10 @@ colorio provides a number of useful tools for analyzing and visualizing color sp
 
 #### sRGB gamut
 
-<img src="https://nschloe.github.io/colorio/srgb-gamut-xyz.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-cam16.png" width="100%">
-:---:|:-------:|:----------:|
-XYZ  |  CIELAB |  CAM16-UCS |
-<img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cam16.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-oklab.png" width="100%">
-:-----:|:---------:|:---------:|
 CIELAB |  CAM16-UCS | Oklab  |
+:---:|:-------:|:----------:|
+<img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-cam16.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-oklab.png" width="100%">
+<img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cam16.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-oklab.png" width="100%">
 
 The sRGB gamut is a perfect cube in sRGB space, and takes curious shapes when translated
 into other color spaces. The above images show the sRGB gamut in different color spaces.
