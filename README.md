@@ -213,7 +213,7 @@ maximum luminosity).
 ```python
 import colorio
 
-colorio.show_flat_gamut()
+colorio.show_xy_gamut()
 ```
 
 

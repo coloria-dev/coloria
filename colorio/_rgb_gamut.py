@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+from ._nonlinear import regula_falsi
 from .cs import HdrLinear, SrgbLinear
 
 

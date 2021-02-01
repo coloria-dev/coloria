@@ -4,9 +4,9 @@ from ._exceptions import ColorioError
 from ._rgb_gamut import plot_rgb_slice, save_rgb_gamut, show_rgb_gamut, show_rgb_slice
 from ._tools import (
     save_cone_gamut,
-    show_flat_gamut,
     show_primary_srgb_gradients,
     show_srgb255_gradient,
+    show_xy_gamut,
     xy_gamut_mesh,
 )
 from ._visible_gamut import plot_visible_slice, save_visible_gamut, show_visible_slice
@@ -20,7 +20,7 @@ __all__ = [
     "observers",
     "ColorioError",
     #
-    "show_flat_gamut",
+    "show_xy_gamut",
     "xy_gamut_mesh",
     "show_visible_slice",
     "show_rgb_slice",

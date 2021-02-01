@@ -1,3 +1,11 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+from . import observers
+from ._helpers import _find_Y
+from ._tools import get_mono_outline_xy
+
+
 def _get_visible_gamut_mesh(colorspace, observer, illuminant):
     from scipy.spatial import ConvexHull
 
