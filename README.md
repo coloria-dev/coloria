@@ -250,7 +250,7 @@ munsell = colorio.data.Munsell()
 
 ##### MacAdam ellipses (1942)
 
-<img src="https://nschloe.github.io/colorio/macadam-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam-cam16.png" width="100%">
+<img src="https://nschloe.github.io/colorio/macadam1942-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1942-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1942-cam16.png" width="100%">
 :--------------:|:------------------:|:----------------:|
 xyY (at Y=0.4)  |  CIELAB (at L=50)  |  CAM16 (at L=50) |
 

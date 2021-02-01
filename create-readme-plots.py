@@ -29,14 +29,28 @@ plt.style.use(dufte.style)
 # colorio.plot_visible_slice(cs, lightness=0.5)
 # plt.savefig("visible-gamut-slice-oklab.png", transparent=True, bbox_inches="tight")
 
+# data = [
+#     ("munsell-xyy.svg", colorio.cs.XYY(1)),
+#     ("munsell-cielab.svg", colorio.cs.CIELAB()),
+#     ("munsell-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
+# ]
+# for filename, cs in data:
+#     colorio.data.Munsell().plot(cs, V=5)
+#     plt.gca().set_aspect("equal")
+#     plt.gca().grid(False)
+#     plt.savefig(filename, transparent=True, bbox_inches="tight")
+#     plt.close()
+
+
 data = [
-    ("munsell-xyy.svg", colorio.cs.XYY(1)),
-    ("munsell-cielab.svg", colorio.cs.CIELAB()),
-    ("munsell-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
+    ("macadam1942-xyy.svg", colorio.cs.XYY(1)),
+    ("macadam1942-cielab.svg", colorio.cs.CIELAB()),
+    ("macadam1942-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
 ]
 for filename, cs in data:
-    colorio.data.Munsell().plot(cs, V=5)
+    colorio.data.MacAdam1942(50.0).plot(cs)
     plt.gca().set_aspect("equal")
     plt.gca().grid(False)
+    # plt.show()
     plt.savefig(filename, transparent=True, bbox_inches="tight")
     plt.close()

@@ -120,7 +120,7 @@ class HueLinearityDataset(Dataset):
 
         l0, l1 = colorspace.labels[no_lightness]
         plt.xlabel(l0)
-        plt.ylabel(l1)
+        plt.ylabel(l1, rotation=0)
         plt.axis("equal")
 
         # plt.grid()
@@ -248,7 +248,7 @@ def _plot_ellipses(cs, xyy100_centers, xyy100_points, ellipse_scaling):
     plt.gca().set_aspect("equal")
     labels = cs.labels[keep]
     plt.xlabel(labels[0])
-    plt.ylabel(labels[1])
+    plt.ylabel(labels[1], rotation=0)
 
     # mpl doesn't update axis limits when adding artists,
     # <https://github.com/matplotlib/matplotlib/issues/19290>.
