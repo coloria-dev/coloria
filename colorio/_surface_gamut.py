@@ -46,7 +46,7 @@ def _get_surface_gamut_mesh(colorspace, observer, illuminant):
     return pts, cells
 
 
-def save_surface_gamut(colorspace, observer, illuminant, filename):
+def save_surface_gamut(filename, colorspace, observer, illuminant):
     import meshio
 
     pts, cells = _get_surface_gamut_mesh(colorspace, observer, illuminant)
@@ -58,12 +58,14 @@ def show_surface_gamut(colorspace, observer, illuminant, show_grid=True):
     import vtk
 
     points, cells = _get_surface_gamut_mesh(colorspace, observer, illuminant)
-    cells = np.column_stack([np.full(cells.shape[0], cells.shape[1]), cells])
+    cells = np.column_stack(
+        [np.full(cells.shape[0], cells.shape[1], dtype=cells.dtype), cells]
+    )
 
     # each cell is a VTK_HEXAHEDRON
     celltypes = np.full(len(cells), vtk.VTK_TRIANGLE)
 
-    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, points, xlabel="Easting")
+    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, points)
     # grid.plot()
 
     p = pv.Plotter()

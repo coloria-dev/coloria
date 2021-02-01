@@ -4,36 +4,66 @@ import numpy as np
 from . import observers
 from ._helpers import _find_Y
 from ._tools import get_mono_outline_xy, spectrum_to_xyz100
+from .cs import XYY
 
 
-def _xyy_to_xyz100(xyy):
-    x, y, Y = xyy
-    return np.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
-
-
-def save_visible_gamut(colorspace, filename, observer, max_Y):
+def _get_visible_gamut_mesh(observer, max_Y1, h=4.0e-2):
     import meshio
     import pygmsh
 
     with pygmsh.geo.Geometry() as geom:
-        max_stepsize = 4.0e-2
-        xy, _ = get_mono_outline_xy(observer, max_stepsize=max_stepsize)
-
+        xy, _ = get_mono_outline_xy(observer, max_stepsize=h)
         # append third component
         xy = np.column_stack([xy, np.full(xy.shape[0], 1.0e-5)])
-
-        # Draw a cross.
-        poly = geom.add_polygon(xy, mesh_size=max_stepsize)
-
-        axis = [0, 0, max_Y]
-
+        poly = geom.add_polygon(xy, mesh_size=h)
+        axis = [0, 0, max_Y1]
         geom.extrude(poly, translation_axis=axis)
-
         mesh = geom.generate_mesh(verbose=False)
-    # meshio.write(filename, mesh)
 
-    pts = colorspace.from_xyz100(_xyy_to_xyz100(mesh.points.T)).T
-    meshio.write_points_cells(filename, pts, {"tetra": mesh.get_cells_type("tetra")})
+    return mesh.points, mesh.get_cells_type("tetra")
+
+
+def save_visible_gamut(filename, colorspace, observer, max_Y1, h=4.0e-2):
+    import meshio
+
+    points, cells = _get_visible_gamut_mesh(observer, max_Y1, h=h)
+
+    xyz100 = XYY(1).to_xyz100(points.T)
+    xyz100[xyz100 < 0] = 0.0
+    points = colorspace.from_xyz100(xyz100).T
+
+    meshio.write_points_cells(filename, points, {"tetra": cells})
+
+
+def show_visible_gamut(colorspace, observer, max_Y1, show_grid=True, h=4.0e-2):
+    import pyvista as pv
+    import vtk
+
+    points, cells = _get_visible_gamut_mesh(observer, max_Y1, h=h)
+
+    xyz100 = XYY(1).to_xyz100(points.T)
+    xyz100[xyz100 < 0] = 0.0
+    points = colorspace.from_xyz100(xyz100).T
+
+    cells = np.column_stack(
+        [np.full(cells.shape[0], cells.shape[1], dtype=cells.dtype), cells]
+    )
+
+    # each cell is a VTK_HEXAHEDRON
+    celltypes = np.full(len(cells), vtk.VTK_TETRA)
+
+    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, points)
+    # grid.plot()
+
+    p = pv.Plotter()
+    p.add_mesh(grid)
+    if show_grid:
+        p.show_grid(
+            xlabel=colorspace.labels[0],
+            ylabel=colorspace.labels[1],
+            zlabel=colorspace.labels[2],
+        )
+    p.show()
 
 
 def show_visible_slice(*args, **kwargs):

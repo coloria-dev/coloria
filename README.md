@@ -167,13 +167,13 @@ colorio.show_rgb_slice(colorspace, lightness=0.5, n=51)
 ```
 The `plot_rgb_slice()` method is especially useful for combining with other plots.
 
-#### The visible gamut
+#### Surface color gamut
 
-<img src="https://nschloe.github.io/colorio/visible-gamut-xyz.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-cam16.png" width="100%">
+<img src="https://nschloe.github.io/colorio/surface-gamut-xyz.png" width="100%"> | <img src="https://nschloe.github.io/colorio/surface-gamut-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/surface-gamut-cam16.png" width="100%">
 :---:|:-------:|:----------:|
 XYZ  |  CIELAB |  CAM16-UCS |
 
-Same as above, but with the gamut visible under a given illuminant.
+Same as above, but with the surface color gamut visible under a given illuminant.
 ```python
 import colorio
 
@@ -181,11 +181,32 @@ illuminant = colorio.illuminants.d65()
 observer = colorio.observers.cie_1931_2()
 
 colorspace = colorio.cs.XYZ(100)
-colorspace.save_visible_gamut(observer, illuminant, "visible.vtk")
+
+colorspace.save_surface_gamut("surface.vtk", observer, illuminant)
+colorspace.show_surface_gamut(observer, illuminant)
 ```
 The gamut is shown in grey since sRGB screens are not able to display the colors anyway.
 
-#### visible gamut slices
+#### The visible gamut
+
+<img src="https://nschloe.github.io/colorio/visible-gamut-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-cam16.png" width="100%">
+:---:|:-------:|:----------:|
+XYZ  |  CIELAB |  CAM16-UCS |
+
+Same as above, but with the gamut of visible colors up to a given lightness `Y`.
+```python
+import colorio
+
+observer = colorio.observers.cie_1931_2()
+
+colorspace = colorio.cs.XYZ(100)
+
+colorio.save_visible_gamut("visible.vtk", colorspace, observer, max_Y1=1)
+colorio.show_visible_gamut(colorspace, observer, max_Y1=1)
+```
+The gamut is shown in grey since sRGB screens are not able to display the colors anyway.
+
+#### Visible gamut slices
 
 <img src="https://nschloe.github.io/colorio/visible-gamut-slice-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-oklab.png" width="100%">
 :---:|:-------:|:------:|
@@ -203,45 +224,23 @@ colorio.show_visible_slice(colorspace, lightness=0.5)
 ```
 The `plot_visible_slice()` method is especially useful for combining with other plots.
 
-#### Slices through the color spaces
+#### Visible gamut slices
 
-Instead of fiddling around with the proper 3D objects, colorio can plot slices through
-all color spaces. One simply provides the slice index (typically the one that
-corresponds to "lightness" in the respective color space, e.g., 2 in xyY and 0 in
-CIELAB) and the slice level.
+<img src="https://nschloe.github.io/colorio/visible-gamut-slice-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-oklab.png" width="100%">
+:---:|:-------:|:------:|
+XYZ  |  CIELAB |  Oklab |
 
-The solid line corresponds to monochromatic light; for convenience, the slice through
-the sRGB gamut is also displayed.
-
-<img src="https://nschloe.github.io/colorio/xyy-visible-slice.png" width="100%"> | <img src="https://nschloe.github.io/colorio/cielab-visible-slice.png" width="100%"> | <img src="https://nschloe.github.io/colorio/cam16ucs-visible-slice.png" width="100%">
-:--------------:|:-------------------:|:---------------------:|
-xyY (at Y=0.4)  |  CIELAB (at L=50)  |  CAM16-UCS (at J'=50) |
-
+It is sometimes useful to plot lightness slices of the sRGB gamut. Use
 ```python
 import colorio
 
-# xyy = colorio.cs.XYY(100)
-# xyy.show_visible_slice("xyy-visible-slice.png", 2, 0.4)
-
-# cielab = colorio.cs.CIELAB()
-# cielab.show_visible_slice(0, 50)
-
-cam16 = colorio.cs.CAM16UCS(0.69, 20, 4.07)
-cam16.show_visible_slice(0, 50)
-# cam16.save_visible_slice("cam16ucs-visible-slice.png", 0, 50)
+colorspace = colorio.cs.CIELAB()
+colorio.show_visible_slice(colorspace, lightness=0.5)
+# or
+# save_visible_slice()
+# plot_visible_slice()
 ```
-
-For convenience, it is also possible to show the classical visible gamut in xy with
-[Planckian locus](https://en.wikipedia.org/wiki/Planckian_locus) and the sRGB colors (at
-maximum luminosity).
-
-<img src="https://nschloe.github.io/colorio/xy-gamut.png" width="30%">
-
-```python
-import colorio
-
-colorio.show_xy_gamut()
-```
+The `plot_visible_slice()` method is especially useful for combining with other plots.
 
 
 ### Experimental data

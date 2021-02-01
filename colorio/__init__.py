@@ -8,8 +8,8 @@ from ._rgb_gamut import (
     show_rgb_gamut,
     show_rgb_slice,
 )
+from ._surface_gamut import save_surface_gamut, show_surface_gamut
 from ._tools import (
-    save_cone_gamut,
     show_primary_srgb_gradients,
     show_srgb255_gradient,
     show_xy_gamut,
@@ -45,4 +45,6 @@ __all__ = [
     "save_visible_gamut",
     "show_srgb255_gradient",
     "show_primary_srgb_gradients",
+    "save_surface_gamut",
+    "show_surface_gamut",
 ]
