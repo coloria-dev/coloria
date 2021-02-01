@@ -30,9 +30,9 @@ plt.style.use(dufte.style)
 # plt.savefig("visible-gamut-slice-oklab.png", transparent=True, bbox_inches="tight")
 
 data = [
-    ("munsell-xyy.png", colorio.cs.XYY(1)),
-    ("munsell-cielab.png", colorio.cs.CIELAB()),
-    ("munsell-cam16.png", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
+    ("munsell-xyy.svg", colorio.cs.XYY(1)),
+    ("munsell-cielab.svg", colorio.cs.CIELAB()),
+    ("munsell-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
 ]
 for filename, cs in data:
     colorio.data.Munsell().plot(cs, V=5)
