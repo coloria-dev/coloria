@@ -1,7 +1,13 @@
 from . import cs, data, diff, illuminants, observers
 from .__about__ import __version__
 from ._exceptions import ColorioError
-from ._rgb_gamut import plot_rgb_slice, save_rgb_gamut, show_rgb_gamut, show_rgb_slice
+from ._rgb_gamut import (
+    plot_rgb_slice,
+    save_rgb_gamut,
+    save_rgb_slice,
+    show_rgb_gamut,
+    show_rgb_slice,
+)
 from ._tools import (
     save_cone_gamut,
     show_primary_srgb_gradients,

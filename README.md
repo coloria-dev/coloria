@@ -151,6 +151,10 @@ the file in [ParaView](https://www.paraview.org/).
 
 #### sRGB gamut slices
 
+<img src="https://nschloe.github.io/colorio/srgb-gamut-slice-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-oklab.png" width="100%">
+:---:|:-------:|:------:|
+XYZ  |  CIELAB |  Oklab |
+
 It is sometimes useful to plot lightness slices of the sRGB gamut. Use
 ```python
 import colorio
@@ -161,6 +165,7 @@ colorio.show_rgb_slice(colorspace, lightness=0.5, n=51)
 # save_rgb_slice()
 # plot_rgb_slice()
 ```
+The `plot_rgb_slice()` method is especially useful for combining with other plots.
 
 #### The visible gamut
 

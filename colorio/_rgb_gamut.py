@@ -168,6 +168,12 @@ def plot_rgb_slice(
 
     k1, k2 = [k for k in [0, 1, 2] if k != colorspace.k0]
 
+    import dufte
+
+    plt.style.use(dufte.style)
+    # default margins:
+    plt.gca().margins(0.05)
+
     plt.tripcolor(
         colorspace_vals[:, k1],
         colorspace_vals[:, k2],
