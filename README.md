@@ -132,6 +132,7 @@ CIELAB |  CAM16-UCS | Oklab  |
 
 The sRGB gamut is a perfect cube in sRGB space, and takes curious shapes when translated
 into other color spaces. The above images show the sRGB gamut in different color spaces.
+<!--exdown-skip-->
 ```python
 import colorio
 
@@ -169,6 +170,7 @@ The `plot_rgb_slice()` method is especially useful for combining with other plot
 XYZ  |  CIELAB |  CAM16-UCS |
 
 Same as above, but with the surface color gamut visible under a given illuminant.
+<!--exdown-skip-->
 ```python
 import colorio
 
@@ -190,6 +192,7 @@ xyY  |  JzAzBz |  Oklab |
 <img src="https://nschloe.github.io/colorio/visible-gamut-slice-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-jzazbz.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-oklab.png" width="100%">
 
 Same as above, but with the gamut of visible colors up to a given lightness `Y`.
+<!--exdown-skip-->
 ```python
 import colorio
 
