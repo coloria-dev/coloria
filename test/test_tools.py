@@ -9,7 +9,7 @@ import colorio
 
 
 def test_flat_gamut():
-    colorio.show_flat_gamut()
+    colorio.show_xy_gamut()
 
 
 def test_xy_gamut_mesh():
@@ -51,7 +51,7 @@ def test_rgb_slice():
 @pytest.mark.parametrize("variant", ["srgb", "hdr"])
 def test_srgb_gamut(colorspace, variant, n=10):
     with tempfile.TemporaryDirectory() as tmpdir:
-        colorio.save_rgb_gamut(colorspace, Path(tmpdir) / "srgb.vtu", variant, n=n)
+        colorio.save_rgb_gamut(Path(tmpdir) / "srgb.vtu", colorspace, variant, n=n)
 
 
 @pytest.mark.parametrize(
@@ -62,21 +62,21 @@ def test_srgb_gamut(colorspace, variant, n=10):
         colorio.cs.CAM02("UCS", 0.69, 20, 64 / np.pi / 5),
     ],
 )
-def test_cone_gamut(colorspace):
+def test_visible_gamut(colorspace):
     observer = colorio.observers.cie_1931_2()
     with tempfile.TemporaryDirectory() as tmpdir:
-        colorio.save_cone_gamut(
-            colorspace, Path(tmpdir) / "cone.vtu", observer, max_Y=1
+        colorio.save_visible_gamut(
+            Path(tmpdir) / "cone.vtu", colorspace, observer, max_Y1=1
         )
 
 
-def test_visible_gamut():
+def test_surface_gamut():
     colorspace = colorio.cs.XYY(1)
     illuminant = colorio.illuminants.d65()
     observer = colorio.observers.cie_1931_2()
     with tempfile.TemporaryDirectory() as tmpdir:
-        colorio.save_visible_gamut(
-            colorspace, observer, illuminant, Path(tmpdir) / "visible.vtu"
+        colorio.save_surface_gamut(
+            Path(tmpdir) / "visible.vtu", colorspace, observer, illuminant
         )
 
 

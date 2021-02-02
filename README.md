@@ -143,7 +143,7 @@ For more visualization options, you can store the sRGB data in a file
 import colorio
 
 colorspace = colorio.cs.CIELAB()
-colorio.save_rgb_gamut(colorspace, "srgb.vtk", n=51)
+colorio.save_rgb_gamut("srgb.vtk", colorspace, n=51)
 # all formats supported by https://github.com/nschloe/meshio
 ```
 an open it with a tool of your choice. See
@@ -177,8 +177,8 @@ observer = colorio.observers.cie_1931_2()
 
 colorspace = colorio.cs.XYZ(100)
 
-colorspace.save_surface_gamut("surface.vtk", observer, illuminant)
-colorspace.show_surface_gamut(observer, illuminant)
+colorio.save_surface_gamut("surface.vtk", colorspace, observer, illuminant)
+colorio.show_surface_gamut(colorspace, observer, illuminant)
 ```
 The gamut is shown in grey since sRGB screens are not able to display the colors anyway.
 
