@@ -187,6 +187,10 @@ def _plot_ellipses(cs, xyy100_centers, xyy100_points, ellipse_scaling):
 
     keep = [True, True, True]
     keep[cs.k0] = False
+
+    # make the ellipses the same color as the axes labels
+    color = plt.gca().xaxis.label.get_color()
+
     for center, points in zip(xyy100_centers, xyy100_points):
         # cut off the irrelevant index
         cs_center = cs.from_xyz100(_xyy100_to_xyz100(center))
@@ -239,7 +243,8 @@ def _plot_ellipses(cs, xyy100_centers, xyy100_points, ellipse_scaling):
         )
         plt.gca().add_patch(e)
         # e.set_alpha(0.5)
-        e.set_facecolor("#969696")
+
+        e.set_facecolor(color)
 
         # plt.plot(*tcenter, "xk")
         # plt.plot(*tvals, "ok")
