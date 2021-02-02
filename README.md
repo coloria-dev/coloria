@@ -222,7 +222,6 @@ certain properties of color spaces. Most data sets can also be visualized.
 
 #### Color differences
 
-###### MacAdam (1974)
 <img src="https://nschloe.github.io/colorio/macadam1974-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1974-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1974-cam16.svg" width="100%">
 :--------------:|:---------------:|:------------------:|
 xyY             | CIELAB          |  CAM16             |
@@ -241,12 +240,20 @@ print(colorio.data.MacAdam1974().stress(cs))
 ```
 24.531919167387624
 ```
+The same is available for
+```
+colorio.data.BfdP()
+colorio.data.Leeds()
+colorio.data.RitDupont()
+colorio.data.Witt()
+```
+which, combined and weighted, form the COMBVD color difference data set.
 
 
 #### Munsell
 
 <img src="https://nschloe.github.io/colorio/munsell-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cam16.svg" width="100%">
-:--------------:|:---------------:|:---------------------:|
+:--------------:|:---------------:|:------------------:|
 xyY             | CIELAB          |  CAM16             |
 
 [Munsell color data](https://www.rit.edu/cos/colorscience/rc_munsell_renotation.php) is
