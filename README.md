@@ -298,6 +298,8 @@ import colorio
 cieluv = colorio.cs.CIELUV()
 colorio.data.MacAdam1942(50.0).show(cieluv)
 ```
+The better the colorspace matches the data, the closer the ellipses are to circles of
+the same size.
 
 ##### Luo-Rigg ellipses
 
@@ -372,7 +374,19 @@ colorio.data.Xiao().show(colorspace)
 
 ###### Fairchild-Chen
 
-Lightness experiment [Fairchild-Chen](https://doi.org/10.1117/12.872075).
+<img src="https://nschloe.github.io/colorio/fairchild-chen-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/fairchild-chen-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/fairchild-chen-cam16.svg" width="100%">
+:--------------:|:---------------:|:---------------------:|
+xyY             | CIELAB          |  CAM16             |
+
+Lightness experiment by [Fairchild-Chen](https://doi.org/10.1117/12.872075).
+
+```python
+import colorio
+
+cs = colorio.cs.CIELAB()
+colorio.data.FairchildChen("SL2").show(cs)
+```
+
 
 ### Articles
 

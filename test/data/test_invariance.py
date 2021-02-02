@@ -73,7 +73,8 @@ def test_invariance(fun, ct):
     assert np.all(np.abs(val0 - val1) < 1.0e-14 * np.abs(val0))
 
 
-# lightness and hue linearityare are not rotation invariant
+# Lightness and hue linearity are are not rotation invariant because there is a
+# preferred direction, the lightness direction.
 @pytest.mark.parametrize(
     "fun",
     [

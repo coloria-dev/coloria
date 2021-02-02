@@ -18,11 +18,13 @@ plt.style.use(dufte.style)
 # colorio.plot_rgb_slice(cs, lightness=0.5, n=101)
 # colorio.plot_visible_slice(cs, lightness=0.5)
 # plt.savefig("visible-gamut-slice-xyy.png", transparent=True, bbox_inches="tight")
-#
+
 # cs = colorio.cs.JzAzBz()
-# colorio.plot_rgb_slice(cs, lightness=50, n=101)
-# colorio.plot_visible_slice(cs, lightness=50)
+# # colorio.plot_rgb_slice(cs, lightness=0.15, n=101)
+# colorio.plot_visible_slice(cs, lightness=0.5)
 # plt.savefig("visible-gamut-slice-jzazbz.png", transparent=True, bbox_inches="tight")
+# # plt.gca().set_aspect("equal")
+# # plt.gca().grid(False)
 
 # cs = colorio.cs.OKLAB()
 # colorio.plot_rgb_slice(cs, lightness=0.5, n=101)
@@ -111,15 +113,29 @@ plt.style.use(dufte.style)
 #     plt.close()
 
 
+# data = [
+#     ("macadam1974-xyy.svg", colorio.cs.XYY(1)),
+#     ("macadam1974-cielab.svg", colorio.cs.CIELAB()),
+#     ("macadam1974-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
+# ]
+# for filename, cs in data:
+#     colorio.data.MacAdam1974().plot(cs)
+#     plt.gca().set_aspect("equal")
+#     plt.gca().grid(False)
+#     # plt.show()
+#     plt.savefig(filename, transparent=True, bbox_inches="tight")
+#     plt.close()
+
+
 data = [
-    ("macadam1974-xyy.svg", colorio.cs.XYY(1)),
-    ("macadam1974-cielab.svg", colorio.cs.CIELAB()),
-    ("macadam1974-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
+    ("fairchild-chen-xyy.svg", colorio.cs.XYY(1)),
+    ("fairchild-chen-cielab.svg", colorio.cs.CIELAB()),
+    ("fairchild-chen-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
 ]
 for filename, cs in data:
-    colorio.data.MacAdam1974().plot(cs)
-    plt.gca().set_aspect("equal")
-    plt.gca().grid(False)
+    colorio.data.FairchildChen("SL2").plot(cs)
+    # plt.gca().set_aspect("equal")
+    # plt.gca().grid(False)
     # plt.show()
     plt.savefig(filename, transparent=True, bbox_inches="tight")
     plt.close()
