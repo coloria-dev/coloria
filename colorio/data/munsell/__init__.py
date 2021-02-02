@@ -53,7 +53,6 @@ class Munsell:
         plt.scatter(pts[k1], pts[k2], marker="o", color=fill, edgecolors=edge)
 
         plt.title(f"Munsell points at lightness V={V} in {cs.name}")
-        ax = plt.gca()
         plt.xlabel(cs.labels[k1])
         plt.ylabel(cs.labels[k2], rotation=0)
         plt.axis("equal")

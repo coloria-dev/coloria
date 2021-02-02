@@ -1,5 +1,5 @@
-import matplotlib.pyplot as plt
 import dufte
+import matplotlib.pyplot as plt
 
 import colorio
 

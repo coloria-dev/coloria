@@ -3,12 +3,11 @@ import numpy as np
 
 from . import observers
 from ._helpers import _find_Y
-from ._tools import get_mono_outline_xy, spectrum_to_xyz100
+from ._tools import get_mono_outline_xy
 from .cs import XYY
 
 
 def _get_visible_gamut_mesh(observer, max_Y1, h=4.0e-2):
-    import meshio
     import pygmsh
 
     with pygmsh.geo.Geometry() as geom:
