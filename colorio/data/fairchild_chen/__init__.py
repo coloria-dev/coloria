@@ -1,7 +1,6 @@
 import json
 import pathlib
 
-import dufte
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -22,21 +21,19 @@ class FairchildChen(Dataset):
             self.data[key] = np.asarray(self.data[key])
 
     def plot(self, cs):
-        plt.style.use(dufte.style)
-
         # experimental lightness
         L = self.data["lightness"]
         # predicted lightness
         L_ = cs.from_xyz100(self.data["xyz"].T)[cs.k0]
 
-        Y = self.data["xyz"][:, 1]
-        plt.plot(Y, L, "o", label="experimental")
-
         alpha = np.dot(L, L_) / np.dot(L, L)
-        plt.plot(Y, L_ / alpha, "-", label=f"{cs.name} (scaled)")
+        Y = self.data["xyz"][:, 1]
+        plt.plot(Y, L * alpha, "o", label="experimental (scaled)")
+
+        plt.plot(Y, L_, "-", label=f"{cs.name}")
 
         plt.xlabel("Y")
-        plt.ylabel("lightness")
+        plt.ylabel(cs.labels[cs.k0], rotation=0)
         plt.title(f"Fairchild-Chen {self.key} lightness data")
         # dufte.legend()
         plt.legend()

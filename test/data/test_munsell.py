@@ -21,4 +21,5 @@ def test_stress():
 
 
 if __name__ == "__main__":
-    test_stress()
+    # test_stress()
+    test_show()
