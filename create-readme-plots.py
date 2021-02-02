@@ -14,22 +14,18 @@ plt.style.use(dufte.style)
 # cs = colorio.cs.CAM16UCS(0.69, 20, 4.07)
 # colorio.save_rgb_slice("srgb-gamut-slice-cam16.png", cs, lightness=50, n=101)
 
-# cs = colorio.cs.XYY(1)
-# colorio.plot_rgb_slice(cs, lightness=0.5, n=101)
-# colorio.plot_visible_slice(cs, lightness=0.5)
-# plt.savefig("visible-gamut-slice-xyy.png", transparent=True, bbox_inches="tight")
-
-# cs = colorio.cs.JzAzBz()
-# # colorio.plot_rgb_slice(cs, lightness=0.15, n=101)
-# colorio.plot_visible_slice(cs, lightness=0.5)
-# plt.savefig("visible-gamut-slice-jzazbz.png", transparent=True, bbox_inches="tight")
-# # plt.gca().set_aspect("equal")
-# # plt.gca().grid(False)
-
-# cs = colorio.cs.OKLAB()
-# colorio.plot_rgb_slice(cs, lightness=0.5, n=101)
-# colorio.plot_visible_slice(cs, lightness=0.5)
-# plt.savefig("visible-gamut-slice-oklab.png", transparent=True, bbox_inches="tight")
+data = [
+    # ("visible-gamut-slice-xyy.png", colorio.cs.XYY(1), 0.5),
+    # ("visible-gamut-slice-oklab.png", colorio.cs.OKLAB(), 0.5),
+    ("visible-gamut-slice-jzazbz.png", colorio.cs.JzAzBz(), 0.5),
+]
+for filename, cs, lightness in data:
+    # colorio.plot_rgb_slice(cs, lightness=lightness, n=101)
+    colorio.plot_visible_slice(cs, lightness=lightness)
+    plt.gca().set_aspect("equal")
+    plt.gca().grid(False)
+    plt.savefig(filename, transparent=True, bbox_inches="tight")
+    plt.close()
 
 # data = [
 #     ("munsell-xyy.svg", colorio.cs.XYY(1)),
@@ -127,15 +123,15 @@ plt.style.use(dufte.style)
 #     plt.close()
 
 
-data = [
-    ("fairchild-chen-xyy.svg", colorio.cs.XYY(1)),
-    ("fairchild-chen-cielab.svg", colorio.cs.CIELAB()),
-    ("fairchild-chen-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
-]
-for filename, cs in data:
-    colorio.data.FairchildChen("SL2").plot(cs)
-    # plt.gca().set_aspect("equal")
-    # plt.gca().grid(False)
-    # plt.show()
-    plt.savefig(filename, transparent=True, bbox_inches="tight")
-    plt.close()
+# data = [
+#     ("fairchild-chen-xyy.svg", colorio.cs.XYY(1)),
+#     ("fairchild-chen-cielab.svg", colorio.cs.CIELAB()),
+#     ("fairchild-chen-cam16.svg", colorio.cs.CAM16UCS(0.69, 20, 4.07)),
+# ]
+# for filename, cs in data:
+#     colorio.data.FairchildChen("SL2").plot(cs)
+#     # plt.gca().set_aspect("equal")
+#     # plt.gca().grid(False)
+#     # plt.show()
+#     plt.savefig(filename, transparent=True, bbox_inches="tight")
+#     plt.close()
