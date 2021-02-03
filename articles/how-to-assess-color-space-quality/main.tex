@@ -359,9 +359,9 @@ The reason why $p_2$ is always chosen in practice is that the global minimizer $
 \begin{figure}
   \centering
   \input{figures/macadam1974-xyy.tex}
-  \hspace{1ex}
+  \hfill
   \input{figures/macadam1974-cielab.tex}
-  \hspace{1ex}
+  \hfill
   \input{figures/macadam1974-cam16.tex}
   \caption{MacAdam 1974 color distance data in three color spaces. If the arrows meet,
   the dots are as far apart as prediced by MacAdam. Note that only those 43 color pairs
@@ -429,6 +429,16 @@ from them.
 
 
 \subsection{Cost functional for hue linearity}
+
+\begin{figure}
+  \centering
+  \input{figures/hung-berns-xyy.tex}
+  \hfill
+  \input{figures/hung-berns-cielab.tex}
+  \hfill
+  \input{figures/hung-berns-oklab.tex}
+  \caption{Hung-Berns \cite{hung} hue linearity data for three color spaces.}
+\end{figure}
 
 There are multiple experiments about which colors are perceived to be of equal
 hue~\cite{hung,ebner,xiao} (see figure~\ref{fig:hstress}). Color spaces are considered
@@ -521,11 +531,10 @@ Since $0\le h_2\le 1$, the value can be given in terms of STRESS,
 \begin{figure}
   \centering
   \input{figures/hstress.tex}
-  \caption{$h_\text{STRESS}$ for different data sets. The bar represents the average
-  $h_\text{STRESS}$ over all arms in the data set and the thin lines the minimum and
-  maximum values.
-  The largest maxima are CIELAB's and CAM16's famous nonlinearities for blue.
-  Oklab has the smallest maximum STRESS for all data sets.}
+  \caption{$h_\text{STRESS}$ for different data sets. The dark bar represents the
+  average $h_\text{STRESS}$ over all arms in the data set, the light bar indicates the
+  maximum.  The largest maxima are CIELAB's and CAM16's famous nonlinearities for blue.
+  $J_za_zb_z$ and Oklab perform best for all data sets.}
   \label{fig:hstress}
 \end{figure}
 
