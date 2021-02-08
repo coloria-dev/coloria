@@ -383,15 +383,20 @@ The reason why $p_2$ is always chosen in practice is that the global minimizer $
   \]
   As opposed to $p_\text{STRESS}$, both are large if any $\delta_i$ is small or
   vanishes. (See figure~\ref{fig:norm-scaling}.)
-  These can be useful in optimization when absolutely trying to prevent color
-  distance or ellipse collapses.
+  $\tilde{p}_\text{STRESS}$
+  measures the
+  relative deviation, i.e., the value of $\delta_i=d_i/2$ is the same as for $\delta_i =
+  2 d_i$.
+  These can be useful in optimization when absolutely trying to prevent a collapsing of
+  color distances or ellipses.
 \end{remark}
 
 \begin{figure}
+  \label{fig:norm-scaling}
   \centering
   \input{figures/norm-scaling.tex}
-  \caption{bla}
-  \label{fig:norm-scaling}
+  \caption{Different possibilities for the norm-scaling in $p_\text{STRESS}$ with target
+  distance 1. The common variant $(1-x)^2$ is a simple quadratic.}
 \end{figure}
 
 \begin{figure}
