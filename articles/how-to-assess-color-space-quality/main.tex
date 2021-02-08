@@ -287,13 +287,7 @@ context of experimental validation or optimization.
 % % and cells, and allowing each of the nodes to move around freely to match the
 % % experimental data. This is the most general approach possible; all smooth
 % % transformations can be expressed in this way.
-%
-% TODO all cost functions must be invariant to
-% \begin{itemize}
-%   \item rotation,
-%   \item scaling, and
-%   \item translation.
-% \end{itemize}
+
 
 Let $(X_i, Y_i, Z_i)\in\R^3$ be a given set of points in XYZ space which, according to
 some experiment, are of equal perceived hue. Consider the two non-lightness coordinates
@@ -307,21 +301,51 @@ between two points $a$ and $b$ can be defined by a \emph{norm}.
 
 \subsection{Cost functional for target distances and ellipses}
 
-Some data sets give target distance values $d_i$ for pairs of colors $X_{i,1}, X_{i,2}$
-(e.g. \cite{macadam1974}). A color space conforms with this data if the distance
-between the transformed points
+Some data sets give target distance values $d_i$ for pairs of colors $X_{i,1}, X_{i,2}$.
+Notable examples are the following.
+\begin{itemize}
+  \item MacAdam (1942) \cite{macadam1942}.
+     25 ellipses,
+     1 observer,
+  \item MacAdam (1974) \cite{macadam1974}.
+     128 pairs of colored tiles,
+     49 to 76 observers,
+     The CIE specifications for D65 and for the 1964
+     supplementary observer for 100 visual field
+     at least 500 lm/m2
+   \item BFD-P (1986) \cite{luorigg}.
+
+   \item Witt (1998) \cite{witt}.
+     Illumination by a high-quality D65 light source
+     Samples field size 10 degrees x 10 degrees of visual angle
+     Illuminance 1300 lx
+     10 to 14 observers
+     418 sample pairs
+     The data in the original article contains printing errors
+
+  \item Leeds ()
+
+  \item RIT-DuPont
+
+  \item COMBVD.
+    This collection is the union of BFD-P, Leeds, RIT-DuPont, and Witt, weighted such
+    that all subsets contribute about equally, i.e., BFD-P with factor 1, Leeds 9,
+    RIT-DuPont 9, Witt 7.
+\end{itemize}
+
+A color space conforms with this data if the distance between the transformed points
 $\delta_i \coloneqq \norm{T(X_{i,1}) - T(X_{i,2})}_2$
-is close to a scaled $d_i$, i.e.,
+is close to the scaled distance $\alpha d_i$, i.e.,
 \begin{equation}\label{eq:p}
   p_2
   \coloneqq \sqrt{\sum_{i=1}^n (\alpha d_i - \delta_i)^2}
 \end{equation}
-The parameter $\alpha$ is chosen to minimize the expression, namely, $\alpha =
-\left.\sum_{i=1}^n d_i \delta_i \middle/ \sum_{i=1}^n d_i^2\right.$.
-To achieve scale-invariance, one divides by
-$\sqrt{\sum_{i=1}^n \delta_i^2}$.
-The resulting expression is always between 0 and 1, and after scaling by 100, this is
-called the STRESS (STandardized REsidual Sum of Squares) metric for target distances,
+where the parameter $\alpha$ is chosen to minimize the expression, namely, $\alpha =
+\left.\sum_{i=1}^n d_i \delta_i \middle/ \sum_{i=1}^n d_i^2\right.$. This scaling makes
+sure that the expression in invariant for scaling of $d$, too. To achieve
+scale-invariance in $\delta$, one divides by $\sqrt{\sum_{i=1}^n \delta_i^2}$.  The
+resulting expression is always between 0 and 1, and after scaling by 100, this is called
+the STRESS (STandardized REsidual Sum of Squares) metric for target distances,
 \begin{equation}\label{eq:p}
   p_{\text{STRESS}}
   \coloneqq
@@ -334,6 +358,11 @@ called the STRESS (STandardized REsidual Sum of Squares) metric for target dista
 \end{equation}
 
 \begin{remark}
+One could as well have put the minimizing parameter at $\delta_i$ and divided by $\sum
+  d_i^2$; the resulting expression is equal to $p_2$.
+\end{remark}
+
+\begin{remark}
 Instead of the $2$-norm, one could in principle have chosen any other $0\le p\le\infty$
   as well,
 \[
@@ -344,17 +373,26 @@ The reason why $p_2$ is always chosen in practice is that the global minimizer $
 \end{remark}
 
 \begin{remark}
-  There are variants of $p_\text{STRESS}$, e.g.,
+  There are other reasonable variants of $p_\text{STRESS}$, e.g.,
   \[
     \tilde{p}_\text{STRESS} = 100 \frac{\sqrt{\sum_{i=1}^n \frac{(\tilde{\alpha} d_i -
     \delta_i)^2}{\delta_i}}}{\sqrt{\sum_{i=1}^n \delta_i}}
     \quad\text{or}\quad
-    \hat{p}_\text{STRESS} = 100 \sqrt{\sum_{i=1}^n \frac{(\hat{\alpha} d_i - \delta_i)^2}{\delta_i^2}}.
+    \hat{p}_\text{STRESS} = 100 \sqrt{\sum_{i=1}^n \frac{(\hat{\alpha} d_i -
+    \delta_i)^2}{\delta_i^2}}.
   \]
-  which are large if any $\delta_i$ is small or vanishes.
-  These can be useful in optimization when absolutely trying to prevent color distance
-  or ellipse collapses.
+  As opposed to $p_\text{STRESS}$, both are large if any $\delta_i$ is small or
+  vanishes. (See figure~\ref{fig:norm-scaling}.)
+  These can be useful in optimization when absolutely trying to prevent color
+  distance or ellipse collapses.
 \end{remark}
+
+\begin{figure}
+  \centering
+  \input{figures/norm-scaling.tex}
+  \caption{bla}
+  \label{fig:norm-scaling}
+\end{figure}
 
 \begin{figure}
   \centering
@@ -437,7 +475,8 @@ from them.
   \input{figures/hung-berns-cielab.tex}
   \hfill
   \input{figures/hung-berns-oklab.tex}
-  \caption{Hung-Berns \cite{hung} hue linearity data for three color spaces.}
+  \caption{Hung-Berns \cite{hung} hue linearity data for three color spaces. The points
+  which are representable in sRGB are shown in color.}
 \end{figure}
 
 There are multiple experiments about which colors are perceived to be of equal

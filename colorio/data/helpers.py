@@ -22,10 +22,13 @@ class Dataset:
 
 
 class ColorDistanceDataset(Dataset):
-    def __init__(self, name, dist, xyz_pairs):
+    def __init__(self, name, dist, xyz_pairs, weights=None):
         self.name = name
+        n = len(dist)
+        assert n == len(xyz_pairs)
         self.dist = np.asarray(dist)
         self.xyz_pairs = np.asarray(xyz_pairs)
+        self.weights = np.ones(n) if weights is None else weights
 
     def plot(self, cs):
         coords = cs.from_xyz100(self.xyz_pairs.T).T
