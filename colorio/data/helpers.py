@@ -53,7 +53,7 @@ class ColorDistanceDataset(Dataset):
         delta = np.sqrt(np.einsum("ij,ij->i", cs_diff, cs_diff))
         return self._stress(delta, variant)
 
-    def stress_lab_diff(self, fun, variant="a"):
+    def stress_lab_diff(self, fun, variant="absolute"):
         """Same a stress(), but you can provide a color difference function that
         receives two LAB values and returns their scalar distance.
         """
@@ -68,7 +68,7 @@ class ColorDistanceDataset(Dataset):
             diff = alpha * self.dist - delta
             val = np.sum(self.weights * diff ** 2) / np.sum(self.weights * delta ** 2)
         else:
-            assert variant == "relative"
+            assert variant == "relative", f"Illegal variant {variant}."
             alpha = np.sum(self.dist) / np.sum(self.dist ** 2 / delta)
             diff = alpha * self.dist - delta
             val = np.sum(self.weights * diff ** 2 / delta) / np.sum(

@@ -20,6 +20,7 @@ color_spaces = [
 ]
 
 bfdp = colorio.data.BfdP()
+combvd = colorio.data.COMBVD()
 leeds = colorio.data.Leeds()
 macadam_1942 = colorio.data.MacAdam1942(Y=50.0)
 macadam_1974 = colorio.data.MacAdam1974()
@@ -29,6 +30,7 @@ witt = colorio.data.Witt()
 xlabels = [cs.name for cs in color_spaces]
 data_sets = {
     "BFD-P \\cite{luorigg}": [bfdp.stress(cs) for cs in color_spaces],
+    "COMBVD": [combvd.stress(cs) for cs in color_spaces],
     "Leeds \\cite{leeds}": [leeds.stress(cs) for cs in color_spaces],
     "MacAdam \\cite{macadam1942} ($Y=50$)": [
         macadam_1942.stress(cs) for cs in color_spaces

@@ -13,6 +13,7 @@ diff_formulas = {
 }
 
 bfdp = colorio.data.BfdP()
+combvd = colorio.data.COMBVD()
 leeds = colorio.data.Leeds()
 macadam_1942 = colorio.data.MacAdam1942(Y=50.0)
 macadam_1974 = colorio.data.MacAdam1974()
@@ -24,6 +25,7 @@ data_sets = {
     "BFD-P \\cite{luorigg}": [
         bfdp.stress_lab_diff(cs) for cs in diff_formulas.values()
     ],
+    "COMBVD": [combvd.stress_lab_diff(cs) for cs in diff_formulas.values()],
     "Leeds \\cite{leeds}": [leeds.stress_lab_diff(cs) for cs in diff_formulas.values()],
     "MacAdam \\cite{macadam1942} ($Y=50$)": [
         macadam_1942.stress_lab_diff(cs) for cs in diff_formulas.values()

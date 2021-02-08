@@ -7,7 +7,7 @@
 
 \begin{axis}[
 axis line style={white!58.8235294117647!black},
-height=0.4\textwidth,
+width=\textwidth,
 legend cell align={left},
 legend style={
   fill opacity=0.8,
@@ -19,14 +19,14 @@ legend style={
 },
 tick align=outside,
 tick pos=left,
-width=\textwidth,
 x grid style={white!58.8235294117647!black},
 xmin=0, xmax=5,
 xtick style={color=white!58.8235294117647!black},
 y grid style={white!58.8235294117647!black},
 ymajorgrids,
 ymin=0, ymax=2,
-ytick style={color=white!58.8235294117647!black}
+ytick style={color=white!58.8235294117647!black},
+unit vector ratio={1 1}
 ]
 \addplot [very thick, color0]
 table {%
