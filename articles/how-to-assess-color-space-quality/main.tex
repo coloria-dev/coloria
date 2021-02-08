@@ -376,19 +376,24 @@ The reason why $p_2$ is always chosen in practice is that the global minimizer $
   There are other reasonable variants of $p_\text{STRESS}$, e.g.,
   \[
     \tilde{p}_\text{STRESS} = 100 \frac{\sqrt{\sum_{i=1}^n \frac{(\tilde{\alpha} d_i -
-    \delta_i)^2}{\delta_i}}}{\sqrt{\sum_{i=1}^n \delta_i}}
-    \quad\text{or}\quad
+    \delta_i)^2}{\delta_i}}}{\sqrt{\sum_{i=1}^n \delta_i}}.
+  \]
+  As opposed to $p_\text{STRESS}$, $\tilde{p}_\text{STRESS}$ is  large if any $\delta_i$
+  is small or vanishes.
+  It measures the \emph{relative} deviation, i.e., the value of $\delta_i=\alpha d_i / r
+  $ is the same as for $\delta_i = r \alpha d_i$ for any $r > 0$.  This can be useful in
+  optimization when absolutely trying to prevent a collapsing of color distances or
+  ellipses.
+
+  Another such variant is
+  \[
     \hat{p}_\text{STRESS} = 100 \sqrt{\sum_{i=1}^n \frac{(\hat{\alpha} d_i -
     \delta_i)^2}{\delta_i^2}}.
   \]
-  As opposed to $p_\text{STRESS}$, both are large if any $\delta_i$ is small or
-  vanishes. (See figure~\ref{fig:norm-scaling}.)
-  $\tilde{p}_\text{STRESS}$
-  measures the
-  relative deviation, i.e., the value of $\delta_i=d_i/2$ is the same as for $\delta_i =
-  2 d_i$.
-  These can be useful in optimization when absolutely trying to prevent a collapsing of
-  color distances or ellipses.
+  It is less useful as the value of each of the summands is limited by $1$ for growing
+  $\delta_i$.
+
+  See figure~\ref{fig:norm-scaling}.
 \end{remark}
 
 \begin{figure}

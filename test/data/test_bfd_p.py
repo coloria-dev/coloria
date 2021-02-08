@@ -23,14 +23,9 @@ def test_stress():
     assert abs(res - ref) < 1.0e-14 * ref
 
     ref = 44.155521908075116
-    res = colorio.data.BfdP().stress(cs, variant="b")
+    res = colorio.data.BfdP().stress(cs, variant="relative")
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
-
-    ref = 54.44952560793938
-    res = colorio.data.BfdP().stress(cs, variant="c")
-    print(res)
-    assert abs(res - ref) < 1.0e-13 * ref
 
 
 if __name__ == "__main__":

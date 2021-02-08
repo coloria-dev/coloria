@@ -13,5 +13,8 @@ for filename, cs in data:
     plt.gca().set_aspect("equal")
     plt.gca().grid(False)
     # plt.show()
-    tikzplotlib.save(filename, extra_axis_parameters=["width=0.25\\textwidth"],)
+    tikzplotlib.save(
+        filename,
+        extra_axis_parameters=["width=0.25\\textwidth"],
+    )
     plt.close()

@@ -15,7 +15,7 @@ def test_show():
     colorio.data.RitDupont().show(cs)
 
 
-def test_residual():
+def test_stress():
     cs = colorio.cs.CIELAB()
     # ref = 32.85162431714214
     ref = 33.36473531796298
@@ -25,5 +25,5 @@ def test_residual():
 
 
 if __name__ == "__main__":
-    test_show()
-    # test_residual()
+    # test_show()
+    test_stress()

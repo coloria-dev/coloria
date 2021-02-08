@@ -71,14 +71,7 @@ for (label, data), p, cols in zip(data_sets.items(), pos, color_pairs):
     average = np.array([np.average(item) for item in data])
     maxval = np.array([np.max(item) for item in data])
     minval = np.array([np.min(item) for item in data])
-    ax.bar(
-        x + p,
-        average,
-        bar_width,
-        label=label,
-        color=cols[0],
-        zorder=5
-    )
+    ax.bar(x + p, average, bar_width, label=label, color=cols[0], zorder=5)
     ax.bar(
         x + p,
         maxval - average,
@@ -86,7 +79,7 @@ for (label, data), p, cols in zip(data_sets.items(), pos, color_pairs):
         bottom=average,
         # label=label,
         color=cols[1],
-        zorder=5
+        zorder=5,
     )
 
 # Add some text for labels, title and custom x-axis tick labels, etc.

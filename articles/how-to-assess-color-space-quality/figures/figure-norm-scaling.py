@@ -1,7 +1,7 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import tikzplotlib
 import dufte
+import matplotlib.pyplot as plt
+import numpy as np
+import tikzplotlib
 
 plt.style.use(dufte.style)
 
@@ -39,5 +39,5 @@ plt.gca().set_aspect("equal")
 
 tikzplotlib.save(
     "norm-scaling.tex",
-    extra_axis_parameters=["width=\\textwidth", "height=0.4\\textwidth"]
+    extra_axis_parameters=["width=\\textwidth", "height=0.4\\textwidth"],
 )

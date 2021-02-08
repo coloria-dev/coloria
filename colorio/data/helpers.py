@@ -46,7 +46,7 @@ class ColorDistanceDataset(Dataset):
         ax.set_zlabel(labels[2])
         ax.set_title(f"{self.name} dataset in {cs.name}")
 
-    def stress(self, cs, variant="a"):
+    def stress(self, cs, variant="absolute"):
         # compute Euclidean distance in colorspace cs
         cs_pairs = cs.from_xyz100(self.xyz_pairs.T).T
         cs_diff = cs_pairs[:, 1] - cs_pairs[:, 0]
@@ -62,22 +62,18 @@ class ColorDistanceDataset(Dataset):
         return self._stress(delta, variant)
 
     def _stress(self, delta, variant):
-        if variant == "a":
+        if variant == "absolute":
             # regular old stress
             alpha = np.dot(self.dist, delta) / np.dot(self.dist, self.dist)
             diff = alpha * self.dist - delta
-            val = np.dot(diff, diff) / np.dot(delta, delta)
-        elif variant == "b":
+            val = np.sum(self.weights * diff ** 2) / np.sum(self.weights * delta ** 2)
+        else:
+            assert variant == "relative"
             alpha = np.sum(self.dist) / np.sum(self.dist ** 2 / delta)
             diff = alpha * self.dist - delta
-            val = np.sum(diff ** 2 / delta) / np.sum(delta)
-        else:
-            assert variant == "c"
-            dd = self.dist / delta
-            alpha = np.sum(dd) / np.dot(dd, dd)
-            n = len(self.dist)
-            diff = alpha * dd - 1.0
-            val = np.dot(diff, diff) / (n - 1)
+            val = np.sum(self.weights * diff ** 2 / delta) / np.sum(
+                self.weights * delta
+            )
 
         return 100 * np.sqrt(val)
 

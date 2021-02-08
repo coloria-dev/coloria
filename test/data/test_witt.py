@@ -15,7 +15,7 @@ def test_show():
     colorio.data.Witt().show(cs)
 
 
-def test_residual():
+def test_stress():
     # cs = colorio.cs.CAM02("UCS", 0.69, 20, 4.074)
     # ref = 31.475241825529732
     cs = colorio.cs.CIELAB()
@@ -27,4 +27,4 @@ def test_residual():
 
 if __name__ == "__main__":
     # test_show()
-    test_residual()
+    test_stress()
