@@ -249,6 +249,8 @@ colorio.data.BfdP()
 colorio.data.Leeds()
 colorio.data.RitDupont()
 colorio.data.Witt()
+
+colorio.data.COMBVD()  # a weighted combination of the above
 ```
 which, combined and weighted, form the COMBVD color difference data set.
 

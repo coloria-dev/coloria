@@ -19,6 +19,9 @@ class Munsell:
         self.C = np.array(data["C"])
         self.xyy100 = np.array([data["x"], data["y"], data["Y"]])
 
+        with open(this_dir / "lightness.json") as f:
+            self.lightness = json.load(f)
+
     def show(self, *args, **kwargs):
         self.plot(*args, **kwargs)
         plt.show()
@@ -58,23 +61,12 @@ class Munsell:
         plt.axis("equal")
 
     def stress_lightness(self, cs):
-        # # Each level (1-9) in Munsell is associated with a fixed Y value. Associated
-        # # them with another.
-        # d = {}
-        # d[0] = 0.0
-        # for k in range(1, 10):
-        #     idx = np.searchsorted(self.V, k)
-        #     d[k] = self.xyy100[2, idx]
-        # d[10] = 102.5
-        # # TODO 406 S. M. NEWHALL, D. NICKERSON, AND D. B. JUDD
-
-        # print(d)
-        # exit(1)
+        ref = self.V
 
         # Move L0 into origin for translation invariance
         L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
         L_ = cs.from_xyz100(XYY(100).to_xyz100(self.xyy100))[cs.k0] - L0_
 
-        alpha = np.dot(self.V, L_) / np.dot(self.V, self.V)
-        diff = alpha * self.V - L_
+        alpha = np.dot(ref, L_) / np.dot(ref, ref)
+        diff = alpha * ref - L_
         return 100 * np.sqrt(np.dot(diff, diff) / np.dot(L_, L_))
