@@ -2,7 +2,7 @@ import numpy as np
 
 
 class HSL:
-    def from_srgb1(self, srgb1):
+    def from_rgb1(self, srgb1):
         srgb = np.asarray(srgb1, dtype=float)
         orig_shape = srgb.shape
         srgb = srgb.reshape(3, -1)
@@ -41,7 +41,7 @@ class HSL:
         L = L.reshape(orig_shape[1:])
         return np.array([H, S, L])
 
-    def to_srgb1(self, hsl):
+    def to_rgb1(self, hsl):
         H, S, L = hsl
         assert np.all(H >= 0)
         assert np.all(H <= 360)
@@ -74,5 +74,5 @@ class HSL:
         m = L - C / 2
         return np.array([R1 + m, G1 + m, B1 + m])
 
-    def from_srgb256(self, srgb256):
+    def from_rgb256(self, srgb256):
         return self.from_srgb1(np.asarray(srgb256) / 255.0)
