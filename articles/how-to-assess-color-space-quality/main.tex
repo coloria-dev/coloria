@@ -156,7 +156,7 @@ context of experimental validation or optimization.
 
 \begin{figure}
   \centering
-  \input{averages.tex}
+  \input{figures/averages.tex}
   \caption{$p$-averages for the three sequences of length $n=20$, $s_\text{equal} = \{1,
   \dots, 1\}$, $s_\text{uniform} = \{0, h, \dots,
   1\}$ (with $h = 1 / (n-1)$), and $s_\text{outlier} = \{1, 0,\dots, 0\}$. Note how the
@@ -287,13 +287,7 @@ context of experimental validation or optimization.
 % % and cells, and allowing each of the nodes to move around freely to match the
 % % experimental data. This is the most general approach possible; all smooth
 % % transformations can be expressed in this way.
-%
-% TODO all cost functions must be invariant to
-% \begin{itemize}
-%   \item rotation,
-%   \item scaling, and
-%   \item translation.
-% \end{itemize}
+
 
 Let $(X_i, Y_i, Z_i)\in\R^3$ be a given set of points in XYZ space which, according to
 some experiment, are of equal perceived hue. Consider the two non-lightness coordinates
@@ -307,21 +301,51 @@ between two points $a$ and $b$ can be defined by a \emph{norm}.
 
 \subsection{Cost functional for target distances and ellipses}
 
-Some data sets give target distance values $d_i$ for pairs of colors $X_{i,1}, X_{i,2}$
-(e.g. \cite{macadam1974}). A color space conforms with this data if the distance
-between the transformed points
+Some data sets give target distance values $d_i$ for pairs of colors $X_{i,1}, X_{i,2}$.
+Notable examples are the following.
+\begin{itemize}
+  \item MacAdam (1942) \cite{macadam1942}.
+     25 ellipses,
+     1 observer,
+  \item MacAdam (1974) \cite{macadam1974}.
+     128 pairs of colored tiles,
+     49 to 76 observers,
+     The CIE specifications for D65 and for the 1964
+     supplementary observer for 100 visual field
+     at least 500 lm/m2
+   \item BFD-P (1986) \cite{luorigg}.
+
+   \item Witt (1998) \cite{witt}.
+     Illumination by a high-quality D65 light source
+     Samples field size 10 degrees x 10 degrees of visual angle
+     Illuminance 1300 lx
+     10 to 14 observers
+     418 sample pairs
+     The data in the original article contains printing errors
+
+  \item Leeds ()
+
+  \item RIT-DuPont
+
+  \item COMBVD.
+    This collection is the union of BFD-P, Leeds, RIT-DuPont, and Witt, weighted such
+    that all subsets contribute about equally, i.e., BFD-P with factor 1, Leeds 9,
+    RIT-DuPont 9, Witt 7.
+\end{itemize}
+
+A color space conforms with this data if the distance between the transformed points
 $\delta_i \coloneqq \norm{T(X_{i,1}) - T(X_{i,2})}_2$
-is close to a scaled $d_i$, i.e.,
+is close to the scaled distance $\alpha d_i$, i.e.,
 \begin{equation}\label{eq:p}
   p_2
   \coloneqq \sqrt{\sum_{i=1}^n (\alpha d_i - \delta_i)^2}
 \end{equation}
-The parameter $\alpha$ is chosen to minimize the expression, namely, $\alpha =
-\left.\sum_{i=1}^n d_i \delta_i \middle/ \sum_{i=1}^n d_i^2\right.$.
-To achieve scale-invariance, one divides by
-$\sqrt{\sum_{i=1}^n \delta_i^2}$.
-The resulting expression is always between 0 and 1, and after scaling by 100, this is
-called the STRESS (STandardized REsidual Sum of Squares) metric for target distances,
+where the parameter $\alpha$ is chosen to minimize the expression, namely, $\alpha =
+\left.\sum_{i=1}^n d_i \delta_i \middle/ \sum_{i=1}^n d_i^2\right.$. This scaling makes
+sure that the expression in invariant for scaling of $d$, too. To achieve
+scale-invariance in $\delta$, one divides by $\sqrt{\sum_{i=1}^n \delta_i^2}$.  The
+resulting expression is always between 0 and 1, and after scaling by 100, this is called
+the STRESS (STandardized REsidual Sum of Squares) metric for target distances,
 \begin{equation}\label{eq:p}
   p_{\text{STRESS}}
   \coloneqq
@@ -334,31 +358,83 @@ called the STRESS (STandardized REsidual Sum of Squares) metric for target dista
 \end{equation}
 
 \begin{remark}
-Instead of the $2$-norm, one could as well have chosen any other $0\le p\le\infty$,
-\[
-p_p= \left(\sum_{i=1}^n (\alpha d_i - \delta_i)^p\right)^{1/p}.
-\]
+One could as well have put the minimizing parameter at $\delta_i$ and divided by $\sum
+  d_i^2$; the resulting expression is equal to $p_2$.
+\end{remark}
 
+\begin{remark}
+Instead of the $2$-norm, one could in principle have chosen any other $0\le p\le\infty$
+  as well,
+\[
+p_p = \left(\sum_{i=1}^n |\alpha d_i - \delta_i|^p\right)^{1/p}.
+\]
+The reason why $p_2$ is always chosen in practice is that the global minimizer $\alpha$
+  is easily determined and the dependence on the data set is smooth.
+\end{remark}
+
+\begin{remark}
+  There are other reasonable variants of $p_\text{STRESS}$, e.g.,
+  \[
+    \tilde{p}_\text{STRESS} = 100 \frac{\sqrt{\sum_{i=1}^n \frac{(\tilde{\alpha} d_i -
+    \delta_i)^2}{\delta_i}}}{\sqrt{\sum_{i=1}^n \delta_i}}.
+  \]
+  As opposed to $p_\text{STRESS}$, $\tilde{p}_\text{STRESS}$ is  large if any $\delta_i$
+  is small or vanishes.
+  It measures the \emph{relative} deviation, i.e., the value of $\delta_i=\alpha d_i / r
+  $ is the same as for $\delta_i = r \alpha d_i$ for any $r > 0$.  This can be useful in
+  optimization when absolutely trying to prevent a collapsing of color distances or
+  ellipses.
+
+  Another such variant is
+  \[
+    \hat{p}_\text{STRESS} = 100 \sqrt{\sum_{i=1}^n \frac{(\hat{\alpha} d_i -
+    \delta_i)^2}{\delta_i^2}}.
+  \]
+  It is less useful as the value of each of the summands is limited by $1$ for growing
+  $\delta_i$.
+
+  See figure~\ref{fig:norm-scaling}.
 \end{remark}
 
 \begin{figure}
-\centering
-\input{pstress.tex}
-\caption{$p_\text{STRESS}$ for a number of color spaces. The color space OSA-UCS was
-designed specifically with the MacAdam \cite{macadam1974} dataset in mind. Both CAM
-spaces perform well for all data sets.}
+  \label{fig:norm-scaling}
+  \centering
+  \input{figures/norm-scaling.tex}
+  \caption{Different possibilities for the norm-scaling in $p_\text{STRESS}$ with target
+  distance 1. The common variant $(1-x)^2$ is a simple quadratic.}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \input{figures/macadam1974-xyy.tex}
+  \hfill
+  \input{figures/macadam1974-cielab.tex}
+  \hfill
+  \input{figures/macadam1974-cam16.tex}
+  \caption{MacAdam 1974 color distance data in three color spaces. If the arrows meet,
+  the dots are as far apart as prediced by MacAdam. Note that only those 43 color pairs
+  are shown which are of approximately equal lightness.}
 \end{figure}
 
 \begin{figure}
 \centering
-  \input{pstress-diff.tex}
+\input{figures/pstress.tex}
+\caption{$p_\text{STRESS}$ for a number of color spaces. The color space OSA-UCS was
+designed specifically with the MacAdam \cite{macadam1974} dataset in mind. Both CAM
+spaces perform well for all data sets. The MacAdam ellipses are assumed to exist without
+  signficant change in a wide luminosity range, and is presented with $Y=50$ here.}
+\end{figure}
+
+\begin{figure}
+\centering
+  \input{figures/pstress-diff.tex}
   \caption{$p_\text{STRESS}$ for a number of color diffence formulae.
   Note that CIE76 is really just the Euclidean distance in CIELAB.}
 \end{figure}
 
 A common special case of this setting is distance data given in terms of ellipse points,
 i.e., a color center with a number of standard deviations (or similar) in various
-directions. The famous MacAdam ellipses (\cite{macadam1942}) are derived from such data.
+directions. The famous MacAdam ellipses \cite{macadam1942} are derived from such data.
 Since the ellipses are supposed to to be circles of equal size in the transformed space,
 the target value for all $d_i$ is 1. The parameter $\alpha$ simplifies to be the average
 over all $\delta_i$ and we have
@@ -376,26 +452,59 @@ In case only the actual ellipses are given (e.g., \cite{luorigg}), one can place
 number of points onto their boundaries (e.g., 8 or 16) and compute the residual with
 from them.
 
+\begin{remark}
+  While the generation of ellipses from experimental data is useful for visually
+  representing color difference data, there are a number of criticisms associated with
+  using them in color space evaluation and optimization.
+  \begin{itemize}
+    \item Ellipses encode the raw experimental data, and perhaps distort it in some way.
+      If experimental data is available, using it directly eliminates this layer of
+      distortion.
+    \item When calculating the STRESS of ellipse data, one has to choose a set of points
+      on each ellipse and compute the STRESS for the distances. The final value depends
+      on how many values where chosen and where they sit on the ellipses.
+    \item Ellipses are two-dimensional geometric objects while color spaces are
+      three-dimensional. In many cases, ellipses are drawn orthogonal to the perceived
+      lightness dimension, and hence contain no information about lightness, even if the
+      original data did.
+    \item In some cases, e.g., \cite{macadam1942}, only the chromaticity coordinates $x$
+      and $y$ are given for the ellipses, not the lightness component $Y$. The claim is
+      that the ellipses don't change signficantly between different levels of lightness
+      \cite{brown}. However, this is true at most in a particular range of luminosity
+      which is often not provided.
+    \end{itemize}
+\end{remark}
+
+
 \subsection{Cost functional for hue linearity}
 
-There are multiple experiments which data about which colors are perceived to be of
-equal hue~\cite{hung,ebner,xiao} (see figure~\ref{}). Color spaces are considered good
-if the transformation maps points of equal perceived hue onto a straight line.
+\begin{figure}
+  \centering
+  \input{figures/hung-berns-xyy.tex}
+  \hfill
+  \input{figures/hung-berns-cielab.tex}
+  \hfill
+  \input{figures/hung-berns-oklab.tex}
+  \caption{Hung-Berns \cite{hung} hue linearity data for three color spaces. The points
+  which are representable in sRGB are shown in color.}
+\end{figure}
+
+There are multiple experiments about which colors are perceived to be of equal
+hue~\cite{hung,ebner,xiao} (see figure~\ref{fig:hstress}). Color spaces are considered
+good if the transformation maps points of equal perceived hue onto a straight line.
 
 What is a good measure of how well points sit on a straight line?
 A common idea is to find the straight line that mimizes the sum of squared distances to
-all points. This general approach is usually referred to as \emph{total least squares
-(TLS)}.
+all points. This general approach is referred to as \emph{total least squares (TLS)}.
 The line is typically
 given implicitly by $\alpha_1 x + \alpha_2 y
 = 0$ with $\alpha_1,\alpha_2\in\R$, $\|\alpha\|_2^2 = \alpha_1^2 + \alpha_2^2 = 1$.
 Because this assumes that the line passes through the origin, all points are
 first translated such that the whitepoint sits in in origin.
-
 For scale-invariance, it is convenient to divide by the maximizer of the squared
 distances, in total:
 \begin{equation}\label{eq:l}
-l_2 \coloneqq
+h_2 \coloneqq
   \frac{
 \min_{\|\alpha\|_2=1}
   \sqrt{\sum_{i=1}^n (\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2}
@@ -409,8 +518,7 @@ with the translated sample points
   \tilde{x}_i \coloneqq x_i-w_x,\qquad
   \tilde{y}_i \coloneqq y_i-w_y.
 \]
-
-The value of $l_2$ can be approximated with any appropriate optimization method. A more
+The value of $h_2$ can be approximated with any appropriate optimization method. A more
 explicit and more easily computable representation however is retrieved as follows.
 With the $n$-by-2 coordinate matrix
 \[
@@ -426,10 +534,10 @@ the sum in \eqref{eq:l} can be written as
   = (A \alpha)^T (A \alpha)
   = \alpha^T A^T A \alpha.
 \]
-This makes clear that $l_2$ is exactly the ratio of the square roots of the two
+This makes clear that $h_2$ is exactly the ratio of the square roots of the two
 eigenvalues of $A^TA$ or equivalently the ratio of the two singular values of $A$,
 \[
-l_2
+h_2
 = \frac{
   \sqrt{\lambda_{\min}(A^T A)}
   }{
@@ -439,7 +547,7 @@ l_2
 \]
 The value is given explicitly by
 \begin{equation*}
-  l_2 = \sqrt{
+  h_2 = \sqrt{
     \frac{
       \xt^T\xt
       + \yt^T\yt
@@ -456,9 +564,9 @@ Cauchy-Schwarz inequality $(\xt^T\yt)^2 \le (\xt^T\xt) (\yt^T\yt)$. It is 0 if a
 if $\xt$ and $\yt$ are linearly dependent, i.e., if the points $(x_i, y_i)$ sit on a
 straight line through the origin.
 
-Since $0\le l_2\le 1$, the value can be given in terms of STRESS,
+Since $0\le h_2\le 1$, the value can be given in terms of STRESS,
 \begin{equation}\label{eq:hstress}
-  l_\text{STRESS} = 100 \frac{\sigma_{\min}(A)}{\sigma_{\max}(A)}.
+  h_\text{STRESS} = 100 \frac{\sigma_{\min}(A)}{\sigma_{\max}(A)}.
 \end{equation}
 
 
@@ -468,40 +576,15 @@ Since $0\le l_2\le 1$, the value can be given in terms of STRESS,
 %   simplicity disregard the outer square root.
 % \end{remark}
 
-\begin{remark}
-Besides \eqref{eq:l}, there are other meaningful ways in which the distance of a point
-cloud to a line can be defined. Instead of summing the squared distances, one could take
-the $p$-norm,
-\[
-l_p
-  \coloneqq
-  \frac{
-    \min_{\|\alpha\|_2=1} \|\alpha_1 \tilde{x} + \alpha_2\tilde{y}\|_p
-  }{
-    \max_{\|\alpha\|_2=1} \|\alpha_1 \tilde{x} + \alpha_2\tilde{y}\|_p
-  }
-  = \frac{
-    \min_{\|\alpha\|_2=1}
-  \left(\sum_{i=1}^n |\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i|^p\right)^{1/p}
-}{
-    \max_{\|\alpha\|_2=1}
-  \left(\sum_{i=1}^n |\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i|^p\right)^{1/p}
-}
-\]
-  with $1\le p \le \infty$.
-  The value $l_2$ remains of prominent importance, though, because of its smooth
-  dependence on the point set.
-\end{remark}
-
 
 \begin{figure}
   \centering
-  \input{hstress.tex}
-  \caption{$h_\text{STRESS}$ for different data sets. The bar represents the average
-  $h_\text{STRESS}$ over all arms in the data set and the thin lines the minimum and
-  maximum values.
-  The largest maxima are CIELAB's and CAM16's famous nonlinearities for blue.
-  Oklab has the smallest maximum STRESS for all data sets.}
+  \input{figures/hstress.tex}
+  \caption{$h_\text{STRESS}$ for different data sets. The dark bar represents the
+  average $h_\text{STRESS}$ over all arms in the data set, the light bar indicates the
+  maximum.  The largest maxima are CIELAB's and CAM16's famous nonlinearities for blue.
+  $J_za_zb_z$ and Oklab perform best for all data sets.}
+  \label{fig:hstress}
 \end{figure}
 
 \subsection{Cost functional for lightness data}
@@ -510,7 +593,7 @@ l_p
 
 \begin{figure}
   \centering
-  \input{light_stress.tex}
+  \input{figures/light_stress.tex}
   \caption{lightness stress.}
 \end{figure}
 

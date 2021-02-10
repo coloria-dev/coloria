@@ -15,7 +15,7 @@ def test_show():
     colorio.data.Leeds().show(cs)
 
 
-def test_residual():
+def test_stress():
     cs = colorio.cs.CIELAB()
     ref = 40.03641766022049
     res = colorio.data.Leeds().stress(cs)
@@ -24,5 +24,5 @@ def test_residual():
 
 
 if __name__ == "__main__":
-    test_show()
-    # test_residual()
+    # test_show()
+    test_stress()

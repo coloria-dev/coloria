@@ -10,6 +10,16 @@ def test_show():
     colorio.data.Munsell().show(cs, V=5)
 
 
+def test_show_lightness():
+    # cs = colorio.cs.CIELAB()
+    # cs = colorio.cs.CIEHCL()
+    # cs = colorio.cs.CIELCH()
+    # cs = colorio.cs.OsaUcs()
+    cs = colorio.cs.IPT()
+    # cs = colorio.cs.OKLAB()
+    colorio.data.Munsell().show_lightness(cs)
+
+
 def test_stress():
     cs = colorio.cs.CIELAB()
     # cs = colorio.cs.OsaUcs()
@@ -22,4 +32,5 @@ def test_stress():
 
 if __name__ == "__main__":
     # test_stress()
-    test_show()
+    # test_show()
+    test_show_lightness()

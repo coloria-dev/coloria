@@ -22,10 +22,13 @@ class Dataset:
 
 
 class ColorDistanceDataset(Dataset):
-    def __init__(self, name, dist, xyz_pairs):
+    def __init__(self, name, dist, xyz_pairs, weights=None):
         self.name = name
+        n = len(dist)
+        assert n == len(xyz_pairs)
         self.dist = np.asarray(dist)
         self.xyz_pairs = np.asarray(xyz_pairs)
+        self.weights = np.ones(n) if weights is None else weights
 
     def plot(self, cs):
         coords = cs.from_xyz100(self.xyz_pairs.T).T
@@ -43,14 +46,14 @@ class ColorDistanceDataset(Dataset):
         ax.set_zlabel(labels[2])
         ax.set_title(f"{self.name} dataset in {cs.name}")
 
-    def stress(self, cs, variant="a"):
+    def stress(self, cs, variant="absolute"):
         # compute Euclidean distance in colorspace cs
         cs_pairs = cs.from_xyz100(self.xyz_pairs.T).T
         cs_diff = cs_pairs[:, 1] - cs_pairs[:, 0]
         delta = np.sqrt(np.einsum("ij,ij->i", cs_diff, cs_diff))
         return self._stress(delta, variant)
 
-    def stress_lab_diff(self, fun, variant="a"):
+    def stress_lab_diff(self, fun, variant="absolute"):
         """Same a stress(), but you can provide a color difference function that
         receives two LAB values and returns their scalar distance.
         """
@@ -59,22 +62,18 @@ class ColorDistanceDataset(Dataset):
         return self._stress(delta, variant)
 
     def _stress(self, delta, variant):
-        if variant == "a":
+        if variant == "absolute":
             # regular old stress
             alpha = np.dot(self.dist, delta) / np.dot(self.dist, self.dist)
             diff = alpha * self.dist - delta
-            val = np.dot(diff, diff) / np.dot(delta, delta)
-        elif variant == "b":
+            val = np.sum(self.weights * diff ** 2) / np.sum(self.weights * delta ** 2)
+        else:
+            assert variant == "relative", f"Illegal variant {variant}."
             alpha = np.sum(self.dist) / np.sum(self.dist ** 2 / delta)
             diff = alpha * self.dist - delta
-            val = np.sum(diff ** 2 / delta) / np.sum(delta)
-        else:
-            assert variant == "c"
-            dd = self.dist / delta
-            alpha = np.sum(dd) / np.dot(dd, dd)
-            n = len(self.dist)
-            diff = alpha * dd - 1.0
-            val = np.dot(diff, diff) / (n - 1)
+            val = np.sum(self.weights * diff ** 2 / delta) / np.sum(
+                self.weights * delta
+            )
 
         return 100 * np.sqrt(val)
 
@@ -187,6 +186,10 @@ def _plot_ellipses(cs, xyy100_centers, xyy100_points, ellipse_scaling):
 
     keep = [True, True, True]
     keep[cs.k0] = False
+
+    # make the ellipses the same color as the axes labels
+    color = plt.gca().xaxis.label.get_color()
+
     for center, points in zip(xyy100_centers, xyy100_points):
         # cut off the irrelevant index
         cs_center = cs.from_xyz100(_xyy100_to_xyz100(center))
@@ -239,7 +242,8 @@ def _plot_ellipses(cs, xyy100_centers, xyy100_points, ellipse_scaling):
         )
         plt.gca().add_patch(e)
         # e.set_alpha(0.5)
-        e.set_facecolor("#969696")
+
+        e.set_facecolor(color)
 
         # plt.plot(*tcenter, "xk")
         # plt.plot(*tvals, "ok")

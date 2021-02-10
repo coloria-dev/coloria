@@ -16,7 +16,6 @@ color_spaces = [
     colorio.cs.OKLAB(),
     colorio.cs.OsaUcs(),
     colorio.cs.PROLAB(),
-    colorio.cs.RLAB(),
     colorio.cs.XYY(1),
 ]
 
@@ -69,17 +68,18 @@ color_pairs = [
 ]
 
 for (label, data), p, cols in zip(data_sets.items(), pos, color_pairs):
-    average = [np.average(item) for item in data]
-    maxval = [np.max(item) for item in data]
-    minval = [np.min(item) for item in data]
+    average = np.array([np.average(item) for item in data])
+    maxval = np.array([np.max(item) for item in data])
+    minval = np.array([np.min(item) for item in data])
+    ax.bar(x + p, average, bar_width, label=label, color=cols[0], zorder=5)
     ax.bar(
         x + p,
-        average,
+        maxval - average,
         bar_width,
-        label=label,
-        yerr=np.array([minval, maxval]),
-        color=cols[0],
-        ecolor=cols[1],
+        bottom=average,
+        # label=label,
+        color=cols[1],
+        zorder=5,
     )
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
@@ -88,7 +88,7 @@ ax.yaxis.set_label_coords(-0.1, 1.02)
 plt.xticks(x, rotation=45, ha="right")
 ax.set_xticklabels(labels)
 plt.xlim(-0.6, len(labels) - 1 + 0.6)
-plt.ylim(0, 30)
+plt.ylim(0, 25)
 ax.legend()
 
 plt.gcf().tight_layout()
