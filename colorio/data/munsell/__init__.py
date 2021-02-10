@@ -1,6 +1,7 @@
 import json
 import pathlib
 
+import dufte
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -59,6 +60,26 @@ class Munsell:
         plt.xlabel(cs.labels[k1])
         plt.ylabel(cs.labels[k2], rotation=0)
         plt.axis("equal")
+
+    def show_lightness(self, *args, **kwargs):
+        self.plot_lightness(*args, **kwargs)
+        plt.show()
+
+    def savefig_lightness(self, filename, *args, **kwargs):
+        self.plot_lightness(*args, **kwargs)
+        plt.savefig(filename, transparent=True, bbox_inches="tight")
+
+    def plot_lightness(self, cs):
+        plt.style.use(dufte.style)
+
+        # plot lightness curve
+        L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
+        L_ = cs.from_xyz100(XYY(100).to_xyz100(self.xyy100))[cs.k0] - L0_
+
+        v, y = self.lightness
+        plt.plot(y, v, label="Munsell lightness")
+        plt.xlabel("Y")
+        plt.ylabel("V")
 
     def stress_lightness(self, cs):
         ref = self.V
