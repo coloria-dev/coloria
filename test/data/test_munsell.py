@@ -16,6 +16,7 @@ def test_show_lightness():
     # cs = colorio.cs.CIELCH()
     # cs = colorio.cs.OsaUcs()
     cs = colorio.cs.IPT()
+    # cs = colorio.cs.OKLAB()
     colorio.data.Munsell().show_lightness(cs)
 
 
