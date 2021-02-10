@@ -75,4 +75,4 @@ class HSL:
         return np.array([R1 + m, G1 + m, B1 + m])
 
     def from_rgb256(self, srgb256):
-        return self.from_srgb1(np.asarray(srgb256) / 255.0)
+        return self.from_rgb1(np.asarray(srgb256) / 255.0)

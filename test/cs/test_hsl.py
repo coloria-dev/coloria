@@ -16,7 +16,7 @@ np.random.seed(2)
 )
 def test_reference_srgb(vals, ref):
     hsl = colorio.cs.HSL()
-    assert np.all(abs(hsl.from_srgb256(vals) - ref) < 1.0e-14 * np.array(ref))
+    assert np.all(abs(hsl.from_rgb256(vals) - ref) < 1.0e-14 * np.array(ref))
 
 
 @pytest.mark.parametrize(
@@ -30,5 +30,5 @@ def test_reference_srgb(vals, ref):
 )
 def test_conversion(vals):
     hsl = colorio.cs.HSL()
-    out = hsl.to_srgb1(hsl.from_srgb1(vals))
+    out = hsl.to_rgb1(hsl.from_rgb1(vals))
     assert np.all(abs(vals - out) < 1.0e-14)
