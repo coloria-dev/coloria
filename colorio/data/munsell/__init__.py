@@ -1,7 +1,6 @@
 import json
 import pathlib
 
-import dufte
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -70,8 +69,6 @@ class Munsell:
         plt.savefig(filename, transparent=True, bbox_inches="tight")
 
     def plot_lightness(self, cs):
-        plt.style.use(dufte.style)
-
         # print(self.xyy100.T)
         # exit(1)
 
