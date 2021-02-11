@@ -12,12 +12,10 @@ color_spaces = [
     colorio.cs.CIELAB(),
     colorio.cs.CIELUV(),
     colorio.cs.IPT(),
-    colorio.cs.ICtCp(),
+    # colorio.cs.ICtCp(),
     colorio.cs.JzAzBz(),
     colorio.cs.OKLAB(),
     colorio.cs.OsaUcs(),
-    colorio.cs.PROLAB(),
-    colorio.cs.RLAB(),
     colorio.cs.XYY(1),
 ]
 
@@ -28,15 +26,17 @@ color_spaces = [
 #     ]
 #     print(f"{cs.name} & {vals[0]:.1f} & {vals[1]:.1f}\\\\")
 
+fc1 = colorio.data.FairchildChen("SL1")
+fc2 = colorio.data.FairchildChen("SL2")
+munsell = colorio.data.Munsell()
+
 xlabels = [cs.name for cs in color_spaces]
 data_sets = {
     "Fairchild-Chen (SL1) \\cite{fairchildchen}": [
-        colorio.data.fairchild_chen.stress(cs, "SL1") for cs in color_spaces
+        fc1.stress(cs) for cs in color_spaces
     ],
-    "Fairchild-Chen (SL2)": [
-        colorio.data.fairchild_chen.stress(cs, "SL2") for cs in color_spaces
-    ],
-    "Munsell value": [colorio.data.munsell.stress_lightness(cs) for cs in color_spaces],
+    "Fairchild-Chen (SL2)": [fc2.stress(cs) for cs in color_spaces],
+    "Munsell value": [munsell.stress_lightness(cs) for cs in color_spaces],
 }
 
 plt.style.use(dufte.style)
@@ -51,12 +51,13 @@ for (label, data), p in zip(data_sets.items(), pos):
     ax.bar(x + p, data, bar_width, label=label)
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel("l_STRESS")
+ax.set_title("l_{text{STRESS}}")
 ax.set_xticks(x)
 ax.set_xticklabels(xlabels)
-plt.xticks(rotation=45)
-plt.ylim(0)
-ax.legend()
+plt.xticks(rotation=45, ha="right")
+plt.xlim(-0.6, len(color_spaces) - 1 + 0.6)
+plt.ylim(0, 50)
+ax.legend(framealpha=1, loc="upper left", bbox_to_anchor=(0, 1))
 
 fig.tight_layout()
 # plt.show()
