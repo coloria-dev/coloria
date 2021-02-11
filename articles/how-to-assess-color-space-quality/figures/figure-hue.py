@@ -15,7 +15,6 @@ color_spaces = [
     colorio.cs.JzAzBz(),
     colorio.cs.OKLAB(),
     colorio.cs.OsaUcs(),
-    colorio.cs.PROLAB(),
     colorio.cs.XYY(1),
 ]
 
@@ -83,13 +82,13 @@ for (label, data), p, cols in zip(data_sets.items(), pos, color_pairs):
     )
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_title("$h_{STRESS}$")
+ax.set_title("$h_{text{STRESS}}$")
 ax.yaxis.set_label_coords(-0.1, 1.02)
 plt.xticks(x, rotation=45, ha="right")
 ax.set_xticklabels(labels)
 plt.xlim(-0.6, len(labels) - 1 + 0.6)
-plt.ylim(0, 25)
-ax.legend()
+plt.ylim(0, 10)
+ax.legend(framealpha=1, loc="upper right", bbox_to_anchor=(1, 1))
 
 plt.gcf().tight_layout()
 # plt.show()

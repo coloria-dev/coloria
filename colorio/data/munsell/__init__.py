@@ -87,7 +87,7 @@ class Munsell:
         plt.title(f"{cs.name} lightness of Munsell samples")
 
         y_vals = []
-        l_avg = []
+        l_avg2 = []
         l_err0 = []
         l_err1 = []
 
@@ -96,17 +96,18 @@ class Munsell:
         for k in range(1, 10):
             idx = self.V == k
             y_vals.append(self.xyy100[2, idx][0])
-            avg = np.average(L_[idx])
-            l_avg.append(avg)
-            l_err0.append(avg - np.min(L_[idx]))
-            l_err1.append(np.max(L_[idx]) - avg)
+            avg2 = np.sqrt(np.mean((L_[idx] ** 2)))
+            # avg2 = np.mean(L_[idx])
+            l_avg2.append(avg2)
+            l_err0.append(avg2 - np.min(L_[idx]))
+            l_err1.append(np.max(L_[idx]) - avg2)
             #
             y_vals2.append(self.xyy100[2, idx])
             l_vals.append(L_[idx])
 
         plt.errorbar(
             y_vals,
-            l_avg,
+            l_avg2,
             yerr=[l_err0, l_err1],
             fmt="o",
             label=f"{cs.name} lightness",
