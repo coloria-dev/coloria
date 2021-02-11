@@ -29,7 +29,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        # something is still missing on python 3.9, probably vtk via pyvista
+        python-version: [3.6, 3.7, 3.8]
     steps:
     - uses: actions/setup-python@v2
       with:
