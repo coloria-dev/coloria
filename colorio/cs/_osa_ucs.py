@@ -43,9 +43,7 @@ class OsaUcs(ColorSpace):
             - 2.5643 * Y ** 2 * s
             + 1.8103 * Y * s ** 2
         )
-        Y0 = np.zeros_like(Y)
-        idx = np.abs(s) > 1.0e-15
-        Y0[idx] = YKs2[idx] / s[idx] ** 2
+        Y0 = np.where(s == 0, 0.0, YKs2 / s ** 2)
 
         #  L' is L in original article
         L_prime = 5.9 * (np.cbrt(Y0) - 2 / 3 + 0.042 * np.cbrt(Y0 - 30))

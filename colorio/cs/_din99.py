@@ -14,9 +14,7 @@ class DIN99(ColorSpace):
         name = "DIN99"
         if variant is not None:
             name += variant
-        super().__init__(
-            f"DIN99{variant}", (f"L99{variant}", f"a99{variant}", f"b99{variant}"), 0
-        )
+        super().__init__(name, (f"L99{variant}", f"a99{variant}", f"b99{variant}"), 0)
         self.k_E = k_E
         self.k_CH = k_CH
         self.cielab = CIELAB()
@@ -59,8 +57,8 @@ class DIN99(ColorSpace):
         a99 = C99 * cos_h99
         b99 = C99 * sin_h99
 
-        a99 = np.nan_to_num(a99, nan=0.0)
-        b99 = np.nan_to_num(b99, nan=0.0)
+        a99 = np.where(G == 0.0, 0.0, a99)
+        b99 = np.where(G == 0.0, 0.0, b99)
 
         return np.array([L99, a99, b99])
 
