@@ -74,3 +74,8 @@ def test_nan(cs, tol):
     out = cs.from_xyz100(xyz)
     print(out)
     assert np.all(np.isnan(out))
+
+    xyz = np.full(3, np.nan)
+    out = cs.to_xyz100(xyz)
+    print(out)
+    assert np.all(np.isnan(out))
