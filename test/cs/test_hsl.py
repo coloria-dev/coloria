@@ -32,3 +32,16 @@ def test_conversion(vals):
     hsl = colorio.cs.HSL()
     out = hsl.to_rgb1(hsl.from_rgb1(vals))
     assert np.all(abs(vals - out) < 1.0e-14)
+
+
+def test_nan():
+    hsl = colorio.cs.HSL()
+
+    vals = np.full(3, np.nan)
+    out = hsl.from_rgb1(vals)
+    print(out)
+    assert np.all(np.isnan(out))
+
+    vals = np.full(3, np.nan)
+    out = hsl.to_rgb1(vals)
+    assert np.all(np.isnan(out))
