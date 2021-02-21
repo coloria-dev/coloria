@@ -41,7 +41,6 @@ __all__ = [
     "save_rgb_slice",
     "save_rgb_gamut",
     "show_rgb_gamut",
-    "save_cone_gamut",
     "save_visible_gamut",
     "show_srgb255_gradient",
     "show_primary_srgb_gradients",
