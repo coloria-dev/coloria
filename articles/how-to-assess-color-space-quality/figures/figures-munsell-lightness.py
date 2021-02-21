@@ -1,7 +1,8 @@
 import dufte
 import matplotlib.pyplot as plt
-import colorio
 import tikzplotlib
+
+import colorio
 
 plt.style.use(dufte.style)
 

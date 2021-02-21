@@ -41,7 +41,6 @@ class Munsell:
         pts = cs.from_xyz100(xyz100)
 
         rgb = cs.to_rgb1(pts)
-        is_legal_srgb = np.all((0 <= rgb) & (rgb <= 1), axis=0)
 
         # plot the ones that cannot be represented in SRGB in black
         is_legal_srgb = np.all((0 <= rgb) & (rgb <= 1), axis=0)

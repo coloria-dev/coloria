@@ -6,8 +6,8 @@ class HSL:
         srgb = np.asarray(srgb1, dtype=float)
         orig_shape = srgb.shape
         srgb = srgb.reshape(3, -1)
-        assert np.all(srgb >= 0)
-        assert np.all(srgb <= 1)
+        assert not np.any(srgb < 0.0)
+        assert not np.any(srgb > 1.0)
 
         argmax = np.argmax(srgb, axis=0)
         max_val = np.max(srgb, axis=0)
@@ -32,7 +32,7 @@ class HSL:
         S = np.empty(srgb.shape[1:], dtype=float)
         idx = (max_val > 0) & (min_val < 1)
         S[idx] = diff[idx] / (1 - np.abs(max_val[idx] + min_val[idx] - 1))
-        S[~idx] = 0.0
+        S[~idx] = 0.0 * diff[~idx]
 
         L = (max_val + min_val) / 2
 
@@ -43,12 +43,12 @@ class HSL:
 
     def to_rgb1(self, hsl):
         H, S, L = hsl
-        assert np.all(H >= 0)
-        assert np.all(H <= 360)
-        assert np.all(S >= 0)
-        assert np.all(S <= 1)
-        assert np.all(L >= 0)
-        assert np.all(L <= 1)
+        assert not np.any(H < 0)
+        assert not np.any(H > 360)
+        assert not np.any(S < 0)
+        assert not np.any(S > 1)
+        assert not np.any(L < 0)
+        assert not np.any(L > 1)
 
         C = (1 - np.abs(2 * L - 1)) * S
         H_dash = H / 60

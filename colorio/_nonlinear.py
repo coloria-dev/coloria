@@ -16,9 +16,6 @@ def bisect(f, a, b, tol, max_num_steps=np.infty):
     a[:, is_fa_positive] = b[:, is_fa_positive]
     b[:, is_fa_positive] = tmp
 
-    diff = a - b
-    dist2 = np.einsum("ij,ij->j", diff, diff)
-
     k = 0
     while True:
         if k >= max_num_steps:
@@ -56,9 +53,6 @@ def regula_falsi(f, a, b, tol, max_num_steps=np.infty):
         b[..., is_fa_positive],
         a[..., is_fa_positive],
     )
-
-    diff = a - b
-    dist2 = np.sum(diff ** 2)
 
     k = 0
     while True:
