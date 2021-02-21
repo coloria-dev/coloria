@@ -105,10 +105,8 @@ def compute_to(data, description, cs):
 
         # If C or M is given and equal 0, the value of `t` cannot algebraically deduced
         # just by C or M. However, from other considerations we know that it must be 0.
-        # Hence, allow division by 0 and set nans to 0 afterwards.
-        with np.errstate(invalid="ignore"):
-            alpha = C / np.sqrt(J / 100)
-        alpha = np.nan_to_num(alpha)
+        alpha = np.zeros_like(J)
+        np.divide(C, np.sqrt(J / 100), out=alpha, where=J != 0.0)
     else:
         assert description[1] == "s"
         s = data[1] / 100

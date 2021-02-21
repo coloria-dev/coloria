@@ -49,16 +49,17 @@ class DIN99(ColorSpace):
         # cos_h99 = np.cos(h99)
         # sin_h99 = np.sin(h99)
 
-        cosarctan_f_e = e / G
-        sinarctan_f_e = f / G
+        cosarctan_f_e = np.zeros_like(G)
+        np.divide(e, G, out=cosarctan_f_e, where=G != 0.0)
+
+        sinarctan_f_e = np.zeros_like(G)
+        np.divide(f, G, out=sinarctan_f_e, where=G != 0.0)
+
         cos_h99 = self.cos_p6 * cosarctan_f_e - self.sin_p6 * sinarctan_f_e
         sin_h99 = self.sin_p6 * cosarctan_f_e + self.cos_p6 * sinarctan_f_e
 
         a99 = C99 * cos_h99
         b99 = C99 * sin_h99
-
-        a99 = np.where(G == 0.0, 0.0, a99)
-        b99 = np.where(G == 0.0, 0.0, b99)
 
         return np.array([L99, a99, b99])
 
@@ -67,14 +68,13 @@ class DIN99(ColorSpace):
         C99 = np.hypot(a99, b99)
         G = (np.exp(C99 / self.p[4] * self.k_CH * self.k_E) - 1) / self.p[5]
 
-        cos_h99 = a99 / C99
-        sin_h99 = b99 / C99
+        cos_h99 = np.zeros_like(C99)
+        np.divide(a99, C99, out=cos_h99, where=C99 != 0.0)
+        sin_h99 = np.zeros_like(C99)
+        np.divide(b99, C99, out=sin_h99, where=C99 != 0.0)
 
         cosarctan_f_e = self.cos_p6 * cos_h99 + self.sin_p6 * sin_h99
         sinarctan_f_e = -self.sin_p6 * cos_h99 + self.cos_p6 * sin_h99
-
-        cosarctan_f_e = np.nan_to_num(cosarctan_f_e, nan=0.0)
-        sinarctan_f_e = np.nan_to_num(sinarctan_f_e, nan=0.0)
 
         e = G * cosarctan_f_e
         f = G * sinarctan_f_e
