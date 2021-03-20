@@ -1,6 +1,6 @@
+import npx
 import numpy as np
 
-from .._linalg import dot
 from ..illuminants import whitepoints_cie1931
 from ._ciecam02 import compute_from, compute_to
 from ._color_space import ColorSpace
@@ -84,7 +84,6 @@ class CAM16:
         self.invM_ = (
             np.linalg.inv(self.M_) if exact_inversion else approx_inv_M16 / self.D_RGB
         )
-        return
 
     def from_xyz100(self, xyz):
         # Step 1: Calculate 'cone' responses
@@ -92,7 +91,7 @@ class CAM16:
         # Step 2: Complete the color adaptation of the illuminant in
         #         the corresponding cone response space
         # rgb_c = (rgb.T * self.D_RGB).T
-        rgb_c = dot(self.M_, xyz)
+        rgb_c = npx.dot(self.M_, xyz)
         return compute_from(rgb_c, self)
 
     def to_xyz100(self, data, description):
@@ -102,7 +101,7 @@ class CAM16:
         # rgb = (rgb_c.T / self.D_RGB).T
         # Step 7: Calculate X, Y and Z
         # xyz = self.solve_M16(rgb)
-        return dot(self.invM_, rgb_c)
+        return npx.dot(self.invM_, rgb_c)
 
 
 class CAM16UCS(ColorSpace):

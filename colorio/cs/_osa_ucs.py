@@ -1,6 +1,6 @@
+import npx
 import numpy as np
 
-from .._linalg import dot
 from ._color_space import ColorSpace
 
 
@@ -50,7 +50,7 @@ class OsaUcs(ColorSpace):
         L_prime = 5.9 * (np.cbrt(Y0) - 2 / 3 + 0.042 * np.cbrt(Y0 - 30))
 
         C = L_prime / (5.9 * (np.cbrt(Y0) - 2 / 3))
-        R, G, B = dot(self.M, xyz100)
+        R, G, B = npx.dot(self.M, xyz100)
 
         a = -13.7 * np.cbrt(R) + 17.7 * np.cbrt(G) - 4 * np.cbrt(B)
         b = 1.7 * np.cbrt(R) + 8 * np.cbrt(G) - 9.7 * np.cbrt(B)
@@ -124,7 +124,7 @@ class OsaUcs(ColorSpace):
             # # b = 1.7 * np.cbrt(R) + 8 * np.cbrt(G) - 9.7 * np.cbrt(B)
 
             RGB = cbrt_RGB ** 3
-            xyz100 = dot(self.Minv, RGB)
+            xyz100 = npx.dot(self.Minv, RGB)
 
             X, Y, _ = xyz100
             sum_xyz = np.sum(xyz100, axis=0)
@@ -144,7 +144,7 @@ class OsaUcs(ColorSpace):
             # dcbrt_RGB = 1.0
             # dRGB = 3 * cbrt_RGB ** 2 * dcbrt_RGB
             dRGB = 3 * cbrt_RGB ** 2
-            dxyz100 = dot(self.Minv, dRGB)
+            dxyz100 = npx.dot(self.Minv, dRGB)
 
             dX, dY, _ = dxyz100
             dsum_xyz = np.sum(dxyz100, axis=0)

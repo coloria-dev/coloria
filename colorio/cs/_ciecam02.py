@@ -1,7 +1,7 @@
+import npx
 import numpy as np
 
 from .._exceptions import ColorioError
-from .._linalg import dot
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
 
@@ -29,7 +29,7 @@ def compute_from(rgb_, cs):
     # Step 5: Calculate Redness-Greenness (a) , Yellowness-Blueness (b)
     #         components and hue angle (h)
     # Step 7: Calculate achromatic response A
-    a, b, p2_, u = dot(
+    a, b, p2_, u = npx.dot(
         np.array([[11, -12, 1], [1, 1, -2], [40, 20, 1], [20, 20, 21]]), rgb_a_
     )
     a /= 11
@@ -148,7 +148,7 @@ def compute_to(data, description, cs):
 
     # Step 4: Calculate RGB_a_
     rgb_a_ = (
-        dot(
+        npx.dot(
             np.array([[460, 451, 288], [460, -891, -261], [460, -220, -6300]]),
             np.array([p2_, a, b]),
         )
@@ -269,7 +269,7 @@ class CIECAM02:
         #         included in D; hence, in DR, DG and DB)
         #
         # Step 3: Calculate the Hunt-Pointer-Estevez response
-        rgb_ = dot(self.M_, xyz)
+        rgb_ = npx.dot(self.M_, xyz)
         # Steps 4-10
         return compute_from(rgb_, self)
 
@@ -286,7 +286,7 @@ class CIECAM02:
         #
         # Step 8: Calculate X, Y and Z
         # xyz = solve(self.M_cat02, rgb)
-        return dot(self.invM_, rgb_)
+        return npx.dot(self.invM_, rgb_)
 
 
 class CAM02(ColorSpace):

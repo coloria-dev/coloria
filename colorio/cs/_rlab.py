@@ -1,6 +1,6 @@
+import npx
 import numpy as np
 
-from .._linalg import dot, solve
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
 
@@ -98,8 +98,8 @@ class RLAB(ColorSpace):
     def from_xyz100(self, xyz):
         # First, the stimuli xyz are translated into reference stimuli xyz_ref to
         # account for the environment adaptation of the human visual system.
-        lms_dash = (self.a_lms * dot(self.M, xyz).T).T
-        xyz_ref = dot(self.R, lms_dash)
+        lms_dash = (self.a_lms * npx.dot(self.M, xyz).T).T
+        xyz_ref = npx.dot(self.R, lms_dash)
 
         x_ref_s, y_ref_s, z_ref_s = xyz_ref ** self.sigma
 
@@ -120,4 +120,4 @@ class RLAB(ColorSpace):
         z_ref_s = y_ref_s - b_R / 170
 
         xyz_ref = np.array([x_ref_s, y_ref_s, z_ref_s]) ** (1.0 / self.sigma)
-        return solve(self.M, (solve(self.R, xyz_ref).T / self.a_lms).T)
+        return npx.solve(self.M, (npx.solve(self.R, xyz_ref).T / self.a_lms).T)

@@ -1,9 +1,9 @@
 # Ivan A. Konovalenko, Anna A. Smagina, Dmitry P. Nikolaev, Petr P. Nikolaev,
 # ProLab: perceptually uniform projective colour coordinate system,
 # https://arxiv.org/abs/2012.07653
+import npx
 import numpy as np
 
-from .._linalg import dot
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
 
@@ -38,10 +38,10 @@ class PROLAB(ColorSpace):
     def from_xyz100(self, xyz):
         xyz = np.asarray(xyz)
         xyz = (xyz.T / self.wp).T
-        return dot(self.Q, xyz) / (dot(self.q, xyz) + 1)
+        return npx.dot(self.Q, xyz) / (npx.dot(self.q, xyz) + 1)
 
     def to_xyz100(self, lab):
-        y = dot(self.Qinv, lab)
-        xyz = y / (1 - dot(self.q, y))
+        y = npx.dot(self.Qinv, lab)
+        xyz = y / (1 - npx.dot(self.q, y))
         xyz = (xyz.T * self.wp).T
         return xyz
