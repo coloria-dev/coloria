@@ -1,7 +1,7 @@
+import npx
 import numpy as np
 
 from .._exceptions import ColorioError
-from .._linalg import dot, solve
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
 
@@ -50,19 +50,19 @@ class JzAzBz(ColorSpace):
         x, y, z = xyz
         x_ = self.b * x - (self.b - 1) * z
         y_ = self.g * y - (self.g - 1) * x
-        lms = dot(self.M1, [x_, y_, z])
+        lms = npx.dot(self.M1, [x_, y_, z])
         lms_ = (
             (self.c1 + self.c2 * (lms / 10000) ** self.n)
             / (1 + self.c3 * (lms / 10000) ** self.n)
         ) ** self.p
-        iz, az, bz = dot(self.M2, lms_)
+        iz, az, bz = npx.dot(self.M2, lms_)
         jz = (1 + self.d) * iz / (1 + self.d * iz) - self.d0
         return np.array([jz, az, bz])
 
     def to_xyz100(self, jzazbz):
         jz, az, bz = jzazbz
         iz = (jz + self.d0) / (1 + self.d - self.d * (jz + self.d0))
-        lms_ = solve(self.M2, np.array([iz, az, bz]))
+        lms_ = npx.solve(self.M2, np.array([iz, az, bz]))
         if np.any(lms_ < 0.0):
             raise ColorioError("Illegal LMS value.")
 
@@ -70,7 +70,7 @@ class JzAzBz(ColorSpace):
             (self.c1 - lms_ ** (1 / self.p))
             / (self.c3 * lms_ ** (1 / self.p) - self.c2)
         ) ** (1 / self.n)
-        x_, y_, z_ = solve(self.M1, lms)
+        x_, y_, z_ = npx.solve(self.M1, lms)
         x = (x_ + (self.b - 1) * z_) / self.b
         y = (y_ + (self.g - 1) * x) / self.g
         # return (np.array([x, y, z_]).T * self.whitepoint).T

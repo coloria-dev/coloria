@@ -1,6 +1,6 @@
+import npx
 import numpy as np
 
-from .._linalg import dot, solve
 from ._color_space import ColorSpace
 
 
@@ -30,11 +30,11 @@ class IPT(ColorSpace):
         )
 
     def from_xyz100(self, xyz):
-        lms = dot(self.M1, xyz)
+        lms = npx.dot(self.M1, xyz)
         lms_ = np.sign(lms) * np.abs(lms) ** 0.43
-        return dot(self.M2, lms_)
+        return npx.dot(self.M2, lms_)
 
     def to_xyz100(self, ipt):
-        lms_ = solve(self.M2, ipt)
+        lms_ = npx.solve(self.M2, ipt)
         lms = np.sign(lms_) * np.abs(lms_) ** (1 / 0.43)
-        return solve(self.M1, lms)
+        return npx.solve(self.M1, lms)

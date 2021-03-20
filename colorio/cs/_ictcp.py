@@ -1,6 +1,6 @@
+import npx
 import numpy as np
 
-from .._linalg import dot, solve
 from ._color_space import ColorSpace
 from ._hdr import HdrLinear
 
@@ -32,17 +32,17 @@ class ICtCp(ColorSpace):
         self._hdr = HdrLinear()
 
     def from_rec2100(self, rgb):
-        lms = dot(self.M1, rgb)
+        lms = npx.dot(self.M1, rgb)
 
         lms_ = (
             (self.c1 + self.c2 * lms ** self.m1) / (1 + self.c3 * lms ** self.m1)
         ) ** self.m2
 
-        ictcp = dot(self.M2, lms_)
+        ictcp = npx.dot(self.M2, lms_)
         return ictcp
 
     def to_rec2100(self, ictcp):
-        lms_ = solve(self.M2, ictcp)
+        lms_ = npx.solve(self.M2, ictcp)
 
         t = lms_ ** (1 / self.m2) - self.c1
         # This next line is part of the model, but really it shouldn't occur for sane
@@ -50,7 +50,7 @@ class ICtCp(ColorSpace):
         # t[t < 0] = 0.0
         lms = (t / (self.c2 - self.c3 * lms_ ** (1 / self.m2))) ** (1 / self.m1)
 
-        rgb = solve(self.M1, lms)
+        rgb = npx.solve(self.M1, lms)
         return rgb
 
     def from_xyz100(self, xyz100):

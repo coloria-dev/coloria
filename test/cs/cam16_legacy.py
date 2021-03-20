@@ -1,6 +1,6 @@
+import npx
 import numpy as np
 
-from colorio._linalg import dot
 from colorio.illuminants import whitepoints_cie1931
 
 
@@ -66,11 +66,10 @@ class CAM16Legacy:
         self.h = np.array([20.14, 90.00, 164.25, 237.53, 380.14])
         self.e = np.array([0.8, 0.7, 1.0, 1.2, 0.8])
         self.H = np.array([0.0, 100.0, 200.0, 300.0, 400.0])
-        return
 
     def from_xyz100(self, xyz):
         # Step 1: Calculate 'cone' responses
-        rgb = dot(self.M16, xyz)
+        rgb = npx.dot(self.M16, xyz)
         # Step 2: Complete the color adaptation of the illuminant in
         #         the corresponding cone response space
         rgb_c = (rgb.T * self.D_RGB).T
@@ -81,8 +80,8 @@ class CAM16Legacy:
         rgb_a = np.sign(rgb_c) * 400 * alpha / (alpha + 27.13) + 0.1
 
         # Step 4
-        a = dot(np.array([1, -12 / 11, 1 / 11]), rgb_a)
-        b = dot(np.array([1 / 9, 1 / 9, -2 / 9]), rgb_a)
+        a = npx.dot(np.array([1, -12 / 11, 1 / 11]), rgb_a)
+        b = npx.dot(np.array([1 / 9, 1 / 9, -2 / 9]), rgb_a)
         # Make sure that h is in [0, 360]
         h = np.rad2deg(np.arctan2(b, a)) % 360
 
@@ -95,7 +94,7 @@ class CAM16Legacy:
         H = self.H[i] + 100 * beta / (beta + self.e[i] * (self.h[i + 1] - h_))
 
         # Step 6
-        A = (dot(np.array([2, 1, 1 / 20]), rgb_a) - 0.305) * self.N_bb
+        A = (npx.dot(np.array([2, 1, 1 / 20]), rgb_a) - 0.305) * self.N_bb
 
         # Step 7: Calculate the correlate of lightness
         J = 100 * (A / self.A_w) ** (self.c * self.z)
@@ -114,7 +113,7 @@ class CAM16Legacy:
             * self.N_c
             * self.N_cb
             * np.sqrt(a ** 2 + b ** 2)
-            / dot(np.array([1, 1, 21 / 20]), rgb_a)
+            / npx.dot(np.array([1, 1, 21 / 20]), rgb_a)
         )
         C = t ** 0.9 * (1.64 - 0.29 ** self.n) ** 0.73 * sqrt_J_100
         M = C * self.F_L ** 0.25
@@ -202,7 +201,7 @@ class CAM16Legacy:
 
         # Step 4: Calculate RGB_a_
         rgb_a_ = (
-            dot(
+            npx.dot(
                 np.array([[460, 451, 288], [460, -891, -261], [460, -220, -6300]]),
                 np.array([p2, a, b]),
             )
@@ -221,5 +220,5 @@ class CAM16Legacy:
         rgb = (rgb_c.T / self.D_RGB).T
 
         # Step 7: Calculate X, Y and Z
-        xyz = dot(self.invM16, rgb)
+        xyz = npx.dot(self.invM16, rgb)
         return xyz

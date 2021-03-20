@@ -1,6 +1,6 @@
+import npx
 import numpy as np
 
-from .._linalg import dot, solve
 from ..illuminants import whitepoints_cie1931
 
 
@@ -43,12 +43,12 @@ class SrgbLinear:
         # https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
         # http://www.color.org/srgb.pdf
         # TODO NaN the values smaller than 0 and larger than 1
-        return solve(self.invM, xyz / 100)
+        return npx.solve(self.invM, xyz / 100)
 
     def to_xyz100(self, srgb1_linear):
         # Note: The Y value is often used for grayscale conversion.
         # 0.2126 * R_linear + 0.7152 * G_linear + 0.0722 * B_linear
-        return 100 * dot(self.invM, srgb1_linear)
+        return 100 * npx.dot(self.invM, srgb1_linear)
 
     def from_rgb1(self, srgb1):
         srgb_linear = np.array(srgb1, dtype=float)

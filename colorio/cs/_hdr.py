@@ -1,6 +1,5 @@
+import npx
 import numpy as np
-
-from .._linalg import dot, solve
 
 
 def _xyy_to_xyz100(xyy):
@@ -30,10 +29,10 @@ class HdrLinear:
 
     def from_xyz100(self, xyz100):
         # TODO NaN the values smaller than 0 and larger than 1
-        return solve(self.invM, np.asarray(xyz100) / 100)
+        return npx.solve(self.invM, np.asarray(xyz100) / 100)
 
     def to_xyz100(self, hdr_linear):
-        return 100 * dot(self.invM, hdr_linear)
+        return 100 * npx.dot(self.invM, hdr_linear)
 
     # gamma corrections:
     def from_rgb1(self, hdr1):

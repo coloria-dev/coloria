@@ -1,7 +1,7 @@
 # https://bottosson.github.io/posts/oklab/
+import npx
 import numpy as np
 
-from .._linalg import dot
 from ._color_space import ColorSpace
 
 
@@ -27,7 +27,7 @@ class OKLAB(ColorSpace):
 
     def from_xyz100(self, xyz100):
         xyz = np.asarray(xyz100) / 100
-        return dot(self.M2, np.cbrt(dot(self.M1, xyz)))
+        return npx.dot(self.M2, np.cbrt(npx.dot(self.M1, xyz)))
 
     def to_xyz100(self, lab):
-        return dot(self.M1inv, dot(self.M2inv, lab) ** 3) * 100
+        return npx.dot(self.M1inv, npx.dot(self.M2inv, lab) ** 3) * 100
