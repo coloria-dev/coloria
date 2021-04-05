@@ -123,24 +123,24 @@ In several stages of the assessment or optimization process, we will have to com
 several positive result values (e.g., residuals from different data sets) into one.
 There are multiple meaningful ways of doing so. The most common are certainly the
 \emph{average} and the \emph{root mean square} of different results
-$\rr = \{r_i\}_{i=1}^n$,
+$\rr = \{|r_i|\}_{i=1}^n$,
 \[
-  M_1(\rr) = \frac{1}{n}\sum_{i=1}^n |r_i|,\quad
-  M_2(\rr) = \sqrt{\frac{1}{n}\sum_{i=1}^n |r_i|^2}.
+  M_1(\rr) = \frac{1}{n}\sum_{i=1}^n r_i,\quad
+  M_2(\rr) = \sqrt{\frac{1}{n}\sum_{i=1}^n r_i^2}.
 \]
 This is readily generalized to the
 \emph{generalized mean}
 \[
-  M_p(\rr) \coloneqq \left(\frac{1}{n}\sum_{i=1}^n |r_i|^p\right)^{1/p} =
+  M_p(\rr) \coloneqq \left(\frac{1}{n}\sum_{i=1}^n r_i^p\right)^{1/p} =
   \frac{1}{n^{1/p}} \|\rr\|_p
 \]
 with any given $-\infty \le p \le \infty$. In the limits, $p\to-\infty$, $p\to 0$ and
 $p\to +\infty$, this becomes the \emph{minimum}, the \emph{geometric mean}, and the
 \emph{maximum}
 \[
-  M_{-\infty}(\rr) \coloneqq \min_{i\in\{1,\dots,n\}} |r_i|, \quad
-  M_0(\rr) \coloneqq \left(\prod_{i=1}^n |r_i|\right)^{1/n}, \quad
-  M_{\infty}(\rr) \coloneqq \max_{i\in\{1,\dots,n\}} |r_i|.
+  M_{-\infty}(\rr) \coloneqq \min_{i\in\{1,\dots,n\}} r_i, \quad
+  M_0(\rr) \coloneqq \left(\prod_{i=1}^n r_i\right)^{1/n}, \quad
+  M_{\infty}(\rr) \coloneqq \max_{i\in\{1,\dots,n\}} r_i.
 \]
 Note that, for every $\rr$, $M_p(\rr)$ as a function in $p$ is smooth and monotonic
 increasing
@@ -148,7 +148,7 @@ increasing
   M_{-\infty}(\rr) \le M_p(\rr) \le M_q(\rr) \le M_{\infty}(\rr) \quad (p\le q).
 \]
 (Compare figure \ref{fig:1}.)
-Hence, the larger $p$, the closer $M_p(\rr)$ will be to $\max(|\rr|)$.
+Hence, the larger $p$, the closer $M_p(\rr)$ will be to $\max(\rr)$.
 This makes a larger $p$ suitable, for example, for an optimization process that tries to
 minimize the maximum STRESS (see section~\ref{}).
 
