@@ -36,7 +36,6 @@
 % <https://tex.stackexchange.com/a/43009/13262>
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}%
 \DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
-\DeclareMathOperator{\avg}{avg}
 
 \usepackage[T1]{fontenc}
 \usepackage{newtxtext}
@@ -126,42 +125,46 @@ There are multiple meaningful ways of doing so. The most common are certainly th
 \emph{average} and the \emph{root mean square} of different results
 $\rr = \{r_i\}_{i=1}^n$,
 \[
-  \avg_1(\rr) = \frac{1}{n}\sum_{i=1}^n |r_i|,\quad
-  \avg_2(\rr) = \sqrt{\frac{1}{n}\sum_{i=1}^n |r_i|^2}.
+  M_1(\rr) = \frac{1}{n}\sum_{i=1}^n |r_i|,\quad
+  M_2(\rr) = \sqrt{\frac{1}{n}\sum_{i=1}^n |r_i|^2}.
 \]
-This is readily generalized to the $p$-average
+This is readily generalized to the
+\emph{generalized mean}
 \[
-  \avg_p(\rr) \coloneqq \left(\frac{1}{n}\sum_{i=1}^n |r_i|^p\right)^{1/p} =
+  M_p(\rr) \coloneqq \left(\frac{1}{n}\sum_{i=1}^n |r_i|^p\right)^{1/p} =
   \frac{1}{n^{1/p}} \|\rr\|_p
 \]
-with any given $0 < p < \infty$. In the limits $p\to 0+$ and $p\to +\infty$, this
-becomes the \emph{geometric mean} and the \emph{maximum}
+with any given $-\infty \le p \le \infty$. In the limits, $p\to-\infty$, $p\to 0$ and
+$p\to +\infty$, this becomes the \emph{minimum}, the \emph{geometric mean}, and the
+\emph{maximum}
 \[
-  \avg_0(\rr) \coloneqq \left(\prod_{i=1}^n |r_i|\right)^{1/n}, \quad
-  \avg_{\infty}(\rr) \coloneqq \max_{i\in\{1,\dots,n\}} |r_i|.
+  M_{-\infty}(\rr) \coloneqq \min_{i\in\{1,\dots,n\}} |r_i|, \quad
+  M_0(\rr) \coloneqq \left(\prod_{i=1}^n |r_i|\right)^{1/n}, \quad
+  M_{\infty}(\rr) \coloneqq \max_{i\in\{1,\dots,n\}} |r_i|.
 \]
-Note that, for every $\rr$, $\avg_p(\rr)$ as a function in $p$ is smooth and monotonic
+Note that, for every $\rr$, $M_p(\rr)$ as a function in $p$ is smooth and monotonic
 increasing
 \[
-  \avg_0(\rr) \le \avg_p(\rr) \le \avg_q(\rr) \le \avg_{\infty}(\rr) \quad (p\le q).
+  M_{-\infty}(\rr) \le M_p(\rr) \le M_q(\rr) \le M_{\infty}(\rr) \quad (p\le q).
 \]
 (Compare figure \ref{fig:1}.)
-Hence, the larger $p$, the closer $\avg_p(\rr)$ will be to $\max(|\rr|)$.
+Hence, the larger $p$, the closer $M_p(\rr)$ will be to $\max(|\rr|)$.
 This makes a larger $p$ suitable, for example, for an optimization process that tries to
 minimize the maximum STRESS (see section~\ref{}).
 
 Choosing $p < 1$, on the other hand, puts more emphasis on the smaller values in $\rr$.
-In particular, $\avg_0(\rr)=0$ if only one $r_i=0$. One almost never wants this in the
+In particular, $M_0(\rr)=0$ if only one $r_i=0$. One almost never wants this in the
 context of experimental validation or optimization.
 
 \begin{figure}
   \centering
   \input{figures/averages.tex}
-  \caption{$p$-averages for the three sequences of length $n=20$, $s_\text{equal} = \{1,
-  \dots, 1\}$, $s_\text{uniform} = \{0, h, \dots,
-  1\}$ (with $h = 1 / (n-1)$), and $s_\text{outlier} = \{1, 0,\dots, 0\}$. Note how the
-  $\avg_p$ are monotonic increasing and smooth. For large $p$ (not shown), all curves
-  approach the maximum value in the set, $1$.}
+  \caption{$p$-means for sequences of length $n=20$, $s_\text{equal1} = \{1, \dots,
+  1\}$, $s_\text{outliner-small} = \{10^{-4}, 1,\dots, 1\}$, $s_\text{uniform} =
+  \{10^{-4}, h, 2h, \dots, 1\}$ (with $h = 1 / (n-1)$), $s_\text{outlier1} = \{1,
+  0,\dots, 0\}$, and $s_\text{equal0} = \{0,\dots,0\}$. Note how the $M_p$ are monotonic
+  increasing and smooth. For large $p$, all curves approach the maximum value in the
+  set.}
   \label{fig:1}
 \end{figure}
 
@@ -582,8 +585,8 @@ Since $0\le h_2\le 1$, the value can be given in terms of STRESS,
   \centering
   \input{figures/hstress.tex}
   \caption{$h_\text{STRESS}$ for different data sets. The darker bar represents the
-  average $h_\text{STRESS}$ over all arms in the data set ($\avg_1$), the light bar
-  indicates the maximum ($\avg_{\infty}$).  The largest maxima are CIELAB's and CAM16's
+  average $h_\text{STRESS}$ over all arms in the data set ($M_1$), the light bar
+  indicates the maximum ($M_{\infty}$).  The largest maxima are CIELAB's and CAM16's
   famous nonlinearities for blue.
   $J_za_zb_z$ and Oklab perform best for all data sets.}
   \label{fig:hstress}
@@ -601,7 +604,7 @@ Since $0\le h_2\le 1$, the value can be given in terms of STRESS,
   \caption{Lightness of the Munsell samples compared to the Munsell reference values in
   three color spaces.
   There are nine Munsell levels each with a particular $Y$.
-  The dot shows the root-mean square ($\avg_2$) for all values on that level, the
+  The dot shows the root-mean square ($M_2$) for all values on that level, the
   vertical lines indicate the minimum and maximum values.
   The CIELAB lightness $L^*$ only depends on $Y$ which is why there is no variation.
   Clearly, CIELAB was designed to match the Munsell lightness scale.}
