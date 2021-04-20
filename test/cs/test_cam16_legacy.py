@@ -2,15 +2,15 @@ import numpy as np
 import pytest
 from cam16_legacy import CAM16Legacy
 
-np.random.seed(0)
+rng = np.random.default_rng(0)
 
 
 @pytest.mark.parametrize(
     "xyz",
     [
-        100 * np.random.rand(3),
-        100 * np.random.rand(3, 7),
-        100 * np.random.rand(3, 4, 5),
+        100 * rng.random(3),
+        100 * rng.random((3, 7)),
+        100 * rng.random((3, 4, 5)),
     ],
 )
 def test_conversion(xyz):
@@ -30,4 +30,4 @@ def test_conversion(xyz):
 
 
 if __name__ == "__main__":
-    test_conversion(np.random.rand(3))
+    test_conversion(rng.random(3))

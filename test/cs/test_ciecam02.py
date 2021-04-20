@@ -3,11 +3,11 @@ import pytest
 
 import colorio
 
-np.random.seed(0)
+rng = np.random.default_rng(0)
 
 
 @pytest.mark.parametrize(
-    "xyz", [np.random.rand(3), np.random.rand(3, 7), np.random.rand(3, 4, 5)]
+    "xyz", [rng.random(3), rng.random((3, 7)), rng.random((3, 4, 5))]
 )
 def test_conversion(xyz):
     # test with srgb conditions
@@ -33,7 +33,7 @@ def test_breakdown():
 
 @pytest.mark.parametrize("variant", ["LCD", "SCD", "UCS"])
 @pytest.mark.parametrize(
-    "xyz", [np.random.rand(3), np.random.rand(3, 7), np.random.rand(3, 4, 5)]
+    "xyz", [rng.random(3), rng.random((3, 7)), rng.random((3, 4, 5))]
 )
 def test_conversion_variants(variant, xyz):
     # test with srgb conditions

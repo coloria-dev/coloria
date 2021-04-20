@@ -38,9 +38,9 @@ def test(lab1, lab2, ref):
 
 
 def test_vector():
-    np.random.seed(0)
-    lab1 = np.random.rand(3, 100)
-    lab2 = np.random.rand(3, 100)
+    rng = np.random.default_rng(0)
+    lab1 = rng.random((3, 100))
+    lab2 = rng.random((3, 100))
     refs = colorio.diff.cmc(lab1, lab2)
     for l1, l2, ref in zip(lab1.T, lab2.T, refs):
         val = colorio.diff.cmc(l1, l2)

@@ -3,7 +3,7 @@ import pytest
 
 import colorio
 
-np.random.seed(0)
+rng = np.random.default_rng(0)
 
 colorspaces = [
     (colorio.cs.CIELCH(), 1.0e-14),
@@ -44,9 +44,9 @@ def test_zero(cs, tol):
 @pytest.mark.parametrize(
     "xyz",
     [
-        100 * np.random.rand(3),
-        100 * np.random.rand(3, 7),
-        100 * np.random.rand(3, 4, 5),
+        100 * rng.random(3),
+        100 * rng.random((3, 7)),
+        100 * rng.random((3, 4, 5)),
         # make sure the thing works with lists and input, too
         [1.0, 2.0, 3.0],
     ],

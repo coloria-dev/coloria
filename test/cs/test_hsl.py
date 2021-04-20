@@ -3,7 +3,7 @@ import pytest
 
 import colorio
 
-np.random.seed(2)
+rng = np.random.default_rng(2)
 
 
 @pytest.mark.parametrize(
@@ -22,9 +22,9 @@ def test_reference_srgb(vals, ref):
 @pytest.mark.parametrize(
     "vals",
     [
-        np.random.rand(3),
-        np.random.rand(3, 7),
-        np.random.rand(3, 4, 5),
+        rng.random(3),
+        rng.random((3, 7)),
+        rng.random((3, 4, 5)),
         [1.0, 1.0, 1.0],
     ],
 )

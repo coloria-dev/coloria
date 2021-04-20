@@ -6,7 +6,7 @@ from cam16_legacy import CAM16Legacy
 
 import colorio
 
-np.random.seed(0)
+rng = np.random.default_rng(0)
 
 
 def test_0():
@@ -34,7 +34,7 @@ def test_0():
 @pytest.mark.skip("mysteriously fails on gh-actions")
 def test_from():
     """Compare colorio with colorspacius and colour."""
-    xyz = 100 * np.random.rand(3)
+    xyz = 100 * rng.random(3)
 
     Y_b = 20
     whitepoint = colorio.illuminants.whitepoints_cie1931["D65"]
@@ -74,7 +74,7 @@ def performance_comparison_from():
 
     def setup(n):
         out = np.empty((3, n))
-        rgb = np.random.rand(3)
+        rgb = rng.random(3)
         for k in range(3):
             out[k] = rgb[k]
         return out
@@ -113,7 +113,7 @@ def performance_comparison_to():
         return cam16_legacy.to_xyz100(x, "JCh")
 
     perfplot.plot(
-        setup=lambda n: np.random.rand(3, n),
+        setup=lambda n: rng.random((3, n)),
         kernels=[cio, cio_legacy],
         n_range=100000 * np.arange(11),
         xlabel="Number of input samples",

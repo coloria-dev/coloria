@@ -3,15 +3,15 @@ import pytest
 
 import colorio
 
-np.random.seed(0)
+rng = np.random.default_rng(0)
 
 
 @pytest.mark.parametrize(
     "xyz",
     [
-        100 * np.random.rand(3),
-        100 * np.random.rand(3, 7),
-        100 * np.random.rand(3, 4, 5),
+        100 * rng.random(3),
+        100 * rng.random((3, 7)),
+        100 * rng.random((3, 4, 5)),
     ],
 )
 def test_conversion(xyz):

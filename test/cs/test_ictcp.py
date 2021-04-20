@@ -3,11 +3,11 @@ import pytest
 
 import colorio
 
-np.random.seed(0)
+rng = np.random.default_rng(0)
 
 
 @pytest.mark.parametrize(
-    "rgb", [np.random.rand(3), np.random.rand(3, 7), np.random.rand(3, 4, 5)]
+    "rgb", [rng.random(3), rng.random((3, 7)), rng.random((3, 4, 5))]
 )
 def test_conversion(rgb):
     cs = colorio.cs.ICtCp()
@@ -18,9 +18,9 @@ def test_conversion(rgb):
 @pytest.mark.parametrize(
     "rgb",
     [
-        100 * np.random.rand(3),
-        100 * np.random.rand(3, 7),
-        100 * np.random.rand(3, 4, 5),
+        100 * rng.random(3),
+        100 * rng.random((3, 7)),
+        100 * rng.random((3, 4, 5)),
     ],
 )
 def test_conversion_xyz100(rgb):
