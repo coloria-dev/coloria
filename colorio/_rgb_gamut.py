@@ -75,12 +75,22 @@ def show_rgb_gamut(
     return last_camera_position
 
 
-def show_rgb_slice(
+def save_rgb_slice(filename, *args, **kwargs):
+    p = plot_rgb_slice(*args, off_screen=True, **kwargs)
+    p.show(screenshot=filename)
+
+
+def show_rgb_slice(*args, **kwargs):
+    p = plot_rgb_slice(*args, off_screen=False, **kwargs)
+    p.show()
+
+
+def plot_rgb_slice(
     colorspace,
     lightness: float,
     n: int = 51,
-    show_grid: bool = True,
     variant: str = "srgb",
+    off_screen: bool = False
 ):
     import meshzoo
     import pyvista as pv
@@ -107,18 +117,17 @@ def show_rgb_slice(
     # slc = grid.slice_along_axis(10, 0)
     # slc = grid.slice_orthogonal()
 
-    p = pv.Plotter()
-    if show_grid:
-        p.show_grid(
-            xlabel=colorspace.labels[0],
-            ylabel=colorspace.labels[1],
-            zlabel=colorspace.labels[2],
-        )
+    p = pv.Plotter(off_screen=off_screen)
 
-    p.add_mesh(slc, scalars="rgb", rgb=True)
-    # p.camera_position = [
-    #     (400.0, 0.0, 0.0),
-    #     (0.0, 0.0, 0.0),
-    #     (0.0, 0.0, 0.0),
-    # ]
-    p.show()
+    p.show_bounds(
+        xlabel=colorspace.labels[0],
+        ylabel=colorspace.labels[1],
+        zlabel=colorspace.labels[2],
+    )
+    p.add_mesh(slc, scalars="rgb", rgb=True, lighting=False)
+    p.camera_position = [
+        (500.0, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+    ]
+    return p
