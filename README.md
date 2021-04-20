@@ -154,11 +154,12 @@ an open it with a tool of your choice. See
 the file in [ParaView](https://www.paraview.org/).
 
 For lightness slices of the sRGB gamut, use
+<!--exdown-skip-->
 ```python
 import colorio
 
 colorspace = colorio.cs.CIELAB()
-colorio.show_rgb_slice(colorspace, lightness=0.5, n=51)
+colorio.show_rgb_slice(colorspace, lightness=50.0, n=51)
 # or
 # save_rgb_slice()
 # plot_rgb_slice()
