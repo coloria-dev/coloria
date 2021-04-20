@@ -154,6 +154,7 @@ an open it with a tool of your choice. See
 the file in [ParaView](https://www.paraview.org/).
 
 For lightness slices of the sRGB gamut, use
+<!--exdown-skip-->
 ```python
 import colorio
 
