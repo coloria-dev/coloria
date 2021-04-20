@@ -1,8 +1,5 @@
-import matplotlib
-import matplotlib.pyplot as plt
 import numpy as np
 
-from ._nonlinear import regula_falsi
 from .cs import HdrLinear, SrgbLinear
 
 
@@ -78,109 +75,50 @@ def show_rgb_gamut(
     return last_camera_position
 
 
-def show_rgb_slice(*args, **kwargs):
-    plt.figure()
-    plot_rgb_slice(*args, **kwargs)
-    plt.show()
-    plt.close()
-
-
-def save_rgb_slice(filename, *args, **kwargs):
-    plt.figure()
-    plot_rgb_slice(*args, **kwargs)
-    plt.savefig(filename, transparent=True, bbox_inches="tight")
-    plt.close()
-
-
-def plot_rgb_slice(
+def show_rgb_slice(
     colorspace,
     lightness: float,
     n: int = 51,
+    show_grid: bool = True,
     variant: str = "srgb",
-    tol: float = 1.0e-5,
 ):
-    # The best way to produce a slice is via a dedicated software, e.g., VTK. To avoid
-    # the dependency, we're doing the following here: Take a slice out of the sRGB cube
-    # and  project it into the the colorspace lightness level. Cut off all triangles
-    # which don't fit. This cutting leads to jagged edges of the slice, but all other
-    # methods have their imperfections, too.
     import meshzoo
+    import pyvista as pv
+    import vtk
 
     # TODO HDR
     assert variant in ["srgb", "rec709"]
 
-    # Get all RGB values that sum up to 1.
-    srgb_vals, triangles = meshzoo.triangle(n=n)
-    srgb_vals = srgb_vals.T
+    points, cells = meshzoo.cube_hexa((0.0, 0.0, 0.0), (1.0, 1.0, 1.0), n)
+    cells = np.column_stack([np.full(cells.shape[0], cells.shape[1]), cells])
 
     srgb_linear = SrgbLinear()
-    # Use zeros() instead of empty() here to avoid invalid values when setting up
-    # the cmap below.
-    colorspace_vals = np.zeros((srgb_vals.shape[0], 3))
-    srgb_linear_vals = np.zeros((srgb_vals.shape[0], 3))
-    mask = np.ones(srgb_vals.shape[0], dtype=bool)
-    for k, val in enumerate(srgb_vals):
-        alpha_min = 0.0
-        xyz100 = srgb_linear.to_xyz100(val * alpha_min)
-        colorspace_val_min = colorspace.from_xyz100(xyz100)[colorspace.k0]
-        if colorspace_val_min > lightness:
-            mask[k] = False
-            continue
+    xyz100_coords = srgb_linear.to_xyz100(points.T)
+    cs_coords = colorspace.from_xyz100(xyz100_coords).T
 
-        alpha_max = 1.0 / np.max(val)
+    # each cell is a VTK_HEXAHEDRON
+    celltypes = np.full(len(cells), vtk.VTK_HEXAHEDRON, dtype=np.uint8)
 
-        xyz100 = srgb_linear.to_xyz100(val * alpha_max)
-        colorspace_val_max = colorspace.from_xyz100(xyz100)[colorspace.k0]
-        if colorspace_val_max < lightness:
-            mask[k] = False
-            continue
+    # https://github.com/pyvista/pyvista-support/issues/351#issuecomment-814574043
+    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, cs_coords)
+    grid["rgb"] = srgb_linear.to_rgb1(points.T).T
 
-        def f(alpha):
-            srgb_linear_vals[k] = val * alpha
-            xyz100 = srgb_linear.to_xyz100(srgb_linear_vals[k])
-            colorspace_val = colorspace.from_xyz100(xyz100)
-            return colorspace_val[colorspace.k0] - lightness
+    slc = grid.slice([1.0, 0.0, 0.0], [lightness, 0.0, 0.0])
+    # slc = grid.slice_along_axis(10, 0)
+    # slc = grid.slice_orthogonal()
 
-        a, b = regula_falsi(f, alpha_min, alpha_max, tol)
-        a = (a + b) / 2
+    p = pv.Plotter()
+    if show_grid:
+        p.show_grid(
+            xlabel=colorspace.labels[0],
+            ylabel=colorspace.labels[1],
+            zlabel=colorspace.labels[2],
+        )
 
-        srgb_linear_vals[k] = val * a
-        xyz100 = srgb_linear.to_xyz100(srgb_linear_vals[k])
-        colorspace_val = colorspace.from_xyz100(xyz100)
-        colorspace_vals[k] = colorspace_val
-
-    # import meshplex
-    # meshplex.MeshTri(colorspace_vals[:, 1:], triangles).show(show_coedges=False)
-
-    # Remove all triangles which have masked corner points
-    tri_mask = np.all(mask[triangles], axis=1)
-    if ~np.any(tri_mask):
-        return
-    triangles = triangles[tri_mask]
-
-    # Unfortunately, one cannot use tripcolors with explicit RGB specification (see
-    # <https://github.com/matplotlib/matplotlib/issues/10265>). As a workaround,
-    # associate range(n) data with the points and create a colormap that associates
-    # the integer values with the respective RGBs.
-    z = np.arange(srgb_vals.shape[0])
-    rgb = srgb_linear.to_rgb1(srgb_linear_vals)
-    cmap = matplotlib.colors.LinearSegmentedColormap.from_list("gamut", rgb, N=len(rgb))
-
-    k1, k2 = [k for k in [0, 1, 2] if k != colorspace.k0]
-
-    plt.tripcolor(
-        colorspace_vals[:, k1],
-        colorspace_vals[:, k2],
-        triangles,
-        z,
-        shading="gouraud",
-        cmap=cmap,
-    )
-    # plt.triplot(colorspace_vals[:, k1], colorspace_vals[:, k2], triangles=triangles)
-    plt.title(
-        f"sRGB gamut slice in {colorspace.name} with "
-        f"{colorspace.labels[colorspace.k0]}={lightness}"
-    )
-    plt.xlabel(colorspace.labels[k1])
-    plt.ylabel(colorspace.labels[k2])
-    plt.gca().set_aspect("equal")
+    p.add_mesh(slc, scalars="rgb", rgb=True)
+    # p.camera_position = [
+    #     (400.0, 0.0, 0.0),
+    #     (0.0, 0.0, 0.0),
+    #     (0.0, 0.0, 0.0),
+    # ]
+    p.show()

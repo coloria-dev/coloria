@@ -2,9 +2,7 @@ from . import cs, data, diff, illuminants, observers
 from .__about__ import __version__
 from ._exceptions import ColorioError
 from ._rgb_gamut import (
-    plot_rgb_slice,
     save_rgb_gamut,
-    save_rgb_slice,
     show_rgb_gamut,
     show_rgb_slice,
 )
@@ -37,8 +35,6 @@ __all__ = [
     "show_visible_slice",
     "plot_visible_slice",
     "show_rgb_slice",
-    "plot_rgb_slice",
-    "save_rgb_slice",
     "save_rgb_gamut",
     "show_rgb_gamut",
     "save_visible_gamut",
