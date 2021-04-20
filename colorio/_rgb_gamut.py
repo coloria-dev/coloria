@@ -90,7 +90,7 @@ def plot_rgb_slice(
     lightness: float,
     n: int = 51,
     variant: str = "srgb",
-    off_screen: bool = False
+    off_screen: bool = False,
 ):
     import meshzoo
     import pyvista as pv

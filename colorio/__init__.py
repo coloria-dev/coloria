@@ -2,11 +2,11 @@ from . import cs, data, diff, illuminants, observers
 from .__about__ import __version__
 from ._exceptions import ColorioError
 from ._rgb_gamut import (
-    save_rgb_gamut,
-    show_rgb_gamut,
     plot_rgb_slice,
-    show_rgb_slice,
+    save_rgb_gamut,
     save_rgb_slice,
+    show_rgb_gamut,
+    show_rgb_slice,
 )
 from ._surface_gamut import save_surface_gamut, show_surface_gamut
 from ._tools import (
