@@ -29,7 +29,6 @@ def test_xy_gamut_mesh():
 )
 def test_visible_slice(cs, lightness):
     colorio.plot_visible_slice(cs, lightness)
-    colorio.plot_rgb_slice(cs, lightness)
     plt.show()
     # colorio.save_visible_slice("visible-slice.png", cs, lightness)
 
