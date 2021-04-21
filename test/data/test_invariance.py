@@ -3,7 +3,7 @@ import pytest
 
 import colorio
 
-np.random.seed(0)
+rng = np.random.default_rng(0)
 
 
 def dot(a, b):
@@ -30,7 +30,7 @@ class CielabScaled:
 class CielabTranslated:
     def __init__(self):
         self.cielab = colorio.cs.CIELAB()
-        self.x = np.random.rand(3)
+        self.x = rng.random(3)
         self.k0 = self.cielab.k0
 
     def from_xyz100(self, xyz100):
@@ -43,7 +43,7 @@ class CielabTranslated:
 class CielabRotated:
     def __init__(self):
         self.cielab = colorio.cs.CIELAB()
-        self.R, _ = np.linalg.qr(np.random.rand(3, 3))
+        self.R, _ = np.linalg.qr(rng.random((3, 3)))
         self.Rinv = np.linalg.inv(self.R)
         self.k0 = self.cielab.k0
 

@@ -3,25 +3,25 @@ import pytest
 
 import colorio
 
-np.random.seed(0)
+rng = np.random.default_rng(0)
 
 
 @pytest.mark.parametrize(
-    "xyz", [np.random.rand(3), np.random.rand(3, 7), np.random.rand(3, 4, 5)]
+    "xyz", [rng.random(3), rng.random((3, 7)), rng.random((3, 4, 5))]
 )
-def test_conversion(xyz):
+def test_conversion(xyz, tol=1.0e-12):
     # test with srgb conditions
     ciecam02 = colorio.cs.CIECAM02(0.69, 20, 64 / np.pi / 5)
     J, C, H, h, M, s, Q = ciecam02.from_xyz100(xyz)
 
     out = ciecam02.to_xyz100(np.array([J, C, H]), "JCH")
-    assert np.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
+    assert np.all(np.abs(xyz - out) < tol * np.abs(xyz))
 
     out = ciecam02.to_xyz100(np.array([Q, M, h]), "QMh")
-    assert np.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
+    assert np.all(np.abs(xyz - out) < tol * np.abs(xyz))
 
     out = ciecam02.to_xyz100(np.array([J, s, h]), "Jsh")
-    assert np.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
+    assert np.all(np.abs(xyz - out) < tol * np.abs(xyz))
 
 
 def test_breakdown():
@@ -33,7 +33,7 @@ def test_breakdown():
 
 @pytest.mark.parametrize("variant", ["LCD", "SCD", "UCS"])
 @pytest.mark.parametrize(
-    "xyz", [np.random.rand(3), np.random.rand(3, 7), np.random.rand(3, 4, 5)]
+    "xyz", [rng.random(3), rng.random((3, 7)), rng.random((3, 4, 5))]
 )
 def test_conversion_variants(variant, xyz):
     # test with srgb conditions

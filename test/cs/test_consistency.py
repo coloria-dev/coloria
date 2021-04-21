@@ -3,7 +3,7 @@ import pytest
 
 import colorio
 
-np.random.seed(0)
+rng = np.random.default_rng(0)
 
 colorspaces = [
     (colorio.cs.CIELCH(), 1.0e-14),
@@ -11,16 +11,16 @@ colorspaces = [
     (colorio.cs.CIELAB(), 1.0e-14),
     (colorio.cs.CIELUV(), 1.0e-14),
     (colorio.cs.DIN99(), 1.0e-14),
-    (colorio.cs.DIN99(variant="b"), 1.0e-14),
+    (colorio.cs.DIN99(variant="b"), 1.0e-13),
     (colorio.cs.DIN99(variant="c"), 1.0e-14),
     (colorio.cs.DIN99(variant="d"), 1.0e-14),
-    (colorio.cs.HdrLinear(), 1.0e-14),
-    (colorio.cs.IPT(), 1.0e-14),
-    (colorio.cs.JzAzBz(), 1.0e-12),
-    (colorio.cs.OKLAB(), 1.0e-14),
+    (colorio.cs.HdrLinear(), 1.0e-13),
+    (colorio.cs.IPT(), 1.0e-13),
+    (colorio.cs.JzAzBz(), 1.0e-11),
+    (colorio.cs.OKLAB(), 1.0e-13),
     (colorio.cs.OsaUcs(), 1.0e-11),
     (colorio.cs.PROLAB(), 1.0e-14),
-    (colorio.cs.RLAB(), 1.0e-14),
+    (colorio.cs.RLAB(), 1.0e-13),
     (colorio.cs.XYY(1), 1.0e-14),
     (colorio.cs.XYY(100), 1.0e-14),
     (colorio.cs.XYZ(1), 1.0e-14),
@@ -44,9 +44,9 @@ def test_zero(cs, tol):
 @pytest.mark.parametrize(
     "xyz",
     [
-        100 * np.random.rand(3),
-        100 * np.random.rand(3, 7),
-        100 * np.random.rand(3, 4, 5),
+        100 * rng.random(3),
+        100 * rng.random((3, 7)),
+        100 * rng.random((3, 4, 5)),
         # make sure the thing works with lists and input, too
         [1.0, 2.0, 3.0],
     ],
