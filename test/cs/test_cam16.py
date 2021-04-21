@@ -14,24 +14,24 @@ rng = np.random.default_rng(0)
         100 * rng.random((3, 4, 5)),
     ],
 )
-def test_conversion(xyz):
+def test_conversion(xyz, tol=1.0e-12):
     # test with srgb conditions
     L_A = 64 / np.pi / 5
     cam16 = colorio.cs.CAM16(0.69, 20, L_A)
     J, C, H, h, M, s, Q = cam16.from_xyz100(xyz)
 
     out = cam16.to_xyz100(np.array([J, C, H]), "JCH")
-    assert np.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
+    assert np.all(np.abs(xyz - out) < tol * np.abs(xyz))
 
     out = cam16.to_xyz100(np.array([Q, M, h]), "QMh")
-    assert np.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
+    assert np.all(np.abs(xyz - out) < tol * np.abs(xyz))
 
     out = cam16.to_xyz100(np.array([J, s, h]), "Jsh")
-    assert np.all(abs(xyz - out) < 1.0e-13 * abs(xyz))
+    assert np.all(np.abs(xyz - out) < tol * np.abs(xyz))
 
 
 @pytest.mark.parametrize("xyz", [np.zeros(3), np.zeros((3, 4, 5))])
-def test_zero(xyz):
+def test_zero(xyz, tol=1.0e-12):
     cam16 = colorio.cs.CAM16(0.69, 20, 64 / np.pi / 5)
     J, C, H, h, M, s, Q = cam16.from_xyz100(xyz)
 
@@ -43,24 +43,24 @@ def test_zero(xyz):
     assert np.all(Q == 0.0)
 
     out = cam16.to_xyz100(np.array([J, C, H]), "JCH")
-    assert np.all(abs(out) < 1.0e-13)
+    assert np.all(np.abs(out) < tol)
 
     out = cam16.to_xyz100(np.array([Q, M, h]), "QMh")
-    assert np.all(abs(out) < 1.0e-13)
+    assert np.all(np.abs(out) < tol)
 
     out = cam16.to_xyz100(np.array([J, s, h]), "Jsh")
-    assert np.all(abs(out) < 1.0e-13)
+    assert np.all(np.abs(out) < tol)
 
 
 @pytest.mark.parametrize(
     "xyz", [np.random.rand(3), np.random.rand(3, 7), np.random.rand(3, 4, 5)]
 )
-def test_conversion_variants(xyz):
+def test_conversion_variants(xyz, tol=1.0e-13):
     # test with srgb conditions
     L_A = 64 / np.pi / 5
     cam16 = colorio.cs.CAM16UCS(0.69, 20, L_A)
     out = cam16.to_xyz100(cam16.from_xyz100(xyz))
-    assert np.all(abs(xyz - out) < 1.0e-14)
+    assert np.all(abs(xyz - out) < tol)
 
 
 @pytest.mark.parametrize(
