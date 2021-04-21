@@ -47,7 +47,7 @@ def test_vector():
         assert abs(val - ref) < 1.0e-14 * abs(ref)
 
     # test against reference
-    norms = [90.07328087001274, 9.658725504074305, 1.7824474726191633]
+    norms = [85.42009136248436, 9.083007601505594, 1.5307485776155307]
     print(np.linalg.norm(refs, 1))
     print(np.linalg.norm(refs, 2))
     print(np.linalg.norm(refs, np.inf))

@@ -25,7 +25,8 @@ def test(lab1, lab2, ref):
     print(ref)
     val = colorio.diff.cie76(lab1, lab2)
     print(val)
-    assert abs(val - ref) < 1.0e-14 * abs(ref)
+    tol = 1.0e-13
+    assert np.abs(val - ref) < tol * np.abs(ref)
 
     # from colormath.color_objects import LabColor
     # from colormath.color_diff import delta_e_cie1976
@@ -36,20 +37,20 @@ def test(lab1, lab2, ref):
     # assert abs(delta_e - ref) < 1.0e-12 * abs(delta_e)
 
 
-def test_vector():
+def test_vector(tol=1.0e-14):
     rng = np.random.default_rng(0)
     lab1 = rng.random((3, 100))
     lab2 = rng.random((3, 100))
     refs = colorio.diff.cie76(lab1, lab2)
     for l1, l2, ref in zip(lab1.T, lab2.T, refs):
         val = colorio.diff.cie76(l1, l2)
-        assert abs(val - ref) < 1.0e-14 * abs(ref)
+        assert abs(val - ref) < tol * abs(ref)
 
     # test against reference
-    norms = [68.2796780436118, 7.2664715578007195, 1.2332725751209113]
+    norms = [65.33027889187598, 6.934455256389215, 1.1538228482108195]
     print(np.linalg.norm(refs, 1))
     print(np.linalg.norm(refs, 2))
     print(np.linalg.norm(refs, np.inf))
-    assert abs(np.linalg.norm(refs, 1) - norms[0]) < 1.0e-14 * abs(norms[0])
-    assert abs(np.linalg.norm(refs, 2) - norms[1]) < 1.0e-14 * abs(norms[1])
-    assert abs(np.linalg.norm(refs, np.inf) - norms[2]) < 1.0e-14 * abs(norms[2])
+    assert abs(np.linalg.norm(refs, 1) - norms[0]) < tol * abs(norms[0])
+    assert abs(np.linalg.norm(refs, 2) - norms[1]) < tol * abs(norms[1])
+    assert abs(np.linalg.norm(refs, np.inf) - norms[2]) < tol * abs(norms[2])
