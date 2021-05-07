@@ -125,6 +125,9 @@ def plot_rgb_slice(
         zlabel=colorspace.labels[2],
     )
     p.add_mesh(slc, scalars="rgb", rgb=True, lighting=False)
+
+    # More camera tools:
+    # https://github.com/pyvista/pyvista-support/issues/412
     p.camera_position = [
         (500.0, 0.0, 0.0),
         (0.0, 0.0, 0.0),
