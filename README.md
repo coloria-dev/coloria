@@ -19,14 +19,14 @@
 ### Color spaces
 
 All color spaces implement the two methods
-<!--exdown-skip-->
+<!--pytest-codeblocks:skip-->
 ```python
 vals = colorspace.from_xyz100(xyz)
 xyz = colorspace.to_xyz100(vals)
 ```
 for conversion from and to XYZ100. Adding new color spaces is as easy as writing a class
 that provides those two methods.
-<!--exdown-skip-->
+<!--pytest-codeblocks:skip-->
 ```python
 colorspace.to_rgb_linear(vals)
 colorspace.to_rgb1(vals)
@@ -101,22 +101,22 @@ All methods in colorio are fully vectorized, i.e., computation is _really_ fast.
  colorio implements the following color difference formulas:
 
  * [CIE76](https://en.wikipedia.org/wiki/Color_difference#CIE76)
-   <!--exdown-skip-->
+   <!--pytest-codeblocks:skip-->
    ```python
    colorio.diff.cie76(lab1, lab2)
    ```
  * [CIE94](https://en.wikipedia.org/wiki/Color_difference#CIE94)
-   <!--exdown-skip-->
+   <!--pytest-codeblocks:skip-->
    ```python
    colorio.diff.cie94(lab1, lab2)
    ```
  * [CIEDE2000](https://en.wikipedia.org/wiki/Color_difference#CIEDE2000)
-   <!--exdown-skip-->
+   <!--pytest-codeblocks:skip-->
    ```python
    colorio.diff.ciede2000(lab1, lab2)
    ```
  * [CMC l:c](https://en.wikipedia.org/wiki/Color_difference#CMC_l:c_(1984))
-   <!--exdown-skip-->
+   <!--pytest-codeblocks:skip-->
    ```python
    colorio.diff.cmc(lab1, lab2)
    ```
@@ -134,7 +134,7 @@ CIELAB |  CAM16-UCS | Oklab  |
 
 The sRGB gamut is a perfect cube in sRGB space, and takes curious shapes when translated
 into other color spaces. The above images show the sRGB gamut in different color spaces.
-<!--exdown-skip-->
+<!--pytest-codeblocks:skip-->
 ```python
 import colorio
 
@@ -154,7 +154,7 @@ an open it with a tool of your choice. See
 the file in [ParaView](https://www.paraview.org/).
 
 For lightness slices of the sRGB gamut, use
-<!--exdown-skip-->
+<!--pytest-codeblocks:skip-->
 ```python
 import colorio
 
@@ -173,7 +173,7 @@ The `plot_rgb_slice()` method is especially useful for combining with other plot
 XYZ  |  CIELAB |  CAM16-UCS |
 
 Same as above, but with the surface color gamut visible under a given illuminant.
-<!--exdown-skip-->
+<!--pytest-codeblocks:skip-->
 ```python
 import colorio
 
@@ -195,7 +195,7 @@ xyY  |  JzAzBz |  Oklab |
 <img src="https://nschloe.github.io/colorio/visible-gamut-slice-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-jzazbz.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-oklab.png" width="100%">
 
 Same as above, but with the gamut of visible colors up to a given lightness `Y`.
-<!--exdown-skip-->
+<!--pytest-codeblocks:skip-->
 ```python
 import colorio
 
