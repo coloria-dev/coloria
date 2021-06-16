@@ -26,7 +26,7 @@ superior \cite{cao}.
 In the present note, the author aims to iron out the inaccuracies in Kobayasi's article
 and improves the efficiency of the algorithm.
 
-\section{The forward conversion}
+## The forward conversion
 
 The conversion from CIEXYZ-100 coordinates to OSA-UCS $`Lgj`$ coordinates is defined as
 follows:
