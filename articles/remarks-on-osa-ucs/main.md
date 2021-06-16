@@ -144,9 +144,9 @@ Hence, it has exactly one root that can be found using the classical Cardano for
 *Kobayasi and Yosiki find the root of $`f`$ using Newton's method.  A good initial
 guess here is $`t = \frac{L'}{5.9} + \frac{2}{3}`$ since the second term in $`f(t)`$,
 containing $`0.042^3`$, is comparatively small. Indeed it typically only takes around
-10 iterations to converge to machine precision.
+10 iterations to converge to machine precision.*
 
-Cardano's method finds the root at once at the expense of computing one square root
+*Cardano's method finds the root at once at the expense of computing one square root
 and two cube roots. This approach is found to be about 15 times faster.*
 
 \begin{figure}
