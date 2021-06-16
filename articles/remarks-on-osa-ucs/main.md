@@ -140,13 +140,14 @@ Hence, it has exactly one root that can be found using the classical Cardano for
   {\left(p/3\right)}^3`$ is always positive since, as argued above, $f$ has
   exactly one root.
 
-> Kobayasi and Yosiki find the root of $`f`$ using Newton's method.  A good initial
-> guess here is $`t = \frac{L'}{5.9} + \frac{2}{3}`$ since the second term in $`f(t)`$,
-> containing $`0.042^3`$, is comparatively small. Indeed it typically only takes around
-> 10 iterations to converge to machine precision.
->
-> Cardano's method finds the root at once at the expense of computing one square root
-> and two cube roots. This approach is found to be about 15 times faster.
+#### Remark
+*Kobayasi and Yosiki find the root of $`f`$ using Newton's method.  A good initial
+guess here is $`t = \frac{L'}{5.9} + \frac{2}{3}`$ since the second term in $`f(t)`$,
+containing $`0.042^3`$, is comparatively small. Indeed it typically only takes around
+10 iterations to converge to machine precision.
+
+Cardano's method finds the root at once at the expense of computing one square root
+and two cube roots. This approach is found to be about 15 times faster.*
 
 \begin{figure}
   \centering
@@ -208,8 +209,7 @@ singularity.  Newton's method will hence find the correct (largest) root if the 
 guess $`w_0`$ is chosen larger than the root. Since $`w`$ corresponds to
 $`\sqrt[3]{R}`$, it is reasonable to chose $`w_0`$ to be the maximum possible value that
 $`\sqrt[3]{R}`$ can take, namely that corresponding to $`X=Y=100`$, $`Z=0`$
-(see~\eqref{eq:m}), $`w_0=\sqrt[3]{79.9
-+ 41.94}\approx 4.9575`$.
+(see~\eqref{eq:m}), $`w_0=\sqrt[3]{79.9 + 41.94}\approx 4.9575`$.
 
 > Cao et al.~\cite{cao} found that the conversion to from $`Lgj`$ to $`XYZ`$ takes so
 > long that alternative methods need to be researched. They even find that the Newton
