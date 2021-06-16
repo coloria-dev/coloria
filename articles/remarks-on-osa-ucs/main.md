@@ -6,7 +6,7 @@
 > guesses and shows that that hundreds of thousands of coordinates can be converted in
 > less than a second with full accuracy.
 
-In 1974, MacAdam published the definition of the OSA-UCS color space~\cite{macadam} that
+In 1974, MacAdam published the definition of the OSA-UCS color space \cite{macadam} that
 tries to adhere particularly well to experimentally measured color distances. It
 combines work that had been going on since the late 1940s. One aspect of OSA-UCS is
 that, while the conversion from CIEXYZ coordinates into OSA-UCS $`Lgj`$ coordinates is
@@ -16,12 +16,12 @@ been a design goal of OSA-UCS although is severely limits the usability of OSA-U
 
 In 2002, Kobayasi and Yosiki presented an algorithm for conversion from $`Lgj`$ to
 $`XYZ`$ coordinates that leverages Newton's method for solving nonlinear equation
-systems~\cite{kobayasi}. Unfortunately, the article remains vague at important points
+systems \cite{kobayasi}. Unfortunately, the article remains vague at important points
 and also contains false assertions about the nature of the involved functions.
 
 In 2013, Cao et al. compared Kobayasi's and Yosiki's approach with some other, more
 complex methods based on artificial neural networks and found the latter to be
-superior~\cite{cao}.
+superior \cite{cao}.
 
 In the present note, the author aims to iron out the inaccuracies in Kobayasi's article
 and improves the efficiency of the algorithm.
@@ -48,7 +48,7 @@ follows:
   \nonumber
   C &= \frac{L'}{5.9 \left(\sqrt[3]{Y_0} - \frac{2}{3}\right)}.
   ```
-  (Note that $`L'`$ is $`L`$ in the original article~\cite{macadam}.)
+  (Note that $`L'`$ is $`L`$ in the original article \cite{macadam}.)
 
 * Compute RGB as
   ```math
@@ -105,12 +105,12 @@ Given $`L`$, we can first compute
 ```math
 L' = L \sqrt{2} + 14.3993.
 ```
-Equation~\eqref{eq:lc} gives the nonlinear relationship between $`L'`$ and $`Y_0`$ from
+Equation \eqref{eq:lc} gives the nonlinear relationship between $`L'`$ and $`Y_0`$ from
 which we will retrieve $`Y_0`$. First set $`t\coloneqq \sqrt[3]{Y_0}`$ and consider
 ```math
 0 = f(t) \coloneqq {\left(\frac{L'}{5.9} + \frac{2}{3} - t\right)}^3 - 0.042^3 (t^3 - 30).
 ```
-$`f`$ is a monotonically decreasing cubic polynomial (see figure~\ref{fig:singularity}).
+$`f`$ is a monotonically decreasing cubic polynomial (see figure \ref{fig:singularity}).
 
 Hence, it has exactly one root that can be found using the classical Cardano formula:
 
@@ -170,12 +170,12 @@ From here, one can compute
   a = \frac{g}{C},\quad
   b = \frac{j}{C}.
 ```
-With $`a`$ and $`b`$ at hand, it is now possible via equation~\eqref{eq:ab} to pin down
+With $`a`$ and $`b`$ at hand, it is now possible via equation \eqref{eq:ab} to pin down
 $`(\sqrt[3]{R}, \sqrt[3]{G}, \sqrt[3]{B})`$ to only one degree of freedom, $`w`$.
 The exact value of $`w`$ will be found by Newton iteration. The function $`\phi(w)`$
 of which a root needs to be found is defined as follows.
 
-> Append the matrix $`A`$~\eqref{eq:ab} with a row such that the new $`3\times3`$-matrix
+> Append the matrix $`A`$ \eqref{eq:ab} with a row such that the new $`3\times3`$-matrix
 > $`\tilde{A}`$ is nonsingular and solve
 > ```math
 >   \begin{bmatrix}
@@ -193,13 +193,13 @@ of which a root needs to be found is defined as follows.
 > ```
 > (Kobayasi, for instance, appends $`[1, 0, 0]`$ which corresponds to setting
 > $`w=\sqrt[3]{R}`$.) Then compute the tentative $`\tilde{X}`$, $`\tilde{Y}`$, $`\tilde{Z}`$
-> via~\eqref{eq:m} and further get the corresponding tentative $`\tilde{Y}_0`$
-> from~\eqref{eq:KY0}. Then $`\phi(w) = \tilde{Y}_0(w) - Y_0`$.
+> via \eqref{eq:m} and further get the corresponding tentative $`\tilde{Y}_0`$
+> from \eqref{eq:KY0}. Then $`\phi(w) = \tilde{Y}_0(w) - Y_0`$.
 
-If the difference between $`\tilde{Y}_0(w)`$ and $`Y_0`$ from~\eqref{eq:gather} is 0,
+If the difference between $`\tilde{Y}_0(w)`$ and $`Y_0`$ from \eqref{eq:gather} is 0,
 the correct $`w`$ has been found.  Kobayasi states the function $`\phi`$ is "monotone
 increasing, convex downward, and smooth". Unfortunately, none of this is true (see
-figure~\ref{fig:singularity}). In fact, the function has a singularity at $`w`$ chosen
+figure \ref{fig:singularity}). In fact, the function has a singularity at $`w`$ chosen
 such that the computed tentative $`\tilde{X}`$, $`\tilde{Y}`$, $`\tilde{Z}`$ sum up to 0
 while the individual values of $`|\tilde{X}|, |\tilde{Y}|, |\tilde{Z}| > 0`$. This
 happens if the tentative $`[R, G, B]`$ is orthogonal on $`[1,1,1] M^{-1}`$.
@@ -209,14 +209,14 @@ singularity.  Newton's method will hence find the correct (largest) root if the 
 guess $`w_0`$ is chosen larger than the root. Since $`w`$ corresponds to
 $`\sqrt[3]{R}`$, it is reasonable to chose $`w_0`$ to be the maximum possible value that
 $`\sqrt[3]{R}`$ can take, namely that corresponding to $`X=Y=100`$, $`Z=0`$
-(see~\eqref{eq:m}), $`w_0=\sqrt[3]{79.9 + 41.94}\approx 4.9575`$.
+(see \eqref{eq:m}), $`w_0=\sqrt[3]{79.9 + 41.94}\approx 4.9575`$.
 
-> Cao et al.~\cite{cao} found that the conversion to from $`Lgj`$ to $`XYZ`$ takes so
+> Cao et al. \cite{cao} found that the conversion to from $`Lgj`$ to $`XYZ`$ takes so
 > long that alternative methods need to be researched. They even find that the Newton
 > iterations sometimes do not converge, or find the correct result only to a few digits
 > of accuracy.  The author cannot confirm these observations. The computation of
 > hundreds of thousands of coordinates at once merely takes a second of computation time
-> on a recent computer (figure~\ref{fig:speed}).
+> on a recent computer (figure \ref{fig:speed}).
 >
 > To achieve this speed, it is important to vectorize all computation, i.e., not to
 > perform the conversion for each $`Lgj`$-tuple individually one after another, but to
@@ -225,7 +225,7 @@ $`\sqrt[3]{R}`$ can take, namely that corresponding to $`X=Y=100`$, $`Z=0`$
 > converge in the first step. The redundant work inflicted by this approach is far
 > outweighed by the advantages of vectorization.
 >
-> All code is published as open-source in colorio~\cite{colorio}.
+> All code is published as open-source in colorio \cite{colorio}.
 
 \begin{figure}
   \centering
@@ -235,7 +235,7 @@ $`\sqrt[3]{R}`$ can take, namely that corresponding to $`X=Y=100`$, $`Z=0`$
   \input{speed-relative.tex}
   \hfill
   \caption{Computation speed for arrays of $Lgj$ values measured with
-  colorio~\cite{colorio}. Left: Comparison with CIELAB and CIECAM02.
+  colorio \cite{colorio}. Left: Comparison with CIELAB and CIECAM02.
   The conversion of several hundred thousand $Lgj$ values takes about 1 second. Right:
   Computation speed relative to the evaluation of the cubic root. For large arrays, the
   conversion to $XYZ$ is about as costly as the evaluation of 35 cubic roots.}\label{fig:speed}
