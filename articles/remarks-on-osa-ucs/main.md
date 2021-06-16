@@ -205,28 +205,27 @@ happens if the tentative $`[R, G, B]`$ is orthogonal on $`[1,1,1] M^{-1}`$.
 
 Fortunately, it seems that the function is indeed convex to the right of the
 singularity.  Newton's method will hence find the correct (largest) root if the initial
-guess $`w_0`$ is chosen larger than the root. Since $w$ corresponds to $\sqrt[3]{R}$, it
-is reasonable to chose $w_0$ to be the maximum possible value that $\sqrt[3]{R}$ can
-take, namely that corresponding to $X=Y=100$, $Z=0$ (see~\eqref{eq:m}), $w_0=\sqrt[3]{79.9
-+ 41.94}\approx 4.9575$.
+guess $`w_0`$ is chosen larger than the root. Since $`w`$ corresponds to
+$`\sqrt[3]{R}`$, it is reasonable to chose $`w_0`$ to be the maximum possible value that
+$`\sqrt[3]{R}`$ can take, namely that corresponding to $`X=Y=100`$, $`Z=0`$
+(see~\eqref{eq:m}), $`w_0=\sqrt[3]{79.9
++ 41.94}\approx 4.9575`$.
 
-\begin{remark}
-  Cao et al.~\cite{cao} found that the conversion to from $Lgj$ to $XYZ$ takes so long
-  that alternative methods need to be researched. They even find that the Newton
-  iterations sometimes do not converge, or find the correct result only to a few digits
-  of accuracy.  The author cannot confirm these observations. The computation of
-  hundreds of thousands of coordinates at once merely takes a second of computation time
-  on a recent computer (figure~\ref{fig:speed}).
-
-  To achieve this speed, it is important to vectorize all computation, i.e., not to
-  perform the conversion for each $Lgj$-tuple individually one after another, but to
-  perform all steps on the array. This also means to perform the Newton iteration on all
-  tuples until the last one of them has converged successfully, even if some already
-  converge in the first step. The redundant work inflicted by this approach is far
-  outweighed by the advantages of vectorization.
-
-  All code is published as open-source in colorio~\cite{colorio}.
-\end{remark}
+> Cao et al.~\cite{cao} found that the conversion to from $`Lgj`$ to $`XYZ`$ takes so
+> long that alternative methods need to be researched. They even find that the Newton
+> iterations sometimes do not converge, or find the correct result only to a few digits
+> of accuracy.  The author cannot confirm these observations. The computation of
+> hundreds of thousands of coordinates at once merely takes a second of computation time
+> on a recent computer (figure~\ref{fig:speed}).
+>
+> To achieve this speed, it is important to vectorize all computation, i.e., not to
+> perform the conversion for each $`Lgj`$-tuple individually one after another, but to
+> perform all steps on the array. This also means to perform the Newton iteration on all
+> tuples until the last one of them has converged successfully, even if some already
+> converge in the first step. The redundant work inflicted by this approach is far
+> outweighed by the advantages of vectorization.
+>
+> All code is published as open-source in colorio~\cite{colorio}.
 
 \begin{figure}
   \centering
@@ -241,7 +240,3 @@ take, namely that corresponding to $X=Y=100$, $Z=0$ (see~\eqref{eq:m}), $w_0=\sq
   Computation speed relative to the evaluation of the cubic root. For large arrays, the
   conversion to $XYZ$ is about as costly as the evaluation of 35 cubic roots.}\label{fig:speed}
 \end{figure}
-
-% \printbibliography{}
-\bibliography{main}{}
-\bibliographystyle{plain}
