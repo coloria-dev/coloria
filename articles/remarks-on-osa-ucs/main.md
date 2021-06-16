@@ -44,6 +44,7 @@ follows:
   ```
 * Compute $`L'`$ and $`C`$ as
   ```math
+  \label{ly0}\tag{1}
   L' &= 5.9 \left(\sqrt[3]{Y_0} - \frac{2}{3} + 0.042 \sqrt[3]{Y_0 - 30}\right)\\
   \nonumber
   C &= \frac{L'}{5.9 \left(\sqrt[3]{Y_0} - \frac{2}{3}\right)}.
@@ -105,7 +106,7 @@ Given $`L`$, we can first compute
 ```math
 L' = L \sqrt{2} + 14.3993.
 ```
-Equation \eqref{eq:lc} gives the nonlinear relationship between $`L'`$ and $`Y_0`$ from
+Equation $`\eqref{ly0}`$ gives the nonlinear relationship between $`L'`$ and $`Y_0`$ from
 which we will retrieve $`Y_0`$. First set $`t\coloneqq \sqrt[3]{Y_0}`$ and consider
 ```math
 0 = f(t) \coloneqq {\left(\frac{L'}{5.9} + \frac{2}{3} - t\right)}^3 - 0.042^3 (t^3 - 30).
