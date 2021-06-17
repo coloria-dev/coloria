@@ -44,10 +44,12 @@ follows:
   ```
 * Compute $`L'`$ and $`C`$ as
   ```math
+  \begin{split}
   \label{ly0}\tag{1}
   L' &= 5.9 \left(\sqrt[3]{Y_0} - \frac{2}{3} + 0.042 \sqrt[3]{Y_0 - 30}\right)\\
   \nonumber
   C &= \frac{L'}{5.9 \left(\sqrt[3]{Y_0} - \frac{2}{3}\right)}.
+  \end{split}
   ```
   (Note that $`L'`$ is $`L`$ in the original article \cite{macadam}.)
 
