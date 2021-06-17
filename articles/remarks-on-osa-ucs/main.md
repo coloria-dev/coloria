@@ -157,19 +157,19 @@ and two cube roots. This approach is found to be about 15 times faster.*
 <table>
 <tr>
 <td>
-<pre lang="json">
+<pre lang="chartjs">
 a + 1
 </pre>
 </td>
 <td>
-<pre lang="json">
+<pre lang="chartjs">
 b + 1
 </pre>
 </td>
 </tr>
 <tr>
 <td>
-Graph of $`f(t)`$ \eqref{eq:f} for $`L'=25`$. Note that the root is not in the turning
+Graph of $<code>f(t)</code>$ \eqref{eq:f} for $`L'=25`$. Note that the root is not in the turning
 point, but close to it. This is because of the small second term in $`f`$.
 </td>
 <td>
