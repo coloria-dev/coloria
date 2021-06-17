@@ -153,6 +153,12 @@ containing $`0.042^3`$, is comparatively small. Indeed it typically only takes a
 *Cardano's method finds the root at once at the expense of computing one square root
 and two cube roots. This approach is found to be about 15 times faster.*
 
+| f.tex | phi.tex |
+| --------------------------------- | ----------------------------------- |
+| Graph of $`f(t)`$ \eqref{eq:f} for $`L'=25`$. Note that the root is not in | Graph of the function $`\phi`$ for $`L`$, $`g`$, $`j`$ computed from $`X=12`$, $`Y=67`$, |
+| the turning point, but close to it. This is because of the small second term in $f$. | $`Z=20`$. The singularity is at $`w\approx 0.59652046418`$.  Note that the function has |
+| | three roots only the largest of which is of interest. |
+
 \begin{figure}
   \centering
   \hfill
@@ -160,8 +166,7 @@ and two cube roots. This approach is found to be about 15 times faster.*
   \hfill
   \input{phi.tex}
   \hfill
-  \caption{Left: Graph of $f(t)$ \eqref{eq:f} for $L'=25$. Note that the root is not in
-  the turning point, but close to it. This is because of the small second term in $f$.
+  \caption{Left:
   Right: Graph of the function $\phi$ for $L$, $g$, $j$ computed from $X=12$, $Y=67$,
   $Z=20$. The singularity is at $w\approx 0.59652046418$.  Note that the function has
   three roots only the largest of which is of interest.}\label{fig:singularity}
