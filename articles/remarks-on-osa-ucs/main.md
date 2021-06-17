@@ -161,7 +161,7 @@ and two cube roots. This approach is found to be about 15 times faster.*
 {
   "config": {
     "type": "line",
-    "data": {[0.1, 0.2], [0.1, 0.4]}
+    "data": [[0.1, 0.2], [0.1, 0.4]]
   }
 }
 </pre>
