@@ -160,28 +160,8 @@ and two cube roots. This approach is found to be about 15 times faster.*
 <pre lang="chartjs">
 {
   config: {
-    type: "scatter",
-    data: {
-       datasets: [{
-          label: "Test",
-          data: [{
-             x: 0,
-             y: 5
-          }, {
-             x: 5,
-             y: 10
-          }, {
-             x: 8,
-             y: 5
-          }, {
-             x: 15,
-             y: 0
-          }],
-       }]
-    },
-    options: {
-       responsive: true
-    }
+    type: "line",
+    data: {[0.1, 0.2], [0.1, 0.4]}
   }
 }
 </pre>
