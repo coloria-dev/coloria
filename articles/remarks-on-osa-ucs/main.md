@@ -6,7 +6,7 @@
 > guesses and shows that that hundreds of thousands of coordinates can be converted in
 > less than a second with full accuracy.
 
-In 1974, MacAdam published the definition of the OSA-UCS color space \cite{macadam} that
+In 1974, [MacAdam]({https://doi.org/10.1364/josa.64.001691) published the definition of the OSA-UCS color space that
 tries to adhere particularly well to experimentally measured color distances. It
 combines work that had been going on since the late 1940s. One aspect of OSA-UCS is
 that, while the conversion from CIEXYZ coordinates into OSA-UCS $`Lgj`$ coordinates is
@@ -14,14 +14,15 @@ straightforward, the conversion the other way around is not. In fact, there is n
 conversion method that works solely in elementary functions. Apparently, this had not
 been a design goal of OSA-UCS although is severely limits the usability of OSA-UCS.
 
-In 2002, Kobayasi and Yosiki presented an algorithm for conversion from $`Lgj`$ to
-$`XYZ`$ coordinates that leverages Newton's method for solving nonlinear equation
-systems \cite{kobayasi}. Unfortunately, the article remains vague at important points
-and also contains false assertions about the nature of the involved functions.
+In 2002, [Kobayasi and Yosiki](https://doi.org/10.1117/12.464524) presented an algorithm
+for conversion from $`Lgj`$ to $`XYZ`$ coordinates that leverages Newton's method for
+solving nonlinear equation systems. Unfortunately, the article remains vague at
+important points and also contains false assertions about the nature of the involved
+functions.
 
-In 2013, Cao et al. compared Kobayasi's and Yosiki's approach with some other, more
-complex methods based on artificial neural networks and found the latter to be
-superior \cite{cao}.
+In 2013, [Cao et al.](https://doi.org/10.1364/josaa.30.001508) compared Kobayasi's and
+Yosiki's approach with some other, more complex methods based on artificial neural
+networks and found the latter to be superior.
 
 In the present note, the author aims to iron out the inaccuracies in Kobayasi's article
 and improves the efficiency of the algorithm.
@@ -46,12 +47,12 @@ follows:
   ```math
   \begin{split}
   \label{ly0}\tag{1}
-  L' &= 5.9 \left(\sqrt[3]{Y_0} - \frac{2}{3} + 0.042 \sqrt[3]{Y_0 - 30}\right)\\
-  \nonumber
+  L' &= 5.9 \left(\sqrt[3]{Y_0} - \frac{2}{3} + 0.042 \sqrt[3]{Y_0 - 30}\right),\\
   C &= \frac{L'}{5.9 \left(\sqrt[3]{Y_0} - \frac{2}{3}\right)}.
   \end{split}
   ```
-  (Note that $`L'`$ is $`L`$ in the original article \cite{macadam}.)
+  (Note that $`L'`$ is $`L`$ in [the original
+  article]({https://doi.org/10.1364/josa.64.001691).)
 
 * Compute RGB as
   ```math
@@ -214,7 +215,7 @@ $`\sqrt[3]{R}`$, it is reasonable to chose $`w_0`$ to be the maximum possible va
 $`\sqrt[3]{R}`$ can take, namely that corresponding to $`X=Y=100`$, $`Z=0`$
 (see \eqref{eq:m}), $`w_0=\sqrt[3]{79.9 + 41.94}\approx 4.9575`$.
 
-> Cao et al. \cite{cao} found that the conversion to from $`Lgj`$ to $`XYZ`$ takes so
+> [Cao et al.](https://doi.org/10.1364/josaa.30.001508) found that the conversion to from $`Lgj`$ to $`XYZ`$ takes so
 > long that alternative methods need to be researched. They even find that the Newton
 > iterations sometimes do not converge, or find the correct result only to a few digits
 > of accuracy.  The author cannot confirm these observations. The computation of
@@ -228,7 +229,7 @@ $`\sqrt[3]{R}`$ can take, namely that corresponding to $`X=Y=100`$, $`Z=0`$
 > converge in the first step. The redundant work inflicted by this approach is far
 > outweighed by the advantages of vectorization.
 >
-> All code is published as open-source in colorio \cite{colorio}.
+> All code is published as open-source in [colorio](https://github.com/nschloe/colorio/).
 
 \begin{figure}
   \centering
