@@ -158,7 +158,32 @@ and two cube roots. This approach is found to be about 15 times faster.*
 <tr>
 <td>
 <pre lang="chartjs">
-a + 1
+{
+  config: {
+    type: "scatter",
+    data: {
+       datasets: [{
+          label: "Test",
+          data: [{
+             x: 0,
+             y: 5
+          }, {
+             x: 5,
+             y: 10
+          }, {
+             x: 8,
+             y: 5
+          }, {
+             x: 15,
+             y: 0
+          }],
+       }]
+    },
+    options: {
+       responsive: true
+    }
+  }
+}
 </pre>
 </td>
 <td>
@@ -169,13 +194,15 @@ b + 1
 </tr>
 <tr>
 <td>
-Graph of $<code>f(t)</code>$ \eqref{eq:f} for $`L'=25`$. Note that the root is not in the turning
-point, but close to it. This is because of the small second term in $`f`$.
+Graph of $<code>f(t)</code>$ \eqref{eq:f} for $<code>L'=25</code>$. Note that the root
+is not in the turning point, but close to it. This is because of the small second term
+in $<code>f</code>$.
 </td>
 <td>
-Graph of the function $`\phi`$ for $`L`$, $`g`$, $`j`$ computed from $`X=12`$, $`Y=67`$,
-$`Z=20`$. The singularity is at $`w\approx 0.59652046418`$.  Note that the function has
-three roots only the largest of which is of interest.
+Graph of the function $<code>\phi</code>$ for $<code>L</code>$, $<code>g</code>$,
+$<code>j</code>$ computed from $<code>X=12</code>$, $<code>Y=67</code>$,
+$<code>Z=20</code>$. The singularity is at $<code>w\approx 0.59652046418</code>$.  Note
+that the function has three roots only the largest of which is of interest.
 </td>
 </tr>
 </table>
