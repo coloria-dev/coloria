@@ -36,6 +36,7 @@ class HSV:
         return np.array([H, S, V])
 
     def to_srgb1(self, hsl):
+        hsl = np.asarray(hsl)
         H, S, V = hsl
         assert np.all(H >= 0)
         assert np.all(H <= 360)
@@ -52,7 +53,7 @@ class HSV:
         R1 = np.empty(C.shape)
         G1 = np.empty(C.shape)
         B1 = np.empty(C.shape)
-        i = (0 < H_dash) & (H_dash <= 1)
+        i = (0 <= H_dash) & (H_dash <= 1)
         R1[i], G1[i], B1[i] = C[i], X[i], Z[i]
         i = (1 < H_dash) & (H_dash <= 2)
         R1[i], G1[i], B1[i] = X[i], C[i], Z[i]
