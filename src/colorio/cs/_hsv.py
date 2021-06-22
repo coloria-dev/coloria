@@ -38,12 +38,12 @@ class HSV:
     def to_srgb1(self, hsl):
         hsl = np.asarray(hsl)
         H, S, V = hsl
-        assert np.all(H >= 0)
-        assert np.all(H <= 360)
-        assert np.all(S >= 0)
-        assert np.all(S <= 1)
-        assert np.all(V >= 0)
-        assert np.all(V <= 1)
+        if not np.all((0 <= H) & (H <= 360)):
+            raise ValueError("Illegal values in H.")
+        if not np.all((0 <= S) & (S <= 1)):
+            raise ValueError("Illegal values in S.")
+        if not np.all((0 <= V) & (V <= 1)):
+            raise ValueError("Illegal values in V.")
 
         C = V * S
         H_dash = H / 60
