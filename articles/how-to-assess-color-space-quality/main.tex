@@ -120,7 +120,7 @@ TODO desirable properties of cost functionals:
 \section{Average, root mean square, and how to combine results}
 
 In several stages of the assessment or optimization process, we will have to combine
-several positive result values (e.g., residuals from different data sets) into one.
+several nonnegative result values (e.g., residuals from different data sets) into one.
 There are multiple meaningful ways of doing so. The most common are certainly the
 \emph{average} and the \emph{root mean square} of different results
 $\rr = \{|r_i|\}_{i=1}^n$,
@@ -385,8 +385,8 @@ The reason why $p_2$ is always chosen in practice is that the global minimizer $
   is small or vanishes.
   It measures the \emph{relative} deviation, i.e., the value of $\delta_i=\alpha d_i / r
   $ is the same as for $\delta_i = r \alpha d_i$ for any $r > 0$.  This can be useful in
-  optimization when absolutely trying to prevent a collapsing of color distances or
-  ellipses.
+  optimization when trying punish deviations towards 0 to prevent a collapsing of color
+  distances or ellipses.
 
   Another such variant is
   \[
@@ -490,7 +490,7 @@ from them.
   \hfill
   \input{figures/hung-berns-oklab.tex}
   \caption{Hung-Berns \cite{hung} hue linearity data for three color spaces. The points
-  which are representable in sRGB are shown in color.}
+  representable in sRGB are shown in color.}
 \end{figure}
 
 There are multiple experiments about which colors are perceived to be of equal
@@ -504,9 +504,9 @@ The line is typically
 given implicitly by $\alpha_1 x + \alpha_2 y
 = 0$ with $\alpha_1,\alpha_2\in\R$, $\|\alpha\|_2^2 = \alpha_1^2 + \alpha_2^2 = 1$.
 Because this assumes that the line passes through the origin, all points are
-first translated such that the whitepoint sits in in origin.
+first translated such that the whitepoint sits in the origin.
 For scale-invariance, it is convenient to divide by the maximizer of the squared
-distances, in total:
+distances,
 \begin{equation}\label{eq:l}
 h_2 \coloneqq
   \frac{
@@ -605,7 +605,7 @@ Since $0\le h_2\le 1$, the value can be given in terms of STRESS,
   three color spaces.
   There are nine Munsell levels each with a particular $Y$.
   The dot shows the root-mean square ($M_2$) for all values on that level, the
-  vertical lines indicate the minimum and maximum values.
+  vertical lines indicate the minimum and maximum values ($M_{-\infty}$, $M_{\infty}$).
   The CIELAB lightness $L^*$ only depends on $Y$ which is why there is no variation.
   Clearly, CIELAB was designed to match the Munsell lightness scale.}
 \end{figure}
