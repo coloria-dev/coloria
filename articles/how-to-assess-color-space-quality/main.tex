@@ -92,17 +92,19 @@
 Every year, articles on new color spaces are created, claiming that they comply to
 certain experimental data better than other color spaces. In many cases, numbers are
 provided in form of a table showing that the new color space is indeed better.
-Unfortunately, it is hardly ever explained how those numbers are computed.
+Unfortunately, it is often not explained how those numbers are computed.
 
 This article describes in detail how to assess the experimental compliance of color
-space with experimental data. The article focuses on the two most used types of
-experimental data: Hue linearity \cite{ebner,xiao,hung} and color difference ellipses
-\cite{macadam1942,luorigg}.
+space with experimental data. The article focuses on the three most-used types of
+experimental data: Hue linearity \cite{ebner,xiao,hung}, color difference ellipses
+\cite{macadam1942,luorigg}, and lightness data \cite{fairchildchen}. It also devotes
+some time explaining how to combine results and illustrates the difference between,
+e.g., the orginary average and the root mean square.
 
 Almost every color space is defined by a transformation $T$ that maps the CIE-1931-XYZ
 coordinates into a three-dimensional new coordinate space (e.g., LAB). The
 transformation is usually continuously differentiable and bijective. When talking about
-a colorspace, one almost always means the transformation $T$ and its inverse.
+a \emph{colorspace}, one almost always means the transformation $T$ and its inverse.
 
 
 TODO desirable properties of cost functionals:
@@ -149,12 +151,18 @@ increasing
 \]
 (Compare figure \ref{fig:1}.)
 Hence, the larger $p$, the closer $M_p(\rr)$ will be to $\max(\rr)$.
-This makes a larger $p$ suitable, for example, for an optimization process that tries to
-minimize the maximum STRESS (see section~\ref{}).
 
-Choosing $p < 1$, on the other hand, puts more emphasis on the smaller values in $\rr$.
-In particular, $M_0(\rr)=0$ if only one $r_i=0$. One almost never wants this in the
-context of experimental validation or optimization.
+When optimizing against a data set, combining the results with the average ($M_1$), an
+improvement in any variable ist just as valuable as the next. Combining the results with
+the root mean square ($M_2$) puts more emphasis on the larger values; choosing an even
+larger $p$ will reinforce this effect. Choosing $p < 1$, on the other hand, puts more
+emphasis on the smaller values in $\rr$.  In particular, $M_p(\rr)=0$ for all $p\le 0$
+if even only one $r_i=0$. One almost never wants this in the context of experimental
+validation or optimization.
+
+If the goal of your optimization is to minimize the larger outliers first, choose $p>1$,
+e.g., the root mean square. If you want to minimize all entries equally, use the
+average.
 
 \begin{figure}
   \centering
@@ -290,16 +298,15 @@ context of experimental validation or optimization.
 % % and cells, and allowing each of the nodes to move around freely to match the
 % % experimental data. This is the most general approach possible; all smooth
 % % transformations can be expressed in this way.
-
-
-Let $(X_i, Y_i, Z_i)\in\R^3$ be a given set of points in XYZ space which, according to
-some experiment, are of equal perceived hue. Consider the two non-lightness coordinates
-of their image $(x_i, y_i) \coloneqq T(X_i, Y_i, Z_i)$ (see figure TODO). What is
-measure of how well the points $(x_i, y_i)$ sit on a straight line? The general idea
-here is to cast a line through ``the middle'' of the point cloud and sum up the
-distances of all points to that line. There are multiple meaningful ways in which
-``the middle'' and ``distance'' can be defined. Remember that in $\R^n$, the distance
-between two points $a$ and $b$ can be defined by a \emph{norm}.
+%
+% Let $(X_i, Y_i, Z_i)\in\R^3$ be a given set of points in XYZ space which, according to
+% some experiment, are of equal perceived hue. Consider the two non-lightness coordinates
+% of their image $(x_i, y_i) \coloneqq T(X_i, Y_i, Z_i)$ (see figure TODO). What is
+% measure of how well the points $(x_i, y_i)$ sit on a straight line? The general idea
+% here is to cast a line through ``the middle'' of the point cloud and sum up the
+% distances of all points to that line. There are multiple meaningful ways in which
+% ``the middle'' and ``distance'' can be defined. Remember that in $\R^n$, the distance
+% between two points $a$ and $b$ can be defined by a \emph{norm}.
 
 
 \subsection{Cost functional for target distances and ellipses}
@@ -338,7 +345,7 @@ Notable examples are the following.
 
 A color space conforms with this data if the distance between the transformed points
 $\delta_i \coloneqq \norm{T(X_{i,1}) - T(X_{i,2})}_2$
-is close to the scaled distance $\alpha d_i$, i.e.,
+is close to the scaled target distance $\alpha d_i$, i.e.,
 \begin{equation}\label{eq:p}
   p_2
   \coloneqq \sqrt{\sum_{i=1}^n (\alpha d_i - \delta_i)^2}
@@ -347,8 +354,8 @@ where the parameter $\alpha$ is chosen to minimize the expression, namely, $\alp
 \left.\sum_{i=1}^n d_i \delta_i \middle/ \sum_{i=1}^n d_i^2\right.$. This scaling makes
 sure that the expression in invariant for scaling of $d$, too. To achieve
 scale-invariance in $\delta$, one divides by $\sqrt{\sum_{i=1}^n \delta_i^2}$.  The
-resulting expression is always between 0 and 1, and after scaling by 100, this is called
-the STRESS (STandardized REsidual Sum of Squares) metric for target distances,
+resulting expression is always between 0 and 1, and after multiplying by 100, this is
+called the STRESS (STandardized REsidual Sum of Squares) metric for target distances,
 \begin{equation}\label{eq:p}
   p_{\text{STRESS}}
   \coloneqq
@@ -362,12 +369,12 @@ the STRESS (STandardized REsidual Sum of Squares) metric for target distances,
 
 \begin{remark}
 One could as well have put the minimizing parameter at $\delta_i$ and divided by $\sum
-  d_i^2$; the resulting expression is equal to $p_2$.
+  d_i^2$; the resulting expression is the same.
 \end{remark}
 
 \begin{remark}
-Instead of the $2$-norm, one could in principle have chosen any other $0\le p\le\infty$
-  as well,
+Instead of the $2$-norm, one could in principle have chosen any other $-\infty\le
+  p\le\infty$ as well,
 \[
 p_p = \left(\sum_{i=1}^n |\alpha d_i - \delta_i|^p\right)^{1/p}.
 \]
@@ -375,36 +382,38 @@ The reason why $p_2$ is always chosen in practice is that the global minimizer $
   is easily determined and the dependence on the data set is smooth.
 \end{remark}
 
-\begin{remark}
-  There are other reasonable variants of $p_\text{STRESS}$, e.g.,
-  \[
-    \tilde{p}_\text{STRESS} = 100 \frac{\sqrt{\sum_{i=1}^n \frac{(\tilde{\alpha} d_i -
-    \delta_i)^2}{\delta_i}}}{\sqrt{\sum_{i=1}^n \delta_i}}.
-  \]
-  As opposed to $p_\text{STRESS}$, $\tilde{p}_\text{STRESS}$ is  large if any $\delta_i$
-  is small or vanishes.
-  It measures the \emph{relative} deviation, i.e., the value of $\delta_i=\alpha d_i / r
-  $ is the same as for $\delta_i = r \alpha d_i$ for any $r > 0$.  This can be useful in
-  optimization when trying punish deviations towards 0 to prevent a collapsing of color
-  distances or ellipses.
-
-  Another such variant is
-  \[
-    \hat{p}_\text{STRESS} = 100 \sqrt{\sum_{i=1}^n \frac{(\hat{\alpha} d_i -
-    \delta_i)^2}{\delta_i^2}}.
-  \]
-  It is less useful as the value of each of the summands is limited by $1$ for growing
-  $\delta_i$.
-
-  See figure~\ref{fig:norm-scaling}.
-\end{remark}
+$p_\text{STRESS}$ measures the \emph{absolute} deviation from target values which in
+many sitations is appropriate. Sometimes, however, one would like to measure the
+\emph{relative} deviation,
+\[
+  p_\text{relSTRESS} = 100 \frac{\sqrt{\sum_{i=1}^n (\tilde{\alpha} d_i -
+  \delta_i)^2 / \delta_i}}{\sqrt{\sum_{i=1}^n \delta_i}}, \quad
+  \tilde{\alpha} = \frac{\sum_{i=1}^n d_i}{\sum_{i=1}^n d_i^2 / \delta_i}.
+\]
+$p_\text{relSTRESS}$ also is between 0 and 100, but unlike $p_\text{STRESS}$ it
+is also large if any $\delta_i$ is small or vanishes.
+The value of $\delta_i=\tilde{\alpha} d_i / r$ is the same as for $\delta_i = r
+\tilde{\alpha} d_i$ for any $r > 0$, e.g., deviation from $d_i$ by half has the same
+value deviation by double.
+This can be useful in optimization when trying punish deviations
+towards 0 to prevent a collapsing of color distances or ellipses.
+% Another such variant is
+% \[
+%   \hat{p}_\text{STRESS} = 100 \sqrt{\sum_{i=1}^n \frac{(\hat{\alpha} d_i -
+%   \delta_i)^2}{\delta_i^2}}.
+% \]
+% It is less useful as the value of each of the summands is limited by $1$ for growing
+% $\delta_i$.
+See figure~\ref{fig:norm-scaling}.
 
 \begin{figure}
   \label{fig:norm-scaling}
   \centering
   \input{figures/norm-scaling.tex}
   \caption{Different possibilities for the norm-scaling in $p_\text{STRESS}$ with target
-  distance 1. The common variant $(1-x)^2$ is a simple quadratic.}
+  distance 1. The common variant $(1-x)^2$ is a simple quadratic and bounded for
+  deviations towards 0. The relative STRESS is large for deviations towards both 0 and
+  $+\infty$.}
 \end{figure}
 
 \begin{figure}
@@ -436,22 +445,31 @@ spaces perform well for all data sets. The MacAdam ellipses are assumed to exist
   are non-Euclidean.}
 \end{figure}
 
-A common special case of this setting is distance data given in terms of ellipse points,
+A common special case of STRESS is distance data given in terms of ellipse points,
 i.e., a color center with a number of standard deviations (or similar) in various
 directions. The famous MacAdam ellipses \cite{macadam1942} are derived from such data.
 Since the ellipses are supposed to to be circles of equal size in the transformed space,
 the target value for all $d_i$ is 1. The parameter $\alpha$ simplifies to be the average
 over all $\delta_i$ and we have
-\begin{equation}\label{eq:e}
+\begin{align}\label{eq:e}
   e_{\text{STRESS}}
-  \coloneqq
+  &\coloneqq
   100
   \frac{%
     \sqrt{\sum_{i=1}^n (\alpha - \delta_{i})^2}
   }{
     \sqrt{\sum_{i=1}^n \delta_i^2}
-  }.
-\end{equation}
+  },\quad \alpha = \frac{1}{n} \sum_{i=1}^n \delta_i.\\
+  \nonumber
+  e_{\text{relSTRESS}}
+  &\coloneqq
+  100
+  \frac{%
+    \sqrt{\sum_{i=1}^n \frac{(\tilde{\alpha} - \delta_{i})^2}{\delta_i}}
+  }{
+    \sqrt{\sum_{i=1}^n \delta_i}
+  },\quad \tilde{\alpha} = \left(\frac{1}{n}\sum_{i=1}^n \delta_i^{-1}\right)^{-1}.
+\end{align}
 In case only the actual ellipses are given (e.g., \cite{luorigg}), one can place a
 number of points onto their boundaries (e.g., 8 or 16) and compute the residual with
 from them.
