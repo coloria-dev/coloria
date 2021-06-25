@@ -16,7 +16,7 @@ def dot(a, b):
 class TestLab(colorio.cs.ColorSpace):
     def __init__(self, x):
         # self.p = x[0]
-        self.p = 1.0 / 3.0
+        # self.p = 1.0 / 3.0
         self.M1 = x[0:9].reshape(3, 3)
         self.M2 = x[9:18].reshape(3, 3)
         self.k0 = 0
@@ -24,12 +24,13 @@ class TestLab(colorio.cs.ColorSpace):
         self.name = "TestLab"
 
     def from_xyz100(self, xyz):
-        return dot(self.M2, dot(self.M1, xyz) ** self.p)
+        # use np.cbrt; it also works for negative input
+        return dot(self.M2, np.cbrt(dot(self.M1, xyz)))
 
     def to_xyz100(self, xyz):
         self.M1inv = np.linalg.inv(self.M1)
         self.M2inv = np.linalg.inv(self.M2)
-        return dot(self.M1inv, dot(self.M2inv, xyz) ** (1.0 / self.p))
+        return dot(self.M1inv, dot(self.M2inv, xyz) ** 3)
 
 
 @pytest.mark.skip
@@ -61,10 +62,10 @@ def test_optimize(maxiter=1):
         cs = TestLab(x)
         # A typical hazard in this optimization is the collapse of the color space into
         # two dimensions (one lightness). This satisfies the hue linearity functionals
-        # since all points are in one line then. The variant-a stress does not provide
-        # enough counterweight. A brute-force remedy is to use small weights for the
-        # hue-linearity functionals.
-        variant = "a"
+        # perfectly since all points are in one line then. The absolute stress does not
+        # provide enough counterweight. A brute-force remedy is to use small weights for
+        # the hue-linearity functionals.
+        variant = "relative"
         d = np.array(
             [
                 [1.0, bfd_p.stress(cs, variant)],
@@ -74,9 +75,9 @@ def test_optimize(maxiter=1):
                 [1.0, rit_dupont.stress(cs, variant)],
                 [1.0, witt.stress(cs, variant)],
                 #
-                [0.1, average(ebner_fairchild.stress(cs), 2.0)],
-                [0.1, average(hung_berns.stress(cs), 2.0)],
-                [0.1, average(xiao.stress(cs), 2.0)],
+                [1.0, average(ebner_fairchild.stress(cs), 2.0)],
+                [1.0, average(hung_berns.stress(cs), 2.0)],
+                [1.0, average(xiao.stress(cs), 2.0)],
                 #
                 [1.0, munsell.stress_lightness(cs)],
                 [1.0, fairchild_chen.stress(cs)],
@@ -107,9 +108,9 @@ def test_optimize(maxiter=1):
     bounds = np.empty((18, 2))
     bounds[:, 0] = -3.0
     bounds[:, 1] = 3.0
-    out = dual_annealing(fun, bounds)
-    print("intermediate residual:")
-    print(fun(out.x))
+    out = dual_annealing(fun, bounds, maxiter=maxiter, seed=0)
+
+    print(f"dual annealing: {out.nit:5d} steps, {out.fun:.7f} residual")
     # refine with bfgs
     out = minimize(
         fun,
@@ -120,12 +121,9 @@ def test_optimize(maxiter=1):
         method="BFGS",
         options={"maxiter": maxiter},
     )
+    print(f"bfgs:           {out.nit:5d} steps, {out.fun:.7f} residual")
 
     cs = TestLab(out.x)
-
-    print()
-    print("final residual:")
-    print(fun(out.x))
 
     print()
     print("final values:")
@@ -136,17 +134,16 @@ def test_optimize(maxiter=1):
     print()
     print("final residuals:")
     d = {
-        "  BFD-P............": bfd_p,
-        "  Leeds............": leeds,
-        "  MacAdam 1942.....": macadam_1942,
-        "  MacAdam 1974.....": macadam_1974,
-        "  RIT-DuPont.......": rit_dupont,
-        "  Witt.............": witt,
+        "BFD-P............": bfd_p,
+        "Leeds............": leeds,
+        "MacAdam 1942.....": macadam_1942,
+        "MacAdam 1974.....": macadam_1974,
+        "RIT-DuPont.......": rit_dupont,
+        "Witt.............": witt,
     }
     for name, module in d.items():
-        vals = [module.stress(cs, variant) for variant in ["a", "b", "c"]]
-        string = name + " {:.3f}  {:.3f}  {:.3f}"
-        print(string.format(*vals))
+        vals = [module.stress(cs, variant) for variant in ["absolute", "relative"]]
+        print("  {} {:.3f}  {:.3f}".format(name, *vals))
     print()
     d = {
         "Hung-Berns.......": hung_berns,
@@ -156,12 +153,12 @@ def test_optimize(maxiter=1):
     for name, module in d.items():
         stress = module.stress(cs)
         vals = [average(stress, p) for p in [1.0, 2.0, np.infty]]
-        print("  " + name + " {:.3f}  {:.3f}  {:.3f}".format(*vals))
+        print("  {} {:.3f}  {:.3f}  {:.3f}".format(name, *vals))
     print()
     print("  Munsell.......... {:.3f}".format(munsell.stress_lightness(cs)))
     print("  Fairchild-Chen... {:.3f}".format(fairchild_chen.stress(cs)))
 
-    cs.show_primary_srgb_gradients()
+    colorio.show_primary_srgb_gradients(cs)
     macadam_1942.show(cs)
     macadam_1974.show(cs)
     hung_berns.show(cs)
@@ -171,4 +168,4 @@ def test_optimize(maxiter=1):
 
 
 if __name__ == "__main__":
-    test_optimize(maxiter=100000)
+    test_optimize(maxiter=1)

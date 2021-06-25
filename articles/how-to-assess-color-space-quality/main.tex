@@ -350,12 +350,11 @@ is close to the scaled target distance $\alpha d_i$, i.e.,
   p_2
   \coloneqq \sqrt{\sum_{i=1}^n (\alpha d_i - \delta_i)^2}
 \end{equation}
-where the parameter $\alpha$ is chosen to minimize the expression, namely, $\alpha =
-\left.\sum_{i=1}^n d_i \delta_i \middle/ \sum_{i=1}^n d_i^2\right.$. This scaling makes
-sure that the expression in invariant for scaling of $d$, too. To achieve
-scale-invariance in $\delta$, one divides by $\sqrt{\sum_{i=1}^n \delta_i^2}$.  The
-resulting expression is always between 0 and 1, and after multiplying by 100, this is
-called the STRESS (STandardized REsidual Sum of Squares) metric for target distances,
+where the parameter $\alpha$ is chosen to minimize the expression (see below).
+This scaling makes sure that the expression in invariant for scaling of $d$, too. To
+achieve scale-invariance in $\delta$, one divides by $\sqrt{\sum_{i=1}^n \delta_i^2}$.
+The resulting expression is always between 0 and 1, and after multiplying by 100, this
+is called the STRESS (STandardized REsidual Sum of Squares) metric for target distances,
 \begin{equation}\label{eq:p}
   p_{\text{STRESS}}
   \coloneqq
@@ -364,7 +363,8 @@ called the STRESS (STandardized REsidual Sum of Squares) metric for target dista
     \sqrt{\sum_{i=1}^n (\alpha d_i - \delta_i)^2}
   }{
     \sqrt{\sum_{i=1}^n \delta_i^2}
-  }.
+  },\quad
+  \alpha = \frac{\sum_{i=1}^n d_i \delta_i}{\sum_{i=1}^n d_i^2}.
 \end{equation}
 
 \begin{remark}
@@ -440,9 +440,8 @@ spaces perform well for all data sets. The MacAdam ellipses are assumed to exist
 \begin{figure}
 \centering
   \input{figures/pstress-diff.tex}
-  \caption{$p_\text{STRESS}$ for a number of color diffence formulae.
-  CIE76 is really just the Euclidean distance in CIELAB, the other difference formulas
-  are non-Euclidean.}
+  \caption{$p_\text{STRESS}$ for a number of color diffence formulae.  CIE76 is the
+  Euclidean distance in CIELAB, the other difference formulas are non-Euclidean.}
 \end{figure}
 
 A common special case of STRESS is distance data given in terms of ellipse points,
@@ -465,7 +464,7 @@ over all $\delta_i$ and we have
   &\coloneqq
   100
   \frac{%
-    \sqrt{\sum_{i=1}^n \frac{(\tilde{\alpha} - \delta_{i})^2}{\delta_i}}
+    \sqrt{\sum_{i=1}^n (\tilde{\alpha} - \delta_{i})^2 / \delta_i}
   }{
     \sqrt{\sum_{i=1}^n \delta_i}
   },\quad \tilde{\alpha} = \left(\frac{1}{n}\sum_{i=1}^n \delta_i^{-1}\right)^{-1}.
@@ -509,11 +508,12 @@ from them.
   \input{figures/hung-berns-oklab.tex}
   \caption{Hung-Berns \cite{hung} hue linearity data for three color spaces. The points
   representable in sRGB are shown in color.}
+  \label{fig:hung}
 \end{figure}
 
-There are multiple experiments about which colors are perceived to be of equal
-hue~\cite{hung,ebner,xiao} (see figure~\ref{fig:hstress}). Color spaces are considered
-good if the transformation maps points of equal perceived hue onto a straight line.
+There are multiple experiments to determine which colors are perceived to be of equal
+hue~\cite{hung,ebner,xiao}. Color spaces are considered good if the transformation maps
+points of equal perceived hue onto a straight line (see figure~\ref{fig:hung}).
 
 What is a good measure of how well points sit on a straight line?
 A common idea is to find the straight line that mimizes the sum of squared distances to
@@ -522,7 +522,11 @@ The line is typically
 given implicitly by $\alpha_1 x + \alpha_2 y
 = 0$ with $\alpha_1,\alpha_2\in\R$, $\|\alpha\|_2^2 = \alpha_1^2 + \alpha_2^2 = 1$.
 Because this assumes that the line passes through the origin, all points are
-first translated such that the whitepoint sits in the origin.
+first translated such that the whitepoint sits in the origin,
+\[
+  \tilde{x}_i \coloneqq x_i-w_x,\qquad
+  \tilde{y}_i \coloneqq y_i-w_y.
+\]
 For scale-invariance, it is convenient to divide by the maximizer of the squared
 distances,
 \begin{equation}\label{eq:l}
@@ -532,17 +536,12 @@ h_2 \coloneqq
   \sqrt{\sum_{i=1}^n (\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2}
 }{
 \max_{\|\alpha\|_2=1}
-  \sqrt{\sum_{i=1}^n (\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2}
+  \sqrt{\sum_{i=1}^n (\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2}.
 }
 \end{equation}
-with the translated sample points
-\[
-  \tilde{x}_i \coloneqq x_i-w_x,\qquad
-  \tilde{y}_i \coloneqq y_i-w_y.
-\]
-The value of $h_2$ can be approximated with any appropriate optimization method. A more
-explicit and more easily computable representation however is retrieved as follows.
-With the $n$-by-2 coordinate matrix
+The value of $h_2$ can be determined reasonably well with any appropriate optimization
+method. A more explicit and more easily computable representation however is retrieved
+as follows.  With the $n$-by-2 coordinate matrix
 \[
   A \coloneqq \begin{pmatrix}
     \tilde{x}_1 & \tilde{y}_1\\
@@ -550,7 +549,7 @@ With the $n$-by-2 coordinate matrix
     \tilde{x}_n & \tilde{y}_n
   \end{pmatrix},
 \]
-the sum in \eqref{eq:l} can be written as
+and $\alpha=(\alpha_1, \alpha_2)$, the sum in \eqref{eq:l} can be written as
 \[
   \sum_{i=1}^n (\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2
   = (A \alpha)^T (A \alpha)

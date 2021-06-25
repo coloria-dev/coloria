@@ -22,10 +22,10 @@ class ColorSpace:
     def __repr__(self):
         return f"<colorio color space {self.name}>"
 
-    def to_xyz100(self, cs_coords):
+    def to_xyz100(self, _):
         raise NotImplementedError("ColorSpace needs to implement to_xyz100()")
 
-    def from_xyz100(self, cs_coords):
+    def from_xyz100(self, _):
         raise NotImplementedError("ColorSpace needs to implement from_xyz100()")
 
     def to_rgb_linear(self, cs_coords):
