@@ -19,9 +19,7 @@ class TestLab(colorio.cs.ColorSpace):
         # self.p = 1.0 / 3.0
         self.M1 = x[0:9].reshape(3, 3)
         self.M2 = x[9:18].reshape(3, 3)
-        self.k0 = 0
-        self.labels = ["L", "a", "b"]
-        self.name = "TestLab"
+        super().__init__("TestLab", ("L", "a", "b"), 0)
 
     def from_xyz100(self, xyz):
         # use np.cbrt; it also works for negative input
@@ -168,4 +166,4 @@ def test_optimize(maxiter=1):
 
 
 if __name__ == "__main__":
-    test_optimize(maxiter=1)
+    test_optimize(maxiter=100)
