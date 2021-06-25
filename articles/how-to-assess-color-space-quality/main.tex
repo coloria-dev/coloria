@@ -136,14 +136,15 @@ This is readily generalized to the
   M_p(\rr) \coloneqq \left(\frac{1}{n}\sum_{i=1}^n r_i^p\right)^{1/p} =
   \frac{1}{n^{1/p}} \|\rr\|_p
 \]
-with any given $-\infty \le p \le \infty$. In the limits, $p\to-\infty$, $p\to 0$ and
-$p\to +\infty$, this becomes the \emph{minimum}, the \emph{geometric mean}, and the
-\emph{maximum}
+with any given $-\infty \le p \le \infty$. In the limits, $p\to-\infty$ and
+$p\to +\infty$, this becomes the \emph{minimum} and the \emph{maximum}
 \[
   M_{-\infty}(\rr) \coloneqq \min_{i\in\{1,\dots,n\}} r_i, \quad
-  M_0(\rr) \coloneqq \left(\prod_{i=1}^n r_i\right)^{1/n}, \quad
   M_{\infty}(\rr) \coloneqq \max_{i\in\{1,\dots,n\}} r_i.
 \]
+Other interesting means are the \emph{harmonic mean} $M_{-1}$, the \emph{geometric mean}
+$M_0$, the \emph{root mean square} $M_2$, and the \emph{cubic mean} $M_3$.
+
 Note that, for every $\rr$, $M_p(\rr)$ as a function in $p$ is smooth and monotonic
 increasing
 \[
@@ -448,26 +449,27 @@ A common special case of STRESS is distance data given in terms of ellipse point
 i.e., a color center with a number of standard deviations (or similar) in various
 directions. The famous MacAdam ellipses \cite{macadam1942} are derived from such data.
 Since the ellipses are supposed to to be circles of equal size in the transformed space,
-the target value for all $d_i$ is 1. The parameter $\alpha$ simplifies to be the average
-over all $\delta_i$ and we have
+the target value for all $d_i$ is 1. The parameter $\alpha$ simplifies to be the
+arithmetic mean $M_1$ over all $\delta_i$ and the harmonic mean $M_{-1}$ in the
+relative case. We have
 \begin{align}\label{eq:e}
   e_{\text{STRESS}}
   &\coloneqq
   100
   \frac{%
-    \sqrt{\sum_{i=1}^n (\alpha - \delta_{i})^2}
+    \sqrt{\sum_{i=1}^n (M_1{\delta) - \delta_{i})^2}
   }{
     \sqrt{\sum_{i=1}^n \delta_i^2}
-  },\quad \alpha = \frac{1}{n} \sum_{i=1}^n \delta_i.\\
+  },\\
   \nonumber
   e_{\text{relSTRESS}}
   &\coloneqq
   100
   \frac{%
-    \sqrt{\sum_{i=1}^n (\tilde{\alpha} - \delta_{i})^2 / \delta_i}
+    \sqrt{\sum_{i=1}^n (M_{-1}(\delta) - \delta_{i})^2 / \delta_i}
   }{
     \sqrt{\sum_{i=1}^n \delta_i}
-  },\quad \tilde{\alpha} = \left(\frac{1}{n}\sum_{i=1}^n \delta_i^{-1}\right)^{-1}.
+  }.
 \end{align}
 In case only the actual ellipses are given (e.g., \cite{luorigg}), one can place a
 number of points onto their boundaries (e.g., 8 or 16) and compute the residual with

@@ -1,4 +1,5 @@
 import numpy as np
+import npx
 import pytest
 from scipy.optimize import dual_annealing, minimize
 
@@ -48,14 +49,6 @@ def test_optimize(maxiter=1):
     munsell = colorio.data.Munsell()
     fairchild_chen = colorio.data.FairchildChen("SL2")
 
-    def average(a, p):
-        n = len(a)
-        if p == 0:
-            return np.prod(np.abs(a)) ** (1 / n)
-        elif p == np.infty:
-            return np.max(np.abs(a))
-        return np.linalg.norm(a, p) / n ** (1 / p)
-
     def fun(x):
         cs = TestLab(x)
         # A typical hazard in this optimization is the collapse of the color space into
@@ -73,9 +66,9 @@ def test_optimize(maxiter=1):
                 [1.0, rit_dupont.stress(cs, variant)],
                 [1.0, witt.stress(cs, variant)],
                 #
-                [1.0, average(ebner_fairchild.stress(cs), 2.0)],
-                [1.0, average(hung_berns.stress(cs), 2.0)],
-                [1.0, average(xiao.stress(cs), 2.0)],
+                [1.0, npx.mean(ebner_fairchild.stress(cs), p=2)],
+                [1.0, npx.mean(hung_berns.stress(cs), p=2)],
+                [1.0, npx.mean(xiao.stress(cs), p=2)],
                 #
                 [1.0, munsell.stress_lightness(cs)],
                 [1.0, fairchild_chen.stress(cs)],
@@ -84,7 +77,7 @@ def test_optimize(maxiter=1):
         # make sure the weights add up to one
         d[:, 0] /= np.sum(d[:, 0])
 
-        res = average(d[:, 0] * d[:, 1], 1.0)
+        res = np.mean(d[:, 0] * d[:, 1])
         if np.isnan(res):
             res = 1.0e10
         # print(res)
@@ -104,8 +97,8 @@ def test_optimize(maxiter=1):
 
     # global search
     bounds = np.empty((18, 2))
-    bounds[:, 0] = -3.0
-    bounds[:, 1] = 3.0
+    bounds[:, 0] = -5.0
+    bounds[:, 1] = 5.0
     out = dual_annealing(fun, bounds, maxiter=maxiter, seed=0)
 
     print(f"dual annealing: {out.nit:5d} steps, {out.fun:.7f} residual")
@@ -150,7 +143,7 @@ def test_optimize(maxiter=1):
     }
     for name, module in d.items():
         stress = module.stress(cs)
-        vals = [average(stress, p) for p in [1.0, 2.0, np.infty]]
+        vals = [npx.mean(stress, p=p) for p in [1.0, 2.0, np.infty]]
         print("  {} {:.3f}  {:.3f}  {:.3f}".format(name, *vals))
     print()
     print("  Munsell.......... {:.3f}".format(munsell.stress_lightness(cs)))
