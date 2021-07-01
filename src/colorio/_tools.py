@@ -13,9 +13,9 @@ def _xyy_from_xyz100(xyz):
     return np.array([x / sum_xyz, y / sum_xyz, y / 100])
 
 
-def _xyy_to_xyz100(xyy):
-    x, y, Y = xyy
-    return np.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
+# def _xyy_to_xyz100(xyy):
+#     x, y, Y = xyy
+#     return np.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
 
 
 def _plot_monochromatic(observer, fill_horseshoe=True):
@@ -59,11 +59,6 @@ def _plot_planckian_locus(observer):
     plt.plot(values[:, 0], values[:, 1], ":k", label="Planckian locus")
 
 
-def show_xy_gamut(*args, **kwargs):
-    plot_xy_gamut(*args, **kwargs)
-    plt.show()
-
-
 def plot_xy_gamut(fill_horseshoe=True, plot_planckian_locus=True):
     """Show a flat color gamut, by default xy. There exists a chroma gamut for all
     color models which transform lines in XYZ to lines, and hence have a natural
@@ -86,6 +81,7 @@ def plot_xy_gamut(fill_horseshoe=True, plot_planckian_locus=True):
     # plt.legend()
     plt.xlabel("x")
     plt.ylabel("y")
+    return plt.gcf()
 
 
 def xy_gamut_mesh(lcar):
@@ -165,13 +161,6 @@ def get_mono_outline_xy(observer, max_stepsize):
     return vals_mono, vals_conn
 
 
-def show_srgb1_gradient(*args, **kwargs):
-    plt.figure()
-    plot_srgb1_gradient(*args, **kwargs)
-    plt.show()
-    plt.close()
-
-
 def plot_srgb1_gradient(colorspace, srgb0, srgb1, n=256):
     srgb = get_srgb1_gradient(colorspace, srgb0, srgb1, n=n)
 
@@ -182,6 +171,7 @@ def plot_srgb1_gradient(colorspace, srgb0, srgb1, n=256):
     plt.imshow(gradient, aspect="auto", cmap=cmap)
     plt.axis("off")
     plt.title(f"SRGB gradient in {colorspace.name}")
+    return plt.gcf()
 
 
 def get_srgb1_gradient(colorspace, srgb0, srgb1, n):
@@ -199,16 +189,10 @@ def get_srgb1_gradient(colorspace, srgb0, srgb1, n):
     return srgb
 
 
-def show_srgb255_gradient(colorspace, srgb0, srgb1, n=256):
-    srgb0 = np.asarray(srgb0)
-    srgb1 = np.asarray(srgb1)
-    show_srgb1_gradient(colorspace, srgb0 / 255, srgb1 / 255, n)
-
-
 def plot_srgb255_gradient(colorspace, srgb0, srgb1, n=256):
     srgb0 = np.asarray(srgb0)
     srgb1 = np.asarray(srgb1)
-    plot_srgb1_gradient(colorspace, srgb0 / 255, srgb1 / 255, n)
+    return plot_srgb1_gradient(colorspace, srgb0 / 255, srgb1 / 255, n)
 
 
 def get_srgb255_gradient(colorspace, srgb0, srgb1, n):
