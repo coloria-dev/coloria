@@ -219,6 +219,20 @@ colorio.show_visible_slice(colorspace, lightness=0.5)
 # plot_visible_slice()
 ```
 
+### Color gradients
+
+```python
+import colorio
+
+lab = colorio.cs.CIELAB()
+colorio.show_primary_srgb_gradients(lab)
+```
+<img src="https://nschloe.github.io/colorio/cielab-gradients.png" width="50%"/>
+
+<img src="https://nschloe.github.io/colorio/gradients-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1974-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/gradients-oklab.svg" width="100%">
+:--------------:|:---------------:|:------------------:|
+CIELAB             | DIN99         |  OKLAB             |
+
 
 ### Experimental data
 

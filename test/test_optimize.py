@@ -150,8 +150,8 @@ def test_optimize(maxiter=1):
     print("  Fairchild-Chen... {:.3f}".format(fairchild_chen.stress(cs)))
 
     colorio.show_primary_srgb_gradients(cs)
-    macadam_1942.show(cs)
-    macadam_1974.show(cs)
+    # macadam_1942.show(cs)
+    # macadam_1974.show(cs)
     hung_berns.show(cs)
     ebner_fairchild.show(cs)
     xiao.show(cs)
