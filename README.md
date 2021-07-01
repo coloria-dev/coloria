@@ -221,13 +221,15 @@ colorio.show_visible_slice(colorspace, lightness=0.5)
 
 ### Color gradients
 
+With colorio, you can easily visualize the basic color gradients of any color space.
+This may make defects in color spaces obvious, e.g., the well-known blue-distortion of
+CIELAB and related spaces.
 ```python
 import colorio
 
 lab = colorio.cs.CIELAB()
 colorio.show_primary_srgb_gradients(lab)
 ```
-<img src="https://nschloe.github.io/colorio/cielab-gradients.png" width="50%"/>
 
 <img src="https://nschloe.github.io/colorio/gradients-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/gradients-din99.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/gradients-oklab.svg" width="100%">
 :--------------:|:---------------:|:------------------:|
