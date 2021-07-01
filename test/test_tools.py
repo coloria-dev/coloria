@@ -9,7 +9,7 @@ import colorio
 
 
 def test_flat_gamut():
-    colorio.show_xy_gamut()
+    colorio.plot_xy_gamut().show()
 
 
 def test_xy_gamut_mesh():
@@ -85,7 +85,7 @@ def test_srgb_gradient():
     cs = colorio.cs.OKLAB()
     # cs = colorio.cs.DIN99()
     # cs = colorio.cs.CIELUV()
-    colorio.show_srgb255_gradient(cs, [0, 0, 255], [255, 255, 0])
+    colorio.plot_srgb255_gradient(cs, [0, 0, 255], [255, 255, 0]).show()
 
 
 def test_primary_srgb_gradient():

@@ -213,10 +213,8 @@ For slices, use
 import colorio
 
 colorspace = colorio.cs.CIELAB()
-colorio.show_visible_slice(colorspace, lightness=0.5)
-# or
-# save_visible_slice()
-# plot_visible_slice()
+fig = colorio.plot_visible_slice(colorspace, lightness=0.5)
+fig.show()
 ```
 
 ### Color gradients

@@ -30,7 +30,7 @@ def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50
     )
 
 
-def show_rgb_gamut(
+def plot_rgb_gamut(
     colorspace, n: int = 51, show_grid: bool = True, camera_position=None
 ):
     import meshzoo
@@ -71,18 +71,8 @@ def show_rgb_gamut(
     # viewup_vector[colorspace.k0] = 1.0
     if camera_position is not None:
         p.camera_position = camera_position
-    last_camera_position = p.show()
-    return last_camera_position
 
-
-def save_rgb_slice(filename, *args, **kwargs):
-    p = plot_rgb_slice(*args, off_screen=True, **kwargs)
-    p.show(screenshot=filename)
-
-
-def show_rgb_slice(*args, **kwargs):
-    p = plot_rgb_slice(*args, off_screen=False, **kwargs)
-    p.show()
+    return p
 
 
 def plot_rgb_slice(
