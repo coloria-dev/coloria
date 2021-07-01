@@ -1,5 +1,4 @@
 from . import cs, data, diff, illuminants, observers
-from .__about__ import __version__
 from ._exceptions import ColorioError
 from ._rgb_gamut import plot_rgb_gamut, plot_rgb_slice, save_rgb_gamut
 from ._surface_gamut import save_surface_gamut, show_surface_gamut
@@ -12,7 +11,6 @@ from ._tools import (
 from ._visible_gamut import plot_visible_slice, save_visible_gamut, show_visible_gamut
 
 __all__ = [
-    "__version__",
     "data",
     "cs",
     "diff",
