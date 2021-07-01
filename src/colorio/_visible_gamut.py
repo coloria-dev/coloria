@@ -64,20 +64,6 @@ def show_visible_gamut(colorspace, observer, max_Y1, show_grid=True, h=4.0e-2):
     p.show()
 
 
-def show_visible_slice(*args, **kwargs):
-    plt.figure()
-    plot_visible_slice(*args, **kwargs)
-    plt.show()
-    plt.close()
-
-
-def save_visible_slice(filename, *args, **kwargs):
-    plt.figure()
-    plot_visible_slice(*args, **kwargs)
-    plt.savefig(filename, transparent=True, bbox_inches="tight")
-    plt.close()
-
-
 def plot_visible_slice(colorspace, lightness, outline_prec=1.0e-2, fill_color="0.8"):
     # first plot the monochromatic outline
     mono_xy, conn_xy = get_mono_outline_xy(
@@ -102,6 +88,8 @@ def plot_visible_slice(colorspace, lightness, outline_prec=1.0e-2, fill_color="0
         f"visible gamut slice in {colorspace.name} with "
         f"{colorspace.labels[colorspace.k0]}={lightness}"
     )
+
+    return plt.gcf()
 
 
 def _find_Y(cs, xy, level, tol=1.0e-5):
