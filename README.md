@@ -229,7 +229,8 @@ below](#hue-linearity).)
 import colorio
 
 lab = colorio.cs.CIELAB()
-colorio.show_primary_srgb_gradients(lab)
+fig = colorio.plot_primary_srgb_gradients(lab)
+fig.show()
 ```
 
 <img src="https://nschloe.github.io/colorio/gradients-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/gradients-din99.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/gradients-oklab.svg" width="100%">

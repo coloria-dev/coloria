@@ -1,5 +1,5 @@
-import numpy as np
 import npx
+import numpy as np
 import pytest
 from scipy.optimize import dual_annealing, minimize
 

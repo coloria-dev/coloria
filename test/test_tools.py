@@ -90,7 +90,7 @@ def test_srgb_gradient():
 
 def test_primary_srgb_gradient():
     cs = colorio.cs.CIELAB()
-    colorio.show_primary_srgb_gradients(cs)
+    colorio.plot_primary_srgb_gradients(cs).show()
 
 
 if __name__ == "__main__":
