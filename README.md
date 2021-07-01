@@ -224,7 +224,7 @@ colorio.show_visible_slice(colorspace, lightness=0.5)
 With colorio, you can easily visualize the basic color gradients of any color space.
 This may make defects in color spaces obvious, e.g., the well-known blue-distortion of
 CIELAB and related spaces. (Compare with [the hue linearity data
-below.](#hue-linearity).)
+below](#hue-linearity).)
 ```python
 import colorio
 
