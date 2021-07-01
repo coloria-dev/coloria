@@ -229,7 +229,7 @@ colorio.show_primary_srgb_gradients(lab)
 ```
 <img src="https://nschloe.github.io/colorio/cielab-gradients.png" width="50%"/>
 
-<img src="https://nschloe.github.io/colorio/gradients-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1974-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/gradients-oklab.svg" width="100%">
+<img src="https://nschloe.github.io/colorio/gradients-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/gradients-din99.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/gradients-oklab.svg" width="100%">
 :--------------:|:---------------:|:------------------:|
 CIELAB             | DIN99         |  OKLAB             |
 
