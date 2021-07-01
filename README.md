@@ -219,6 +219,24 @@ colorio.show_visible_slice(colorspace, lightness=0.5)
 # plot_visible_slice()
 ```
 
+### Color gradients
+
+With colorio, you can easily visualize the basic color gradients of any color space.
+This may make defects in color spaces obvious, e.g., the well-known blue-distortion of
+CIELAB and related spaces. (Compare with [the hue linearity data
+below](#hue-linearity).)
+```python
+import colorio
+
+lab = colorio.cs.CIELAB()
+fig = colorio.plot_primary_srgb_gradients(lab)
+fig.show()
+```
+
+<img src="https://nschloe.github.io/colorio/gradients-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/gradients-din99.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/gradients-oklab.svg" width="100%">
+:--------------:|:---------------:|:------------------:|
+CIELAB             | DIN99         |  OKLAB             |
+
 
 ### Experimental data
 

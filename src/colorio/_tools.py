@@ -217,12 +217,6 @@ def get_srgb255_gradient(colorspace, srgb0, srgb1, n):
     return get_srgb1_gradient(colorspace, srgb0 / 255, srgb1 / 255, n) * 255
 
 
-def show_primary_srgb_gradients(*args, **kwargs):
-    plot_primary_srgb_gradients(*args, **kwargs)
-    plt.show()
-    plt.close()
-
-
 def plot_primary_srgb_gradients(colorspace, n=256):
     pairs = [
         [([1, 1, 1], [1, 0, 0]), ([1, 0, 0], [0, 1, 0])],
@@ -246,3 +240,4 @@ def plot_primary_srgb_gradients(colorspace, n=256):
             ax.imshow(gradient, aspect="auto", cmap=cmap)
             ax.axis("off")
     fig.suptitle(f"primary SRGB gradients in {colorspace.name}")
+    return fig

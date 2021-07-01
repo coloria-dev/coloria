@@ -10,7 +10,7 @@ from ._rgb_gamut import (
 )
 from ._surface_gamut import save_surface_gamut, show_surface_gamut
 from ._tools import (
-    show_primary_srgb_gradients,
+    plot_primary_srgb_gradients,
     show_srgb255_gradient,
     show_xy_gamut,
     xy_gamut_mesh,
@@ -43,7 +43,7 @@ __all__ = [
     "show_rgb_gamut",
     "save_visible_gamut",
     "show_srgb255_gradient",
-    "show_primary_srgb_gradients",
+    "plot_primary_srgb_gradients",
     "save_surface_gamut",
     "show_surface_gamut",
 ]
