@@ -134,7 +134,6 @@ CIELAB |  CAM16-UCS | Oklab  |
 
 The sRGB gamut is a perfect cube in sRGB space, and takes curious shapes when translated
 into other color spaces. The above images show the sRGB gamut in different color spaces.
-<!--pytest-codeblocks:skip-->
 ```python
 import colorio
 
@@ -154,7 +153,6 @@ an open it with a tool of your choice. See
 the file in [ParaView](https://www.paraview.org/).
 
 For lightness slices of the sRGB gamut, use
-<!--pytest-codeblocks:skip-->
 ```python
 import colorio
 
@@ -173,7 +171,6 @@ The `plot_rgb_slice()` method is especially useful for combining with other plot
 XYZ  |  CIELAB |  CAM16-UCS |
 
 Same as above, but with the surface color gamut visible under a given illuminant.
-<!--pytest-codeblocks:skip-->
 ```python
 import colorio
 
@@ -195,7 +192,6 @@ xyY  |  JzAzBz |  Oklab |
 <img src="https://nschloe.github.io/colorio/visible-gamut-slice-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-jzazbz.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-oklab.png" width="100%">
 
 Same as above, but with the gamut of visible colors up to a given lightness `Y`.
-<!--pytest-codeblocks:skip-->
 ```python
 import colorio
 
@@ -213,8 +209,8 @@ For slices, use
 import colorio
 
 colorspace = colorio.cs.CIELAB()
-fig = colorio.plot_visible_slice(colorspace, lightness=0.5)
-fig.show()
+plt = colorio.plot_visible_slice(colorspace, lightness=0.5)
+plt.show()
 ```
 
 ### Color gradients
@@ -227,8 +223,8 @@ below](#hue-linearity).)
 import colorio
 
 lab = colorio.cs.CIELAB()
-fig = colorio.plot_primary_srgb_gradients(lab)
-fig.show()
+plt = colorio.plot_primary_srgb_gradients(lab)
+plt.show()
 ```
 
 <img src="https://nschloe.github.io/colorio/gradients-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/gradients-din99.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/gradients-oklab.svg" width="100%">

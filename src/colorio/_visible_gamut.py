@@ -89,7 +89,7 @@ def plot_visible_slice(colorspace, lightness, outline_prec=1.0e-2, fill_color="0
         f"{colorspace.labels[colorspace.k0]}={lightness}"
     )
 
-    return plt.gcf()
+    return plt
 
 
 def _find_Y(cs, xy, level, tol=1.0e-5):
