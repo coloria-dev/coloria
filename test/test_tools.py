@@ -64,20 +64,16 @@ def test_srgb_gamut(colorspace, variant, n=10):
 )
 def test_visible_gamut(colorspace):
     observer = colorio.observers.cie_1931_2()
-    with tempfile.TemporaryDirectory() as tmpdir:
-        colorio.save_visible_gamut(
-            Path(tmpdir) / "cone.vtu", colorspace, observer, max_Y1=1
-        )
+    colorio.plot_visible_gamut(colorspace, observer, max_Y1=1)
+    # show() segfaults when used in tests
+    # p.show(screenshot=Path(tmpdir) / "cone.png")
 
 
 def test_surface_gamut():
     colorspace = colorio.cs.XYY(1)
     illuminant = colorio.illuminants.d65()
     observer = colorio.observers.cie_1931_2()
-    with tempfile.TemporaryDirectory() as tmpdir:
-        colorio.save_surface_gamut(
-            Path(tmpdir) / "visible.vtu", colorspace, observer, illuminant
-        )
+    colorio.plot_surface_gamut(colorspace, observer, illuminant)
 
 
 def test_srgb_gradient():

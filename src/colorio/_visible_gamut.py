@@ -50,6 +50,8 @@ def plot_visible_gamut(colorspace, observer, max_Y1, show_grid=True, h=4.0e-2):
             zlabel=colorspace.labels[2],
         )
 
+    return p
+
 
 def plot_visible_slice(colorspace, lightness, outline_prec=1.0e-2, fill_color="0.8"):
     # first plot the monochromatic outline
