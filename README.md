@@ -134,11 +134,13 @@ CIELAB |  CAM16-UCS | Oklab  |
 
 The sRGB gamut is a perfect cube in sRGB space, and takes curious shapes when translated
 into other color spaces. The above images show the sRGB gamut in different color spaces.
+<!--pytest-codeblocks:skip-->
 ```python
 import colorio
 
 colorspace = colorio.cs.CIELAB()
-colorio.show_rgb_gamut(colorspace, n=51, show_grid=True, camera_position=None)
+p = colorio.plot_rgb_gamut(colorspace, n=51, show_grid=True)
+p.show()
 ```
 For more visualization options, you can store the sRGB data in a file 
 ```python
@@ -153,16 +155,16 @@ an open it with a tool of your choice. See
 the file in [ParaView](https://www.paraview.org/).
 
 For lightness slices of the sRGB gamut, use
+<!--pytest-codeblocks:skip-->
 ```python
 import colorio
 
 colorspace = colorio.cs.CIELAB()
-colorio.show_rgb_slice(colorspace, lightness=50.0, n=51)
+p = colorio.plot_rgb_slice(colorspace, lightness=50.0, n=51)
+p.show()
 # or
-# save_rgb_slice()
-# plot_rgb_slice()
+# p.show(screenshot="screenshot.png")
 ```
-The `plot_rgb_slice()` method is especially useful for combining with other plots.
 
 #### Surface color gamut
 
@@ -171,6 +173,7 @@ The `plot_rgb_slice()` method is especially useful for combining with other plot
 XYZ  |  CIELAB |  CAM16-UCS |
 
 Same as above, but with the surface color gamut visible under a given illuminant.
+<!--pytest-codeblocks:skip-->
 ```python
 import colorio
 
@@ -192,6 +195,7 @@ xyY  |  JzAzBz |  Oklab |
 <img src="https://nschloe.github.io/colorio/visible-gamut-slice-xyy.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-jzazbz.png" width="100%"> | <img src="https://nschloe.github.io/colorio/visible-gamut-slice-oklab.png" width="100%">
 
 Same as above, but with the gamut of visible colors up to a given lightness `Y`.
+<!--pytest-codeblocks:skip-->
 ```python
 import colorio
 
