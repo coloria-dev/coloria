@@ -8,7 +8,7 @@ from ._tools import (
     plot_xy_gamut,
     xy_gamut_mesh,
 )
-from ._visible_gamut import plot_visible_slice, save_visible_gamut, show_visible_gamut
+from ._visible_gamut import plot_visible_gamut, plot_visible_slice
 
 __all__ = [
     "data",
@@ -19,13 +19,12 @@ __all__ = [
     "ColorioError",
     #
     "plot_xy_gamut",
-    "show_visible_gamut",
     "xy_gamut_mesh",
     "plot_visible_slice",
     "plot_rgb_slice",
     "save_rgb_gamut",
     "plot_rgb_gamut",
-    "save_visible_gamut",
+    "plot_visible_gamut",
     "plot_srgb255_gradient",
     "plot_primary_srgb_gradients",
     "plot_surface_gamut",

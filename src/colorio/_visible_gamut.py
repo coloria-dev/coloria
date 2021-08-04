@@ -21,19 +21,7 @@ def _get_visible_gamut_mesh(observer, max_Y1, h=4.0e-2):
     return mesh.points, mesh.get_cells_type("tetra")
 
 
-def save_visible_gamut(filename, colorspace, observer, max_Y1, h=4.0e-2):
-    import meshio
-
-    points, cells = _get_visible_gamut_mesh(observer, max_Y1, h=h)
-
-    xyz100 = XYY(1).to_xyz100(points.T)
-    xyz100[xyz100 < 0] = 0.0
-    points = colorspace.from_xyz100(xyz100).T
-
-    meshio.write_points_cells(filename, points, {"tetra": cells})
-
-
-def show_visible_gamut(colorspace, observer, max_Y1, show_grid=True, h=4.0e-2):
+def plot_visible_gamut(colorspace, observer, max_Y1, show_grid=True, h=4.0e-2):
     import pyvista as pv
     import vtk
 
@@ -61,7 +49,6 @@ def show_visible_gamut(colorspace, observer, max_Y1, show_grid=True, h=4.0e-2):
             ylabel=colorspace.labels[1],
             zlabel=colorspace.labels[2],
         )
-    p.show()
 
 
 def plot_visible_slice(colorspace, lightness, outline_prec=1.0e-2, fill_color="0.8"):

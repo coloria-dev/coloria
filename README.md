@@ -204,8 +204,8 @@ observer = colorio.observers.cie_1931_2()
 
 colorspace = colorio.cs.XYZ(100)
 
-colorio.save_visible_gamut("visible.vtk", colorspace, observer, max_Y1=1)
-colorio.show_visible_gamut(colorspace, observer, max_Y1=1)
+p = colorio.plot_visible_gamut(colorspace, observer, max_Y1=1)
+p.show()
 ```
 The gamut is shown in grey since sRGB screens are not able to display the colors anyway.
 
