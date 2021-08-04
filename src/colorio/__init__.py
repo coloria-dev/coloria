@@ -1,7 +1,7 @@
 from . import cs, data, diff, illuminants, observers
 from ._exceptions import ColorioError
 from ._rgb_gamut import plot_rgb_gamut, plot_rgb_slice, save_rgb_gamut
-from ._surface_gamut import save_surface_gamut, show_surface_gamut
+from ._surface_gamut import plot_surface_gamut
 from ._tools import (
     plot_primary_srgb_gradients,
     plot_srgb255_gradient,
@@ -28,6 +28,5 @@ __all__ = [
     "save_visible_gamut",
     "plot_srgb255_gradient",
     "plot_primary_srgb_gradients",
-    "save_surface_gamut",
-    "show_surface_gamut",
+    "plot_surface_gamut",
 ]

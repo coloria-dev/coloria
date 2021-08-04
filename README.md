@@ -183,7 +183,8 @@ observer = colorio.observers.cie_1931_2()
 colorspace = colorio.cs.XYZ(100)
 
 colorio.save_surface_gamut("surface.vtk", colorspace, observer, illuminant)
-colorio.show_surface_gamut(colorspace, observer, illuminant)
+p = colorio.plot_surface_gamut(colorspace, observer, illuminant)
+p.show()
 ```
 The gamut is shown in grey since sRGB screens are not able to display the colors anyway.
 
