@@ -139,7 +139,8 @@ into other color spaces. The above images show the sRGB gamut in different color
 import colorio
 
 colorspace = colorio.cs.CIELAB()
-colorio.show_rgb_gamut(colorspace, n=51, show_grid=True, camera_position=None)
+p = colorio.plot_rgb_gamut(colorspace, n=51, show_grid=True)
+p.show()
 ```
 For more visualization options, you can store the sRGB data in a file 
 ```python
@@ -159,12 +160,11 @@ For lightness slices of the sRGB gamut, use
 import colorio
 
 colorspace = colorio.cs.CIELAB()
-colorio.show_rgb_slice(colorspace, lightness=50.0, n=51)
+p = colorio.plot_rgb_slice(colorspace, lightness=50.0, n=51)
+p.show()
 # or
-# save_rgb_slice()
-# plot_rgb_slice()
+# p.show(screenshot="screenshot.png")
 ```
-The `plot_rgb_slice()` method is especially useful for combining with other plots.
 
 #### Surface color gamut
 
@@ -183,7 +183,8 @@ observer = colorio.observers.cie_1931_2()
 colorspace = colorio.cs.XYZ(100)
 
 colorio.save_surface_gamut("surface.vtk", colorspace, observer, illuminant)
-colorio.show_surface_gamut(colorspace, observer, illuminant)
+p = colorio.plot_surface_gamut(colorspace, observer, illuminant)
+p.show()
 ```
 The gamut is shown in grey since sRGB screens are not able to display the colors anyway.
 
@@ -203,8 +204,8 @@ observer = colorio.observers.cie_1931_2()
 
 colorspace = colorio.cs.XYZ(100)
 
-colorio.save_visible_gamut("visible.vtk", colorspace, observer, max_Y1=1)
-colorio.show_visible_gamut(colorspace, observer, max_Y1=1)
+p = colorio.plot_visible_gamut(colorspace, observer, max_Y1=1)
+p.show()
 ```
 The gamut is shown in grey since sRGB screens are not able to display the colors anyway.
 
@@ -213,8 +214,8 @@ For slices, use
 import colorio
 
 colorspace = colorio.cs.CIELAB()
-fig = colorio.plot_visible_slice(colorspace, lightness=0.5)
-fig.show()
+plt = colorio.plot_visible_slice(colorspace, lightness=0.5)
+plt.show()
 ```
 
 ### Color gradients
@@ -227,8 +228,8 @@ below](#hue-linearity).)
 import colorio
 
 lab = colorio.cs.CIELAB()
-fig = colorio.plot_primary_srgb_gradients(lab)
-fig.show()
+plt = colorio.plot_primary_srgb_gradients(lab)
+plt.show()
 ```
 
 <img src="https://nschloe.github.io/colorio/gradients-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/gradients-din99.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/gradients-oklab.svg" width="100%">

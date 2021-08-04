@@ -46,14 +46,7 @@ def _get_surface_gamut_mesh(colorspace, observer, illuminant):
     return pts, cells
 
 
-def save_surface_gamut(filename, colorspace, observer, illuminant):
-    import meshio
-
-    pts, cells = _get_surface_gamut_mesh(colorspace, observer, illuminant)
-    meshio.write_points_cells(filename, pts, cells={"triangle": cells})
-
-
-def show_surface_gamut(colorspace, observer, illuminant, show_grid=True):
+def plot_surface_gamut(colorspace, observer, illuminant, show_grid=True):
     import pyvista as pv
     import vtk
 
@@ -76,4 +69,3 @@ def show_surface_gamut(colorspace, observer, illuminant, show_grid=True):
             ylabel=colorspace.labels[1],
             zlabel=colorspace.labels[2],
         )
-    p.show()

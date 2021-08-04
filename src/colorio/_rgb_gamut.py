@@ -30,9 +30,7 @@ def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50
     )
 
 
-def plot_rgb_gamut(
-    colorspace, n: int = 51, show_grid: bool = True, camera_position=None
-):
+def plot_rgb_gamut(colorspace, n: int = 51, show_grid: bool = True):
     import meshzoo
     import pyvista as pv
     import vtk
@@ -69,8 +67,6 @@ def plot_rgb_gamut(
     # focus_point = (0.5, 0.0, 0.0)
     # viewup_vector = [0.0, 0.0, 0.0]
     # viewup_vector[colorspace.k0] = 1.0
-    if camera_position is not None:
-        p.camera_position = camera_position
 
     return p
 

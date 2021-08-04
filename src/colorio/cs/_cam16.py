@@ -120,7 +120,7 @@ class CAM16UCS(ColorSpace):
         self.cam16 = CAM16(c, Y_b, L_A, exact_inversion, whitepoint)
 
     def from_xyz100(self, xyz):
-        J, C, H, h, M, s, Q = self.cam16.from_xyz100(xyz)
+        J, _, _, h, M, _, _ = self.cam16.from_xyz100(xyz)
         J_ = (1 + 100 * self.c1) * J / (1 + self.c1 * J)
         M_ = 1 / self.c2 * np.log(1 + self.c2 * M)
         h_ = h * np.pi / 180

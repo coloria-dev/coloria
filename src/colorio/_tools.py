@@ -81,7 +81,7 @@ def plot_xy_gamut(fill_horseshoe=True, plot_planckian_locus=True):
     # plt.legend()
     plt.xlabel("x")
     plt.ylabel("y")
-    return plt.gcf()
+    return plt
 
 
 def xy_gamut_mesh(lcar):
@@ -171,7 +171,7 @@ def plot_srgb1_gradient(colorspace, srgb0, srgb1, n=256):
     plt.imshow(gradient, aspect="auto", cmap=cmap)
     plt.axis("off")
     plt.title(f"SRGB gradient in {colorspace.name}")
-    return plt.gcf()
+    return plt
 
 
 def get_srgb1_gradient(colorspace, srgb0, srgb1, n):
@@ -224,4 +224,4 @@ def plot_primary_srgb_gradients(colorspace, n=256):
             ax.imshow(gradient, aspect="auto", cmap=cmap)
             ax.axis("off")
     fig.suptitle(f"primary SRGB gradients in {colorspace.name}")
-    return fig
+    return plt

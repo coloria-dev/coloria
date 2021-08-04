@@ -13,3 +13,4 @@ build/
 .pytest_cache/
 *.png
 coverage.xml
+.tox/
