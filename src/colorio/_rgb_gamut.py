@@ -30,9 +30,7 @@ def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50
     )
 
 
-def plot_rgb_gamut(
-    colorspace, n: int = 51, show_grid: bool = True
-):
+def plot_rgb_gamut(colorspace, n: int = 51, show_grid: bool = True):
     import meshzoo
     import pyvista as pv
     import vtk
