@@ -163,7 +163,7 @@ colorspace = colorio.cs.CIELAB()
 p = colorio.plot_rgb_slice(colorspace, lightness=50.0, n=51)
 p.show()
 # or
-# p.show(screenshot="screenshot.png")
+# p.screenshot("screenshot.png")
 ```
 
 #### Surface color gamut
