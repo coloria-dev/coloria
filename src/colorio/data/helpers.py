@@ -90,6 +90,8 @@ class HueLinearityDataset(Dataset):
         no_lightness[colorspace.k0] = False
 
         wp = colorspace.from_xyz100(self.whitepoint)[no_lightness]
+        all_pts = []
+        all_rgb1 = []
         for xyz in self.arms:
             pts = colorspace.from_xyz100(xyz)
             rgb1 = colorspace.to_rgb1(pts)
@@ -109,13 +111,19 @@ class HueLinearityDataset(Dataset):
                 [wp[0], end_point[0]], [wp[1], end_point[1]], "-", color="0.5", zorder=0
             )
 
-            # plot points
-            is_legal_srgb = np.all((0 <= rgb1) & (rgb1 <= 1), axis=0)
-            fill = rgb1.T.copy()
-            fill[~is_legal_srgb] = [1.0, 1.0, 1.0]  # white
-            edge = rgb1.T.copy()
-            edge[~is_legal_srgb] = [0.0, 0.0, 0.0]  # black
-            plt.scatter(pts[0], pts[1], marker="o", color=fill, edgecolors=edge)
+            all_pts.append(pts)
+            all_rgb1.append(rgb1)
+
+        # plot all points in one big scatter plot;
+        # this helps when exporting the data to pgfplots
+        all_pts = np.hstack(all_pts)
+        all_rgb1 = np.hstack(all_rgb1)
+        is_legal_srgb = np.all((0 <= all_rgb1) & (all_rgb1 <= 1), axis=0)
+        fill = all_rgb1.T.copy()
+        fill[~is_legal_srgb] = [1.0, 1.0, 1.0]  # white
+        edge = all_rgb1.T.copy()
+        edge[~is_legal_srgb] = [0.0, 0.0, 0.0]  # black
+        plt.scatter(all_pts[0], all_pts[1], marker="o", color=fill, edgecolors=edge)
 
         l0, l1 = colorspace.labels[no_lightness]
         plt.xlabel(l0)

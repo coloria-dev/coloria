@@ -36,12 +36,12 @@ y3 = [pnorm(a, P) for P in p]
 a = np.full(n, 0.0)
 y6 = [pnorm(a, P) for P in p]
 
-plt.xlabel("$p$")
-plt.plot(p, y3, label="$s_{equal1}$")
-plt.plot(p, y5, label="$s_{outlier-small}$")
-plt.plot(p, y2, label="$s_{uniform}$")
-plt.plot(p, y1, label="$s_{outlier1}$")
-plt.plot(p, y6, label="$s_{equal0}$")
+plt.xlabel(r"\(p\)")
+plt.plot(p, y3, label=r"\(s_{\text{equal1}}\)")
+plt.plot(p, y5, label=r"\(s_{\text{outlier-small}}\)")
+plt.plot(p, y2, label=r"\(s_{\text{uniform}}\)")
+plt.plot(p, y1, label=r"\(s_{\text{outlier1}}\)")
+plt.plot(p, y6, label=r"\(s_{\text{equal0}}\)")
 plt.ylim(-0.05, 1.1)
 # plt.gca().set_aspect("equal")
 
@@ -55,5 +55,9 @@ plt.ylim(-0.05, 1.1)
 plt.legend()
 # plt.show()
 tikzplotlib.save(
-    "averages.tex", extra_axis_parameters=["width=\\textwidth", "height=0.4\\textwidth"]
+    "averages.tex",
+    extra_axis_parameters=["width=\\textwidth", "height=0.4\\textwidth"],
+    externalize_tables=True,
+    override_externals=True,
+    externals_search_path="./figures/",
 )

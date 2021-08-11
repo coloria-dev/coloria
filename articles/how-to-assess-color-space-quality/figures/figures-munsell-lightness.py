@@ -20,5 +20,8 @@ for cs in colorspaces:
         f"munsell-lightness-{cs.name.lower()}.tex",
         extra_axis_parameters=["width=0.33\\textwidth", "height=0.3\\textwidth"],
         extra_lines_start=["\\scriptsize"],
+        externalize_tables=True,
+        override_externals=True,
+        externals_search_path="./figures/",
     )
     plt.close()

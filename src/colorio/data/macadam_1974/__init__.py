@@ -78,14 +78,22 @@ class MacAdam1974(ColorDistanceDataset):
             diff = pair[1] - pair[0]
             v = diff / np.linalg.norm(diff, 2) * target_dist / 2
             v = v[keep]
-            plt.arrow(
-                base[0], base[1], v[0], v[1], length_includes_head=True, color=color
+            plt.plot(
+                [base[0], base[0] + v[0]],
+                [base[1], base[1] + v[1]],
+                color=color,
+                linewidth=3.0,
+                alpha=0.3,
             )
             # arrow from pair[1] to pair[0]
             base = pair[1][keep]
             v = -v
-            plt.arrow(
-                base[0], base[1], v[0], v[1], length_includes_head=True, color=color
+            plt.plot(
+                [base[0], base[0] + v[0]],
+                [base[1], base[1] + v[1]],
+                color=color,
+                linewidth=3.0,
+                alpha=0.3,
             )
 
         # remove lightness coord

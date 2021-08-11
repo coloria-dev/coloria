@@ -93,5 +93,9 @@ ax.legend(framealpha=1, loc="upper right", bbox_to_anchor=(1, 1))
 plt.gcf().tight_layout()
 # plt.show()
 tikzplotlib.save(
-    "hstress.tex", extra_axis_parameters=["width=\\textwidth", "height=0.5\\textwidth"]
+    "hstress.tex",
+    extra_axis_parameters=["width=\\textwidth", "height=0.5\\textwidth"],
+    externalize_tables=True,
+    override_externals=True,
+    externals_search_path="./figures/",
 )

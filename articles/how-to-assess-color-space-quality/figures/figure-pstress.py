@@ -63,5 +63,9 @@ ax.legend()
 fig.tight_layout()
 # plt.show()
 tikzplotlib.save(
-    "pstress.tex", extra_axis_parameters=["width=\\textwidth", "height=0.6\\textwidth"]
+    "pstress.tex",
+    extra_axis_parameters=["width=\\textwidth", "height=0.6\\textwidth"],
+    externalize_tables=True,
+    override_externals=True,
+    externals_search_path="./figures/",
 )

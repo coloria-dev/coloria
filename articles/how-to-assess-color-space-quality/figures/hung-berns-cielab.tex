@@ -1,20 +1,21 @@
-% This file was created by tikzplotlib v0.9.6.
+% This file was created with tikzplotlib v0.9.11.
 \begin{tikzpicture}
 
-\footnotesize
 \begin{axis}[
 tick align=outside,
 tick pos=left,
+ticks=none,
 title={CIELAB},
-width=0.4\textwidth,
+width=0.39\textwidth,
 x grid style={white!69.0196078431373!black},
+xlabel={a*},
 xmin=-108.564286272053, xmax=101.03048079993,
 xtick style={color=black},
 y grid style={white!69.0196078431373!black},
 ylabel style={rotate=-90.0},
+ylabel={b*},
 ymin=-118.387351085463, ymax=107.427562033836,
-ytick style={color=black},
-unit vector ratio={1 1}
+ytick style={color=black}
 ]
 \addplot [semithick, gray]
 table {%
@@ -77,293 +78,23 @@ table {%
 84.7374719579833 -17.6689957255866
 };
 \addplot [
-mark=*,
-only marks,
-scatter,
-scatter/@post marker code/.code={%
+  mark=*,
+  only marks,
+  scatter,
+  scatter/@post marker code/.code={%
   \endscope
 },
-scatter/@pre marker code/.code={%
+  scatter/@pre marker code/.code={%
   \expanded{%
   \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
   \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
   }%
   \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
 },
-visualization depends on={value \thisrow{draw} \as \drawcolor},
-visualization depends on={value \thisrow{fill} \as \fillcolor}
+  visualization depends on={value \thisrow{draw} \as \drawcolor},
+  visualization depends on={value \thisrow{fill} \as \fillcolor}
 ]
-table{%
-x  y  draw  fill
-23.83320796098 13.5991631685978 198.920026402704,134.578786250817,127.987717228295 198.920026402704,134.578786250817,127.987717228295
-42.6561169701521 31.2798545521183 232.183113855097,117.476011024337,97.8887643855019 232.183113855097,117.476011024337,97.8887643855019
-61.6565195979193 47.4822165423304 0,0,0 255,255,255
-77.2322122704782 78.066017832535 0,0,0 255,255,255
-};
-\addplot [
-mark=*,
-only marks,
-scatter,
-scatter/@post marker code/.code={%
-  \endscope
-},
-scatter/@pre marker code/.code={%
-  \expanded{%
-  \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
-  \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
-  }%
-  \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
-},
-visualization depends on={value \thisrow{draw} \as \drawcolor},
-visualization depends on={value \thisrow{fill} \as \fillcolor}
-]
-table{%
-x  y  draw  fill
-5.84364351403133 13.0701200458614 226.46205953163,201.022192591037,181.404093883594 226.46205953163,201.022192591037,181.404093883594
-11.0948755518952 32.0202380692134 245.929336631774,196.539023812863,146.03703880243 245.929336631774,196.539023812863,146.03703880243
-15.6361253252459 55.0806311493239 0,0,0 255,255,255
-22.7481933972693 86.5182532213797 0,0,0 255,255,255
-};
-\addplot [
-mark=*,
-only marks,
-scatter,
-scatter/@post marker code/.code={%
-  \endscope
-},
-scatter/@pre marker code/.code={%
-  \expanded{%
-  \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
-  \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
-  }%
-  \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
-},
-visualization depends on={value \thisrow{draw} \as \drawcolor},
-visualization depends on={value \thisrow{fill} \as \fillcolor}
-]
-table{%
-x  y  draw  fill
--2.96713912527498 13.0847550109428 0,0,0 255,255,255
--7.57538222547507 34.1023877352715 0,0,0 255,255,255
--13.3580759017583 59.3258148059845 0,0,0 255,255,255
--16.797252109278 97.1632478011406 0,0,0 255,255,255
-};
-\addplot [
-mark=*,
-only marks,
-scatter,
-scatter/@post marker code/.code={%
-  \endscope
-},
-scatter/@pre marker code/.code={%
-  \expanded{%
-  \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
-  \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
-  }%
-  \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
-},
-visualization depends on={value \thisrow{draw} \as \drawcolor},
-visualization depends on={value \thisrow{fill} \as \fillcolor}
-]
-table{%
-x  y  draw  fill
--11.0813267157064 11.9010238739848 236.400790963589,254.732693035987,225.596925557382 236.400790963589,254.732693035987,225.596925557382
--23.4831588711863 33.0786490920602 0,0,0 255,255,255
--36.0714614486279 57.838644183835 0,0,0 255,255,255
--49.1282609633152 92.4837327078882 0,0,0 255,255,255
-};
-\addplot [
-mark=*,
-only marks,
-scatter,
-scatter/@post marker code/.code={%
-  \endscope
-},
-scatter/@pre marker code/.code={%
-  \expanded{%
-  \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
-  \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
-  }%
-  \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
-},
-visualization depends on={value \thisrow{draw} \as \drawcolor},
-visualization depends on={value \thisrow{fill} \as \fillcolor}
-]
-table{%
-x  y  draw  fill
--20.8219465126916 11.4110129974195 194.021811986406,239.00965033893,205.647675277578 194.021811986406,239.00965033893,205.647675277578
--44.0771550548096 33.1286993537411 157.90977558701,249.01249230727,162.626111179974 157.90977558701,249.01249230727,162.626111179974
--68.9493290551987 57.1002850560779 0,0,0 255,255,255
--98.039918829911 83.050752154415 0,0,0 255,255,255
-};
-\addplot [
-mark=*,
-only marks,
-scatter,
-scatter/@post marker code/.code={%
-  \endscope
-},
-scatter/@pre marker code/.code={%
-  \expanded{%
-  \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
-  \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
-  }%
-  \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
-},
-visualization depends on={value \thisrow{draw} \as \drawcolor},
-visualization depends on={value \thisrow{fill} \as \fillcolor}
-]
-table{%
-x  y  draw  fill
--12.0140899602495 -1.53980612570624 209.695348743374,244.220362824386,239.624497283382 209.695348743374,244.220362824386,239.624497283382
--29.9552908103302 -0.219034005582267 165.897000476192,253.517278339088,236.522043878023 165.897000476192,253.517278339088,236.522043878023
--48.383969983843 0.844098312977533 0,0,0 255,255,255
--68.54068044576 4.38671972740926 0,0,0 255,255,255
-};
-\addplot [
-mark=*,
-only marks,
-scatter,
-scatter/@post marker code/.code={%
-  \endscope
-},
-scatter/@pre marker code/.code={%
-  \expanded{%
-  \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
-  \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
-  }%
-  \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
-},
-visualization depends on={value \thisrow{draw} \as \drawcolor},
-visualization depends on={value \thisrow{fill} \as \fillcolor}
-]
-table{%
-x  y  draw  fill
--7.03486853572293 -9.33657258867153 196.489788138555,225.785966860572,238.323274036147 196.489788138555,225.785966860572,238.323274036147
--18.9495498228966 -14.608105882243 159.371097822792,232.663528687854,247.939834208705 159.371097822792,232.663528687854,247.939834208705
--31.2621710062781 -20.2484115601311 0,0,0 255,255,255
--46.2871826492112 -24.1441506699943 0,0,0 255,255,255
-};
-\addplot [
-mark=*,
-only marks,
-scatter,
-scatter/@post marker code/.code={%
-  \endscope
-},
-scatter/@pre marker code/.code={%
-  \expanded{%
-  \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
-  \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
-  }%
-  \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
-},
-visualization depends on={value \thisrow{draw} \as \drawcolor},
-visualization depends on={value \thisrow{fill} \as \fillcolor}
-]
-table{%
-x  y  draw  fill
--1.87805445252706 -15.3536976238594 159.8641836458,181.595079838952,207.104977581163 159.8641836458,181.595079838952,207.104977581163
--9.35301964537906 -25.1754916261309 126.74858839622,186.530652085434,224.80183533005 126.74858839622,186.530652085434,224.80183533005
--16.0341116453009 -35.4179300298255 76.2306304179653,190.899434622641,243.416873244959 76.2306304179653,190.899434622641,243.416873244959
--17.988236768101 -47.8039007441598 0,0,0 255,255,255
-};
-\addplot [
-mark=*,
-only marks,
-scatter,
-scatter/@post marker code/.code={%
-  \endscope
-},
-scatter/@pre marker code/.code={%
-  \expanded{%
-  \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
-  \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
-  }%
-  \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
-},
-visualization depends on={value \thisrow{draw} \as \drawcolor},
-visualization depends on={value \thisrow{fill} \as \fillcolor}
-]
-table{%
-x  y  draw  fill
-4.06245468723443 -25.1347980192857 72.2804044697276,92.1977754345743,132.979034200069 72.2804044697276,92.1977754345743,132.979034200069
-9.62482308032525 -46.9407953292044 30.4752246277642,91.7928171007434,169.100034189263 30.4752246277642,91.7928171007434,169.100034189263
-28.4130821198275 -68.5480953060014 6.55539884394767,83.5502840217824,206.008429455003 6.55539884394767,83.5502840217824,206.008429455003
-67.6098703422088 -102.494335759014 0,0,0 255,255,255
-};
-\addplot [
-mark=*,
-only marks,
-scatter,
-scatter/@post marker code/.code={%
-  \endscope
-},
-scatter/@pre marker code/.code={%
-  \expanded{%
-  \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
-  \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
-  }%
-  \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
-},
-visualization depends on={value \thisrow{draw} \as \drawcolor},
-visualization depends on={value \thisrow{fill} \as \fillcolor}
-]
-table{%
-x  y  draw  fill
-21.6189929788358 -20.5635070106693 153.44126963673,120.858709390486,168.457793304692 153.44126963673,120.858709390486,168.457793304692
-41.6063067461313 -37.4857827985244 171.695923076799,106.81631201777,198.202854141901 171.695923076799,106.81631201777,198.202854141901
-59.8279385276269 -55.3096297963808 184.057694977954,90.504360078377,229.851309574533 184.057694977954,90.504360078377,229.851309574533
-81.4182582861077 -74.9190986837412 0,0,0 255,255,255
-};
-\addplot [
-mark=*,
-only marks,
-scatter,
-scatter/@post marker code/.code={%
-  \endscope
-},
-scatter/@pre marker code/.code={%
-  \expanded{%
-  \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
-  \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
-  }%
-  \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
-},
-visualization depends on={value \thisrow{draw} \as \drawcolor},
-visualization depends on={value \thisrow{fill} \as \fillcolor}
-]
-table{%
-x  y  draw  fill
-25.0177201535256 -16.4014470285939 195.054897058197,148.555751831867,193.352347731585 195.054897058197,148.555751831867,193.352347731585
-46.9400227245838 -27.1311294846944 223.0969050336,131.314670877758,213.103786455902 223.0969050336,131.314670877758,213.103786455902
-68.961387131152 -38.4236832631276 249.261987644825,107.906818088081,233.932018303477 249.261987644825,107.906818088081,233.932018303477
-90.3838882774821 -55.3865598413208 0,0,0 255,255,255
-};
-\addplot [
-mark=*,
-only marks,
-scatter,
-scatter/@post marker code/.code={%
-  \endscope
-},
-scatter/@pre marker code/.code={%
-  \expanded{%
-  \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
-  \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
-  }%
-  \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
-},
-visualization depends on={value \thisrow{draw} \as \drawcolor},
-visualization depends on={value \thisrow{fill} \as \fillcolor}
-]
-table{%
-x  y  draw  fill
-25.915897202963 -7.58577655591573 200.517386593382,144.445554580722,175.060354395691 200.517386593382,144.445554580722,175.060354395691
-47.4099825809259 -13.8811788483016 230.338482299738,126.56909025845,186.893051286815 230.338482299738,126.56909025845,186.893051286815
-66.9442799466 -15.8011879559659 0,0,0 255,255,255
-84.9307595229281 -16.3230225160949 0,0,0 255,255,255
-};
+table [search path={./figures/}]{hung-berns-cielab-000.dat};
 \end{axis}
 
 \end{tikzpicture}
