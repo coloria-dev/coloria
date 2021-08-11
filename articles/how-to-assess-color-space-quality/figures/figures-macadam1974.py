@@ -13,9 +13,6 @@ for filename, title, cs in data:
     plt.gca().set_aspect("equal")
     plt.gca().grid(False)
     plt.title(title)
-    # turn off ticks to save space
-
-    # plt.show()
     tikzplotlib.save(
         filename,
         extra_axis_parameters=["width=0.4\\textwidth", "ticks=none"],
@@ -25,19 +22,3 @@ for filename, title, cs in data:
         externals_search_path="./figures/",
     )
     plt.close()
-
-# filename, cs = "macadam1974-xyy.tex", colorio.cs.XYY(1)
-# colorio.data.MacAdam1974().plot(cs)
-# plt.gca().set_aspect("equal")
-# plt.gca().grid(False)
-# plt.show()
-# plt.show()
-# tikzplotlib.save(
-#     filename,
-#     extra_axis_parameters=["width=0.25\\textwidth"],
-#     extra_lines_start=["\\scriptsize"],
-#     externalize_tables=True,
-#     override_externals=True,
-#     externals_search_path="./figures/",
-# )
-# plt.close()

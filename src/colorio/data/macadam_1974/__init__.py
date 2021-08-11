@@ -11,7 +11,7 @@ import pathlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import XYY
+from ...cs import XYY, XYZ
 from ..helpers import ColorDistanceDataset
 
 
@@ -24,8 +24,8 @@ class MacAdam1974(ColorDistanceDataset):
             data = json.load(f)
 
         t = dict(zip(data.keys(), range(len(data))))
-        xyy1_tiles = np.array([[val[0], val[1], val[2]] for val in data.values()])
-        xyz100_tiles = XYY(100).to_xyz100(xyy1_tiles.T).T
+        xyy100_tiles = np.array([[val[0], val[1], val[2]] for val in data.values()])
+        self.xyz100_tiles = XYY(100).to_xyz100(xyy100_tiles.T).T
 
         with open(this_dir / "table1.json") as f:
             data = json.load(f)
@@ -38,7 +38,7 @@ class MacAdam1974(ColorDistanceDataset):
         # TODO plot 3D tetrahedral pairs, too
         self.is_flat_pair = np.all(pairs <= 43, axis=1)
 
-        super().__init__("MacAdam (1974)", d, xyz100_tiles[pairs])
+        super().__init__("MacAdam (1974)", d, self.xyz100_tiles[pairs])
 
     def plot(self, cs):
         pairs = self.xyz_pairs[self.is_flat_pair]
@@ -96,9 +96,16 @@ class MacAdam1974(ColorDistanceDataset):
                 alpha=0.3,
             )
 
-        # remove lightness coord
-        pairs = pairs[..., keep]
-        plt.scatter(pairs[..., 0], pairs[..., 1], color=color)
+        # plot colors dots for the first 43 tiles
+        tiles = self.xyz100_tiles[:43]
+        fill = XYZ(100).to_rgb1(tiles.T).T
+        assert np.all((0 <= fill) & (fill <= 1))
+
+        coords = cs.from_xyz100(tiles.T).T
+        coords = coords[:, keep]
+        plt.scatter(
+            coords[:, 0], coords[:, 1], marker="s", color=fill, edgecolors="w", zorder=2
+        )
 
         plt.gca().set_aspect("equal")
         plt.title(f"MacAdam 1974 color distance data for {cs.name}")
