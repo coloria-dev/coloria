@@ -32,20 +32,20 @@ ymin=-0.05, ymax=1.1,
 ytick style={color=white!58.8235294117647!black}
 ]
 \addplot [semithick, color0]
-table [search path=figures/] {averages-000.tsv};
-\addlegendentry{\(s_{equal1}\)}
+table [search path={./figures/}] {averages-000.dat};
+\addlegendentry{\(s_{\text{equal1}}\)}
 \addplot [semithick, color1]
-table [search path=figures/] {averages-001.tsv};
-\addlegendentry{\(s_{outlier-small}\)}
+table [search path={./figures/}] {averages-001.dat};
+\addlegendentry{\(s_{\text{outlier-small}}\)}
 \addplot [semithick, color2]
-table [search path=figures/] {averages-002.tsv};
-\addlegendentry{\(s_{uniform}\)}
+table [search path={./figures/}] {averages-002.dat};
+\addlegendentry{\(s_{\text{uniform}}\)}
 \addplot [semithick, color3]
-table [search path=figures/] {averages-003.tsv};
-\addlegendentry{\(s_{outlier1}\)}
+table [search path={./figures/}] {averages-003.dat};
+\addlegendentry{\(s_{\text{outlier1}}\)}
 \addplot [semithick, color4]
-table [search path=figures/] {averages-004.tsv};
-\addlegendentry{\(s_{equal0}\)}
+table [search path={./figures/}] {averages-004.dat};
+\addlegendentry{\(s_{\text{equal0}}\)}
 \end{axis}
 
 \end{tikzpicture}

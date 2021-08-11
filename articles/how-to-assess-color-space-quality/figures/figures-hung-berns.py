@@ -4,16 +4,20 @@ import tikzplotlib
 import colorio
 
 data = [
-    ("hung-berns-xyy.tex", colorio.cs.XYY(1)),
-    ("hung-berns-cielab.tex", colorio.cs.CIELAB()),
-    ("hung-berns-oklab.tex", colorio.cs.OKLAB()),
+    ("hung-berns-xyy.tex", "XYY", colorio.cs.XYY(1)),
+    ("hung-berns-cielab.tex", "CIELAB", colorio.cs.CIELAB()),
+    ("hung-berns-oklab.tex", "OKLAB", colorio.cs.OKLAB()),
 ]
-for filename, cs in data:
+for filename, title, cs in data:
     colorio.data.HungBerns().plot(cs)
     plt.gca().set_aspect("equal")
+    plt.title(title)
     # plt.show()
     tikzplotlib.save(
         filename,
-        extra_axis_parameters=["width=0.33\\textwidth"],
+        extra_axis_parameters=["width=0.39\\textwidth", "ticks=none"],
+        externalize_tables=True,
+        override_externals=True,
+        externals_search_path="./figures/",
     )
     plt.close()

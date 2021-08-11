@@ -37,11 +37,11 @@ a = np.full(n, 0.0)
 y6 = [pnorm(a, P) for P in p]
 
 plt.xlabel(r"\(p\)")
-plt.plot(p, y3, label=r"\(s_{equal1}\)")
-plt.plot(p, y5, label=r"\(s_{outlier-small}\)")
-plt.plot(p, y2, label=r"\(s_{uniform}\)")
-plt.plot(p, y1, label=r"\(s_{outlier1}\)")
-plt.plot(p, y6, label=r"\(s_{equal0}\)")
+plt.plot(p, y3, label=r"\(s_{\text{equal1}}\)")
+plt.plot(p, y5, label=r"\(s_{\text{outlier-small}}\)")
+plt.plot(p, y2, label=r"\(s_{\text{uniform}}\)")
+plt.plot(p, y1, label=r"\(s_{\text{outlier1}}\)")
+plt.plot(p, y6, label=r"\(s_{\text{equal0}}\)")
 plt.ylim(-0.05, 1.1)
 # plt.gca().set_aspect("equal")
 
@@ -58,4 +58,6 @@ tikzplotlib.save(
     "averages.tex",
     extra_axis_parameters=["width=\\textwidth", "height=0.4\\textwidth"],
     externalize_tables=True,
+    override_externals=True,
+    externals_search_path="./figures/",
 )

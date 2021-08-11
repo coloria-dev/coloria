@@ -64,4 +64,7 @@ fig.tight_layout()
 tikzplotlib.save(
     "light_stress.tex",
     extra_axis_parameters=["width=\\textwidth", "height=0.5\\textwidth"],
+    externalize_tables=True,
+    override_externals=True,
+    externals_search_path="./figures/",
 )
