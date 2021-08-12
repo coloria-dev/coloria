@@ -223,9 +223,11 @@ efficiency.
 
 <p align="center">
   <img src="https://nschloe.github.io/colorio/cam16-fixes-speed-comparison.svg" width="50%"/>
-  Performance comparison of the conversion from CAM16 to XYZ (with
-  $`J`$, $`C`$, and $`h`$), implemented in colorio \cite{colorio}. The suggested
-  improvements in the inverse model lead to a speed-up of about 5%.
+  <p>
+    Performance comparison of the conversion from CAM16 to XYZ (with $`J`$, $`C`$, and
+    $`h`$), implemented in colorio \cite{colorio}. The suggested improvements in the
+    inverse model lead to a speed-up of about 5%.
+  </p>
 </p>
 
 ### Full model
