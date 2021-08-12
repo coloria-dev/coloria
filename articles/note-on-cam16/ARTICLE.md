@@ -3,6 +3,7 @@
 # Algorithmic improvements for the CIECAM02 and CAM16 color appearance models
 
 ##### Abstract
+
 _This note is concerned with the CIECAM02 color appearance model and its
 successor, the CAM16 color appearance model. Several algorithmic flaws are
 pointed out and remedies are suggested. The resulting color model is
@@ -75,14 +76,16 @@ include the term $`0.1`$ only in the computation of $`t`$ in Step 9:
 _Table: CAM16 values upon input $`X=Y=Z=0`$ with and without the fixes in this article.
 The exact solutions are zeros for every entry._
 
-| | with fixes | without |
-| :-–-: | :––----––: | :–––----: |
-| $`J`$ | 0.0 | 3.258e-22 |
-| $`C`$ | 0.0 | 4.071e-24 |
-| $`h`$ | 0.0 | 0.0 |
-| $`Q`$ | 0.0 | 2.233e-10 |
-| $`M`$ | 0.0 | 2.943e-24 |
-| $`s`$ | 0.0 | 1.148e-05 |
+<p align="center">
+  |       | with fixes | without   |
+  | ----- | ---------– | ------–-- |
+  | $`J`$ | 0.0        | 3.258e-22 |
+  | $`C`$ | 0.0        | 4.071e-24 |
+  | $`h`$ | 0.0        | 0.0       |
+  | $`Q`$ | 0.0        | 2.233e-10 |
+  | $`M`$ | 0.0        | 2.943e-24 |
+  | $`s`$ | 0.0        | 1.148e-05 |
+</p>
 
 ### Linear combinations, forward model
 
@@ -388,8 +391,8 @@ _Table: Unique hue data for calculation of hue quadrature._
   ($`H_c`$).
 
   Using the following unique hue data in table \ref{table:hue}, set $`h'= h +
-  360\degree`$ if $`h < h_1`$, otherwise $`h'=h`$.  Choose a proper $`i\in\{1,2,3,4\}`$
-  so that $`h_i\le h' < h_{i+1}`$.  Calculate
+  360\degree`$ if $`h < h_1`$, otherwise $`h'=h`$. Choose a proper $`i\in\{1,2,3,4\}`$
+  so that $`h_i\le h' < h_{i+1}`$. Calculate
 
   ```math
   e_t = \tfrac{1}{4}
@@ -461,6 +464,7 @@ _Table: Unique hue data for calculation of hue quadrature._
 
   - Step 1.1:
     Compute $`J`$ from $`Q`$ (if input is $`Q`$)
+
     ```math
     J\coloneqq 6.25 \frac{cQ}{(A_w+4) F_L^{0.25}}.
     ```
