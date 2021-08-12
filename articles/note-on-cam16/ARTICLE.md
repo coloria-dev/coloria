@@ -60,12 +60,12 @@ If the $`\operatorname{sign}`$ operator is used here as it is used later in step
 the inverse model, the above description can be shortened.
 
 Furthermore, the term $`0.1`$ is added here, but in all of the following steps in which
-$`R_a`$ is used – except the computation of $t$ in Step 9 –, it cancels out
+$`R_a`$ is used – except the computation of $`t`$ in Step 9 –, it cancels out
 algebraically. Unfortunately, said cancellation is not always exact when computed in
 floating point arithmetic. Luckily, the adverse effect of such rounding errors is rather
 limited here. The results will only be distorted for very small input values, e.g.,
-$X=Y=Z=0$; see Table \ref{tab:zero}. For the sake of consistency, it is advisable to
-include the term $0.1$ only in the computation of $t$ in Step 9:
+$`X=Y=Z=0`$; see Table \ref{tab:zero}. For the sake of consistency, it is advisable to
+include the term $`0.1`$ only in the computation of $`t`$ in Step 9:
 
 ```math
   R'_a = 400 \operatorname{sign}(R_c) \frac{{\left(\frac{F_L |R_c|}{100}\right)}^{0.42}}{{\left(\frac{F_L |R_c|}{100}\right)}^{0.42} + 27.13}.
@@ -74,14 +74,14 @@ include the term $0.1$ only in the computation of $t$ in Step 9:
 _Table: CAM16 values upon input $`X=Y=Z=0`$ with and without the fixes in this article.
 The exact solutions are zeros for every entry._
 
-|       | with fixes |  without  |
-| :–-: | :––––: | :–––-: |
-| $`J`$ |    0.0     | 3.258e-22 |
-| $`C`$ |    0.0     | 4.071e-24 |
-| $`h`$ |    0.0     |    0.0    |
-| $`Q`$ |    0.0     | 2.233e-10 |
-| $`M`$ |    0.0     | 2.943e-24 |
-| $`s`$ |    0.0     | 1.148e-05 |
+| | with fixes | without |
+| :-–-: | :––----––: | :–––----: |
+| $`J`$ | 0.0 | 3.258e-22 |
+| $`C`$ | 0.0 | 4.071e-24 |
+| $`h`$ | 0.0 | 0.0 |
+| $`Q`$ | 0.0 | 2.233e-10 |
+| $`M`$ | 0.0 | 2.943e-24 |
+| $`s`$ | 0.0 | 1.148e-05 |
 
 ### Linear combinations, forward model
 
@@ -113,7 +113,7 @@ The last variable $`u`$ is used in the computation of $`t`$ in step 9.
 
 ### Step 9, forward model
 
-> Calculate the correlates of [\dots] saturation ($`s`$).
+> Calculate the correlates of [...] saturation ($`s`$).
 >
 > ```math
 > s \coloneqq 100 \sqrt{M/Q}.
@@ -133,24 +133,22 @@ s &\coloneqq 50 \sqrt{\frac{c\alpha}{A_w + 4}}.
 ### Steps 2 and 3, inverse model
 
 - Step 2:
-  Calculate $`t`$, $`e_t`$, $`p_1`$, $`p_2`$, and $`p_`3$.
+  Calculate $`t`$, $`e_t`$, $`p_1`$, $`p_2`$, and $`p_3`$.
 
   ```math
   \begin{align*}
-  t &= {\left(\frac{C}{\sqrt{\frac{J}{100}} {(1.64 - 0.29^n)}^{0.73}}\right)}^\frac{1}{0.9},\\
-  e*t &= \frac{1}{4} \left[\cos(h'\pi/180\degree + 2) + 3.8\right],\\
-  p_1 &= \frac{50000}{13} N_c N*{cb} e*t \frac{1}{t},\\
-  p_2 &= \frac{A}{N*{bb}} + 0.305,\\
+  t   &= {\left(\frac{C}{\sqrt{\frac{J}{100}} {(1.64 - 0.29^n)}^{0.73}}\right)}^\frac{1}{0.9},\\
+  e_t &= \frac{1}{4} \left[\cos(h'\pi/180\degree + 2) + 3.8\right],\\
+  p_1 &= \frac{50000}{13} N_c N_{cb} e_t \frac{1}{t},\\
+  p_2 &= \frac{A}{N_{bb}} + 0.305,\\
   p_3 &= \frac{21}{20}.
   \end{align*}
   ```
 
 - Step 3:
-  Calculate $`a`$ and $`b`$.
-  If $`t=0`$, then $`a=b=0`$ and go to Step 4.
-  In the next computations be sure transform $`h`$ from degrees to radians before
-  calculating $`\sin(h)`$ and $`\cos(h)`$: If $`|\sin(h)| \ge |\cos(h)|`$
-  then
+  Calculate $`a`$ and $`b`$. If $`t=0`$, then $`a=b=0`$ and go to Step 4. In the next
+  computations be sure transform $`h`$ from degrees to radians before calculating
+  $`\sin(h)`$ and $`\cos(h)`$: If $`|\sin(h)| \ge |\cos(h)|`$ then
   ```math
   \begin{align*}
   p_4 &= \frac{p_1}{\sin(h)},\\
@@ -213,8 +211,8 @@ if $`M`$ is given, one can compute $`C\coloneqq M / F_L^{0.25}`$ and then
 
 ```math
 \alpha\coloneqq\begin{cases}
-  0 &if $J=0$,\\
-  \frac{C}{\sqrt{J/100}}&otherwise.
+  0                      & if J=0,\\
+  \frac{C}{\sqrt{J/100}} & otherwise.
 \end{cases}
 ```
 
@@ -308,20 +306,20 @@ M_{16} \coloneqq \begin{pmatrix}
 
 _Table: Surround parameters._
 
-|         | $`F`$ | $`c`$ | $`N_c`$ |
+| | $`F`$ | $`c`$ | $`N_c`$ |
 | :––-: | :–-: | :–-: | :––-: |
-| Average |  1.0  | 0.69  |   1.0   |
-|   Dim   |  0.9  | 0.59  |   0.9   |
-|  Dark   |  0.8  | 0.525 |   0.8   |
+| Average | 1.0 | 0.69 | 1.0 |
+| Dim | 0.9 | 0.59 | 0.9 |
+| Dark | 0.8 | 0.525 | 0.8 |
 
 _Table: Unique hue data for calculation of hue quadrature._
 
-|         |  Red  | Yellow | Green  |  Blue  |  Red   |
+| | Red | Yellow | Green | Blue | Red |
 | :––-: | :–-: | :––: | :––: | :––: | :––: |
-|  $`i`$  |   1   |   2    |   3    |   4    |   5    |
-| $`h_i`$ | 20.14 | 90.00  | 164.25 | 237.53 | 380.14 |
-| $`e_i`$ |  0.8  |  0.7   |  1.0   |  1.2   |  0.8   |
-| $`H_i`$ |  0.0  | 100.0  | 200.0  | 300.0  | 400.0  |
+| $`i`$ | 1 | 2 | 3 | 4 | 5 |
+| $`h_i`$ | 20.14 | 90.00 | 164.25 | 237.53 | 380.14 |
+| $`e_i`$ | 0.8 | 0.7 | 1.0 | 1.2 | 0.8 |
+| $`H_i`$ | 0.0 | 100.0 | 200.0 | 300.0 | 400.0 |
 
 - Step 1:
   Calculate "cone" responses.
@@ -417,23 +415,26 @@ _Table: Unique hue data for calculation of hue quadrature._
 
 - Step 6\*:
   Calculate the achromatic response
+
   ```math
   A\coloneqq p'_2 \cdot N_{bb}.
   ```
 
 - Step 7:
   Calculate the correlate of lightness
+
   ```math
   J \coloneqq 100 {(A / A_w)}^{cz}.
   ```
 
 - Step 8:
   Calculate the correlate of brightness
+
   ```math
   Q \coloneqq \frac{4}{c} \sqrt{\frac{J}{100}} (A_w+4) F_L^{0.25}.
   ```
 
-- Step 9*:
+- Step 9\*:
   Calculate the correlates of chroma ($`C`$), colorfulness ($`M`$), and saturation
   ($`s`$).
   ```math
