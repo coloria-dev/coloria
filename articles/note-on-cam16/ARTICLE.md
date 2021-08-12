@@ -76,9 +76,38 @@ include the term $`0.1`$ only in the computation of $`t`$ in Step 9:
 
 <p align="center">
  <p align="center">
-   _Table: CAM16 values upon input $`X=Y=Z=0`$ with and without the fixes in this article.
-   The exact solutions are zeros for every entry._
+   <emph>Table: CAM16 values upon input $`X=Y=Z=0`$ with and without the fixes in this
+   article. The exact solutions are zeros for every entry.</emph>
   </p>
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>with fixes</th>
+        <th>without</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>J</th>
+        <th>0.0</th>
+        <th>3.258e-22</th>
+      </tr>
+      <tr>
+        <th>C</th>
+        <th>0.0</th>
+        <th>4.071e-24</th>
+      </tr>
+      <tr>
+        <th>h</th>
+        <th>0.0</th>
+        <th>0.0</th>
+      </tr>
+    </tbody>
+  </table>
+
+
+  </table>
   |       | with fixes | without   |
   | ----- | ---------– | ------–-- |
   | $`J`$ | 0.0        | 3.258e-22 |
