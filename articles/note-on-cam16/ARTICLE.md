@@ -255,8 +255,8 @@ It is mildly unfortunate that one has to introduce a case distinction for
 $`J=0`$ here, but this is an operation that can still be performed at reasonable
 efficiency.
 
-<p align="center">
-  <img src="https://nschloe.github.io/colorio/cam16-fixes-speed-comparison.svg" width="50%"/>
+<p align="center" width="50%">
+  <img src="https://nschloe.github.io/colorio/cam16-fixes-speed-comparison.svg"/>
   <p align="center">
     Performance comparison of the conversion from CAM16 to XYZ (with $`J`$, $`C`$, and
     $`h`$), implemented in colorio \cite{colorio}. The suggested improvements in the
