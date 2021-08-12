@@ -2,7 +2,8 @@
 
 # Algorithmic improvements for the CIECAM02 and CAM16 color appearance models
 
-_Abstract: This note is concerned with the CIECAM02 color appearance model and its
+##### Abstract
+_This note is concerned with the CIECAM02 color appearance model and its
 successor, the CAM16 color appearance model. Several algorithmic flaws are
 pointed out and remedies are suggested. The resulting color model is
 algebraically equivalent to CIECAM02/CAM16, but shorter, more efficient, and
@@ -460,9 +461,9 @@ _Table: Unique hue data for calculation of hue quadrature._
 
   - Step 1.1:
     Compute $`J`$ from $`Q`$ (if input is $`Q`$)
-    \[
+    ```math
     J\coloneqq 6.25 \frac{cQ}{(A_w+4) F_L^{0.25}}.
-    \]
+    ```
 
   - Step 1.2\*:
     Calculate $`t`$ from $`C`$, $`M`$, or $`s`$.
