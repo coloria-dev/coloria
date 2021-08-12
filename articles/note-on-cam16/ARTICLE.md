@@ -9,28 +9,25 @@
 
 ## Introduction
 
-The CIECAM02 color appearance model~\cite{ciecam02} has attracted much
-attention and was generally thought of as a successor to the ever so popular
-CIELAB color model. However, it was quickly discovered that CIECAM02 breaks
-down for certain input values. A fair number of research articles suggests
-fixes for this behavior, most of them by modifying the first steps of the
-forward model. Luo and Li give an overview of the suggested
-improvements~\cite{ciecam02-recent}; see references therein.  Most recently,
-Li and Luo~\cite{cam16} gave their own suggestion on how to best
-circumvent the breakdown~\cite{cam16}. The updated algorithm differs from the
-original CIECAM02 only in the first steps of the forward model.
+The CIECAM02 color appearance model~\cite{ciecam02} has attracted much attention and was
+generally thought of as a successor to the ever so popular CIELAB color model. However,
+it was quickly discovered that CIECAM02 breaks down for certain input values. A fair
+number of research articles suggests fixes for this behavior, most of them by modifying
+the first steps of the forward model. Luo and Li give an overview of the suggested
+improvements~\cite{ciecam02-recent}; see references therein.  Most recently, Li and
+Luo~\cite{cam16} gave their own suggestion on how to best circumvent the
+breakdown~\cite{cam16}. The updated algorithm differs from the original CIECAM02 only in
+the first steps of the forward model.
 
-It appears that that the rest of the algorithm has not received much attention
-over the years. In both CIECAM02 and its updated version CAM16, some of the
-steps are more complicated than necessary, and in edge cases lead to break
-downs once again. The present document describes those flaws and suggests
-improvements (Section~\ref{sec:ff}). The resulting model description
-(Section~\ref{sec:full}) is entirely equivalent to the CIECAM02/CAM16, but is
-simpler -- hence faster and easier to implement -- and works in all edge
-cases.
+It appears that that the rest of the algorithm has not received much attention over the
+years. In both CIECAM02 and its updated version CAM16, some of the steps are more
+complicated than necessary, and in edge cases lead to break downs once again. The
+present document describes those flaws and suggests improvements (#flaws-and-fixes). The
+resulting model description (#full-model) is entirely equivalent to the CIECAM02/CAM16,
+but is simpler -- hence faster and easier to implement -- and works in all edge cases.
 
 All findings in this article are implemented in the open-source software package
-colorio~\cite{colorio}.
+[colorio](https://github.com/nschloe/colorio).
 
 
 ## Flaws and fixes
@@ -54,7 +51,7 @@ The original Step 3 of the forward model reads
 > ```
 > and similarly for the computations of $`G_a`$ and $`B_a`$.
 
-If the $`\sign`$ operator is used here as it is used later in step 5 of the
+If the $`\operatorname{sign}`$ operator is used here as it is used later in step 5 of the
 inverse model, the above description can be shortened.
 
 Furthermore, the term $`0.1`$ is added here, but in all of the following steps in
@@ -66,7 +63,7 @@ very small input values, e.g., $X=Y=Z=0$; see Table~\ref{tab:zero}. For the
 sake of consistency, it is advisable to include the term $0.1$ only in the
 computation of $t$ in Step 9:
 ```math
-  R'_a = 400 \sign(R_c) \frac{{\left(\frac{F_L \abs{R_c}}{100}\right)}^{0.42}}{{\left(\frac{F_L \abs{R_c}}{100}\right)}^{0.42} + 27.13}.
+  R'_a = 400 \operatorname{sign}(R_c) \frac{{\left(\frac{F_L \abs{R_c}}{100}\right)}^{0.42}}{{\left(\frac{F_L \abs{R_c}}{100}\right)}^{0.42} + 27.13}.
 ```
 
 \begin{table}\centering
@@ -225,7 +222,7 @@ improved CAM16 algorithm are given here. The wording is taken from~\cite{cam16}
 where applicable.
 The steps that differ from the original model are marked with an asterisk~(*).
 
-As an abbreviation, the bold letter $\rgb$ is used whenever the equation applies
+As an abbreviation, the bold letter $[R,G,B]$ is used whenever the equation applies
 to $R$, $G$, and $B$ alike.
 
 \paragraph{Illuminants, viewing surrounds set up and background
@@ -280,18 +277,18 @@ Let $M_{16}$ be given by
 > respectively.
 > ```math
 > \begin{align*}
->   &D_{\rgb} = D\frac{Y_W}{\rgb_W} -1 + D,\\
+>   &D_{[R,G,B]} = D\frac{Y_W}{[R,G,B]_W} -1 + D,\\
 >   &k = \frac{1}{5L_A + 1},\\
 >   &F_L = k^4 L_A + 0.1 {(1-k^4)}^2 {(5L_A)}^{1/3},\\
 >   &n = \frac{Y_b}{Y_W},\\
 >   &z = 1.58 + \sqrt{n},\\
 >   &N_{bb} = \frac{0.725}{n^{0.2}},\\
 >   &N_{cb} = N_{bb},\\
->   &\rgb_{wc} = D_{\rgb} \rgb_w,\\
->   &\rgb_{aw} = 400
+>   &[R,G,B]_{wc} = D_{\rgb} \rgb_w,\\
+>   &[R,G,B]_{aw} = 400
 >   \frac
->   {{\left(\frac{F_L \rgb_{wc}}{100}\right)}^{0.42}}
->   {{\left(\frac{F_L \rgb_{wc}}{100}\right)}^{0.42} + 27.13},\\
+>   {{\left(\frac{F_L [R,G,B]_{wc}}{100}\right)}^{0.42}}
+>   {{\left(\frac{F_L [R,G,B]_{wc}}{100}\right)}^{0.42} + 27.13},\\
 >   &A_w = \left(2R_{aw} + G_{aw} + \tfrac{1}{20} B_{aw}\right) \cdot N_{bb}.
 > \end{align*}
 > ```
@@ -346,7 +343,7 @@ hence in $D_R$, $D_G$, and $D_B$).
 Calculate the modified postadaptation cone response
 (resulting in dynamic range compression).
 \[
-  \rgb'_a = 400 \sign(\rgb_c)
+  \rgb'_a = 400 \operatorname{sign}(\rgb_c)
     \frac
     {{\left(\frac{F_L \abs{\rgb_c}}{100}\right)}^{0.42}}
     {{\left(\frac{F_L \abs{\rgb_c}}{100}\right)}^{0.42} + 27.13}.
@@ -536,7 +533,7 @@ Calculate $a$ and $b$
 \begin{step}[5*]
 Calculate $R_c$, $G_c$, and $B_c$,
   \[
-  \rgb_c = \sign(\rgb'_a)
+  \rgb_c = \operatorname{sign}(\rgb'_a)
   \frac{100}{F_L} {\left(
     \frac{27.13 \abs{\rgb'_a}}{400 - \abs{\rgb'_a}}
     \right)}^{1/0.42}.
