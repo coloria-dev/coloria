@@ -47,7 +47,7 @@ The original Step 3 of the forward model reads
 > R_a = 400 \frac{\left(\frac{F_L R_c}{100}\right)^{0.42}}{\left(\frac{F_L R_c}{100}\right)^{0.42} + 27.13} + 0.1
 > ```
 >
-> If $R_c$ is negative, then
+> If $`R_c`$ is negative, then
 >
 > ```math
 > R_a = -400 \frac{\left(\frac{-F_L R_c}{100}\right)^{0.42}}{\left(\frac{-F_L R_c}{100}\right)^{0.42} + 27.13} + 0.1
@@ -71,29 +71,23 @@ computation of $t$ in Step 9:
   R'_a = 400 \operatorname{sign}(R_c) \frac{{\left(\frac{F_L |R_c|}{100}\right)}^{0.42}}{{\left(\frac{F_L |R_c|}{100}\right)}^{0.42} + 27.13}.
 ```
 
-\begin{table}\centering
-\begin{tabularx}{\linewidth}{XXX}
-\toprule
-& with fixes & without\\
-\midrule
-$J$ & \texttt{0.0} & \texttt{3.258e-22}\\
-$C$ & \texttt{0.0} & \texttt{4.071e-24}\\
-$h$ & \texttt{0.0} & \texttt{0.0}\\
-$Q$ & \texttt{0.0} & \texttt{2.233e-10}\\
-$M$ & \texttt{0.0} & \texttt{2.943e-24}\\
-$s$ & \texttt{0.0} & \texttt{1.148e-05}\\
-\bottomrule
-\end{tabularx}
-\caption{CAM16 values upon input $X=Y=Z=0$ with and without the fixes in
+_Table: CAM16 values upon input $`X=Y=Z=0`$ with and without the fixes in
 this article. The exact solutions are zeros for every
-entry.}\label{tab:zero}
-\end{table}
+entry._
+
+|       | with fixes |  without  |
+| :---: | :--------: | :-------: |
+| $`J`$ |    0.0     | 3.258e-22 |
+| $`C`$ |    0.0     | 4.071e-24 |
+| $`h`$ |    0.0     |    0.0    |
+| $`Q`$ |    0.0     | 2.233e-10 |
+| $`M`$ |    0.0     | 2.943e-24 |
+| $`s`$ |    0.0     | 1.148e-05 |
 
 ### Linear combinations, forward model
 
-In the forward model, four linear combinations of $R'_a$, $G'_a$, and $B'_a$
-have to be formed. They can conveniently be expressed as the matrix-vector
-multiplication
+In the forward model, four linear combinations of $`R'_a`$, $`G'_a`$, and $`B'_a`$ have
+to be formed. They can conveniently be expressed as the matrix-vector multiplication
 
 ```math
 \begin{pmatrix}
@@ -128,7 +122,7 @@ The last variable $`u`$ is used in the computation of $`t`$ in step 9.
 
 This expression is not well-defined if $`Q=0`$, a value occurring if the
 input values are $`X=Y=Z=0`$. When making use of the definition of $`M`$ and $`Q`$,
-one gets to an expression for $s$ that is well-defined in all cases:
+one gets to an expression for $`s`$ that is well-defined in all cases:
 
 ```math
   \label{eq:alpha}
@@ -139,45 +133,50 @@ one gets to an expression for $s$ that is well-defined in all cases:
 
 ### Steps 2 and 3, inverse model
 
-\begin{step}[2]
-Calculate $t$, $e_t$, $p_1$, $p_2$, and $p_3$.
-\begin{align*}
-t &= {\left(\frac{C}{\sqrt{\frac{J}{100}} {(1.64 - 0.29^n)}^{0.73}}\right)}^\frac{1}{0.9},\\
-e*t &= \frac{1}{4} \left[\cos(h'\pi/180\degree + 2) + 3.8\right],\\
-p_1 &= \frac{50000}{13} N_c N*{cb} e*t \frac{1}{t},\\
-p_2 &= \frac{A}{N*{bb}} + 0.305,\\
-p_3 &= \frac{21}{20}.
-\end{align*}
-\end{step}
+- Step 2:
+  Calculate $`t`$, $`e_t`$, $`p_1`$, $`p_2`$, and $`p_`3$.
 
-\begin{step}[3]
-Calculate $a$ and $b$.
-If $t=0$, then $a=b=0$ and go to Step 4.
-In the next computations be sure transform $h$ from degrees to radians before
-calculating $\sin(h)$ and $\cos(h)$: If $|\sin(h)| \ge |\cos(h)|$
-then
-\begin{align*}
-p_4 &= \frac{p_1}{\sin(h)},\\
-b &= \frac{p_2 (2+p_3) \frac{460}{1403}}{p_4 + (2+p_3) \frac{220}{1403} \frac{\cos(h)}{\sin(h)} - \frac{27}{1403} + p_3 \frac{6300}{1403}},\\
-a &= b \frac{\cos(h)}{\sin(h)}.
-\end{align*}
-If $|\cos(h)| > |\sin(h)|$ then
-\begin{align*}
-p_5 &= \frac{p_1}{\cos(h)},\\
-a &= \frac{p_2 (2+p_3) \frac{460}{1403}}{%
-p_5 + (2+p_3) \frac{220}{1403} -
-\left(\frac{27}{1403} - p_3 \frac{6300}{1403}\right) \frac{\sin(h)}{\cos(h)}
-},\\
-b &= a \frac{\sin(h)}{\cos(h)}.
-\end{align*}
-\end{step}
+  ```math
+  \begin{align*}
+  t &= {\left(\frac{C}{\sqrt{\frac{J}{100}} {(1.64 - 0.29^n)}^{0.73}}\right)}^\frac{1}{0.9},\\
+  e*t &= \frac{1}{4} \left[\cos(h'\pi/180\degree + 2) + 3.8\right],\\
+  p_1 &= \frac{50000}{13} N_c N*{cb} e*t \frac{1}{t},\\
+  p_2 &= \frac{A}{N*{bb}} + 0.305,\\
+  p_3 &= \frac{21}{20}.
+  \end{align*}
+  ```
+
+- Step 3:
+  Calculate $`a`$ and $`b`$.
+  If $`t=0`$, then $`a=b=0`$ and go to Step 4.
+  In the next computations be sure transform $`h`$ from degrees to radians before
+  calculating $`\sin(h)`$ and $`\cos(h)`$: If $`|\sin(h)| \ge |\cos(h)|`$
+  then
+  ```math
+  \begin{align*}
+  p_4 &= \frac{p_1}{\sin(h)},\\
+  b &= \frac{p_2 (2+p_3) \frac{460}{1403}}{p_4 + (2+p_3) \frac{220}{1403} \frac{\cos(h)}{\sin(h)} - \frac{27}{1403} + p_3 \frac{6300}{1403}},\\
+  a &= b \frac{\cos(h)}{\sin(h)}.
+  \end{align*}
+  ```
+  If $`|\cos(h)| > |\sin(h)|`$ then
+  ```math
+  \begin{align*}
+  p_5 &= \frac{p_1}{\cos(h)},\\
+  a &= \frac{p_2 (2+p_3) \frac{460}{1403}}{%
+  p_5 + (2+p_3) \frac{220}{1403} -
+  \left(\frac{27}{1403} - p_3 \frac{6300}{1403}\right) \frac{\sin(h)}{\cos(h)}
+  },\\
+  b &= a \frac{\sin(h)}{\cos(h)}.
+  \end{align*}
+  ```
 
 Some of the complications in this step stem from the fact that the variable $`t`$ might
-be $0$ in the denominator of $p_1$. Likewise, the distinction of cases in $`\sin(h)`$
+be $`0`$ in the denominator of $`p_1`$. Likewise, the distinction of cases in $`\sin(h)`$
 and $`\cos(h)`$ is necessary to avoid division by $`0`$ in $`a`$ and $`b`$.
 
 It turns out that both of these problems can be avoided quite elegantly.
-Consider, in the case $|\sin(h)| \ge |\cos(h)|$:
+Consider, in the case $`|\sin(h)| \ge |\cos(h)|`$:
 
 ```math
 \begin{align*}
@@ -195,7 +194,7 @@ a = \frac{23 t \cos(h) p_2}{23 p'_1 + 11 t \cos(h) + 108 t \sin(h)}.
 ```
 
 Conveniently, the exact same expressions are retrieved in the case
-$|\cos(h)| > |\sin(h)|$. These expressions are always well-defined since
+$`|\cos(h)| > |\sin(h)|`$. These expressions are always well-defined since
 
 ```math
 \begin{multline*}
@@ -205,15 +204,15 @@ $|\cos(h)| > |\sin(h)|$. These expressions are always well-defined since
 \end{multline*}
 ```
 
-In the algorithm, the value of $t$ can be retrieved via
+In the algorithm, the value of $`t`$ can be retrieved via
 $`\alpha`$~\eqref{eq:alpha} from the input variables. Indeed, if the saturation
-correlate $s$ is given, one has
+correlate $`s`$ is given, one has
 
 ```math
 \alpha \coloneqq {\left(\frac{s}{50}\right)}^2 \frac{A_w+4}{c};
 ```
 
-if $`M`$ is given, one can compute $C\coloneqq M / F_L^{0.25}$ and then
+if $`M`$ is given, one can compute $`C\coloneqq M / F_L^{0.25}`$ and then
 
 ```math
 \alpha\coloneqq\begin{dcases*}
@@ -223,7 +222,7 @@ if $`M`$ is given, one can compute $C\coloneqq M / F_L^{0.25}$ and then
 ```
 
 It is mildly unfortunate that one has to introduce a case distinction for
-$J=0$ here, but this is an operation that can still be performed at reasonable
+$`J=0`$ here, but this is an operation that can still be performed at reasonable
 efficiency.
 
 \begin{figure}
@@ -233,52 +232,47 @@ $J$, $C$, and $h$), implemented in colorio~\cite{colorio}. The suggested
 improvements in the inverse model lead to a speed-up of about 5\%.}
 \end{figure}
 
-\appendix
-\section{Full model\label{sec:full}}
+### Full model
 
-For the convenience of the reader, both forward and inverse steps of the
-improved CAM16 algorithm are given here. The wording is taken from~\cite{cam16}
-where applicable.
-The steps that differ from the original model are marked with an asterisk~(\*).
+For the convenience of the reader, both forward and inverse steps of the improved CAM16
+algorithm are given here. The wording is taken from~\cite{cam16} where applicable. The
+steps that differ from the original model are marked with an asterisk~(\*).
 
-As an abbreviation, the bold letter $[R,G,B]$ is used whenever the equation applies
-to $R$, $G$, and $B$ alike.
+As an abbreviation, the notation $`[R,G,B]`$ is used whenever the equation applies
+to $`R`$, $`G`$, and $`B`$ alike.
 
-\paragraph{Illuminants, viewing surrounds set up and background
-parameters}
+##### Illuminants, viewing surrounds set up and background parameters
+
 (See the note at the end of Part 2 of Appendix B of~\cite{cam16} for determining
 all parameters.)
 
-\begin{itemize}
-\item Adopted white in test illuminant: $X_w$, $Y_w$, $Z_w$
-\item Background in test conditions: $Y_b$
-\item Reference white in reference illuminant:
-$X_{wr}=Y_{wr} = Z_{wr}=100$, fixed in the model
-\item Luminance of test adapting field (\si{\candela\per\meter\squared}): $L_A$.
-$L_A$ is computed using
-\[
-L_A = \frac{E_W}{\pi} \frac{Y_b}{Y_W} = \frac{L_W Y_b}{Y_W},
-\]
-where $E_W =\pi L_W$ is the illuminance of reference white in \si{\lux};
-$L_W$ is the luminance of reference white in
-\si{\candela\per\meter\squared}; $Y_b$ is the luminance factor of the
-background; and $Y_w$ is the luminance factor of the reference white.
+- Adopted white in test illuminant: $`X_w`$, $`Y_w`$, $`Z_w`$
+- Background in test conditions: $`Y_b`$
+- Reference white in reference illuminant: $`X_{wr}=Y_{wr} = Z_{wr}=100`$, fixed in the model
+- Luminance of test adapting field (cd / m²): $`L_A`$.
+  $`L_A`$ is computed using
+  ```math
+  L_A = \frac{E_W}{\pi} \frac{Y_b}{Y_W} = \frac{L_W Y_b}{Y_W},
+  ```
+  where $`E_W =\pi L_W`$ is the illuminance of reference white in lux;
+  $`L_W`$ is the luminance of reference white in cd/m²;
+  $`Y_b`$ is the luminance factor of the background;
+  and $`Y_w`$ is the luminance factor of the reference white.
+- Surround parameters are given in Table~\ref{tab:surround}:
+  To determine the surround conditions see the note at the
+  end of Part 1 of Appendix A of~\cite{cam16}.
+- $`N_c`$ and $`F`$ are modelled as a function of $`c`$, and their values
+  can be linearly interpolated, using the data from~\ref{tab:surround}.
 
-\item Surround parameters are given in Table~\ref{tab:surround}:
-To determine the surround conditions see the note at the
-end of Part 1 of Appendix A of~\cite{cam16}.
-\item $N_c$ and $F$ are modelled as a function of $c$, and their values
-can be linearly interpolated, using the data from~\ref{tab:surround}.
-\end{itemize}
+Let $`M_{16}`$ be given by
 
-Let $M_{16}$ be given by
-\[
-M\_{16} \coloneqq \begin{pmatrix}
+```math
+M_{16} \coloneqq \begin{pmatrix}
 0.401288 & 0.650173 & -0.051461\\
 -0.250268 & 1.204414 & 0.045854\\
 -0.002079 & 0.048952 & 0.953127
 \end{pmatrix}.
-\]
+```
 
 ### Forward model
 
@@ -324,12 +318,13 @@ _Table: Surround parameters._
 |  Dark   |  0.8  | 0.525 |   0.8   |
 
 _Table: Unique hue data for calculation of hue quadrature._
-| | Red | Yellow | Green | Blue | Red |
-|:--:|:--:|:--:|:--:|:--:|:--:|
-| $`i`$ | 1 | 2 | 3 | 4 | 5 |
-| $`h_i`$ | 20.14 | 90.00 | 164.25 | 237.53 | 380.14|
-| $`e_i`$ | 0.8 | 0.7 | 1.0 | 1.2 | 0.8|
-| $`H_i`$ | 0.0 | 100.0 | 200.0 | 300.0 | 400.0|
+
+|         |  Red  | Yellow | Green  |  Blue  |  Red   |
+| :-----: | :---: | :----: | :----: | :----: | :----: |
+|  $`i`$  |   1   |   2    |   3    |   4    |   5    |
+| $`h_i`$ | 20.14 | 90.00  | 164.25 | 237.53 | 380.14 |
+| $`e_i`$ |  0.8  |  0.7   |  1.0   |  1.2   |  0.8   |
+| $`H_i`$ |  0.0  | 100.0  | 200.0  | 300.0  | 400.0  |
 
 - Step 1:
   Calculate "cone" responses.
