@@ -2,39 +2,40 @@
 
 # Algorithmic improvements for the CIECAM02 and CAM16 color appearance models
 
-> This note is concerned with the CIECAM02 color appearance model and its
-> successor, the CAM16 color appearance model. Several algorithmic flaws are
-> pointed out and remedies are suggested. The resulting color model is
-> algebraically equivalent to CIECAM02/CAM16, but shorter, more efficient, and
-> works correctly for all edge cases.
+_Abstract: This note is concerned with the CIECAM02 color appearance model and its
+successor, the CAM16 color appearance model. Several algorithmic flaws are
+pointed out and remedies are suggested. The resulting color model is
+algebraically equivalent to CIECAM02/CAM16, but shorter, more efficient, and
+works correctly for all edge cases._
 
 ## Introduction
 
-The CIECAM02 color appearance model~\cite{ciecam02} has attracted much attention and was
+The CIECAM02 color appearance model \cite{ciecam02} has attracted much attention and was
 generally thought of as a successor to the ever so popular CIELAB color model. However,
 it was quickly discovered that CIECAM02 breaks down for certain input values. A fair
 number of research articles suggests fixes for this behavior, most of them by modifying
 the first steps of the forward model. Luo and Li give an overview of the suggested
-improvements~\cite{ciecam02-recent}; see references therein. Most recently, Li and
-Luo~\cite{cam16} gave their own suggestion on how to best circumvent the
-breakdown~\cite{cam16}. The updated algorithm differs from the original CIECAM02 only in
+improvements \cite{ciecam02-recent}; see references therein. Most recently, Li and
+Luo \cite{cam16} gave their own suggestion on how to best circumvent the
+breakdown \cite{cam16}. The updated algorithm differs from the original CIECAM02 only in
 the first steps of the forward model.
 
 It appears that that the rest of the algorithm has not received much attention over the
 years. In both CIECAM02 and its updated version CAM16, some of the steps are more
 complicated than necessary, and in edge cases lead to break downs once again. The
-present document describes those flaws and suggests improvements (#flaws-and-fixes). The
-resulting model description (#full-model) is entirely equivalent to the CIECAM02/CAM16,
-but is simpler -- hence faster and easier to implement -- and works in all edge cases.
+present document [describes those flaws and suggests improvements](#flaws-and-fixes).
+[The resulting model description](#full-model) is entirely equivalent to the
+CIECAM02/CAM16, but is simpler – hence faster and easier to implement – and works in all
+edge cases.
 
 All findings in this article are implemented in the open-source software package
 [colorio](https://github.com/nschloe/colorio).
 
 ## Flaws and fixes
 
-This section describes the flaws of CAM16 and suggests fixes for them. Some of
-them are trivial, others are harder to see. All listed steps also appear in the
-CIECAM02 color appearance model and trivially apply there.
+This section describes the flaws of CAM16 and suggests fixes for them. Some of them are
+trivial, others are harder to see. All listed steps also appear in the CIECAM02 color
+appearance model and trivially apply there.
 
 ### Step 3, forward model
 
@@ -55,28 +56,26 @@ The original Step 3 of the forward model reads
 >
 > and similarly for the computations of $`G_a`$ and $`B_a`$.
 
-If the $`\operatorname{sign}`$ operator is used here as it is used later in step 5 of the
-inverse model, the above description can be shortened.
+If the $`\operatorname{sign}`$ operator is used here as it is used later in step 5 of
+the inverse model, the above description can be shortened.
 
-Furthermore, the term $`0.1`$ is added here, but in all of the following steps in
-which $`R_a`$ is used -- except the computation of $t$ in Step 9 --, it cancels
-out algebraically. Unfortunately, said cancellation is not always exact when
-computed in floating point arithmetic. Luckily, the adverse effect of such
-rounding errors is rather limited here. The results will only be distorted for
-very small input values, e.g., $X=Y=Z=0$; see Table~\ref{tab:zero}. For the
-sake of consistency, it is advisable to include the term $0.1$ only in the
-computation of $t$ in Step 9:
+Furthermore, the term $`0.1`$ is added here, but in all of the following steps in which
+$`R_a`$ is used – except the computation of $t$ in Step 9 –, it cancels out
+algebraically. Unfortunately, said cancellation is not always exact when computed in
+floating point arithmetic. Luckily, the adverse effect of such rounding errors is rather
+limited here. The results will only be distorted for very small input values, e.g.,
+$X=Y=Z=0$; see Table \ref{tab:zero}. For the sake of consistency, it is advisable to
+include the term $0.1$ only in the computation of $t$ in Step 9:
 
 ```math
   R'_a = 400 \operatorname{sign}(R_c) \frac{{\left(\frac{F_L |R_c|}{100}\right)}^{0.42}}{{\left(\frac{F_L |R_c|}{100}\right)}^{0.42} + 27.13}.
 ```
 
-_Table: CAM16 values upon input $`X=Y=Z=0`$ with and without the fixes in
-this article. The exact solutions are zeros for every
-entry._
+_Table: CAM16 values upon input $`X=Y=Z=0`$ with and without the fixes in this article.
+The exact solutions are zeros for every entry._
 
 |       | with fixes |  without  |
-| :---: | :--------: | :-------: |
+| :–-: | :––––: | :–––-: |
 | $`J`$ |    0.0     | 3.258e-22 |
 | $`C`$ |    0.0     | 4.071e-24 |
 | $`h`$ |    0.0     |    0.0    |
@@ -120,15 +119,15 @@ The last variable $`u`$ is used in the computation of $`t`$ in step 9.
 > s \coloneqq 100 \sqrt{M/Q}.
 > ```
 
-This expression is not well-defined if $`Q=0`$, a value occurring if the
-input values are $`X=Y=Z=0`$. When making use of the definition of $`M`$ and $`Q`$,
-one gets to an expression for $`s`$ that is well-defined in all cases:
+This expression is not well-defined if $`Q=0`$, a value occurring if the input values
+are $`X=Y=Z=0`$. When making use of the definition of $`M`$ and $`Q`$, one gets to an
+expression for $`s`$ that is well-defined in all cases:
 
 ```math
-  \label{eq:alpha}
-  \alpha&\coloneqq t^{0.9} {(1.64-0.29^n)}^{0.73},\\
-  \nonumber
-  s &\coloneqq 50 \sqrt{\frac{c\alpha}{A_w + 4}}.
+\begin{align*}
+\alpha&\coloneqq t^{0.9} {(1.64-0.29^n)}^{0.73},\\
+s &\coloneqq 50 \sqrt{\frac{c\alpha}{A_w + 4}}.
+\end{align*}
 ```
 
 ### Steps 2 and 3, inverse model
@@ -197,15 +196,13 @@ Conveniently, the exact same expressions are retrieved in the case
 $`|\cos(h)| > |\sin(h)|`$. These expressions are always well-defined since
 
 ```math
-\begin{multline*}
-  23 p'_1 + 11 t \cos(h) + 108 t \sin(h)\\
-  = \frac{23 p'_1 p_2}{R'_a + G'_a + \tfrac{21}{20}B'_a + 0.305}
-  > 0.
-\end{multline*}
+23 p'_1 + 11 t \cos(h) + 108 t \sin(h)
+= \frac{23 p'_1 p_2}{R'_a + G'_a + \tfrac{21}{20}B'_a + 0.305}
+> 0.
 ```
 
 In the algorithm, the value of $`t`$ can be retrieved via
-$`\alpha`$~\eqref{eq:alpha} from the input variables. Indeed, if the saturation
+$`\alpha`$ \eqref{eq:alpha} from the input variables. Indeed, if the saturation
 correlate $`s`$ is given, one has
 
 ```math
@@ -215,10 +212,12 @@ correlate $`s`$ is given, one has
 if $`M`$ is given, one can compute $`C\coloneqq M / F_L^{0.25}`$ and then
 
 ```math
-\alpha\coloneqq\begin{dcases*}
-  0 &if $J=0$,\\
-  \frac{C}{\sqrt{J/100}}&otherwise.
-\end{dcases*}
+\alpha\coloneqq\begin{cases}
+Traceback (most recent call last):
+  File "/home/nschloe/.local/bin//tablign", line 7, in <module>
+    from tablign.cli import main
+ModuleNotFoundError: No module named 'tablign'
+\end{cases}
 ```
 
 It is mildly unfortunate that one has to introduce a case distinction for
@@ -228,22 +227,22 @@ efficiency.
 \begin{figure}
 \input{perf.tex}
 \caption{Performance comparison of the conversion from CAM16 to XYZ (with
-$J$, $C$, and $h$), implemented in colorio~\cite{colorio}. The suggested
+$J$, $C$, and $h$), implemented in colorio \cite{colorio}. The suggested
 improvements in the inverse model lead to a speed-up of about 5\%.}
 \end{figure}
 
 ### Full model
 
 For the convenience of the reader, both forward and inverse steps of the improved CAM16
-algorithm are given here. The wording is taken from~\cite{cam16} where applicable. The
-steps that differ from the original model are marked with an asterisk~(\*).
+algorithm are given here. The wording is taken from \cite{cam16} where applicable. The
+steps that differ from the original model are marked with an asterisk (\*).
 
 As an abbreviation, the notation $`[R,G,B]`$ is used whenever the equation applies
 to $`R`$, $`G`$, and $`B`$ alike.
 
 ##### Illuminants, viewing surrounds set up and background parameters
 
-(See the note at the end of Part 2 of Appendix B of~\cite{cam16} for determining
+(See the note at the end of Part 2 of Appendix B of \cite{cam16} for determining
 all parameters.)
 
 - Adopted white in test illuminant: $`X_w`$, $`Y_w`$, $`Z_w`$
@@ -258,11 +257,11 @@ all parameters.)
   $`L_W`$ is the luminance of reference white in cd/m²;
   $`Y_b`$ is the luminance factor of the background;
   and $`Y_w`$ is the luminance factor of the reference white.
-- Surround parameters are given in Table~\ref{tab:surround}:
+- Surround parameters are given in Table \ref{tab:surround}:
   To determine the surround conditions see the note at the
-  end of Part 1 of Appendix A of~\cite{cam16}.
+  end of Part 1 of Appendix A of \cite{cam16}.
 - $`N_c`$ and $`F`$ are modelled as a function of $`c`$, and their values
-  can be linearly interpolated, using the data from~\ref{tab:surround}.
+  can be linearly interpolated, using the data from \ref{tab:surround}.
 
 Let $`M_{16}`$ be given by
 
@@ -312,7 +311,7 @@ M_{16} \coloneqq \begin{pmatrix}
 _Table: Surround parameters._
 
 |         | $`F`$ | $`c`$ | $`N_c`$ |
-| :-----: | :---: | :---: | :-----: |
+| :––-: | :–-: | :–-: | :––-: |
 | Average |  1.0  | 0.69  |   1.0   |
 |   Dim   |  0.9  | 0.59  |   0.9   |
 |  Dark   |  0.8  | 0.525 |   0.8   |
@@ -320,7 +319,7 @@ _Table: Surround parameters._
 _Table: Unique hue data for calculation of hue quadrature._
 
 |         |  Red  | Yellow | Green  |  Blue  |  Red   |
-| :-----: | :---: | :----: | :----: | :----: | :----: |
+| :––-: | :–-: | :––: | :––: | :––: | :––: |
 |  $`i`$  |   1   |   2    |   3    |   4    |   5    |
 | $`h_i`$ | 20.14 | 90.00  | 164.25 | 237.53 | 380.14 |
 | $`e_i`$ |  0.8  |  0.7   |  1.0   |  1.2   |  0.8   |
@@ -337,7 +336,7 @@ _Table: Unique hue data for calculation of hue quadrature._
 - Step 2:
   Complete the color adaptation of the illuminant in
   the corresponding cone response space (considering various
-  luminance levels and surround conditions included in $D$, and
+  luminance levels and surround conditions included in $`D`$, and
   hence in $`D_R`$, $`D_G`$, and $`D_B`$).
 
   ```math
@@ -356,7 +355,7 @@ _Table: Unique hue data for calculation of hue quadrature._
   ```
 
 - Step 4\*:
-  Calculate Redness--Greenness ($`a`$), Yellowness--Blueness ($`b`$) components,
+  Calculate Redness–Greenness ($`a`$), Yellowness–Blueness ($`b`$) components,
   hue angle ($`h`$), and auxiliary variables ($`p'_2`$, $`u`$).
 
   ```math
@@ -389,7 +388,7 @@ _Table: Unique hue data for calculation of hue quadrature._
   Calculate eccentricity [$`e_t`$, hue quadrature composition ($`H`$) and hue
   composition ($`H_c`$)].
 
-  Using the following unique hue data in table~\ref{table:hue}, set
+  Using the following unique hue data in table \ref{table:hue}, set
   $`h'= h + 360\degree`$ if $`h < h_1`$, otherwise $`h'=h`$.
   Choose a proper $`i\in\{1,2,3,4\}`$ so that $`h_i\le h' < h_{i+1}`$.
   Calculate
@@ -402,7 +401,7 @@ _Table: Unique hue data for calculation of hue quadrature._
   ```
 
   which is close to, but not exactly the same as, the eccentricity factor given
-  in table~\ref{table:hue}.
+  in table \ref{table:hue}.
 
   Hue quadrature is computed using the formula
 
@@ -412,9 +411,9 @@ _Table: Unique hue data for calculation of hue quadrature._
 
   and hue composition $`H_c`$ is computed according to $`H`$. If $`i=3`$ and $`H =
   241.2116`$ for example, then $`H`$ is between $`H_3`$ and $`H_4`$ (see
-  table~\ref{table:hue} above). Compute $`P_L=H_4-H = 58.7884`$; $`P_R = H – H_3 =
+  table \ref{table:hue} above). Compute $`P_L=H_4-H = 58.7884`$; $`P_R = H – H_3 =
   41.2116`$ and round $`P_L`$ and $`P_R`$ values to integers $`59`$ and $`41`$. Thus,
-  according to table~\ref{table:hue}, this sample is considered as having 59%
+  according to table \ref{table:hue}, this sample is considered as having 59%
   of green and 41% of blue, which is the $`H`$c and can be reported as 59G41B or
   41B59G.
 
@@ -424,31 +423,30 @@ _Table: Unique hue data for calculation of hue quadrature._
   A\coloneqq p'_2 \cdot N_{bb}.
   ```
 
-\begin{step}[7]
-Calculate the correlate of lightness
-\[
-J \coloneqq 100 {(A / A_w)}^{cz}.
-\]
-\end{step}
+- Step 7:
+  Calculate the correlate of lightness
+  ```math
+  J \coloneqq 100 {(A / A_w)}^{cz}.
+  ```
 
-\begin{step}[8]
-Calculate the correlate of brightness
-\[
-Q \coloneqq \frac{4}{c} \sqrt{\frac{J}{100}} (A_w+4) F_L^{0.25}.
-\]
-\end{step}
+- Step 8:
+  Calculate the correlate of brightness
+  ```math
+  Q \coloneqq \frac{4}{c} \sqrt{\frac{J}{100}} (A_w+4) F_L^{0.25}.
+  ```
 
-\begin{step}[9*]
-Calculate the correlates of chroma ($C$), colorfulness ($M$), and saturation
-($s$).
-\begin{align*}
-t&\coloneqq \frac{50000/13 N*c N*{cb} e_t \sqrt{a^2 + b^2}}{u + 0.305},\\
-\alpha&\coloneqq t^{0.9} {(1.64 - 0.29^n)}^{0.73},\\
-C&\coloneqq \alpha \sqrt{\frac{J}{100}},\\
-M&\coloneqq C\cdot F_L^{0.25},\\
-s &\coloneqq 50 \sqrt{\frac{\alpha c}{A_w + 4}}.
-\end{align*}
-\end{step}
+- Step 9*:
+  Calculate the correlates of chroma ($`C`$), colorfulness ($`M`$), and saturation
+  ($`s`$).
+  ```math
+  \begin{align*}
+  t&\coloneqq \frac{50000/13 N*c N*{cb} e_t \sqrt{a^2 + b^2}}{u + 0.305},\\
+  \alpha&\coloneqq t^{0.9} {(1.64 - 0.29^n)}^{0.73},\\
+  C&\coloneqq \alpha \sqrt{\frac{J}{100}},\\
+  M&\coloneqq C\cdot F_L^{0.25},\\
+  s &\coloneqq 50 \sqrt{\frac{\alpha c}{A_w + 4}}.
+  \end{align*}
+  ```
 
 ### Inverse model
 
@@ -469,14 +467,14 @@ s &\coloneqq 50 \sqrt{\frac{\alpha c}{A_w + 4}}.
   - Step 1-2\*:
     Calculate $`t`$ from $`C`$, $`M`$, or $`s`$.
 
-    - If input is $C$ or $M$:
+    - If input is $`C`$ or $`M`$:
       ```math
       \begin{align*}
         C &\coloneqq M / F_L^{0.25} \:\text{if input is $M$}\\
-        \alpha &\coloneqq \begin{dcases*}
+        \alpha &\coloneqq \begin{cases}
             0 &if $J=0$,\\
             \frac{C}{\sqrt{J/100}}& otherwise.
-        \end{dcases*}
+        \end{cases}
       \end{align*}
       ```
     - If input is $`s`$:
@@ -492,7 +490,7 @@ s &\coloneqq 50 \sqrt{\frac{\alpha c}{A_w + 4}}.
 
   - Step 1-3:
     Calculate $`h`$ from $`H`$ (if input is $`H`$). The correlate of hue ($`h`$) can be
-    computed by using data in table~\ref{table:hue} in the forward model. Choose a
+    computed by using data in table \ref{table:hue} in the forward model. Choose a
     proper $`i\in\{1,2,3,4\}`$ such that $`H_i \le H < H_{i+1}`$. Then
     ```math
     h' = \frac{(H-H_i)(e_{i+1}h_i - e_i h_{i+1}) - 100 h_i e_{i+1}}{(H-H_i)(e_{i+1}-e_i) - 100 e_{i+1}}.
@@ -558,7 +556,7 @@ s &\coloneqq 50 \sqrt{\frac{\alpha c}{A_w + 4}}.
 
 - Step 7:
   Calculate $`X`$, $`Y`$, and $`Z`$. (For the coefficients of the inverse matrix, see
-  the note at the end of the appendix B of~\cite{cam16}.)
+  the note at the end of the appendix B of \cite{cam16}.)
   ```math
   \begin{pmatrix}X\\Y\\Z\end{pmatrix}
     = M_{16}^{-1}
