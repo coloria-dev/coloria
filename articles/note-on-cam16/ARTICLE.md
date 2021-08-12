@@ -284,7 +284,7 @@ Let $M_{16}$ be given by
 >   &z = 1.58 + \sqrt{n},\\
 >   &N_{bb} = \frac{0.725}{n^{0.2}},\\
 >   &N_{cb} = N_{bb},\\
->   &[R,G,B]_{wc} = D_{\rgb} \rgb_w,\\
+>   &[R,G,B]_{wc} = D_{[R,G,B]} [R,G,B]_w,\\
 >   &[R,G,B]_{aw} = 400
 >   \frac
 >   {{\left(\frac{F_L [R,G,B]_{wc}}{100}\right)}^{0.42}}
@@ -293,18 +293,13 @@ Let $M_{16}$ be given by
 > \end{align*}
 > ```
 
-\begin{table}\centering
-  \begin{tabularx}{\linewidth}{XXXX}
-  \toprule
-          & $F$ & $c$   & $N_c$\\
-  \midrule
-  Average & 1.0 & 0.69  & 1.0\\
-  Dim     & 0.9 & 0.59  & 0.9\\
-  Dark    & 0.8 & 0.525 & 0.8\\
-  \bottomrule
-\end{tabularx}
-  \caption{Surround parameters.}\label{tab:surround}
-\end{table}
+_Table: Surround parameters._
+
+| | $`F`$  | $`c`$ | $`N_c`$ |
+|:--:|:--:|:--:|:--:|
+| Average | 1.0 | 0.69  | 1.0|
+|  Dim    | 0.9 | 0.59  | 0.9|
+|  Dark   | 0.8 | 0.525 | 0.8|
 
 
 \begin{table}\centering
@@ -321,61 +316,59 @@ Let $M_{16}$ be given by
   \caption{Unique hue data for calculation of hue quadrature.}\label{table:hue}
 \end{table}
 
-\begin{step}[1]
-Calculate `cone' responses.
-\[
-\begin{pmatrix}R\\G\\B\end{pmatrix}
-= M_{16} \begin{pmatrix}X\\Y\\Z\end{pmatrix}
-\]
-\end{step}
+- Step 1:
+  > Calculate `cone' responses.
+  > ```math
+  > \begin{pmatrix}R\\G\\B\end{pmatrix}
+  > = M_{16} \begin{pmatrix}X\\Y\\Z\end{pmatrix}
+  > ```
 
-\begin{step}[2]
-Complete the color adaptation of the illuminant in
-the corresponding cone response space (considering various
-luminance levels and surround conditions included in $D$, and
-hence in $D_R$, $D_G$, and $D_B$).
-\[
-  \rgb_c = D_{\rgb} \cdot \rgb
-\]
-\end{step}
+- Step 2:
+  > Complete the color adaptation of the illuminant in
+  > the corresponding cone response space (considering various
+  > luminance levels and surround conditions included in $D$, and
+  > hence in $D_R$, $D_G$, and $D_B$).
+  > ```math
+  >   [R,G,B]_c = D_{[R,G,B]} \cdot [R,G,B]
+  > ```
 
-\begin{step}[3*]
-Calculate the modified postadaptation cone response
-(resulting in dynamic range compression).
-\[
-  \rgb'_a = 400 \operatorname{sign}(\rgb_c)
-    \frac
-    {{\left(\frac{F_L \abs{\rgb_c}}{100}\right)}^{0.42}}
-    {{\left(\frac{F_L \abs{\rgb_c}}{100}\right)}^{0.42} + 27.13}.
-\]
-\end{step}
+- Step 3*:
+  > Calculate the modified postadaptation cone response
+  > (resulting in dynamic range compression).
+  > ```math
+  > [R,G,B]'_a = 400 \operatorname{sign}([R,G,B]_c)
+  >   \frac
+  >   {{\left(\frac{F_L \abs{[R,G,B]_c}}{100}\right)}^{0.42}}
+  >   {{\left(\frac{F_L \abs{[R,G,B]_c}}{100}\right)}^{0.42} + 27.13}.
+  > ```
 
-\begin{step}[4*]
-Calculate Redness--Greenness ($a$), Yellowness--Blueness ($b$) components,
-  hue angle ($h$), and auxiliary variables ($p'_2$, $u$).
-\begin{align*}
-  \begin{pmatrix}
-    p'_2\\[0.5ex]
-    a\\[0.5ex]
-    b\\[0.5ex]
-    u
-  \end{pmatrix}
-  &\coloneqq
-  \begin{pmatrix}
-    2 & 1 & \tfrac{1}{20}\\[0.5ex]
-    1 & -\tfrac{12}{11} & \tfrac{1}{11}\\[0.5ex]
-    \tfrac{1}{9} & \tfrac{1}{9} & -\tfrac{2}{9}\\[0.5ex]
-    1 & 1 & \tfrac{21}{20}
-  \end{pmatrix}
-  \begin{pmatrix}
-    R'_a\\G'_a\\B'_a
-  \end{pmatrix},\\
-  % a&\coloneqq R'_a - \tfrac{12}{11} G'_a + \tfrac{1}{11} B'_a\\
-  % b&\coloneqq \tfrac{1}{9} R'_a + \tfrac{1}{9} G'_a - \tfrac{2}{9} B'_a\\
-  h&\coloneqq \arctan(b/a).
-\end{align*}
-(Make sure that $h$ is between $0\degree$ and $360\degree$.)
-\end{step}
+- Step 4*:
+  > Calculate Redness--Greenness ($`a`$), Yellowness--Blueness ($`b`$) components,
+  >   hue angle ($`h`$), and auxiliary variables ($`p'_2`$, $`u`$).
+  > ```math
+  > \begin{align*}
+  >   \begin{pmatrix}
+  >     p'_2\\[0.5ex]
+  >     a\\[0.5ex]
+  >     b\\[0.5ex]
+  >     u
+  >   \end{pmatrix}
+  >   &\coloneqq
+  >   \begin{pmatrix}
+  >     2 & 1 & \tfrac{1}{20}\\[0.5ex]
+  >     1 & -\tfrac{12}{11} & \tfrac{1}{11}\\[0.5ex]
+  >     \tfrac{1}{9} & \tfrac{1}{9} & -\tfrac{2}{9}\\[0.5ex]
+  >     1 & 1 & \tfrac{21}{20}
+  >   \end{pmatrix}
+  >   \begin{pmatrix}
+  >     R'_a\\G'_a\\B'_a
+  >   \end{pmatrix},\\
+  >   % a&\coloneqq R'_a - \tfrac{12}{11} G'_a + \tfrac{1}{11} B'_a\\
+  >   % b&\coloneqq \tfrac{1}{9} R'_a + \tfrac{1}{9} G'_a - \tfrac{2}{9} B'_a\\
+  >   h&\coloneqq \arctan(b/a).
+  > \end{align*}
+  > ```
+  > (Make sure that $`h`$ is between $`0\degree`$ and $`360\degree`$.)
 
 \begin{step}[5]
 Calculate eccentricity [$e_t$, hue quadrature composition
@@ -533,9 +526,9 @@ Calculate $a$ and $b$
 \begin{step}[5*]
 Calculate $R_c$, $G_c$, and $B_c$,
   \[
-  \rgb_c = \operatorname{sign}(\rgb'_a)
+  [R,G,B]_c = \operatorname{sign}([R,G,B]'_a)
   \frac{100}{F_L} {\left(
-    \frac{27.13 \abs{\rgb'_a}}{400 - \abs{\rgb'_a}}
+    \frac{27.13 \abs{[R,G,B]'_a}}{400 - \abs{[R,G,B]'_a}}
     \right)}^{1/0.42}.
   \]
 \end{step}
@@ -543,7 +536,7 @@ Calculate $R_c$, $G_c$, and $B_c$,
 \begin{step}[6]
 Calculate $R$, $G$, and $B$ from $R_c$, $G_c$, and $B_c$.
 \[
-  \rgb = \rgb_c / D_{\rgb}.
+  [R,G,B] = [R,G,B]_c / D_{[R,G,B]}.
 \]
 \end{step}
 
