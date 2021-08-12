@@ -213,10 +213,8 @@ if $`M`$ is given, one can compute $`C\coloneqq M / F_L^{0.25}`$ and then
 
 ```math
 \alpha\coloneqq\begin{cases}
-Traceback (most recent call last):
-  File "/home/nschloe/.local/bin//tablign", line 7, in <module>
-    from tablign.cli import main
-ModuleNotFoundError: No module named 'tablign'
+  0 &if $J=0$,\\
+  \frac{C}{\sqrt{J/100}}&otherwise.
 \end{cases}
 ```
 
