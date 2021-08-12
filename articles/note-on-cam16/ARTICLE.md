@@ -63,7 +63,7 @@ very small input values, e.g., $X=Y=Z=0$; see Table~\ref{tab:zero}. For the
 sake of consistency, it is advisable to include the term $0.1$ only in the
 computation of $t$ in Step 9:
 ```math
-  R'_a = 400 \operatorname{sign}(R_c) \frac{{\left(\frac{F_L \abs{R_c}}{100}\right)}^{0.42}}{{\left(\frac{F_L \abs{R_c}}{100}\right)}^{0.42} + 27.13}.
+  R'_a = 400 \operatorname{sign}(R_c) \frac{{\left(\frac{F_L |R_c|}{100}\right)}^{0.42}}{{\left(\frac{F_L |R_c|}{100}\right)}^{0.42} + 27.13}.
 ```
 
 \begin{table}\centering
@@ -145,14 +145,14 @@ Calculate $t$, $e_t$, $p_1$, $p_2$, and $p_3$.
 Calculate $a$ and $b$.
 If $t=0$, then $a=b=0$ and go to Step 4.
 In the next computations be sure transform $h$ from degrees to radians before
-calculating $\sin(h)$ and $\cos(h)$: If $\abs{\sin(h)} \ge \abs{\cos(h)}$
+calculating $\sin(h)$ and $\cos(h)$: If $|\sin(h)| \ge |\cos(h)|$
 then
 \begin{align*}
   p_4 &= \frac{p_1}{\sin(h)},\\
   b &= \frac{p_2 (2+p_3) \frac{460}{1403}}{p_4 + (2+p_3) \frac{220}{1403} \frac{\cos(h)}{\sin(h)} - \frac{27}{1403} + p_3 \frac{6300}{1403}},\\
   a &= b \frac{\cos(h)}{\sin(h)}.
 \end{align*}
-If $\abs{\cos(h)} > \abs{\sin(h)}$ then
+If $|\cos(h)| > |\sin(h)|$ then
 \begin{align*}
   p_5 &= \frac{p_1}{\cos(h)},\\
   a &= \frac{p_2 (2+p_3) \frac{460}{1403}}{%
@@ -169,19 +169,21 @@ be $0$ in the denominator of $p_1$. Likewise, the distinction of cases in $`\sin
 and $`\cos(h)`$ is necessary to avoid division by $`0`$ in $`a`$ and $`b`$.
 
 It turns out that both of these problems can be avoided quite elegantly.
-Consider, in the case $\abs{\sin(h)} \ge \abs{\cos(h)}$:
+Consider, in the case $|\sin(h)| \ge |\cos(h)|$:
 ```math
+\begin{align*}
 p'_1 &\coloneqq \frac{50000}{13} N_c N_{cb} e_t,\\
 b &= \frac{p_2 (2+p_3) \frac{460}{1403}}{\frac{p'_1}{t\sin(h)} + (2+p_3) \frac{220}{1403} \frac{\cos(h)}{\sin(h)} - \frac{27}{1403} + p_3 \frac{6300}{1403}}\\
   &= \frac{t \sin(h) p_2 (2+p_3) \frac{460}{1403}}{p'_1 + t (2+p_3) \frac{220}{1403} \cos(h) + t \sin(h) \frac{6588}{1403}}\\
   &= \frac{23 t \sin(h) p_2}{23 p'_1 + 11 t \cos(h) + 108 t \sin(h)},
+\end{align*}
 ```
 and
 ```math
 a = \frac{23 t \cos(h) p_2}{23 p'_1 + 11 t \cos(h) + 108 t \sin(h)}.
 ```
 Conveniently, the exact same expressions are retrieved in the case
-$\abs{\cos(h)} > \abs{\sin(h)}$. These expressions are always well-defined since
+$|\cos(h)| > |\sin(h)|$. These expressions are always well-defined since
 ```math
 \begin{multline*}
   23 p'_1 + 11 t \cos(h) + 108 t \sin(h)\\
@@ -194,7 +196,7 @@ In the algorithm, the value of $t$ can be retrieved via
 $`\alpha`$~\eqref{eq:alpha} from the input variables. Indeed, if the saturation
 correlate $s$ is given, one has
 ```math
-  \alpha \coloneqq {\left(\frac{s}{50}\right)}^2 \frac{A_w+4}{c};
+\alpha \coloneqq {\left(\frac{s}{50}\right)}^2 \frac{A_w+4}{c};
 ```
 if $`M`$ is given, one can compute $C\coloneqq M / F_L^{0.25}$ and then
 ```math
@@ -302,110 +304,103 @@ _Table: Surround parameters._
 |  Dark   | 0.8 | 0.525 | 0.8|
 
 
-\begin{table}\centering
-  \begin{tabularx}{\linewidth}{XXXXXX}
-  \toprule
-        & Red   & Yellow & Green & Blue   & Red\\
-  \midrule
-  $i$   & 1     & 2     & 3      & 4      & 5\\
-  $h_i$ & 20.14 & 90.00 & 164.25 & 237.53 & 380.14\\
-  $e_i$ & 0.8   & 0.7   & 1.0    & 1.2    & 0.8\\
-  $H_i$ & 0.0   & 100.0 & 200.0  & 300.0  & 400.0\\
-  \bottomrule
-\end{tabularx}
-  \caption{Unique hue data for calculation of hue quadrature.}\label{table:hue}
-\end{table}
+_Table: Unique hue data for calculation of hue quadrature._
+| | Red | Yellow | Green | Blue   | Red | 
+|:--:|:--:|:--:|:--:|:--:|:--:|
+|  $`i`$   | 1     | 2     | 3      | 4      | 5 |
+|  $`h_i`$ | 20.14 | 90.00 | 164.25 | 237.53 | 380.14|
+|  $`e_i`$ | 0.8   | 0.7   | 1.0    | 1.2    | 0.8|
+|  $`H_i`$ | 0.0   | 100.0 | 200.0  | 300.0  | 400.0|
+
 
 - Step 1:
-  > Calculate `cone' responses.
-  > ```math
-  > \begin{pmatrix}R\\G\\B\end{pmatrix}
-  > = M_{16} \begin{pmatrix}X\\Y\\Z\end{pmatrix}
-  > ```
+  Calculate "cone" responses.
+  ```math
+  \begin{pmatrix}R\\G\\B\end{pmatrix}
+  = M_{16} \begin{pmatrix}X\\Y\\Z\end{pmatrix}
+  ```
 
 - Step 2:
-  > Complete the color adaptation of the illuminant in
-  > the corresponding cone response space (considering various
-  > luminance levels and surround conditions included in $D$, and
-  > hence in $D_R$, $D_G$, and $D_B$).
-  > ```math
-  >   [R,G,B]_c = D_{[R,G,B]} \cdot [R,G,B]
-  > ```
+  Complete the color adaptation of the illuminant in
+  the corresponding cone response space (considering various
+  luminance levels and surround conditions included in $D$, and
+  hence in $`D_R`$, $`D_G`$, and $`D_B`$).
+  ```math
+  [R,G,B]_c = D_{[R,G,B]} \cdot [R,G,B]
+  ```
 
 - Step 3*:
-  > Calculate the modified postadaptation cone response
-  > (resulting in dynamic range compression).
-  > ```math
-  > [R,G,B]'_a = 400 \operatorname{sign}([R,G,B]_c)
-  >   \frac
-  >   {{\left(\frac{F_L \abs{[R,G,B]_c}}{100}\right)}^{0.42}}
-  >   {{\left(\frac{F_L \abs{[R,G,B]_c}}{100}\right)}^{0.42} + 27.13}.
-  > ```
+  Calculate the modified postadaptation cone response
+  (resulting in dynamic range compression).
+  ```math
+  [R,G,B]'_a = 400 \operatorname{sign}([R,G,B]_c)
+    \frac
+    {{\left(\frac{F_L |[R,G,B]_c|}{100}\right)}^{0.42}}
+    {{\left(\frac{F_L |[R,G,B]_c|}{100}\right)}^{0.42} + 27.13}.
+  ```
 
 - Step 4*:
-  > Calculate Redness--Greenness ($`a`$), Yellowness--Blueness ($`b`$) components,
-  >   hue angle ($`h`$), and auxiliary variables ($`p'_2`$, $`u`$).
-  > ```math
-  > \begin{align*}
-  >   \begin{pmatrix}
-  >     p'_2\\[0.5ex]
-  >     a\\[0.5ex]
-  >     b\\[0.5ex]
-  >     u
-  >   \end{pmatrix}
-  >   &\coloneqq
-  >   \begin{pmatrix}
-  >     2 & 1 & \tfrac{1}{20}\\[0.5ex]
-  >     1 & -\tfrac{12}{11} & \tfrac{1}{11}\\[0.5ex]
-  >     \tfrac{1}{9} & \tfrac{1}{9} & -\tfrac{2}{9}\\[0.5ex]
-  >     1 & 1 & \tfrac{21}{20}
-  >   \end{pmatrix}
-  >   \begin{pmatrix}
-  >     R'_a\\G'_a\\B'_a
-  >   \end{pmatrix},\\
-  >   % a&\coloneqq R'_a - \tfrac{12}{11} G'_a + \tfrac{1}{11} B'_a\\
-  >   % b&\coloneqq \tfrac{1}{9} R'_a + \tfrac{1}{9} G'_a - \tfrac{2}{9} B'_a\\
-  >   h&\coloneqq \arctan(b/a).
-  > \end{align*}
-  > ```
-  > (Make sure that $`h`$ is between $`0\degree`$ and $`360\degree`$.)
+  Calculate Redness--Greenness ($`a`$), Yellowness--Blueness ($`b`$) components,
+    hue angle ($`h`$), and auxiliary variables ($`p'_2`$, $`u`$).
+  ```math
+  \begin{align*}
+    \begin{pmatrix}
+      p'_2\\[0.5ex]
+      a\\[0.5ex]
+      b\\[0.5ex]
+      u
+    \end{pmatrix}
+    &\coloneqq
+    \begin{pmatrix}
+      2 & 1 & \tfrac{1}{20}\\[0.5ex]
+      1 & -\tfrac{12}{11} & \tfrac{1}{11}\\[0.5ex]
+      \tfrac{1}{9} & \tfrac{1}{9} & -\tfrac{2}{9}\\[0.5ex]
+      1 & 1 & \tfrac{21}{20}
+    \end{pmatrix}
+    \begin{pmatrix}
+      R'_a\\G'_a\\B'_a
+    \end{pmatrix},\\
+    % a&\coloneqq R'_a - \tfrac{12}{11} G'_a + \tfrac{1}{11} B'_a\\
+    % b&\coloneqq \tfrac{1}{9} R'_a + \tfrac{1}{9} G'_a - \tfrac{2}{9} B'_a\\
+    h&\coloneqq \arctan(b/a).
+  \end{align*}
+  ```
+  (Make sure that $`h`$ is between $`0\degree`$ and $`360\degree`$.)
 
-\begin{step}[5]
-Calculate eccentricity [$e_t$, hue quadrature composition
-($H$) and hue composition ($H_c$)].
+- Step 5:
+  Calculate eccentricity [$`e_t`$, hue quadrature composition ($`H`$) and hue
+  composition ($`H_c`$)].
 
-Using the following unique hue data in table~\ref{table:hue}, set
-$h'= h + 360\degree$ if $h < h_1$, otherwise $h'=h$.
-Choose a proper $i\in\{1,2,3,4\}$ so that $h_i\le h' < h_{i+1}$.
-Calculate
-\[
+  Using the following unique hue data in table~\ref{table:hue}, set
+  $`h'= h + 360\degree`$ if $`h < h_1`$, otherwise $`h'=h`$.
+  Choose a proper $`i\in\{1,2,3,4\}`$ so that $`h_i\le h' < h_{i+1}`$.
+  Calculate
+  ```math
   e_t = \tfrac{1}{4}
   \left[
     \cos(h'\pi/180\degree + 2) + 3.8
   \right]
-\]
-which is close to, but not exactly the same as, the eccentricity factor given
-in table~\ref{table:hue}.
+  ```
+  which is close to, but not exactly the same as, the eccentricity factor given
+  in table~\ref{table:hue}.
 
-Hue quadrature is computed using the formula
-\[
+  Hue quadrature is computed using the formula
+  ```math
   H = H_i + \frac{100 e_{i+1} (h'-h_i)}{e_{i+1}(h'-h_i) + e_i (h_{i+1}-h')}
-\]
-and hue composition $H_c$ is computed according to $H$.  If $i=3$ and $H =
-241.2116$ for example, then $H$ is between $H_3$ and $H_4$ (see
-table~\ref{table:hue} above). Compute $P_L=H_4-H = 58.7884$; $P_R = H – H_3 =
-41.2116$ and round $P_L$ and $P_R$ values to integers $59$ and $41$. Thus,
-according to table~\ref{table:hue}, this sample is considered as having 59\%
-of green and 41\% of blue, which is the $H$c and can be reported as 59G41B or
-41B59G.
-\end{step}
+  ```
+  and hue composition $`H_c`$ is computed according to $`H`$.  If $`i=3`$ and $`H =
+  241.2116`$ for example, then $`H`$ is between $`H_3`$ and $`H_4`$ (see
+  table~\ref{table:hue} above). Compute $`P_L=H_4-H = 58.7884`$; $`P_R = H – H_3 =
+  41.2116`$ and round $`P_L`$ and $`P_R`$ values to integers $`59`$ and $`41`$. Thus,
+  according to table~\ref{table:hue}, this sample is considered as having 59%
+  of green and 41% of blue, which is the $`H`$c and can be reported as 59G41B or
+  41B59G.
 
-\begin{step}[6*]
-Calculate the achromatic response
-\[
+- Step 6*:
+  Calculate the achromatic response
+  ```math
   A\coloneqq p'_2 \cdot N_{bb}.
-  \]
-\end{step}
+  ```
 
 \begin{step}[7]
 Calculate the correlate of lightness
@@ -433,80 +428,75 @@ Calculate the correlates of chroma ($C$), colorfulness ($M$), and saturation
 \end{align*}
 \end{step}
 
-\subsection{Inverse model}
+### Inverse model
 
-\begin{step}[1]
-  Obtain $J$, $t$, and $h$ from $H$, $Q$, $C$, $M$, $s$.
+- Step 1:
+  Obtain $`J`$, $`t`$, and $`h`$ from $`H`$, $`Q`$, $`C`$, $`M`$, $`s`$.
 
   The input data can be different combinations of perceived correlates, that
-  is, $J$ or $Q$; $C$, $M$, or $s$; and $H$ or $h$. Hence, the following
-  sub-steps are needed to convert the input parameters to the parameters $J$,
-  $t$, and $h$.
-\end{step}
+  is, $`J`$ or $`Q`$; $`C`$, $`M`$, or $`s`$; and $`H`$ or $`h`$. Hence, the following
+  sub-steps are needed to convert the input parameters to the parameters $`J`$,
+  $`t`$, and $`h`$.
 
-\begin{step}[1--1]
-Compute $J$ from $Q$ (if input is $Q$)
-\[
-  J\coloneqq 6.25 \frac{cQ}{(A_w+4) F_L^{0.25}}.
-\]
-\end{step}
-
-\begin{step}[1--2*]
-Calculate $t$ from $C$, $M$, or $s$.
-\begin{itemize}
-  \item If input is $C$ or $M$:
-    \begin{align*}
-      C &\coloneqq M / F_L^{0.25} \:\text{if input is $M$}\\
-      \alpha &\coloneqq \begin{dcases*}
-          0 &if $J=0$,\\
-          \frac{C}{\sqrt{J/100}}& otherwise.
-      \end{dcases*}
-    \end{align*}
-  \item If input is $s$:
+  - Step 1-1:
+    Compute $`J`$ from $`Q`$ (if input is $`Q`$)
     \[
-    \alpha \coloneqq {\left(\frac{s}{50}\right)}^2 \frac{A_w+4}{c}
+      J\coloneqq 6.25 \frac{cQ}{(A_w+4) F_L^{0.25}}.
     \]
-\end{itemize}
-Compute $t$ from $\alpha$:
-\[
-  t \coloneqq {\left(\frac{\alpha}{{(1.64 - 0.29^n)}^{0.73}}\right)}^{1/0.9}
-\]
-\end{step}
 
-\begin{step}[1--3]
-Calculate $h$ from $H$ (if input is $H$).
-The correlate of hue ($h$) can be computed by using data in
-table~\ref{table:hue} in the forward model.
-Choose a proper $i\in\{1,2,3,4\}$ such that
-$H_i \le H < H_{i+1}$. Then
-\[
-  h' = \frac{(H-H_i)(e_{i+1}h_i - e_i h_{i+1}) - 100 h_i e_{i+1}}{(H-H_i)(e_{i+1}-e_i) - 100 e_{i+1}}.
-\]
-Set $h = h' - 360\degree$ if $h' > 360\degree$, and $h=h'$ otherwise.
-\end{step}
+  - Step 1-2*:
+    Calculate $`t`$ from $`C`$, $`M`$, or $`s`$.
+    - If input is $C$ or $M$:
+      ```math
+      \begin{align*}
+        C &\coloneqq M / F_L^{0.25} \:\text{if input is $M$}\\
+        \alpha &\coloneqq \begin{dcases*}
+            0 &if $J=0$,\\
+            \frac{C}{\sqrt{J/100}}& otherwise.
+        \end{dcases*}
+      \end{align*}
+      ```
+    - If input is $`s`$:
+      ```math
+      \alpha \coloneqq {\left(\frac{s}{50}\right)}^2 \frac{A_w+4}{c}
+      ```
 
-\begin{step}[2*]
-Calculate $e_t$, $A$, $p'_1$, and $p'_2$
-\begin{align*}
+    Compute $`t`$ from $`\alpha`$:
+    ```math
+    t \coloneqq {\left(\frac{\alpha}{{(1.64 - 0.29^n)}^{0.73}}\right)}^{1/0.9}
+    ```
+
+  - Step 1-3:
+    Calculate $`h`$ from $`H`$ (if input is $`H`$). The correlate of hue ($`h`$) can be
+    computed by using data in table~\ref{table:hue} in the forward model.  Choose a
+    proper $`i\in\{1,2,3,4\}`$ such that $`H_i \le H < H_{i+1}`$. Then
+    ```math
+    h' = \frac{(H-H_i)(e_{i+1}h_i - e_i h_{i+1}) - 100 h_i e_{i+1}}{(H-H_i)(e_{i+1}-e_i) - 100 e_{i+1}}.
+    ```
+    Set $`h = h' - 360\degree`$ if $`h' > 360\degree`$, and $`h=h'`$ otherwise.
+
+- Step 2:
+  Calculate $`e_t`$, $`A`$, $`p'_1`$, and $`p'_2`$
+  ```math
   e_t &= \tfrac{1}{4} (\cos(h\pi/180\degree + 2) + 3.8),\\
   A &= A_w  {(J/100)}^{1/(cz)},\\
   p'_1 &= e_t \tfrac{50000}{13} N_c N_{cb},\\
   p'_2 &= A / N_{bb}.
-\end{align*}
-\end{step}
+  ```
 
-\begin{step}[3*]
-Calculate $a$ and $b$
+- Step 3*:
+  Calculate $`a`$ and $`b`$
+  ```math
   \begin{align*}
     \gamma &\coloneqq \frac{23 (p'_2+0.305) t}{23 p'_1 + 11 t \cos(h) + 108 t \sin(h)},\\
     a &\coloneqq \gamma \cos(h),\\
     b &\coloneqq \gamma \sin(h).
   \end{align*}
-\end{step}
+  ```
 
-\begin{step}[4]
-  Calculate $R'_a$, $G'_a$, and $B'_a$.
-  \[
+- Step 4:
+  Calculate $`R'_a`$, $`G'_a`$, and $`B'_a`$.
+  ```math
   \begin{pmatrix}
     R'_a\\G'_a\\B'_a
   \end{pmatrix}
@@ -520,38 +510,28 @@ Calculate $a$ and $b$
   \begin{pmatrix}
     p'_2\\a\\b
   \end{pmatrix}.
-  \]%
-\end{step}
+  ```
 
-\begin{step}[5*]
-Calculate $R_c$, $G_c$, and $B_c$,
-  \[
+- Step 5*:
+  Calculate $`R_c`$, $`G_c`$, and $`B_c`$,
+  ```math
   [R,G,B]_c = \operatorname{sign}([R,G,B]'_a)
   \frac{100}{F_L} {\left(
-    \frac{27.13 \abs{[R,G,B]'_a}}{400 - \abs{[R,G,B]'_a}}
+    \frac{27.13 |[R,G,B]'_a|}{400 - |[R,G,B]'_a|}
     \right)}^{1/0.42}.
-  \]
-\end{step}
+  ```
 
-\begin{step}[6]
-Calculate $R$, $G$, and $B$ from $R_c$, $G_c$, and $B_c$.
-\[
+- Step 6*:
+  Calculate $`R`$, $`G`$, and $`B`$ from $`R_c`$, $`G_c`$, and $`B_c`$.
+  ```math
   [R,G,B] = [R,G,B]_c / D_{[R,G,B]}.
-\]
-\end{step}
+  ```
 
-\begin{step}[7]
-Calculate $X$, $Y$, and $Z$. (For the coefficients of the inverse matrix, see
-the note at the end of the appendix B of~\cite{cam16}.)
-\[
-\begin{pmatrix}X\\Y\\Z\end{pmatrix}
-  = M_{16}^{-1}
-\begin{pmatrix}R\\G\\B\end{pmatrix}.
-\]
-\end{step}
-
-% \printbibliography{}
-\bibliography{bib}{}
-\bibliographystyle{plain}
-
-\end{document}
+- Step 7:
+  Calculate $`X`$, $`Y`$, and $`Z`$. (For the coefficients of the inverse matrix, see
+  the note at the end of the appendix B of~\cite{cam16}.)
+  ```math
+  \begin{pmatrix}X\\Y\\Z\end{pmatrix}
+    = M_{16}^{-1}
+  \begin{pmatrix}R\\G\\B\end{pmatrix}.
+  ```
