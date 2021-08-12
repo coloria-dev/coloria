@@ -73,10 +73,12 @@ include the term $`0.1`$ only in the computation of $`t`$ in Step 9:
   R'_a = 400 \operatorname{sign}(R_c) \frac{{\left(\frac{F_L |R_c|}{100}\right)}^{0.42}}{{\left(\frac{F_L |R_c|}{100}\right)}^{0.42} + 27.13}.
 ```
 
-_Table: CAM16 values upon input $`X=Y=Z=0`$ with and without the fixes in this article.
-The exact solutions are zeros for every entry._
 
 <p align="center">
+ <p align="center">
+   _Table: CAM16 values upon input $`X=Y=Z=0`$ with and without the fixes in this article.
+   The exact solutions are zeros for every entry._
+  </p>
   |       | with fixes | without   |
   | ----- | ---------– | ------–-- |
   | $`J`$ | 0.0        | 3.258e-22 |
