@@ -220,12 +220,14 @@ It is mildly unfortunate that one has to introduce a case distinction for
 $`J=0`$ here, but this is an operation that can still be performed at reasonable
 efficiency.
 
-\begin{figure}
+<figure>
 \input{perf.tex}
-\caption{Performance comparison of the conversion from CAM16 to XYZ (with
-$J$, $C$, and $h$), implemented in colorio \cite{colorio}. The suggested
-improvements in the inverse model lead to a speed-up of about 5\%.}
-\end{figure}
+<figcaption>
+Performance comparison of the conversion from CAM16 to XYZ (with
+$`J`$, $`C`$, and $`h`$), implemented in colorio \cite{colorio}. The suggested
+improvements in the inverse model lead to a speed-up of about 5%.
+</figcaption>
+</figure>
 
 ### Full model
 
@@ -381,13 +383,12 @@ _Table: Unique hue data for calculation of hue quadrature._
   (Make sure that $`h`$ is between $`0\degree`$ and $`360\degree`$.)
 
 - Step 5:
-  Calculate eccentricity [$`e_t`$, hue quadrature composition ($`H`$) and hue
-  composition ($`H_c`$)].
+  Calculate eccentricity $`e_t`$, hue quadrature composition ($`H`$), and hue composition
+  ($`H_c`$).
 
-  Using the following unique hue data in table \ref{table:hue}, set
-  $`h'= h + 360\degree`$ if $`h < h_1`$, otherwise $`h'=h`$.
-  Choose a proper $`i\in\{1,2,3,4\}`$ so that $`h_i\le h' < h_{i+1}`$.
-  Calculate
+  Using the following unique hue data in table \ref{table:hue}, set $`h'= h +
+  360\degree`$ if $`h < h_1`$, otherwise $`h'=h`$.  Choose a proper $`i\in\{1,2,3,4\}`$
+  so that $`h_i\le h' < h_{i+1}`$.  Calculate
 
   ```math
   e_t = \tfrac{1}{4}
@@ -396,7 +397,7 @@ _Table: Unique hue data for calculation of hue quadrature._
   \right]
   ```
 
-  which is close to, but not exactly the same as, the eccentricity factor given
+  which is close to, but not exactly the same as the eccentricity factor given
   in table \ref{table:hue}.
 
   Hue quadrature is computed using the formula
@@ -439,7 +440,7 @@ _Table: Unique hue data for calculation of hue quadrature._
   ($`s`$).
   ```math
   \begin{align*}
-  t&\coloneqq \frac{50000/13 N*c N*{cb} e_t \sqrt{a^2 + b^2}}{u + 0.305},\\
+  t&\coloneqq \frac{50000/13 N_c N_{cb} e_t \sqrt{a^2 + b^2}}{u + 0.305},\\
   \alpha&\coloneqq t^{0.9} {(1.64 - 0.29^n)}^{0.73},\\
   C&\coloneqq \alpha \sqrt{\frac{J}{100}},\\
   M&\coloneqq C\cdot F_L^{0.25},\\
@@ -457,13 +458,13 @@ _Table: Unique hue data for calculation of hue quadrature._
   sub-steps are needed to convert the input parameters to the parameters $`J`$,
   $`t`$, and $`h`$.
 
-  - Step 1-1:
+  - Step 1.1:
     Compute $`J`$ from $`Q`$ (if input is $`Q`$)
     \[
     J\coloneqq 6.25 \frac{cQ}{(A_w+4) F_L^{0.25}}.
     \]
 
-  - Step 1-2\*:
+  - Step 1.2\*:
     Calculate $`t`$ from $`C`$, $`M`$, or $`s`$.
 
     - If input is $`C`$ or $`M`$:
@@ -471,8 +472,8 @@ _Table: Unique hue data for calculation of hue quadrature._
       \begin{align*}
         C &\coloneqq M / F_L^{0.25} \:\text{if input is $M$}\\
         \alpha &\coloneqq \begin{cases}
-            0 &if $J=0$,\\
-            \frac{C}{\sqrt{J/100}}& otherwise.
+            0                      & \text{if } J=0,\\
+            \frac{C}{\sqrt{J/100}} & \text{otherwise.}
         \end{cases}
       \end{align*}
       ```
@@ -487,7 +488,7 @@ _Table: Unique hue data for calculation of hue quadrature._
     t \coloneqq {\left(\frac{\alpha}{{(1.64 - 0.29^n)}^{0.73}}\right)}^{1/0.9}
     ```
 
-  - Step 1-3:
+  - Step 1.3:
     Calculate $`h`$ from $`H`$ (if input is $`H`$). The correlate of hue ($`h`$) can be
     computed by using data in table \ref{table:hue} in the forward model. Choose a
     proper $`i\in\{1,2,3,4\}`$ such that $`H_i \le H < H_{i+1}`$. Then
@@ -500,10 +501,12 @@ _Table: Unique hue data for calculation of hue quadrature._
   Calculate $`e_t`$, $`A`$, $`p'_1`$, and $`p'_2`$
 
   ```math
+  \begin{align*}
   e_t &= \tfrac{1}{4} (\cos(h\pi/180\degree + 2) + 3.8),\\
   A &= A_w  {(J/100)}^{1/(cz)},\\
   p'_1 &= e_t \tfrac{50000}{13} N_c N_{cb},\\
   p'_2 &= A / N_{bb}.
+  \end{align*}
   ```
 
 - Step 3\*:
