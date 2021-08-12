@@ -221,14 +221,12 @@ It is mildly unfortunate that one has to introduce a case distinction for
 $`J=0`$ here, but this is an operation that can still be performed at reasonable
 efficiency.
 
-<figure>
-\input{perf.tex}
-<figcaption>
-Performance comparison of the conversion from CAM16 to XYZ (with
-$`J`$, $`C`$, and $`h`$), implemented in colorio \cite{colorio}. The suggested
-improvements in the inverse model lead to a speed-up of about 5%.
-</figcaption>
-</figure>
+<p align="center">
+  <img src="https://nschloe.github.io/colorio/cam16-fixes-speed-comparison.svg" width="50%"/>
+  Performance comparison of the conversion from CAM16 to XYZ (with
+  $`J`$, $`C`$, and $`h`$), implemented in colorio \cite{colorio}. The suggested
+  improvements in the inverse model lead to a speed-up of about 5%.
+</p>
 
 ### Full model
 
