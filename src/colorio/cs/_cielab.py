@@ -1,15 +1,17 @@
 import numpy as np
+from numpy.typing import ArrayLike
 
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
 
 
 class CIELAB(ColorSpace):
-    def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
+    def __init__(self, whitepoint: ArrayLike = whitepoints_cie1931["D65"]):
         super().__init__("CIELAB", ("L*", "a*", "b*"), 0)
-        self.whitepoint = whitepoint
+        self.whitepoint_xyz100 = np.asarray(whitepoint)
+        self.whitepoint = np.array([100.0, 0.0, 0.0])
 
-    def from_xyz100(self, xyz):
+    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         def f(t):
             delta = 6 / 29
             out = np.array(t, dtype=float)
@@ -20,10 +22,10 @@ class CIELAB(ColorSpace):
 
         xyz = np.asarray(xyz)
 
-        fx, fy, fz = f((xyz.T / self.whitepoint).T)
+        fx, fy, fz = f((xyz.T / self.whitepoint_xyz100).T)
         return np.array([fy, 125 / 29 * (fx - fy), 50 / 29 * (fy - fz)])
 
-    def to_xyz100(self, lab):
+    def to_xyz100(self, lab: ArrayLike) -> np.ndarray:
         def f1(t):
             delta = 6 / 29
             out = np.array(t, dtype=float)
@@ -36,5 +38,5 @@ class CIELAB(ColorSpace):
         L, a, b = lab
         return (
             f1(np.array([L / 116 + a / 500, L / 116, L / 116 - b / 200])).T
-            * self.whitepoint
+            * self.whitepoint_xyz100
         ).T

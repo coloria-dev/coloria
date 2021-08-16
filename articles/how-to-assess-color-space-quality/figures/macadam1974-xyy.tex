@@ -1,4 +1,4 @@
-% This file was created with tikzplotlib v0.9.11.
+% This file was created with tikzplotlib v0.9.12.
 \begin{tikzpicture}
 \scriptsize
 
@@ -18,8 +18,6 @@ ylabel={y},
 ymin=0.246465, ymax=0.555235,
 ytick style={color=black}
 ]
-\addplot [draw=black, fill=black, mark=*, only marks]
-table [search path={./figures/}]{macadam1974-xyy-000.dat};
 \addplot [very thick, black, opacity=0.3]
 table {%
 0.312 0.5412
@@ -1060,6 +1058,25 @@ table {%
 0.3866 0.294
 0.375636571740871 0.29101385222514
 };
+\addplot [
+  draw=white,
+  mark=square*,
+  only marks,
+  scatter,
+  scatter/@post marker code/.code={%
+    \endscope
+  },
+  scatter/@pre marker code/.code={%
+    \expanded{%
+    \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
+    \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
+    }%
+    \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
+  },
+  visualization depends on={value \thisrow{draw} \as \drawcolor},
+  visualization depends on={value \thisrow{fill} \as \fillcolor}
+]
+table [search path={./figures/}]{macadam1974-xyy-000.dat};
 \end{axis}
 
 \end{tikzpicture}

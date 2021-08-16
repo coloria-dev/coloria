@@ -16,6 +16,7 @@
 \usepackage{mathtools}
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage{import}
 
 \usepackage{pgfplots}
 \pgfplotsset{compat=newest}
@@ -167,7 +168,7 @@ average.
 
 \begin{figure}
   \centering
-  \input{figures/averages.tex}
+  \import{figures/}{averages.tex}
   \caption{$p$-means for sequences of length $n=20$, $s_\text{equal1} = \{1, \dots,
   1\}$, $s_\text{outliner-small} = \{10^{-4}, 1,\dots, 1\}$, $s_\text{uniform} =
   \{10^{-4}, h, 2h, \dots, 1\}$ (with $h = 1 / (n-1)$), $s_\text{outlier1} = \{1,
