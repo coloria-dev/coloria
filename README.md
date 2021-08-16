@@ -274,18 +274,22 @@ certain properties of color spaces. Most data sets can also be visualized.
 
 Color difference data from [MacAdam (1974)](https://doi.org/10.1364/JOSA.64.001691). The
 above plots show the 43 color pairs that are of comparable lightness. The data is
-matched perfectly if the arrow tips meet in one point.
+matched perfectly if the facing line stubs meet in one point.
 
 ```python
 import colorio
 
-cs = colorio.cs.CIELAB()
-colorio.data.MacAdam1974().show(cs)
+data = colorio.data.MacAdam1974()
+
+# Use the experimental whitepoint for adjustment
+cs = colorio.cs.CIELAB(data.whitepoint_xyz100)
+
+data.show(cs)
 print(colorio.data.MacAdam1974().stress(cs))
 ```
 
 ```
-24.531919167387624
+24.54774029343344
 ```
 
 The same is available for
@@ -299,7 +303,6 @@ colorio.data.Witt()
 colorio.data.COMBVD()  # a weighted combination of the above
 ```
 
-which, combined and weighted, form the COMBVD color difference data set.
 
 #### Munsell
 

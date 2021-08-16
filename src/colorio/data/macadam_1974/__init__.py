@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ...cs import XYY, XYZ
+from ...illuminants import whitepoints_cie1964
 from ..helpers import ColorDistanceDataset
 
 
@@ -22,6 +23,8 @@ class MacAdam1974(ColorDistanceDataset):
 
         with open(this_dir / "table2.json") as f:
             data = json.load(f)
+
+        self.whitepoint_xyz100 = whitepoints_cie1964["D65"]
 
         t = dict(zip(data.keys(), range(len(data))))
         xyy100_tiles = np.array([[val[0], val[1], val[2]] for val in data.values()])
