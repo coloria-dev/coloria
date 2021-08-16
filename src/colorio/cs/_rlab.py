@@ -15,7 +15,7 @@ class RLAB(ColorSpace):
     See also
     Mark D. Fairchild,
     Color Appearance Models, Second Edition,
-    <http://last.hit.bme.hu/download/firtha/video/Colorimetry/Fairchild_M._Color_appearance_models__2005.pdf>.
+    <https://last.hit.bme.hu/download/firtha/video/Colorimetry/Fairchild_M._Color_appearance_models__2005.pdf>.
 
     and
 

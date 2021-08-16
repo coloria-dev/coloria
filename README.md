@@ -3,8 +3,8 @@
   <p align="center">Tools for color models.</p>
 </p>
 
-[![PyPi Version](https://img.shields.io/pypi/v/colorio.svg?style=flat-square)](https://pypi.org/project/colorio)
-[![PyPI pyversions](https://img.shields.io/pypi/pyversions/colorio.svg?style=flat-square)](https://pypi.org/pypi/colorio/)
+[![PyPi Version](https://img.shields.io/pypi/v/colorio.svg?style=flat-square)](https://pypi.org/project/colorio/)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/colorio.svg?style=flat-square)](https://pypi.org/project/colorio/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1172995.svg?style=flat-square)](https://doi.org/10.5281/zenodo.1172995)
 [![GitHub stars](https://img.shields.io/github/stars/nschloe/colorio.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/nschloe/colorio)
 [![PyPi downloads](https://img.shields.io/pypi/dm/colorio.svg?style=flat-square)](https://pypistats.org/packages/colorio)
@@ -46,7 +46,7 @@ The following color spaces are implemented:
   parameter determining the scaling)
 - [xyY](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space)
   (`colorio.cs.XYY(100)`, the paramter determining the scaling of `Y`)
-- [Linear sRGB](https://en.wikipedia.org/wiki/sRGB) (`colorio.SrgbLinear()`)
+- [Linear sRGB](https://en.wikipedia.org/wiki/SRGB) (`colorio.SrgbLinear()`)
   This class has the two additional methods
   ```
   from_rgb1()
@@ -69,7 +69,7 @@ The following color spaces are implemented:
 - [DIN99](https://de.wikipedia.org/wiki/DIN99-Farbraum) and its variants DIN99{b,c,d}
   (`colorio.cs.DIN99()`)
 - [ICtCp](https://en.wikipedia.org/wiki/ICtCp) (`colorio.cs.ICtCp()`)
-- [IPT](http://www.ingentaconnect.com/content/ist/cic/1998/00001998/00000001/art00003)
+- [IPT](https://www.ingentaconnect.com/content/ist/cic/1998/00001998/00000001/art00003)
   (`colorio.cs.IPT()`)
 - [CIECAM02 / CAM02-UCS](https://en.wikipedia.org/wiki/CIECAM02)
 
