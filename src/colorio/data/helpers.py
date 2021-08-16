@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy.typing import ArrayLike
 
 from ..cs import CIELAB
 
@@ -79,9 +80,9 @@ class ColorDistanceDataset(Dataset):
 
 
 class HueLinearityDataset(Dataset):
-    def __init__(self, name: str, whitepoint, arms):
+    def __init__(self, name: str, whitepoint_xyz100: ArrayLike, arms):
         self.name = name
-        self.whitepoint = np.asarray(whitepoint)
+        self.whitepoint_xyz100 = np.asarray(whitepoint_xyz100)
         self.arms = arms
 
     def plot(self, colorspace):
@@ -89,7 +90,7 @@ class HueLinearityDataset(Dataset):
         no_lightness = [True, True, True]
         no_lightness[colorspace.k0] = False
 
-        wp = colorspace.from_xyz100(self.whitepoint)[no_lightness]
+        wp = colorspace.from_xyz100(self.whitepoint_xyz100)[no_lightness]
         all_pts = []
         all_rgb1 = []
         for xyz in self.arms:
@@ -146,7 +147,7 @@ class HueLinearityDataset(Dataset):
         # remove the row corresponding to lightness
         idx = [True, True, True]
         idx[cs.k0] = False
-        wp_cs = cs.from_xyz100(self.whitepoint)[idx]
+        wp_cs = cs.from_xyz100(self.whitepoint_xyz100)[idx]
         s2 = []
         for dd in self.arms:
             vals = cs.from_xyz100(dd)[idx]

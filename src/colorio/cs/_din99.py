@@ -1,11 +1,16 @@
+from typing import Optional
+
 import numpy as np
+from numpy.typing import ArrayLike
 
 from ._cielab import CIELAB
 from ._color_space import ColorSpace
 
 
 class DIN99(ColorSpace):
-    def __init__(self, k_E=1.0, k_CH=1.0, variant=None):
+    def __init__(
+        self, k_E: float = 1.0, k_CH: float = 1.0, variant: Optional[str] = None
+    ):
         # variants from
         #
         # G. Cui, M.R. Luo, B. Rigg, G. Roesler, K. Witt,
@@ -34,7 +39,7 @@ class DIN99(ColorSpace):
         self.sin_p6 = np.sin(np.radians(self.p[6]))
         self.cos_p6 = np.cos(np.radians(self.p[6]))
 
-    def from_xyz100(self, xyz):
+    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         L, a, b = self.cielab.from_xyz100(xyz)
         L99 = self.p[0] * np.log(1 + self.p[1] * L) / self.k_E
 
@@ -63,8 +68,8 @@ class DIN99(ColorSpace):
 
         return np.array([L99, a99, b99])
 
-    def to_xyz100(self, lab99):
-        L99, a99, b99 = lab99
+    def to_xyz100(self, lab99: ArrayLike) -> np.ndarray:
+        L99, a99, b99 = np.asarray(lab99)
         C99 = np.hypot(a99, b99)
         G = (np.exp(C99 / self.p[4] * self.k_CH * self.k_E) - 1) / self.p[5]
 
