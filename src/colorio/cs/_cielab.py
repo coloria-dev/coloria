@@ -16,9 +16,8 @@ def f(t):
 
 
 def finv(t):
-    t /= 116
     delta = 6 / 29
-    out = np.array(t, dtype=float)
+    out = np.array(t / 116, dtype=float)
     is_greater = out > 2 / 29
     out[is_greater] = (out[is_greater] + 4 / 29) ** 3
     out[~is_greater] = 3 * delta ** 2 * out[~is_greater]
@@ -35,17 +34,17 @@ class CIELAB(ColorSpace):
         # https://gist.github.com/nschloe/ad1d288917a140978f7db6c401cb7f17
         # for a speed comparison. None is really faster, but the matrix-approach is
         # easiest to read.
-        self.M = np.array(
+        self.A = np.array(
             [[0.0, 1.0, 0.0], [125 / 29, -125 / 29, 0.0], [0.0, 50 / 29, -50 / 29]]
         )
-        self.Minv = np.array(
+        self.Ainv = np.array(
             [[1.0, 29 / 125, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, -116 / 200]]
         )
 
     def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         xyz = np.asarray(xyz)
-        return npx.dot(self.M, f((xyz.T / self.whitepoint_xyz100).T))
+        return npx.dot(self.A, f((xyz.T / self.whitepoint_xyz100).T))
 
     def to_xyz100(self, lab: ArrayLike) -> np.ndarray:
         lab = np.asarray(lab)
-        return (finv(npx.dot(self.Minv, lab)).T * self.whitepoint_xyz100).T
+        return (finv(npx.dot(self.Ainv, lab)).T * self.whitepoint_xyz100).T
