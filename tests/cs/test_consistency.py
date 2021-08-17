@@ -61,8 +61,8 @@ def test_conversion(cs, tol, xyz):
     print(xyz)
     print(cs)
     print(out)
-    assert xyz.shape == out.shape
-    assert np.all(np.abs(np.array(xyz) - out) < tol * np.abs(xyz))
+    assert np.asarray(xyz).shape == out.shape
+    assert np.all(np.abs(np.asarray(xyz) - out) < tol * np.abs(xyz))
 
     # # make sure it works the other way around, too
     # out = cs.from_xyz100(cs.to_xyz100(xyz))
