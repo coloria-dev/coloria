@@ -103,6 +103,7 @@ The following color spaces are implemented:
   (`colorio.cs.JzAzBz()`)
 - [Oklab](https://bottosson.github.io/posts/oklab/)(`colorio.cs.OKLAB()`)
 - [proLab](https://arxiv.org/abs/2012.07653)(`colorio.cs.PROLAB()`)
+- [SRLAB2](https://www.magnetkern.de/srlab2.html)(`colorio.cs.SRLAB2()`)
 
 All methods in colorio are fully vectorized, i.e., computation is _really_ fast.
 
