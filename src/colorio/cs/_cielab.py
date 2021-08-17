@@ -1,3 +1,4 @@
+import npx
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -30,15 +31,21 @@ class CIELAB(ColorSpace):
         self.whitepoint_xyz100 = np.asarray(whitepoint)
         self.whitepoint = np.array([100.0, 0.0, 0.0])
 
+        # See
+        # https://gist.github.com/nschloe/ad1d288917a140978f7db6c401cb7f17
+        # for a speed comparison. None is really faster, but the matrix-approach is
+        # easiest to read.
+        self.M = np.array(
+            [[0.0, 1.0, 0.0], [125 / 29, -125 / 29, 0.0], [0.0, 50 / 29, -50 / 29]]
+        )
+        self.Minv = np.array(
+            [[1.0, 29 / 125, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, -116 / 200]]
+        )
+
     def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         xyz = np.asarray(xyz)
-        fx, fy, fz = f((xyz.T / self.whitepoint_xyz100).T)
-        return np.array([fy, 125 / 29 * (fx - fy), 50 / 29 * (fy - fz)])
+        return npx.dot(self.M, f((xyz.T / self.whitepoint_xyz100).T))
 
     def to_xyz100(self, lab: ArrayLike) -> np.ndarray:
         lab = np.asarray(lab)
-        L, a, b = lab
-        return (
-            finv(np.array([L + a * 116 / 500, L, L - b * 116 / 200])).T
-            * self.whitepoint_xyz100
-        ).T
+        return (finv(npx.dot(self.Minv, lab)).T * self.whitepoint_xyz100).T
