@@ -18,7 +18,7 @@ def test_reference_xyz(xyz100, ref):
     cs = colorio.cs.CIELAB()
     vals = cs.from_xyz100(xyz100)
     print(list(vals))
-    assert np.all(np.abs(vals - ref) < 1.0e-13 * np.abs(ref) + 1.0e-15)
+    assert np.all(np.abs(vals - ref) < 1.0e-12 * np.abs(ref) + 1.0e-12)
 
 
 @pytest.mark.parametrize(
@@ -41,4 +41,4 @@ def test_reference_xyz_d50(xyz100, ref):
     cs = colorio.cs.CIELAB(whitepoint=colorio.illuminants.whitepoints_cie1931["D50"])
     vals = cs.from_xyz100(xyz100)
     print(list(vals))
-    assert np.all(np.abs(vals - ref) < 1.0e-13 * np.abs(ref) + 1.0e-15)
+    assert np.all(np.abs(vals - ref) < 1.0e-12 * np.abs(ref) + 1.0e-12)

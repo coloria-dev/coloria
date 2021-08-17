@@ -22,12 +22,11 @@ import colorio
 )
 def test_reference_lab(lab, ref):
     print(lab)
-    xyz = colorio.cs.CIELAB().to_xyz100(lab)
+    xyz100 = colorio.cs.CIELAB().to_xyz100(lab)
     cs = colorio.cs.DIN99()
-    xyz100 = np.array(xyz)
     val = cs.from_xyz100(xyz100)
     print(list(val))
-    assert np.all(np.abs(val - ref) < 1.0e-13 * np.abs(ref) + 1.0e-15)
+    assert np.all(np.abs(val - ref) < 1.0e-13 * np.abs(ref) + 1.0e-12)
 
 
 @pytest.mark.parametrize(
@@ -66,9 +65,8 @@ def test_reference_lab(lab, ref):
 def test_variants(variant, lab, ref):
     print(variant)
     print(lab)
-    xyz = colorio.cs.CIELAB().to_xyz100(lab)
+    xyz100 = colorio.cs.CIELAB().to_xyz100(lab)
     cs = colorio.cs.DIN99(variant=variant)
-    xyz100 = np.array(xyz)
     val = cs.from_xyz100(xyz100)
     print(list(val))
-    assert np.all(np.abs(val - ref) < 1.0e-13 * np.abs(ref) + 1.0e-15)
+    assert np.all(np.abs(val - ref) < 1.0e-13 * np.abs(ref) + 1.0e-12)
