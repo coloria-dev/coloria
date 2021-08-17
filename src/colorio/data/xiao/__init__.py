@@ -25,10 +25,12 @@ class Xiao(HueLinearityDataset):
         whitepoint_xyz100 *= 100
 
         # The whitepoint as given in the article, table 3.
-        # Note that this does not equal the "neutral gray" as given in the data, and
-        # also slighty diverges from the value givenin Safdar et al., Perceptually
+        # Note that this does not equal the "neutral gray" as given in the data,
+        # [57.74156756756757, 59.86000000000005, 77.54005405405404],
+        # scaled [96.46102166, 100.0 , 129.53567333] and
+        # also slighty diverges from the value given in [Safdar et al., Perceptually
         # uniform color space for image signals including high dynamic range and wide
-        # gamut (the JzAzBz paper). The value [97.313, 100, 138.596] is used there.
+        # gamut] (the JzAzBz paper). The value [97.313, 100, 138.596] is used there.
         whitepoint_xyz100 = np.array([98.0, 100.0, 139.7])
 
         # CIECAM02 surround parameters, as given in the article
@@ -36,5 +38,6 @@ class Xiao(HueLinearityDataset):
         self.Y_b = 20
         self.surrounding = "dim"
 
+        data.pop("neutral-gray", None)
         arms = np.moveaxis(list(data.values()), 1, 2)
         super().__init__("Xiao", whitepoint_xyz100, arms)
