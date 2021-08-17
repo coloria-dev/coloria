@@ -27,7 +27,7 @@ def test_reference_lab(lab, ref):
     xyz100 = np.array(xyz)
     val = cs.from_xyz100(xyz100)
     print(list(val))
-    assert np.all(np.abs(val - ref) < 1.0e-14 * np.abs(ref) + 1.0e-15)
+    assert np.all(np.abs(val - ref) < 1.0e-13 * np.abs(ref) + 1.0e-15)
 
 
 @pytest.mark.parametrize(
@@ -71,4 +71,4 @@ def test_variants(variant, lab, ref):
     xyz100 = np.array(xyz)
     val = cs.from_xyz100(xyz100)
     print(list(val))
-    assert np.all(np.abs(val - ref) < 1.0e-14 * np.abs(ref) + 1.0e-15)
+    assert np.all(np.abs(val - ref) < 1.0e-13 * np.abs(ref) + 1.0e-15)
