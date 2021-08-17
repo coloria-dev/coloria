@@ -22,7 +22,7 @@ def test_reference_xyz(xyz100, ref):
     xyz100 = np.array(xyz100)
     vals = cs.from_xyz100(xyz100)
     print(list(vals))
-    assert np.all(np.abs(vals - ref) < 1.0e-15 * np.abs(ref) + 1.0e-15)
+    assert np.all(np.abs(vals - ref) < 1.0e-14 * np.abs(ref) + 1.0e-15)
 
 
 @pytest.mark.parametrize(
@@ -49,4 +49,4 @@ def test_reference_xyz_d50(xyz100, ref):
     xyz100 = np.array(xyz100)
     vals = cs.from_xyz100(xyz100)
     print(list(vals))
-    assert np.all(np.abs(vals - ref) < 1.0e-15 * np.abs(ref) + 1.0e-15)
+    assert np.all(np.abs(vals - ref) < 1.0e-14 * np.abs(ref) + 1.0e-15)
