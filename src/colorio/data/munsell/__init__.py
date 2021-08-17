@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ...cs import XYY
+from ...illuminants import whitepoints_cie1931
 
 this_dir = pathlib.Path(__file__).resolve().parent
 
@@ -18,6 +19,16 @@ class Munsell:
         self.V = np.array(data["V"])
         self.C = np.array(data["C"])
         self.xyy100 = np.array([data["x"], data["y"], data["Y"]])
+
+        # Whitepoint info from
+        #
+        # Muhammad Safdar, Guihua Cui, Youn Jin Kim, and Ming Ronnier Luo,
+        # Perceptually uniform color space for image signals including high dynamic
+        # range and wide gamut,
+        # Optics Express Vol. 25, Issue 13, pp. 15131-15151 (2017),
+        # <https://doi.org/10.1364/OE.25.015131>.
+        #
+        self.whitepoint_xyz100 = whitepoints_cie1931["C"]
 
         with open(this_dir / "lightness.json") as f:
             self.lightness = json.load(f)

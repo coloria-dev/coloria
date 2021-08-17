@@ -12,12 +12,23 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ...cs import XYY
+from ...illuminants import whitepoints_cie1931
 from ..helpers import ColorDistanceDataset, _plot_ellipses
 
 
 class MacAdam1942(ColorDistanceDataset):
     def __init__(self, Y):
         self.Y = Y
+
+        # Whitepoint info from
+        #
+        # Muhammad Safdar, Guihua Cui, Youn Jin Kim, and Ming Ronnier Luo,
+        # Perceptually uniform color space for image signals including high dynamic
+        # range and wide gamut,
+        # Optics Express Vol. 25, Issue 13, pp. 15131-15151 (2017),
+        # <https://doi.org/10.1364/OE.25.015131>.
+        #
+        self.whitepoint_xyz100 = whitepoints_cie1931["C"]
 
         # Extract ellipse centers and offsets from MacAdams data
         this_dir = pathlib.Path(__file__).resolve().parent

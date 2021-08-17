@@ -1,5 +1,6 @@
 import npx
 import numpy as np
+from numpy.typing import ArrayLike
 
 from .._exceptions import ColorioError
 from ..illuminants import whitepoints_cie1931
@@ -15,9 +16,9 @@ class JzAzBz(ColorSpace):
     <https://doi.org/10.1364/OE.25.015131>.
     """
 
-    def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
+    def __init__(self, whitepoint: ArrayLike = whitepoints_cie1931["D65"]):
         super().__init__("J_z a_z b_z", ("J_z", "a_z", "b_z"), 0)
-        self.whitepoint = whitepoint
+        self.whitepoint_xyz100 = np.asarray(whitepoint)
 
         self.b = 1.15
         self.g = 0.66
@@ -44,10 +45,10 @@ class JzAzBz(ColorSpace):
             ]
         )
 
-    def from_xyz100(self, xyz):
+    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         # x, y, z = (xyz.T / self.whitepoint).T
         # In nit units, ranging from 0 to 10000?
-        x, y, z = xyz
+        x, y, z = np.asarray(xyz)
         x_ = self.b * x - (self.b - 1) * z
         y_ = self.g * y - (self.g - 1) * x
         lms = npx.dot(self.M1, [x_, y_, z])
@@ -59,8 +60,8 @@ class JzAzBz(ColorSpace):
         jz = (1 + self.d) * iz / (1 + self.d * iz) - self.d0
         return np.array([jz, az, bz])
 
-    def to_xyz100(self, jzazbz):
-        jz, az, bz = jzazbz
+    def to_xyz100(self, jzazbz: ArrayLike) -> np.ndarray:
+        jz, az, bz = np.asarray(jzazbz)
         iz = (jz + self.d0) / (1 + self.d - self.d * (jz + self.d0))
         lms_ = npx.solve(self.M2, np.array([iz, az, bz]))
         if np.any(lms_ < 0.0):

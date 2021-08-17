@@ -6,7 +6,7 @@ Hue Uniformity,_
 Color Reseach and Application, Volume 36, Issue 5, October 2011, Pages
 316-323.](https://doi.org/10.1002/col.20637)
 
-See https://github.com/nschloe/color-data.
+See [color-data](https://github.com/nschloe/color-data).
 
 ### Abstract
 

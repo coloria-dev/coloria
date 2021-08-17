@@ -21,6 +21,9 @@ class OsaUcs(ColorSpace):
     def __init__(self):
         super().__init__("OSA-UCS", ("L", "j", "g"), 0)
 
+        # The whitepoint used in the experiments (MacAdam 1974 color distances) was the
+        # 10-degree observer under the D65 illuminant.
+
         self.M = np.array(
             [
                 [+0.7990, 0.4194, -0.1648],

@@ -1,7 +1,9 @@
 # https://bottosson.github.io/posts/oklab/
 import npx
 import numpy as np
+from numpy.typing import ArrayLike
 
+from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
 
 
@@ -24,10 +26,12 @@ class OKLAB(ColorSpace):
             ]
         )
         self.M2inv = np.linalg.inv(self.M2)
+        self.whitepoint_xyz100 = whitepoints_cie1931["D65"]
+        self.whitepoint = np.array([1.0, 0.0, 0.0])
 
-    def from_xyz100(self, xyz100):
+    def from_xyz100(self, xyz100: ArrayLike):
         xyz = np.asarray(xyz100) / 100
         return npx.dot(self.M2, np.cbrt(npx.dot(self.M1, xyz)))
 
-    def to_xyz100(self, lab):
+    def to_xyz100(self, lab: ArrayLike):
         return npx.dot(self.M1inv, npx.dot(self.M2inv, lab) ** 3) * 100

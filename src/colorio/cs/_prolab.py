@@ -3,6 +3,7 @@
 # https://arxiv.org/abs/2012.07653
 import npx
 import numpy as np
+from numpy.typing import ArrayLike
 
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
@@ -25,7 +26,8 @@ class PROLAB(ColorSpace):
         )
         self.q = np.array([0.7554, 3.8666, 1.6739])
         self.Qinv = np.linalg.inv(self.Q)
-        self.wp = whitepoint
+        self.whitepoint_xyz100 = np.asarray(whitepoint)
+        self.whitepoint = np.array([100.0, 0.0, 0.0])
 
         # P is Q with whitepoint normalization
         # self.P = np.array([
@@ -35,13 +37,13 @@ class PROLAB(ColorSpace):
         #     ])
         # self.p = np.array([0.7947, 3.8666, 1.5373])
 
-    def from_xyz100(self, xyz):
+    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         xyz = np.asarray(xyz)
-        xyz = (xyz.T / self.wp).T
+        xyz = (xyz.T / self.whitepoint_xyz100).T
         return npx.dot(self.Q, xyz) / (npx.dot(self.q, xyz) + 1)
 
-    def to_xyz100(self, lab):
+    def to_xyz100(self, lab: ArrayLike) -> np.ndarray:
         y = npx.dot(self.Qinv, lab)
         xyz = y / (1 - npx.dot(self.q, y))
-        xyz = (xyz.T * self.wp).T
+        xyz = (xyz.T * self.whitepoint_xyz100).T
         return xyz

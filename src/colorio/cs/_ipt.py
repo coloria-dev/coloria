@@ -8,8 +8,9 @@ class IPT(ColorSpace):
     """
     IPT color model from
 
-    Ebner, Fairchild,
-    Development and Testing of a Color Space (IPT) with Improved Hue Uniformity.
+    Ebner, Fairchild
+    Development and Testing of a Color Space (IPT) with Improved Hue Uniformity,
+    In: Proceedings of The Sixth Color Imaging Conference, 8-13, 1998.
     """
 
     def __init__(self):

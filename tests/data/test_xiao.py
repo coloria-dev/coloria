@@ -15,9 +15,10 @@ def test_show():
 
 
 def test_residuals():
-    cs = colorio.cs.CIELAB()
-    ref = 4.239559312073768
-    res = np.average(colorio.data.Xiao().stress(cs))
+    data = colorio.data.Xiao()
+    cs = colorio.cs.CIELAB(whitepoint=data.whitepoint_xyz100)
+    ref = 2.7883626042361533
+    res = np.average(data.stress(cs))
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 
