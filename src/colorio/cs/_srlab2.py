@@ -8,6 +8,12 @@ from ._color_space import ColorSpace
 
 
 class SRLAB2(ColorSpace):
+    """
+    SRLAB2 is an alternative to CIELAB. It simply replaces the white-point adjustment
+    with the more modern CIECAM02 variant. See <https://www.magnetkern.de/srlab2.html>
+    for details.
+    """
+
     def __init__(self, whitepoint: ArrayLike = whitepoints_cie1931["D65"]):
         super().__init__("SRLAB2", ("L", "a", "b"), 0)
         self.whitepoint_xyz100 = np.asarray(whitepoint)
