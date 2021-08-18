@@ -263,7 +263,7 @@ class CIECAM02:
 
         c_vals = [0.525, 0.59, 0.69]
         F_Nc_vals = [0.8, 0.9, 1.0]
-        assert 0.535 <= c <= 0.69
+        assert 0.525 <= c <= 0.69, f"c = {c}"
         F = np.interp(c, c_vals, F_Nc_vals)
         self.c = c
         self.N_c = F

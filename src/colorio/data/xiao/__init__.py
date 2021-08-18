@@ -35,7 +35,7 @@ class Xiao(HueLinearityDataset):
         # CIECAM02 surround parameters, as given in the article
         self.Lw = 114.6
         self.Yb = 20
-        self.surrounding = 0.59  # "dim"
+        self.c = 0.59  # "dim"
         self.L_A = 23  # ~ Lw * Yb / 100
 
         data.pop("neutral-gray", None)
