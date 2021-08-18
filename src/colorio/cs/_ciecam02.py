@@ -181,14 +181,46 @@ class CIECAM02:
     Appendix: CIE Colour Appearance Model: CIECAM02
     Part 1: The Forward Mode
 
-    c ... surround parameter (average: 0.69, dim: 0.59, dark: 0.535)
-
+    c ..... surround parameter (average: 0.69, dim: 0.59, dark: 0.535)
+    Y_b ... Background in test conditions
     L_A ... in cd/m^2
+
+    SR .... Surround ratio
+
+    From the above article:
     Table 2.1 Parameter settings for some typical applications:
-    Surface colour evaluation in a light booth: 60
-    Viewing self-luminous display at home: 20
-    Viewing slides in dark room: 30
-    Viewing self-luminous display under office illumination: 15
+
+        * Surface color evaluation in a light booth:
+           - Ambient illumination in lux (cd/m2): 1000 (318.3)
+           - Scene or device white luminance: 318.3 cd/m2
+           - L_A: 60 cd/m2
+           - Adopted white point: Light booth
+           - SR: 1
+           - Surround: Average
+
+        * Viewing self-luminous display at home:
+           - Ambient illumination in lux (cd/m2): 38 (12)
+           - Scene or device white luminance: 80 cd/m2
+           - L_A: 20 cd/m2
+           - Adopted white point: Display and ambient
+           - SR: 0.15
+           - Surround: Dim
+
+        * Viewing slides in dark room:
+           - Ambient illumination in lux (cd/m2): 0 (0)
+           - Scene or device white luminance: 150 cd/m2
+           - L_A: 30 cd/m2
+           - Adopted white point: Projector
+           - SR: 0
+           - Surround: Dark
+
+        * Viewing self-luminous display under office illuminationl
+           - Ambient illumination in lux (cd/m2): 500 (159.2)
+           - Scene or device white luminance: 80 cd/m2
+           - L_A: 15 cd/m2
+           - Adopted white point: Display
+           - SR: 2
+           - Surround: Average
 
     Publication CIE 159:
     A colour appearance model for colour management systems: CIECAM02,
