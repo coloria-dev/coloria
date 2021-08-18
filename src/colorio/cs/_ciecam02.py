@@ -188,7 +188,8 @@ class CIECAM02:
             <https://groups.google.com/g/sci.engr.color/c/3P9DXaCAWAI>
             <https://rawpedia.rawtherapee.com/CIECAM02/de>
             The suggestion is to use 18 or 20 (gray world theory).
-    L_A ... in cd/m^2
+    L_A ... luminance of the adapting field in cd/m^2.
+            Can be approximated by Lw * Yb / 100, or Lb.
 
     From the above article:
     Table 2.1 Parameter settings for some typical applications:

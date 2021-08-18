@@ -36,9 +36,7 @@ class Xiao(HueLinearityDataset):
         self.Lw = 114.6
         self.Yb = 20
         self.surrounding = 0.59  # "dim"
-        # CIECAM02 viewing conditions from the JzAzBz paper:
-        self.L_A = 14
-        # self.c = 0.525
+        self.L_A = 23  # ~ Lw * Yb / 100
 
         data.pop("neutral-gray", None)
         arms = np.moveaxis(list(data.values()), 1, 2)
