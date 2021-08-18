@@ -16,8 +16,7 @@ rng = np.random.default_rng(0)
 )
 def test_conversion(xyz, tol=1.0e-12):
     # test with srgb conditions
-    L_A = 64 / np.pi / 5
-    cam16 = colorio.cs.CAM16(0.69, 20, L_A)
+    cam16 = colorio.cs.CAM16(0.69, 20, 20)
     J, C, H, h, M, s, Q = cam16.from_xyz100(xyz)
 
     out = cam16.to_xyz100(np.array([J, C, H]), "JCH")
@@ -32,7 +31,7 @@ def test_conversion(xyz, tol=1.0e-12):
 
 @pytest.mark.parametrize("xyz", [np.zeros(3), np.zeros((3, 4, 5))])
 def test_zero(xyz, tol=1.0e-12):
-    cam16 = colorio.cs.CAM16(0.69, 20, 64 / np.pi / 5)
+    cam16 = colorio.cs.CAM16(0.69, 20, 20)
     J, C, H, h, M, s, Q = cam16.from_xyz100(xyz)
 
     assert np.all(J == 0.0)
@@ -57,8 +56,7 @@ def test_zero(xyz, tol=1.0e-12):
 )
 def test_conversion_variants(xyz, tol=1.0e-13):
     # test with srgb conditions
-    L_A = 64 / np.pi / 5
-    cam16 = colorio.cs.CAM16UCS(0.69, 20, L_A)
+    cam16 = colorio.cs.CAM16UCS(0.69, 20, 20)
     out = cam16.to_xyz100(cam16.from_xyz100(xyz))
     assert np.all(abs(xyz - out) < tol)
 
@@ -68,16 +66,16 @@ def test_conversion_variants(xyz, tol=1.0e-13):
     [
         (
             [1.0, 0.0, 0.0],
-            [2.28402560268459e00, 1.01502029350636e02, 2.42718425228025e00],
+            [2.2994065595734066, 113.32448472150614, 2.711228540807689],
         )
     ],
 )
 def test_reference_values(xyz, ref):
-    L_A = 64 / np.pi / 5
-    cam16 = colorio.cs.CAM16UCS(0.69, 20, L_A)
+    cam16 = colorio.cs.CAM16UCS(0.69, 20, 20)
     out = cam16.from_xyz100(xyz)
     ref = np.array(ref)
-    assert np.all(abs(ref - out) < 1.0e-14 * ref)
+    print(list(out))
+    assert np.all(np.abs(ref - out) < 1.0e-14 * ref)
 
 
 def test_whitepoint():
