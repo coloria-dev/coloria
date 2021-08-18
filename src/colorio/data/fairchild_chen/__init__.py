@@ -15,6 +15,17 @@ class FairchildChen(Dataset):
         with open(this_dir / "fairchild_chen.json") as f:
             data = json.load(f)
 
+        # CIECAM02 viewing conditions from the JzAzBz paper:
+        if key == "SL1":
+            self.L_A = 168
+            self.c = 0.69
+            self.Yb = 20
+        else:
+            assert key == "SL2"
+            self.L_A = 199
+            self.c = 0.69
+            self.Yb = 20
+
         self.data = data[key]
         self.key = key
         for key in self.data:

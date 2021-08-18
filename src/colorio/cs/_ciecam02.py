@@ -199,7 +199,7 @@ class CIECAM02:
            - L_A: 60 cd/m2
            - Adopted white point: Light booth
            - Surround ratio: 1
-           - Surround: Average
+           - Surround: Average (c = 0.69)
 
         * Viewing self-luminous display at home:
            - Ambient illumination in lux (cd/m2): 38 (12)
@@ -207,7 +207,7 @@ class CIECAM02:
            - L_A: 20 cd/m2
            - Adopted white point: Display and ambient
            - Surround ratio: 0.15
-           - Surround: Dim
+           - Surround: Dim (c = 0.59)
 
         * Viewing slides in dark room:
            - Ambient illumination in lux (cd/m2): 0 (0)
@@ -215,7 +215,7 @@ class CIECAM02:
            - L_A: 30 cd/m2
            - Adopted white point: Projector
            - Surround ratio: 0
-           - Surround: Dark
+           - Surround: Dark (c = 0.525)
 
         * Viewing self-luminous display under office illumination:
            - Ambient illumination in lux (cd/m2): 500 (159.2)
@@ -223,7 +223,7 @@ class CIECAM02:
            - L_A: 15 cd/m2
            - Adopted white point: Display
            - Surround ratio: 2
-           - Surround: Average
+           - Surround: Average (c = 0.69)
 
     Publication CIE 159:
     A colour appearance model for colour management systems: CIECAM02,

@@ -6,8 +6,8 @@ import tikzplotlib
 import colorio
 
 color_spaces = [
-    colorio.cs.CAM02("UCS", 0.69, 20, 64 / np.pi / 5),
-    colorio.cs.CAM16UCS(0.69, 20, 64 / np.pi / 5),
+    colorio.cs.CAM02("UCS", 0.69, 20, 20),
+    colorio.cs.CAM16UCS(0.69, 20, 20),
     colorio.cs.CIELAB(),
     colorio.cs.CIELUV(),
     colorio.cs.ICtCp(),

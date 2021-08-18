@@ -16,4 +16,10 @@ class EbnerFairchild(HueLinearityDataset):
             np.column_stack([dat["reference xyz"], np.array(dat["same"]).T])
             for dat in data["data"]
         ]
+
+        # CIECAM02 viewing conditions from the JzAzBz paper:
+        self.L_A = 14
+        self.c = 0.525
+        self.Yb = 20
+
         super().__init__("Ebner-Fairchild", data["white point"], arms)

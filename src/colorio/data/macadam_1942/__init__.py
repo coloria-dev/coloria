@@ -30,6 +30,11 @@ class MacAdam1942(ColorDistanceDataset):
         #
         self.whitepoint_xyz100 = whitepoints_cie1931["C"]
 
+        # CIECAM02 viewing conditions from the JzAzBz paper:
+        self.L_A = 24
+        self.c = 0.69
+        self.Yb = 20
+
         # Extract ellipse centers and offsets from MacAdams data
         this_dir = pathlib.Path(__file__).resolve().parent
         with open(this_dir / "table3.json") as f:

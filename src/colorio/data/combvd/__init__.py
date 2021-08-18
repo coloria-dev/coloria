@@ -31,4 +31,9 @@ class COMBVD(ColorDistanceDataset):
         pairs = np.concatenate(pairs)
         weights = np.concatenate(weights)
 
+        # CIECAM02 viewing conditions from the JzAzBz paper:
+        self.L_A = 64
+        self.c = 0.69
+        self.Yb = 20
+
         super().__init__("COMBVD", dist, pairs, weights)
