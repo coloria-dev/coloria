@@ -8,6 +8,8 @@ Volume 98 January 1982,
 import json
 import pathlib
 
+import numpy as np
+
 from ..helpers import ColorDistanceDataset
 
 
@@ -21,4 +23,7 @@ class BfdP(ColorDistanceDataset):
         # that's CIE 2-degree D64:
         self.whitepoint_xyz100 = data["reference_white"]
 
-        super().__init__("BFD-P", data["dv"], data["pairs"])
+        xyz = np.asarray(data["xyz"])
+        pairs = np.asarray(data["pairs"])
+
+        super().__init__("BFD-P", data["dv"], xyz[pairs])
