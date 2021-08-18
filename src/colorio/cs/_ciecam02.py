@@ -182,10 +182,13 @@ class CIECAM02:
     Part 1: The Forward Mode
 
     c ..... surround parameter (average: 0.69, dim: 0.59, dark: 0.535)
-    Y_b ... Background in test conditions
+    Y_b ... relative luminance of the background in %, i.e., 100 * Lb / Lw
+            where Lb is the background luminance and Lw is the white luminance.
+            There is some discussion on the value of Yb, see
+            <https://groups.google.com/g/sci.engr.color/c/3P9DXaCAWAI>
+            <https://rawpedia.rawtherapee.com/CIECAM02/de>
+            The suggestion is to use 18 or 20 (gray world theory).
     L_A ... in cd/m^2
-
-    SR .... Surround ratio
 
     From the above article:
     Table 2.1 Parameter settings for some typical applications:
@@ -195,7 +198,7 @@ class CIECAM02:
            - Scene or device white luminance: 318.3 cd/m2
            - L_A: 60 cd/m2
            - Adopted white point: Light booth
-           - SR: 1
+           - Surround ratio: 1
            - Surround: Average
 
         * Viewing self-luminous display at home:
@@ -203,7 +206,7 @@ class CIECAM02:
            - Scene or device white luminance: 80 cd/m2
            - L_A: 20 cd/m2
            - Adopted white point: Display and ambient
-           - SR: 0.15
+           - Surround ratio: 0.15
            - Surround: Dim
 
         * Viewing slides in dark room:
@@ -211,15 +214,15 @@ class CIECAM02:
            - Scene or device white luminance: 150 cd/m2
            - L_A: 30 cd/m2
            - Adopted white point: Projector
-           - SR: 0
+           - Surround ratio: 0
            - Surround: Dark
 
-        * Viewing self-luminous display under office illuminationl
+        * Viewing self-luminous display under office illumination:
            - Ambient illumination in lux (cd/m2): 500 (159.2)
            - Scene or device white luminance: 80 cd/m2
            - L_A: 15 cd/m2
            - Adopted white point: Display
-           - SR: 2
+           - Surround ratio: 2
            - Surround: Average
 
     Publication CIE 159:
