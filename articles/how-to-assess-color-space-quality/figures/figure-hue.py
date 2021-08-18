@@ -21,7 +21,7 @@ cs_labels = [
     "$J_zA_zB_z$",
     "OKLAB",
     "OSA-UCS",
-    "XYY",
+    "xyY",
 ]
 
 data_sets = {

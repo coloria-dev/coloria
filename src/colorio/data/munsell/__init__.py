@@ -137,3 +137,5 @@ class Munsell:
         alpha = np.dot(ref, L_) / np.dot(ref, ref)
         diff = alpha * ref - L_
         return 100 * np.sqrt(np.dot(diff, diff) / np.dot(L_, L_))
+
+    stress = stress_lightness
