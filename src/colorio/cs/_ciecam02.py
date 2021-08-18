@@ -1,5 +1,6 @@
 import npx
 import numpy as np
+from numpy.typing import ArrayLike
 
 from .._exceptions import ColorioError
 from ..illuminants import whitepoints_cie1931
@@ -194,12 +195,36 @@ class CIECAM02:
     <DOI: 10.1002/col.20198>.
     """
 
-    def __init__(self, c, Y_b, L_A, whitepoint=whitepoints_cie1931["D65"]):
+    def __init__(
+        self,
+        c: float,
+        Y_b: float,
+        L_A: float,
+        whitepoint: ArrayLike = whitepoints_cie1931["D65"],
+    ):
         # step0: Calculate all values/parameters which are independent of input
         #        samples
+        whitepoint = np.asarray(whitepoint)
         Y_w = whitepoint[1]
 
         # Nc and F are modelled as a function of c, and can be linearly interpolated.
+        #
+        # Surround
+        # condition  Surround ratio  F       c       Nc      Application
+        # -----------------------------------------------------------------------
+        # Average    SR > 0.15       1.0     0.69    1.0     Viewing surface colors
+        # Dim        0 < SR < 0.15   0.9     0.59    0.9     Viewing television
+        # Dark       SR = 0          0.8     0.525   0.8     Projector in a dark room
+        #
+        # SR = Lsw / Ldw:
+        #     ratio of the absolute luminance of the reference white (white point)
+        #     measured in the surround field to the display area. The 0.2 coefficient
+        #     derives from the "gray world" assumption (~18%–20% reflectivity). It tests
+        #     whether the surround luminance is darker or brighter than medium gray.
+        # F:  factor determining degree of adaptation
+        # c:  impact of surrounding
+        # Nc: chromatic induction factor
+
         c_vals = [0.525, 0.59, 0.69]
         F_Nc_vals = [0.8, 0.9, 1.0]
         assert 0.535 <= c <= 0.69
@@ -290,7 +315,14 @@ class CIECAM02:
 
 
 class CAM02(ColorSpace):
-    def __init__(self, variant, c, Y_b, L_A, whitepoint=whitepoints_cie1931["D65"]):
+    def __init__(
+        self,
+        variant: str,
+        c: float,
+        Y_b: float,
+        L_A: float,
+        whitepoint: ArrayLike = whitepoints_cie1931["D65"],
+    ):
         super().__init__(f"CAM02 ({variant})", ("J'", "a'", "b'"), 0)
         params = {
             "LCD": (0.77, 0.007, 0.0053),
@@ -300,15 +332,15 @@ class CAM02(ColorSpace):
         self.K_L, self.c1, self.c2 = params[variant]
         self.ciecam02 = CIECAM02(c, Y_b, L_A, whitepoint)
 
-    def from_xyz100(self, xyz):
+    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         J, _, _, h, M, _, _ = self.ciecam02.from_xyz100(xyz)
         J_ = (1 + 100 * self.c1) * J / (1 + self.c1 * J)
         M_ = 1 / self.c2 * np.log(1 + self.c2 * M)
         h_ = h / 180 * np.pi
         return np.array([J_, M_ * np.cos(h_), M_ * np.sin(h_)])
 
-    def to_xyz100(self, jab):
-        J_, a, b = jab
+    def to_xyz100(self, jab: ArrayLike) -> np.ndarray:
+        J_, a, b = np.asarray(jab)
         J = J_ / (1 - (J_ - 100) * self.c1)
         h = np.mod(np.arctan2(b, a), 2 * np.pi) / np.pi * 180
         M_ = np.hypot(a, b)
