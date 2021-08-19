@@ -24,8 +24,14 @@ def test_stress():
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 
-    ref = 44.48832537458829
-    res = colorio.data.COMBVD().stress(cs, variant="relative")
+
+def test_stress_relative():
+    data = colorio.data.COMBVD()
+    # cs = colorio.cs.CIELAB(data.whitepoint_xyz100)
+    cs = colorio.cs.CIELAB()
+
+    ref = 44.33386329705589
+    res = data.stress(cs, variant="relative")
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 

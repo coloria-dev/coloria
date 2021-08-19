@@ -63,7 +63,9 @@ class ColorDistanceDataset:
             )
         else:
             assert variant == "relative", f"Illegal variant {variant}."
-            alpha = np.sum(self.dist) / np.sum(self.dist ** 2 / delta)
+            alpha = np.sum(self.weights * self.dist) / np.sum(
+                self.weights * self.dist ** 2 / delta
+            )
             diff = alpha * self.dist - delta
             val = np.sum(self.weights * diff ** 2 / delta) / np.sum(
                 self.weights * delta
