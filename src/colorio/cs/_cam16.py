@@ -1,5 +1,6 @@
 import npx
 import numpy as np
+from numpy.typing import ArrayLike
 
 from ..illuminants import whitepoints_cie1931
 from ._ciecam02 import compute_from, compute_to
@@ -12,6 +13,8 @@ class CAM16:
     Comprehensive color solutions: CAM16, CAT16, and CAM16-UCS.
     Color Res Appl. 2017;00:1-12.
     <https://doi.org/10.1002/col.22131>.
+
+    For an explanation of the parameter, see CIECAM02.
     """
 
     def __init__(
@@ -20,10 +23,11 @@ class CAM16:
         Y_b: float,
         L_A: float,
         exact_inversion: bool = True,
-        whitepoint=whitepoints_cie1931["D65"],
+        whitepoint: ArrayLike = whitepoints_cie1931["D65"],
     ):
         # step0: Calculate all values/parameters which are independent of input
         #        samples
+        whitepoint = np.asarray(whitepoint)
         Y_w = whitepoint[1]
 
         # Nc and F are modelled as a function of c, and can be linearly
@@ -111,7 +115,7 @@ class CAM16UCS(ColorSpace):
         Y_b: float,
         L_A: float,
         exact_inversion: bool = True,
-        whitepoint=whitepoints_cie1931["D65"],
+        whitepoint: ArrayLike = whitepoints_cie1931["D65"],
     ):
         super().__init__("CAM16 (UCS)", ("J'", "a'", "b'"), 0)
         self.K_L = 1.0
@@ -119,15 +123,15 @@ class CAM16UCS(ColorSpace):
         self.c2 = 0.0228
         self.cam16 = CAM16(c, Y_b, L_A, exact_inversion, whitepoint)
 
-    def from_xyz100(self, xyz):
+    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         J, _, _, h, M, _, _ = self.cam16.from_xyz100(xyz)
         J_ = (1 + 100 * self.c1) * J / (1 + self.c1 * J)
         M_ = 1 / self.c2 * np.log(1 + self.c2 * M)
         h_ = h * np.pi / 180
         return np.array([J_, M_ * np.cos(h_), M_ * np.sin(h_)])
 
-    def to_xyz100(self, jab):
-        J_, a, b = jab
+    def to_xyz100(self, jab: ArrayLike) -> np.ndarray:
+        J_, a, b = np.asarray(jab)
         J = J_ / (1 - (J_ - 100) * self.c1)
         h = np.mod(np.arctan2(b, a) / np.pi * 180, 360)
         M_ = np.hypot(a, b)

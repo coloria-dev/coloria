@@ -20,15 +20,11 @@ class Munsell:
         self.C = np.array(data["C"])
         self.xyy100 = np.array([data["x"], data["y"], data["Y"]])
 
-        # Whitepoint info from
-        #
-        # Muhammad Safdar, Guihua Cui, Youn Jin Kim, and Ming Ronnier Luo,
-        # Perceptually uniform color space for image signals including high dynamic
-        # range and wide gamut,
-        # Optics Express Vol. 25, Issue 13, pp. 15131-15151 (2017),
-        # <https://doi.org/10.1364/OE.25.015131>.
-        #
+        # Whitepoint and CIECAM02 info from the JzAzBz paper:
         self.whitepoint_xyz100 = whitepoints_cie1931["C"]
+        self.L_A = 64
+        self.c = 0.69
+        self.Yb = 20
 
         with open(this_dir / "lightness.json") as f:
             self.lightness = json.load(f)
@@ -141,3 +137,5 @@ class Munsell:
         alpha = np.dot(ref, L_) / np.dot(ref, ref)
         diff = alpha * ref - L_
         return 100 * np.sqrt(np.dot(diff, diff) / np.dot(L_, L_))
+
+    stress = stress_lightness

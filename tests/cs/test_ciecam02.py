@@ -11,7 +11,7 @@ rng = np.random.default_rng(0)
 )
 def test_conversion(xyz, tol=1.0e-12):
     # test with srgb conditions
-    ciecam02 = colorio.cs.CIECAM02(0.69, 20, 64 / np.pi / 5)
+    ciecam02 = colorio.cs.CIECAM02(0.69, 20, 20)
     J, C, H, h, M, s, Q = ciecam02.from_xyz100(xyz)
 
     out = ciecam02.to_xyz100(np.array([J, C, H]), "JCH")
@@ -26,7 +26,7 @@ def test_conversion(xyz, tol=1.0e-12):
 
 def test_breakdown():
     bad_xyz = [8.71292997, 2.02183974, 83.26198455]
-    ciecam02 = colorio.cs.CIECAM02(0.69, 20, L_A=64 / np.pi / 5)
+    ciecam02 = colorio.cs.CIECAM02(0.69, 20, 20)
     with pytest.raises(colorio.ColorioError):
         ciecam02.from_xyz100(bad_xyz)
 
@@ -37,16 +37,14 @@ def test_breakdown():
 )
 def test_conversion_variants(variant, xyz):
     # test with srgb conditions
-    L_A = 64 / np.pi / 5
-    cam02 = colorio.cs.CAM02(variant, 0.69, 20, L_A)
+    cam02 = colorio.cs.CAM02(variant, 0.69, 20, 20)
     out = cam02.to_xyz100(cam02.from_xyz100(xyz))
     assert np.all(abs(xyz - out) < 1.0e-14)
 
 
 @pytest.mark.parametrize("xyz", [np.zeros(3), np.zeros((3, 4, 5))])
 def test_zero(xyz):
-    L_A = 64 / np.pi / 5
-    cs = colorio.cs.CIECAM02(0.69, 20, L_A)
+    cs = colorio.cs.CIECAM02(0.69, 20, 20)
     J, C, H, h, M, s, Q = cs.from_xyz100(xyz)
 
     assert np.all(J == 0.0)
@@ -142,11 +140,11 @@ def test_gold():
             152.67220,
         ]
     )
-    assert np.all(abs(values - reference_values) < 1.0e-6 * reference_values)
+    assert np.all(np.abs(values - reference_values) < 1.0e-6 * reference_values)
 
 
 def test_nan():
-    ciecam02 = colorio.cs.CIECAM02(0.69, 20, 64 / np.pi / 5)
+    ciecam02 = colorio.cs.CIECAM02(0.69, 20, 20)
     xyz = np.full(3, np.nan)
     out = ciecam02.from_xyz100(xyz)
     assert np.all(np.isnan(out))

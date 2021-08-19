@@ -6,6 +6,14 @@ import tikzplotlib
 
 import colorio
 
+bfdp = colorio.data.BfdP()
+combvd = colorio.data.COMBVD()
+leeds = colorio.data.Leeds()
+macadam_1942 = colorio.data.MacAdam1942(Y=50.0)
+macadam_1974 = colorio.data.MacAdam1974()
+rit_dupont = colorio.data.RitDupont()
+witt = colorio.data.Witt()
+
 color_spaces = [
     colorio.cs.CAM02("UCS", 0.69, 20, 64 / np.pi / 5),
     colorio.cs.CAM16UCS(0.69, 20, 64 / np.pi / 5),
@@ -18,14 +26,6 @@ color_spaces = [
     colorio.cs.OsaUcs(),
     colorio.cs.XYY(1),
 ]
-
-bfdp = colorio.data.BfdP()
-combvd = colorio.data.COMBVD()
-leeds = colorio.data.Leeds()
-macadam_1942 = colorio.data.MacAdam1942(Y=50.0)
-macadam_1974 = colorio.data.MacAdam1974()
-rit_dupont = colorio.data.RitDupont()
-witt = colorio.data.Witt()
 
 xlabels = [cs.name for cs in color_spaces]
 data_sets = {

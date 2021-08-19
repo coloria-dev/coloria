@@ -32,11 +32,11 @@ class Xiao(HueLinearityDataset):
         # uniform color space for image signals including high dynamic range and wide
         # gamut] (the JzAzBz paper). The value [97.313, 100, 138.596] is used there.
         whitepoint_xyz100 = np.array([98.0, 100.0, 139.7])
-
         # CIECAM02 surround parameters, as given in the article
-        self.L_w = 114.6
-        self.Y_b = 20
-        self.surrounding = "dim"
+        self.Lw = 114.6
+        self.Yb = 20
+        self.c = 0.59  # "dim"
+        self.L_A = 23  # ~ Lw * Yb / 100
 
         data.pop("neutral-gray", None)
         arms = np.moveaxis(list(data.values()), 1, 2)

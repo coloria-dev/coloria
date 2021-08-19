@@ -11,7 +11,7 @@ rng = np.random.default_rng(0)
 
 def test_0():
     Y_b = 20
-    L_A = 64 / np.pi / 5
+    L_A = 20
     c = 0.69  # average
     cam16 = colorio.cs.CAM16(c, Y_b, L_A)
 
@@ -38,7 +38,7 @@ def test_from():
 
     Y_b = 20
     whitepoint = colorio.illuminants.whitepoints_cie1931["D65"]
-    L_A = 64 / np.pi / 5
+    L_A = 20
 
     c = 0.69  # average
     cs2 = colorio.cs.CIECAM02(c, Y_b, L_A)
@@ -80,7 +80,7 @@ def performance_comparison_from():
         return out
 
     Y_b = 20
-    L_A = 64 / np.pi / 5
+    L_A = 20
     c = 0.69  # average
     cam16 = colorio.cs.CAM16(c, Y_b, L_A)
 
@@ -99,7 +99,7 @@ def performance_comparison_to():
     import perfplot
 
     Y_b = 20
-    L_A = 64 / np.pi / 5
+    L_A = 20
 
     c = 0.69  # average
     cam16 = colorio.cs.CAM16(c, Y_b, L_A)

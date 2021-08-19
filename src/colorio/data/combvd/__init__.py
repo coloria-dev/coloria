@@ -24,8 +24,12 @@ class COMBVD(ColorDistanceDataset):
             with open(file_path) as f:
                 data = json.load(f)
             dist.append(data["dv"])
-            pairs.append(data["pairs"])
-            weights.append(np.full(len(data["pairs"]), weight))
+
+            xyz = np.asarray(data["xyz"])
+            p = np.asarray(data["pairs"])
+            pairs.append(xyz[p])
+
+            weights.append(np.full(len(p), weight))
 
         dist = np.concatenate(dist)
         pairs = np.concatenate(pairs)

@@ -5,47 +5,58 @@ import tikzplotlib
 
 import colorio
 
-color_spaces = [
-    colorio.cs.CAM02("UCS", 0.69, 20, 64 / np.pi / 5),
-    colorio.cs.CAM16UCS(0.69, 20, 64 / np.pi / 5),
-    colorio.cs.CIELAB(),
-    colorio.cs.CIELUV(),
-    colorio.cs.ICtCp(),
-    colorio.cs.IPT(),
-    colorio.cs.JzAzBz(),
-    colorio.cs.OKLAB(),
-    colorio.cs.OsaUcs(),
-    colorio.cs.XYY(1),
+ex = {
+    "Hung--Berns \\cite{hung}": colorio.data.HungBerns(),
+    "Ebner--Fairchild \\cite{ebner}": colorio.data.EbnerFairchild(),
+    "Xiao et al. \\cite{xiao}": colorio.data.Xiao(),
+}
+
+cs_labels = [
+    "CAM02 (UCS)**",
+    "CAM16 (UCS)**",
+    "CIELAB*",
+    "CIELUV*",
+    "$IC_tC_p$",
+    "IPT",
+    "$J_zA_zB_z$",
+    "OKLAB",
+    "OSA-UCS",
+    "xyY",
 ]
 
-# for cs in color_spaces:
-#     vals = [
-#         colorio.data.hung_berns.stress(cs),
-#         colorio.data.ebner_fairchild.stress(cs),
-#         colorio.data.xiao.stress(cs),
-#     ]
-#     avg = np.average(np.concatenate(vals))
-#     vals = [np.average(val) for val in vals]
-#     # print(f"{cs.name}    {sum(vals)}")
-#     print(f"{cs.name} & {vals[0]:.1f} & {vals[1]:.1f} & {vals[2]:.1f} & {avg:.1f}\\\\")
-
-hung_berns = colorio.data.HungBerns()
-ebner_fairchild = colorio.data.EbnerFairchild()
-xiao = colorio.data.Xiao()
-
-labels = [cs.name for cs in color_spaces]
 data_sets = {
-    "Hung--Berns \\cite{hung}": [hung_berns.stress(cs) for cs in color_spaces],
-    "Ebner--Fairchild \\cite{ebner}": [
-        ebner_fairchild.stress(cs) for cs in color_spaces
-    ],
-    "Xiao et al. \\cite{xiao}": [xiao.stress(cs) for cs in color_spaces],
+    key: [
+        data.stress(
+            colorio.cs.CAM02(
+                "UCS",
+                c=data.c,
+                Y_b=data.Yb,
+                L_A=data.L_A,
+                whitepoint=data.whitepoint_xyz100,
+            )
+        ),
+        data.stress(
+            colorio.cs.CAM16UCS(
+                c=data.c, Y_b=data.Yb, L_A=data.L_A, whitepoint=data.whitepoint_xyz100
+            )
+        ),
+        data.stress(colorio.cs.CIELAB(whitepoint=data.whitepoint_xyz100)),
+        data.stress(colorio.cs.CIELUV(whitepoint=data.whitepoint_xyz100)),
+        data.stress(colorio.cs.ICtCp()),
+        data.stress(colorio.cs.IPT()),
+        data.stress(colorio.cs.JzAzBz()),
+        data.stress(colorio.cs.OKLAB()),
+        data.stress(colorio.cs.OsaUcs()),
+        data.stress(colorio.cs.XYY(1)),
+    ]
+    for key, data in ex.items()
 }
+
 
 plt.style.use(dufte.style)
 
 # the label locations:
-x = np.arange(len(labels))
+x = np.arange(len(cs_labels))
 n = len(data_sets)
 bar_width = 0.8 / n
 
@@ -85,9 +96,9 @@ for (label, data), p, cols in zip(data_sets.items(), pos, color_pairs):
 ax.set_title("$h_{text{STRESS}}$")
 ax.yaxis.set_label_coords(-0.1, 1.02)
 plt.xticks(x, rotation=45, ha="right")
-ax.set_xticklabels(labels)
-plt.xlim(-0.6, len(labels) - 1 + 0.6)
-plt.ylim(0, 10)
+ax.set_xticklabels(cs_labels)
+plt.xlim(-0.6, len(cs_labels) - 1 + 0.6)
+plt.ylim(0, 20)
 ax.legend(framealpha=1, loc="upper right", bbox_to_anchor=(1, 1))
 
 plt.gcf().tight_layout()

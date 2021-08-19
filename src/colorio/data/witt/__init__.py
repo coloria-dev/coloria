@@ -1,6 +1,8 @@
 import json
 import pathlib
 
+import numpy as np
+
 from ..helpers import ColorDistanceDataset
 
 
@@ -11,4 +13,7 @@ class Witt(ColorDistanceDataset):
         with open(this_dir / "witt.json") as f:
             data = json.load(f)
 
-        super().__init__("Witt", data["dv"], data["pairs"])
+        xyz = np.asarray(data["xyz"])
+        pairs = np.asarray(data["pairs"])
+
+        super().__init__("Witt", data["dv"], xyz[pairs])
