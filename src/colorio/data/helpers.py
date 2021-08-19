@@ -44,7 +44,7 @@ class ColorDistanceDataset:
         return self._stress(delta, variant)
 
     def stress_lab_diff(self, fun: Callable, variant: str = "absolute"):
-        """Same a stress(), but you can provide a color difference function that
+        """Same as stress(), but you can provide a color difference function that
         receives two LAB values and returns their scalar distance.
         """
         lab_pairs = CIELAB().from_xyz100(self.xyz_pairs.T)
@@ -55,9 +55,12 @@ class ColorDistanceDataset:
         delta = np.asarray(delta)
         if variant == "absolute":
             # regular old stress
-            alpha = np.dot(self.dist, delta) / np.dot(self.dist, self.dist)
+            wdist = self.weights * self.dist
+            alpha = np.dot(wdist, delta) / np.dot(wdist, self.dist)
             diff = alpha * self.dist - delta
-            val = np.sum(self.weights * diff ** 2) / np.sum(self.weights * delta ** 2)
+            val = np.dot(self.weights * diff, diff) / np.dot(
+                self.weights * delta, delta
+            )
         else:
             assert variant == "relative", f"Illegal variant {variant}."
             alpha = np.sum(self.dist) / np.sum(self.dist ** 2 / delta)
@@ -65,7 +68,6 @@ class ColorDistanceDataset:
             val = np.sum(self.weights * diff ** 2 / delta) / np.sum(
                 self.weights * delta
             )
-
         return 100 * np.sqrt(val)
 
 

@@ -17,8 +17,9 @@ def test_show():
 
 def test_stress():
     data = colorio.data.COMBVD()
-    cs = colorio.cs.CIELAB(data.whitepoint_xyz100)
-    ref = 43.95108294263713
+    # cs = colorio.cs.CIELAB(data.whitepoint_xyz100)
+    cs = colorio.cs.CIELAB()
+    ref = 43.87405562383293
     res = data.stress(cs)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref

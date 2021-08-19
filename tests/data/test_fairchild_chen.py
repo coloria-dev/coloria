@@ -9,18 +9,21 @@ def test_show():
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     cs = colorio.cs.JzAzBz()
     # cs = colorio.cs.XYY(1)
-    colorio.data.FairchildChen("SL2").show(cs)
+    colorio.data.FairchildChen("SL2").plot(cs).show()
 
 
 def test_stress():
-    cs = colorio.cs.CIELAB()
+    data = colorio.data.FairchildChen("SL1")
+    cs = colorio.cs.CIELAB(data.whitepoint_xyz100)
     ref = 4.672891455041493
-    res = colorio.data.FairchildChen("SL1").stress(cs)
+    res = data.stress(cs)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 
+    data = colorio.data.FairchildChen("SL2")
+    cs = colorio.cs.CIELAB(data.whitepoint_xyz100)
     ref = 11.266510241793169
-    res = colorio.data.FairchildChen("SL2").stress(cs)
+    res = data.stress(cs)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 
