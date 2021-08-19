@@ -12,7 +12,7 @@ def test_show():
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     # cs = colorio.cs.JzAzBz()
     # cs = colorio.cs.XYY(1)
-    colorio.data.MacAdam1974().show(cs)
+    colorio.data.MacAdam1974().plot(cs).show()
 
 
 def test_residual():

@@ -12,15 +12,17 @@ def test_show():
     # cs = colorio.cs.IPT()
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     cs = colorio.cs.XYY(1)
-    colorio.data.LuoRigg(8).show(cs)
+    plt = colorio.data.LuoRigg(8).plot(cs)
+    plt.show()
     with tempfile.TemporaryDirectory() as tmpdir:
-        colorio.data.LuoRigg(8).savefig(Path(tmpdir) / "out.png", cs)
+        plt.savefig(Path(tmpdir) / "out.png")
 
 
 def test_residuals():
-    cs = colorio.cs.CIELAB()
+    data = colorio.data.LuoRigg(8)
+    cs = colorio.cs.CIELAB(data.whitepoint_xyz100)
     ref = 48.472622852849376
-    res = colorio.data.LuoRigg(8).stress(cs)
+    res = data.stress(cs)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 

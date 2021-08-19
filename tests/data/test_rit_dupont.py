@@ -12,14 +12,15 @@ def test_show():
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     # cs = colorio.cs.JzAzBz()
     # cs = colorio.cs.XYY(1)
-    colorio.data.RitDupont().show(cs)
+    colorio.data.RitDupont().plot(cs).show()
 
 
 def test_stress():
-    cs = colorio.cs.CIELAB()
+    data = colorio.data.RitDupont()
+    cs = colorio.cs.CIELAB(data.whitepoint_xyz100)
     # ref = 32.85162431714214
     ref = 33.36473531796298
-    res = colorio.data.RitDupont().stress(cs)
+    res = data.stress(cs)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 

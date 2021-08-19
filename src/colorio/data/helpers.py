@@ -1,40 +1,28 @@
+from typing import Callable, Optional
+
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import ArrayLike
 
-from ..cs import CIELAB
+from ..cs import CIELAB, ColorSpace
 
 
-class Dataset:
-    def plot(self):
-        raise NotImplementedError("Derived classes must implement plot().")
-
-    def show(self, *args):
-        plt.figure()
-        self.plot(*args)
-        plt.show()
-        plt.close()
-
-    def savefig(self, filename, *args):
-        plt.figure()
-        self.plot(*args)
-        plt.savefig(filename, transparent=True, bbox_inches="tight")
-        plt.close()
-
-
-class ColorDistanceDataset(Dataset):
-    def __init__(self, name, dist, xyz_pairs, weights=None):
+class ColorDistanceDataset:
+    def __init__(
+        self, name: str, dist, xyz_pairs: ArrayLike, weights: Optional[ArrayLike] = None
+    ):
         self.name = name
         n = len(dist)
-        assert n == len(xyz_pairs)
-        self.dist = np.asarray(dist)
         self.xyz_pairs = np.asarray(xyz_pairs)
-        self.weights = np.ones(n) if weights is None else weights
+        assert n == len(self.xyz_pairs)
+        self.dist = np.asarray(dist)
+        self.weights = np.ones(n) if weights is None else np.asarray(weights)
 
-    def plot(self, cs):
+    def plot(self, cs: ColorSpace):
         coords = cs.from_xyz100(self.xyz_pairs.T).T
 
         # reorder the coords such that the lightness in the last (the z-)component
+        assert cs.k0 is not None
         coords = np.roll(coords, 2 - cs.k0, axis=0)
         labels = np.roll(cs.labels, 2 - cs.k0, axis=0)
 
@@ -46,15 +34,16 @@ class ColorDistanceDataset(Dataset):
         ax.set_ylabel(labels[1])
         ax.set_zlabel(labels[2])
         ax.set_title(f"{self.name} dataset in {cs.name}")
+        return plt
 
-    def stress(self, cs, variant="absolute"):
+    def stress(self, cs: ColorSpace, variant: str = "absolute"):
         # compute Euclidean distance in colorspace cs
         cs_pairs = cs.from_xyz100(self.xyz_pairs.T).T
         cs_diff = cs_pairs[:, 1] - cs_pairs[:, 0]
         delta = np.sqrt(np.einsum("ij,ij->i", cs_diff, cs_diff))
         return self._stress(delta, variant)
 
-    def stress_lab_diff(self, fun, variant="absolute"):
+    def stress_lab_diff(self, fun: Callable, variant: str = "absolute"):
         """Same a stress(), but you can provide a color difference function that
         receives two LAB values and returns their scalar distance.
         """
@@ -62,7 +51,8 @@ class ColorDistanceDataset(Dataset):
         delta = fun(lab_pairs[:, 0], lab_pairs[:, 1])
         return self._stress(delta, variant)
 
-    def _stress(self, delta, variant):
+    def _stress(self, delta: ArrayLike, variant: str):
+        delta = np.asarray(delta)
         if variant == "absolute":
             # regular old stress
             alpha = np.dot(self.dist, delta) / np.dot(self.dist, self.dist)
@@ -79,14 +69,15 @@ class ColorDistanceDataset(Dataset):
         return 100 * np.sqrt(val)
 
 
-class HueLinearityDataset(Dataset):
+class HueLinearityDataset:
     def __init__(self, name: str, whitepoint_xyz100: ArrayLike, arms):
         self.name = name
         self.whitepoint_xyz100 = np.asarray(whitepoint_xyz100)
         self.arms = arms
 
-    def plot(self, colorspace):
+    def plot(self, colorspace: ColorSpace):
         # k0 is the coordinate that corresponds to "lightness"
+        assert colorspace.k0 is not None
         no_lightness = [True, True, True]
         no_lightness[colorspace.k0] = False
 
@@ -139,15 +130,19 @@ class HueLinearityDataset(Dataset):
         ax.spines["bottom"].set_visible(False)
         ax.spines["left"].set_visible(False)
         plt.title(f"{self.name} hue linearity data for {colorspace.name}")
+        return plt
 
-    def stress(self, cs):
+    def stress(self, cs: ColorSpace):
         """Compute the TLS residuals for each of the arms."""
         # return _compute_straight_line_stress(cs, self.whitepoint, self.arms)
         # def _compute_straight_line_stress(cs, wp, d):
         # remove the row corresponding to lightness
+        assert cs.k0 is not None
         idx = [True, True, True]
         idx[cs.k0] = False
+
         wp_cs = cs.from_xyz100(self.whitepoint_xyz100)[idx]
+
         s2 = []
         for dd in self.arms:
             vals = cs.from_xyz100(dd)[idx]
@@ -162,7 +157,7 @@ class HueLinearityDataset(Dataset):
         return 100 * np.array(s2)
 
 
-class EllipseDataset(Dataset):
+class EllipseDataset:
     def __init__(self, name: str, xyy100_centers, xyy100_points):
         self.name = name
         self.xyy100_centers = xyy100_centers
@@ -187,6 +182,7 @@ class EllipseDataset(Dataset):
             cs, self.xyy100_centers, self.xyy100_points, ellipse_scaling=ellipse_scaling
         )
         plt.title(f"{self.name} ellipses for {cs.name}")
+        return plt
 
 
 def _plot_ellipses(cs, xyy100_centers, xyy100_points, ellipse_scaling):

@@ -9,13 +9,14 @@ def test_show():
     # cs = colorio.cs.CIELCH()
     # cs = colorio.cs.OsaUcs()
     # cs = colorio.cs.IPT()
-    colorio.data.HungBerns().show(cs)
+    colorio.data.HungBerns().plot(cs).show()
 
 
 def test_residuals():
-    cs = colorio.cs.CIELAB()
-    ref = 4.3485681879882305
-    res = np.average(colorio.data.HungBerns().stress(cs))
+    data = colorio.data.HungBerns()
+    cs = colorio.cs.CIELAB(data.whitepoint_xyz100)
+    ref = 4.1482146919285565
+    res = np.average(data.stress(cs))
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 

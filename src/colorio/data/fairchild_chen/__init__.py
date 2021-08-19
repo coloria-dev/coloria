@@ -12,12 +12,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ...illuminants import whitepoints_cie1931
-from ..helpers import Dataset
 
 this_dir = pathlib.Path(__file__).resolve().parent
 
 
-class FairchildChen(Dataset):
+class FairchildChen:
     def __init__(self, key: str):
         assert key in ["SL1", "SL2"]
         with open(this_dir / "fairchild_chen.json") as f:
@@ -72,6 +71,7 @@ class FairchildChen(Dataset):
         plt.title(f"Fairchild-Chen {self.key} lightness data")
         # dufte.legend()
         plt.legend()
+        return plt
 
     def stress(self, cs):
         # experimental lightness
