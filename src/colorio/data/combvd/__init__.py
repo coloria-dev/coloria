@@ -24,16 +24,15 @@ class COMBVD(ColorDistanceDataset):
             with open(file_path) as f:
                 data = json.load(f)
             dist.append(data["dv"])
-            pairs.append(data["pairs"])
-            weights.append(np.full(len(data["pairs"]), weight))
+
+            xyz = np.asarray(data["xyz"])
+            p = np.asarray(data["pairs"])
+            pairs.append(xyz[p])
+
+            weights.append(np.full(len(p), weight))
 
         dist = np.concatenate(dist)
         pairs = np.concatenate(pairs)
         weights = np.concatenate(weights)
-
-        # CIECAM02 viewing conditions from the JzAzBz paper:
-        self.L_A = 64
-        self.c = 0.69
-        self.Yb = 20
 
         super().__init__("COMBVD", dist, pairs, weights)
