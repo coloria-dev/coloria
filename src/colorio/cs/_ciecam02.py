@@ -6,6 +6,21 @@ from .._exceptions import ColorioError
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
 
+M_cat02 = np.array(
+    [
+        [+0.7328, +0.4296, -0.1624],
+        [-0.7036, +1.6975, +0.0061],
+        [+0.0030, +0.0136, +0.9834],
+    ]
+)
+M_hpe = np.array(
+    [
+        [+0.38971, +0.68898, -0.07868],
+        [-0.22981, +1.18340, +0.04641],
+        [+0.00000, +0.00000, +1.00000],
+    ]
+)
+
 
 def compute_from(rgb_, cs):
     # Step 4: Calculate the post-adaptation cone response (resulting in dynamic range
@@ -268,14 +283,7 @@ class CIECAM02:
         self.c = c
         self.N_c = F
 
-        self.M_cat02 = np.array(
-            [
-                [+0.7328, +0.4296, -0.1624],
-                [-0.7036, +1.6975, +0.0061],
-                [+0.0030, +0.0136, +0.9834],
-            ]
-        )
-        RGB_w = np.dot(self.M_cat02, whitepoint)
+        RGB_w = np.dot(M_cat02, whitepoint)
 
         D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
         D = min(D, 1.0)
@@ -295,14 +303,7 @@ class CIECAM02:
 
         RGB_wc = self.D_RGB * RGB_w
 
-        self.M_hpe = np.array(
-            [
-                [+0.38971, +0.68898, -0.07868],
-                [-0.22981, +1.18340, +0.04641],
-                [+0.00000, +0.00000, +1.00000],
-            ]
-        )
-        RGB_w_ = np.dot(self.M_hpe, np.linalg.solve(self.M_cat02, RGB_wc))
+        RGB_w_ = np.dot(M_hpe, np.linalg.solve(M_cat02, RGB_wc))
 
         alpha = (self.F_L * RGB_w_ / 100) ** 0.42
         RGB_aw_ = 400 * alpha / (alpha + 27.13)
@@ -314,8 +315,8 @@ class CIECAM02:
 
         # Merge a bunch of matrices together here.
         self.M_ = np.dot(
-            self.M_hpe,
-            np.linalg.solve(self.M_cat02, (self.M_cat02.T * self.D_RGB).T),
+            M_hpe,
+            np.linalg.solve(M_cat02, (M_cat02.T * self.D_RGB).T),
         )
         # Alternative: LU decomposition. That introduces a scipy dependency
         # though and lusolve is slower than dot() as well.
@@ -340,13 +341,13 @@ class CIECAM02:
         rgb_ = compute_to(data, description, self)
 
         # Step 6: Calculate RC, GC and BC
-        # rgb_c = dot(self.M_cat02, solve(self.M_hpe, rgb_))
+        # rgb_c = dot(M_cat02, solve(M_hpe, rgb_))
         #
         # Step 7: Calculate R, G and B
         # rgb = (rgb_c.T / self.D_RGB).T
         #
         # Step 8: Calculate X, Y and Z
-        # xyz = solve(self.M_cat02, rgb)
+        # xyz = solve(M_cat02, rgb)
         return npx.dot(self.invM_, rgb_)
 
 
