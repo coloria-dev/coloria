@@ -3,7 +3,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from ..illuminants import whitepoints_cie1931
-from ._cielab import f, finv
+from ._cielab import A, f, finv
 from ._color_space import ColorSpace
 
 
@@ -34,13 +34,6 @@ class SRLAB2(ColorSpace):
         )
         M_hpe_inv = np.linalg.inv(M_hpe)
         rgb_w = M_cat02 @ self.whitepoint_xyz100
-
-        A = np.array(
-            [[0.0, 1.0, 0.0], [125 / 29, -125 / 29, 0.0], [0.0, 50 / 29, -50 / 29]]
-        )
-        # Ainv = np.array(
-        #     [[1.0, 29 / 125, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, -116 / 200]]
-        # )
 
         self.B = M_hpe @ M_cat02_inv @ (M_cat02.T / rgb_w).T
         self.C = A @ M_hpe_inv
