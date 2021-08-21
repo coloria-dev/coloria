@@ -46,7 +46,7 @@ class CAM16:
                 [-0.002079, +0.048952, +0.953127],
             ]
         )
-        RGB_w = np.dot(self.M16, whitepoint)
+        RGB_w = self.M16 @ whitepoint
 
         D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
         D = min(D, 1.0)

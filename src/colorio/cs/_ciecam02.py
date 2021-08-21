@@ -283,7 +283,7 @@ class CIECAM02:
         self.c = c
         self.N_c = F
 
-        RGB_w = np.dot(M_cat02, whitepoint)
+        RGB_w = M_cat02 @ whitepoint
 
         D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
         D = min(D, 1.0)
@@ -303,7 +303,7 @@ class CIECAM02:
 
         RGB_wc = self.D_RGB * RGB_w
 
-        RGB_w_ = np.dot(M_hpe, np.linalg.solve(M_cat02, RGB_wc))
+        RGB_w_ = M_hpe @ np.linalg.solve(M_cat02, RGB_wc)
 
         alpha = (self.F_L * RGB_w_ / 100) ** 0.42
         RGB_aw_ = 400 * alpha / (alpha + 27.13)
@@ -314,12 +314,7 @@ class CIECAM02:
         self.H = np.array([0.0, 100.0, 200.0, 300.0, 400.0])
 
         # Merge a bunch of matrices together here.
-        self.M_ = np.dot(
-            M_hpe,
-            np.linalg.solve(M_cat02, (M_cat02.T * self.D_RGB).T),
-        )
-        # Alternative: LU decomposition. That introduces a scipy dependency
-        # though and lusolve is slower than dot() as well.
+        self.M_ = M_hpe @ np.linalg.solve(M_cat02, (M_cat02.T * self.D_RGB).T)
         self.invM_ = np.linalg.inv(self.M_)
 
     def from_xyz100(self, xyz):
