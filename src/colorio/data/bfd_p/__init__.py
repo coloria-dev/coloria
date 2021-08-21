@@ -10,7 +10,7 @@ import pathlib
 
 import numpy as np
 
-from ..helpers import ColorDistanceDataset
+from ..color_distance import ColorDistanceDataset
 
 
 class BfdP(ColorDistanceDataset):
@@ -20,16 +20,14 @@ class BfdP(ColorDistanceDataset):
         with open(this_dir / "bfd-p.json") as f:
             data = json.load(f)
 
-        # that's CIE 2-degree D64:
-        self.whitepoint_xyz100 = data["reference_white"]
-
-        # parameters as used in
+        # surround parameters as used in
         #
         # Melgosa, Huertas, Berns,
         # Performance of recent advanced color-difference formulas using the
         # standardized residual sum of squares index
         # J. Opt. Soc. Am. A/ Vol. 25, No. 7/ July 2008,
         # <https://doi.org/10.1364/JOSAA.25.001828>.
+        #
         self.c = 0.69  # average
         self.L_A = 100
         self.Yb = 20

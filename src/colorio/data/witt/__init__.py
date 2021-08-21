@@ -3,7 +3,7 @@ import pathlib
 
 import numpy as np
 
-from ..helpers import ColorDistanceDataset
+from ..color_distance import ColorDistanceDataset
 
 
 class Witt(ColorDistanceDataset):

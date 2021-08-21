@@ -9,7 +9,7 @@ import pathlib
 
 import numpy as np
 
-from ..helpers import HueLinearityDataset
+from ..hue_linearity import HueLinearityDataset
 
 
 class EbnerFairchild(HueLinearityDataset):

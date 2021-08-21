@@ -13,7 +13,7 @@ import numpy as np
 
 from ...cs import XYY, XYZ
 from ...illuminants import whitepoints_cie1964
-from ..helpers import ColorDistanceDataset
+from ..color_distance import ColorDistanceDataset
 
 
 class MacAdam1974(ColorDistanceDataset):

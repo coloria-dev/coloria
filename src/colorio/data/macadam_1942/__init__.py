@@ -13,7 +13,8 @@ import numpy as np
 
 from ...cs import XYY
 from ...illuminants import whitepoints_cie1931
-from ..helpers import ColorDistanceDataset, _plot_ellipses
+from ..color_distance import ColorDistanceDataset
+from ..ellipse import _plot_ellipses
 
 
 class MacAdam1942(ColorDistanceDataset):

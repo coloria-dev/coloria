@@ -9,7 +9,7 @@ import pathlib
 
 import numpy as np
 
-from ..helpers import EllipseDataset
+from ..ellipse import EllipseDataset
 
 
 class LuoRigg(EllipseDataset):

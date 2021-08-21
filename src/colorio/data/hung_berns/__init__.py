@@ -11,7 +11,7 @@ import pathlib
 import numpy as np
 
 from ...illuminants import whitepoints_cie1931
-from ..helpers import HueLinearityDataset
+from ..hue_linearity import HueLinearityDataset
 
 
 class HungBerns(HueLinearityDataset):
