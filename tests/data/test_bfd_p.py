@@ -12,7 +12,7 @@ def test_show():
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     # cs = colorio.cs.JzAzBz()
     # cs = colorio.cs.XYY(1)
-    colorio.data.BfdP().show(cs)
+    colorio.data.BfdP().plot(cs).show()
 
 
 def test_stress():

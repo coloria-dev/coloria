@@ -15,11 +15,6 @@ from ..color_distance import ColorDistanceDataset
 
 class BfdP(ColorDistanceDataset):
     def __init__(self):
-        this_dir = pathlib.Path(__file__).resolve().parent
-
-        with open(this_dir / "bfd-p.json") as f:
-            data = json.load(f)
-
         # surround parameters as used in
         #
         # Melgosa, Huertas, Berns,
@@ -32,7 +27,21 @@ class BfdP(ColorDistanceDataset):
         self.L_A = 100
         self.Yb = 20
 
-        xyz = np.asarray(data["xyz"])
-        pairs = np.asarray(data["pairs"])
+        dv = []
+        xyz_pairs = []
 
-        super().__init__("BFD-P", data["dv"], xyz[pairs])
+        this_dir = pathlib.Path(__file__).resolve().parent
+
+        for filename in ["bfd-c.json", "bfd-d65.json", "bfd-m.json"]:
+            with open(this_dir / filename) as f:
+                data = json.load(f)
+            xyz = np.asarray(data["xyz"])
+            pairs = np.asarray(data["pairs"])
+            dv.append(data["dv"])
+            xyz_pairs.append(xyz[pairs])
+
+        # simply concatenating disregards the whitepoint TODO fix
+        dv = np.concatenate(dv)
+        xyz_pairs = np.concatenate(xyz_pairs)
+
+        super().__init__("BFD-P", dv, xyz_pairs)
