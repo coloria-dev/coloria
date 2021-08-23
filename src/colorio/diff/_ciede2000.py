@@ -1,7 +1,14 @@
 import numpy as np
+from numpy.typing import ArrayLike
 
 
-def ciede2000(lab1, lab2, k_L=1.0, k_C=1.0, k_H=1.0):
+def ciede2000(
+    lab1: ArrayLike,
+    lab2: ArrayLike,
+    k_L: float = 1.0,
+    k_C: float = 1.0,
+    k_H: float = 1.0,
+) -> np.ndarray:
     lab1 = np.asarray(lab1)
     lab2 = np.asarray(lab2)
 
