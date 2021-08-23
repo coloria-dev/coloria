@@ -7,7 +7,9 @@ def test_show():
     # cs = colorio.cs.CIELCH()
     # cs = colorio.cs.OsaUcs()
     cs = colorio.cs.IPT()
-    colorio.data.Munsell().show(cs, V=5)
+    plt = colorio.data.Munsell().plot(cs, V=5)
+    plt.show()
+    plt.close()
 
 
 def test_show_lightness():
@@ -17,7 +19,9 @@ def test_show_lightness():
     # cs = colorio.cs.OsaUcs()
     cs = colorio.cs.IPT()
     # cs = colorio.cs.OKLAB()
-    colorio.data.Munsell().show_lightness(cs)
+    plt = colorio.data.Munsell().plot_lightness(cs)
+    plt.show()
+    plt.close()
 
 
 def test_stress():

@@ -29,16 +29,6 @@ class Munsell:
         with open(this_dir / "lightness.json") as f:
             self.lightness = json.load(f)
 
-    def show(self, *args, **kwargs):
-        self.plot(*args, **kwargs)
-        plt.show()
-
-    def savefig(self, filename, *args, **kwargs):
-        plt.figure()
-        self.plot(*args, **kwargs)
-        plt.savefig(filename, transparent=True, bbox_inches="tight")
-        plt.close()
-
     def plot(self, cs, V):
         # pick the data from the given munsell level
         xyy = self.xyy100[:, V == self.V]
@@ -65,14 +55,7 @@ class Munsell:
         plt.xlabel(cs.labels[k1])
         plt.ylabel(cs.labels[k2], rotation=0)
         plt.axis("equal")
-
-    def show_lightness(self, *args, **kwargs):
-        self.plot_lightness(*args, **kwargs)
-        plt.show()
-
-    def savefig_lightness(self, filename, *args, **kwargs):
-        self.plot_lightness(*args, **kwargs)
-        plt.savefig(filename, transparent=True, bbox_inches="tight")
+        return plt
 
     def plot_lightness(self, cs):
         # print(self.xyy100.T)
@@ -126,6 +109,7 @@ class Munsell:
         #     marker="o",
         #     label=f"{cs.name} lightness",
         # )
+        return plt
 
     def stress_lightness(self, cs):
         ref = self.V

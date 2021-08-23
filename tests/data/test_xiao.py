@@ -10,8 +10,9 @@ def test_show():
     cs = colorio.cs.OsaUcs()
     # cs = colorio.cs.IPT()
     # cs = colorio.cs.XYY()
-    colorio.data.Xiao().plot(cs).show()
-    # colorio.data.ebner_fairchild.savefig(cs)
+    plt = colorio.data.Xiao().plot(cs)
+    plt.show()
+    plt.close()
 
 
 def test_residuals():
