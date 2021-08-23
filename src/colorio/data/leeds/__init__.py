@@ -16,6 +16,8 @@ class Leeds(ColorDistanceDataset):
         xyz = np.asarray(data["xyz"])
         pairs = np.asarray(data["pairs"])
 
+        self.whitepoint_xyz100 = data["reference_white"]
+
         # parameters as used in
         #
         # Melgosa, Huertas, Berns,
