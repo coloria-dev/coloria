@@ -1,6 +1,3 @@
-import tempfile
-from pathlib import Path
-
 import colorio
 
 
@@ -15,9 +12,7 @@ def test_show():
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     # cs = colorio.cs.JzAzBz()
     cs = colorio.cs.XYY(1)
-    colorio.data.MacAdam1942(Y=50.0).show(cs)
-    with tempfile.TemporaryDirectory() as tmpdir:
-        colorio.data.MacAdam1942(50).savefig(Path(tmpdir) / "out.png", cs)
+    colorio.data.MacAdam1942(Y=50.0).plot(cs).show()
 
 
 def test_stress():

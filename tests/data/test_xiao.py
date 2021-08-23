@@ -10,7 +10,7 @@ def test_show():
     cs = colorio.cs.OsaUcs()
     # cs = colorio.cs.IPT()
     # cs = colorio.cs.XYY()
-    colorio.data.Xiao().show(cs)
+    colorio.data.Xiao().plot(cs).show()
     # colorio.data.ebner_fairchild.savefig(cs)
 
 

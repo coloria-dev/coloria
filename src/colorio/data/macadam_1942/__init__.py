@@ -86,3 +86,5 @@ class MacAdam1942(ColorDistanceDataset):
         # )
         # if plot_srgb_gamut:
         #     cs.plot_rgb_slice(lightness)
+
+        return plt
