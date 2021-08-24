@@ -12,7 +12,6 @@ class CIEHCL(ColorSpace):
 
     def from_xyz100(self, xyz):
         L, u, v = self.cieluv.from_xyz100(xyz)
-        print("luv", L, u, v)
         C = np.hypot(u, v)
         h = np.mod(np.arctan2(v, u), 2 * np.pi) / np.pi * 180
         return np.array([L, C, h])
