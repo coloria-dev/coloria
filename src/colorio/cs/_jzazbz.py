@@ -3,7 +3,6 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from .._exceptions import ColorioError
-from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
 
 
@@ -16,10 +15,8 @@ class JzAzBz(ColorSpace):
     <https://doi.org/10.1364/OE.25.015131>.
     """
 
-    def __init__(self, whitepoint: ArrayLike = whitepoints_cie1931["D65"]):
+    def __init__(self):
         super().__init__("J_z a_z b_z", ("J_z", "a_z", "b_z"), 0)
-        self.whitepoint_xyz100 = np.asarray(whitepoint)
-
         self.b = 1.15
         self.g = 0.66
         self.c1 = 3424 / 2 ** 12

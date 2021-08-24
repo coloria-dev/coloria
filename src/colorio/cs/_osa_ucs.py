@@ -1,5 +1,6 @@
 import npx
 import numpy as np
+from numpy.typing import ArrayLike
 
 from ._color_space import ColorSpace
 
@@ -33,8 +34,8 @@ class OsaUcs(ColorSpace):
         )
         self.Minv = np.linalg.inv(self.M)
 
-    def from_xyz100(self, xyz100):
-        X, Y, _ = xyz100
+    def from_xyz100(self, xyz100: ArrayLike) -> np.ndarray:
+        X, Y, _ = np.asarray(xyz100)
         s = np.sum(xyz100, axis=0)
 
         # Avoid division by s, could be 0.
@@ -64,13 +65,15 @@ class OsaUcs(ColorSpace):
 
         return np.array([L, j, g])
 
-    def to_xyz100(self, ljg, tol=1.0e-13, max_num_newton_steps=100):
+    def to_xyz100(
+        self, ljg: ArrayLike, tol: float = 1.0e-13, max_num_newton_steps: int = 100
+    ):
         # Renbo Cao, H. Joel Trussell, and Renzo Shamey,
         # Comparison of the performance of inverse transformation methods from OSA-UCS
         # to CIEXYZ,
         # J Opt Soc Am A Opt Image Sci Vis., 2013 Aug 1,30(8):1508-15,
         # <https://doi.org/10.1364/JOSAA.30.001508>.
-        L, j, g = ljg
+        L, j, g = np.asarray(ljg)
 
         L_prime = L * np.sqrt(2) + 14.3993
 

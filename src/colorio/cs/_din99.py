@@ -89,5 +89,4 @@ class DIN99(ColorSpace):
 
         L = (np.exp(L99 * self.k_E / self.p[0]) - 1) / self.p[1]
 
-        lab = np.array([L, a, b])
-        return self.cielab.to_xyz100(lab)
+        return self.cielab.to_xyz100([L, a, b])

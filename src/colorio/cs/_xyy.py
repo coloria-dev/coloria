@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.typing import ArrayLike
 
 from .._exceptions import ColorioError
 from ._color_space import ColorSpace
@@ -19,7 +20,7 @@ class XYY(ColorSpace):
         )
         self.Y_scaling = Y_scaling
 
-    def from_xyz100(self, xyz100):
+    def from_xyz100(self, xyz100: ArrayLike) -> np.ndarray:
         xyz100 = np.asarray(xyz100)
         if np.any(xyz100 < 0):
             raise ColorioError("Negative XYZ100 value.")
@@ -32,7 +33,7 @@ class XYY(ColorSpace):
         y = xyz[1]
         return np.array([x / sum_xyz, y / sum_xyz, y])
 
-    def to_xyz100(self, xyy):
+    def to_xyz100(self, xyy: ArrayLike) -> np.ndarray:
         xyy = np.asarray(xyy)
         if np.any(xyy < 0):
             raise ColorioError("Negative xyY value.")
