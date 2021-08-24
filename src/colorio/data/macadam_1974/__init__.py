@@ -42,6 +42,10 @@ class MacAdam1974(ColorDistanceDataset):
         # Close enough to the 10-degree-observer I guess?
         #
         self.whitepoint_xyz100 = whitepoints_cie1964["D65"]
+        # Assume the surround parameters of a light booth
+        self.c = 0.69
+        self.Y_b = 20
+        self.L_A = 60
 
         t = dict(zip(data.keys(), range(len(data))))
         xyy100_tiles = np.array([[val[0], val[1], val[2]] for val in data.values()])
