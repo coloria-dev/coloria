@@ -5,33 +5,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from ..cs import CIELAB, ColorSpace
-from .helpers import create_cs_class_instance
-
-
-def _stress_absolute(
-    target: ArrayLike, actual: ArrayLike, weights: Union[float, ArrayLike] = 1.0
-) -> float:
-    target = np.asarray(target)
-    actual = np.asarray(actual)
-    weights = np.asarray(weights)
-    wtarget = weights * target
-    alpha = np.dot(wtarget, actual) / np.dot(wtarget, target)
-    diff = alpha * target - actual
-    val = np.dot(weights * diff, diff) / np.dot(weights * actual, actual)
-    return 100 * np.sqrt(val)
-
-
-def _stress_relative(
-    target: ArrayLike, actual: ArrayLike, weights: Union[float, ArrayLike] = 1.0
-) -> float:
-    target = np.asarray(target)
-    actual = np.asarray(actual)
-    weights = np.asarray(weights)
-    wtarget = weights * target
-    alpha = np.sum(wtarget) / np.sum(wtarget * target / actual)
-    diff = alpha * target - actual
-    val = np.sum(weights * diff ** 2 / actual) / np.sum(weights * actual)
-    return 100 * np.sqrt(val)
+from .helpers import create_cs_class_instance, stress_absolute, stress_relative
 
 
 class ColorDistanceDataset:
@@ -77,7 +51,7 @@ class ColorDistanceDataset:
         cs_pairs = cs.from_xyz100(self.xyz_pairs.T).T
         cs_diff = cs_pairs[:, 1] - cs_pairs[:, 0]
         delta = np.sqrt(np.einsum("ij,ij->i", cs_diff, cs_diff))
-        fun = _stress_absolute if variant == "absolute" else _stress_relative
+        fun = stress_absolute if variant == "absolute" else stress_relative
         return fun(self.dist, delta, self.weights)
 
     def stress_lab_diff(self, fun: Callable, variant: str = "absolute") -> float:
@@ -86,5 +60,5 @@ class ColorDistanceDataset:
         """
         lab_pairs = CIELAB().from_xyz100(self.xyz_pairs.T)
         delta = fun(lab_pairs[:, 0], lab_pairs[:, 1])
-        fun = _stress_absolute if variant == "absolute" else _stress_relative
+        fun = stress_absolute if variant == "absolute" else stress_relative
         return fun(self.dist, delta, self.weights)

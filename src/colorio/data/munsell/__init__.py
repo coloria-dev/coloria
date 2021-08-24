@@ -7,7 +7,7 @@ import numpy as np
 
 from ...cs import XYY, ColorSpace
 from ...illuminants import whitepoints_cie1931
-from ..helpers import create_cs_class_instance
+from ..helpers import create_cs_class_instance, stress_absolute
 
 this_dir = pathlib.Path(__file__).resolve().parent
 
@@ -114,15 +114,11 @@ class Munsell:
             cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
         )
 
-        ref = self.V
-
         # Move L0 into origin for translation invariance
         assert cs.k0 is not None
         L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
         L_ = cs.from_xyz100(self.xyz100)[cs.k0] - L0_
 
-        alpha = np.dot(ref, L_) / np.dot(ref, ref)
-        diff = alpha * ref - L_
-        return 100 * np.sqrt(np.dot(diff, diff) / np.dot(L_, L_))
+        return stress_absolute(self.V, L_)
 
     stress = stress_lightness

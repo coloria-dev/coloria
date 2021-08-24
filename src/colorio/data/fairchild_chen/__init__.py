@@ -14,7 +14,7 @@ import numpy as np
 
 from ...cs import ColorSpace
 from ...illuminants import whitepoints_cie1931
-from ..helpers import create_cs_class_instance
+from ..helpers import create_cs_class_instance, stress_absolute
 
 this_dir = pathlib.Path(__file__).resolve().parent
 
@@ -89,6 +89,4 @@ class FairchildChen:
         L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
         L_ = cs.from_xyz100(self.data["xyz"].T)[cs.k0] - L0_
 
-        alpha = np.dot(L, L_) / np.dot(L, L)
-        diff = alpha * L - L_
-        return 100 * np.sqrt(np.dot(diff, diff) / np.dot(L_, L_))
+        return stress_absolute(L, L_)

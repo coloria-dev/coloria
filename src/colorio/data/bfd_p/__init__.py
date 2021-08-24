@@ -12,8 +12,7 @@ from typing import Type
 import numpy as np
 
 from ...cs import ColorSpace
-from ..color_distance import _stress_absolute, _stress_relative
-from ..helpers import create_cs_class_instance
+from ..helpers import create_cs_class_instance, stress_absolute, stress_relative
 
 
 class BfdP:
@@ -58,7 +57,7 @@ class BfdP:
 
         delta = np.concatenate(deltas)
 
-        fun = _stress_absolute if variant == "absolute" else _stress_relative
+        fun = stress_absolute if variant == "absolute" else stress_relative
         return fun(self.dv, delta)
 
     # def plot(self, cs: ColorSpace):
