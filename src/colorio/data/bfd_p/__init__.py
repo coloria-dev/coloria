@@ -7,13 +7,16 @@ Volume 98 January 1982,
 """
 import json
 import pathlib
+from typing import Type
 
 import numpy as np
 
-from ..color_distance import ColorDistanceDataset
+from ...cs import ColorSpace
+from ..color_distance import _stress_absolute, _stress_relative
+from ..helpers import create_cs_class_instance
 
 
-class BfdP(ColorDistanceDataset):
+class BfdP:
     def __init__(self):
         # surround parameters as used in
         #
@@ -27,8 +30,9 @@ class BfdP(ColorDistanceDataset):
         self.L_A = 100
         self.Y_b = 20
 
-        dv = []
-        xyz_pairs = []
+        self.dv = []
+        self.xyz_pairs = []
+        self.whitepoints = []
 
         this_dir = pathlib.Path(__file__).resolve().parent
 
@@ -37,11 +41,26 @@ class BfdP(ColorDistanceDataset):
                 data = json.load(f)
             xyz = np.asarray(data["xyz"])
             pairs = np.asarray(data["pairs"])
-            dv.append(data["dv"])
-            xyz_pairs.append(xyz[pairs])
+            self.dv.append(data["dv"])
+            self.xyz_pairs.append(xyz[pairs])
+            self.whitepoints.append(data["reference_white"])
 
-        # simply concatenating disregards the whitepoint TODO fix
-        dv = np.concatenate(dv)
-        xyz_pairs = np.concatenate(xyz_pairs)
+        self.dv = np.concatenate(self.dv)
 
-        super().__init__("BFD-P", dv, xyz_pairs)
+    def stress(self, cs_class: Type[ColorSpace], variant: str = "absolute"):
+        deltas = []
+        for xyz, wp in zip(self.xyz_pairs, self.whitepoints):
+            cs = create_cs_class_instance(cs_class, wp, self.c, self.Y_b, self.L_A)
+            # compute Euclidean distance in the given colorspace
+            cs_pairs = cs.from_xyz100(xyz.T).T
+            cs_diff = cs_pairs[:, 1] - cs_pairs[:, 0]
+            deltas.append(np.sqrt(np.einsum("ij,ij->i", cs_diff, cs_diff)))
+
+        delta = np.concatenate(deltas)
+
+        fun = _stress_absolute if variant == "absolute" else _stress_relative
+        return fun(self.dv, delta)
+
+    # def plot(self, cs: ColorSpace):
+    #     import matplotlib.pyplot as plt
+    #     return plt
