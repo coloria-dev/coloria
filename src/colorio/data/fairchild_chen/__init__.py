@@ -7,11 +7,14 @@ Rochester Institute of Technology, Rochester, NY, USA 14623-5604,
 """
 import json
 import pathlib
+from typing import Type
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+from ...cs import ColorSpace
 from ...illuminants import whitepoints_cie1931
+from ..helpers import create_cs_class_instance
 
 this_dir = pathlib.Path(__file__).resolve().parent
 
@@ -73,11 +76,16 @@ class FairchildChen:
         plt.legend()
         return plt
 
-    def stress(self, cs):
+    def stress(self, cs_class: Type[ColorSpace]) -> float:
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
+
         # experimental lightness
         L = self.data["lightness"]
         # predicted lightness
         # Move L0 into origin for translation invariance
+        assert cs.k0 is not None
         L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
         L_ = cs.from_xyz100(self.data["xyz"].T)[cs.k0] - L0_
 

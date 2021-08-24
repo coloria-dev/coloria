@@ -73,11 +73,11 @@ class HueLinearityDataset:
 
     def stress(self, cs_class: Type[ColorSpace]):
         """Compute the TLS residuals for each of the arms."""
-        # remove the row corresponding to lightness
         cs = create_cs_class_instance(
             cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
         )
 
+        # remove the row corresponding to lightness
         assert cs.k0 is not None
         idx = [True, True, True]
         idx[cs.k0] = False
