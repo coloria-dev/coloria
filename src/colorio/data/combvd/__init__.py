@@ -11,7 +11,9 @@ class COMBVD(ColorDistanceDataset):
         this_dir = pathlib.Path(__file__).resolve().parent
 
         components = [
-            (this_dir / ".." / "bfd_p" / "bfd-p.json", 1.0),
+            (this_dir / ".." / "bfd_p" / "bfd-c.json", 1.0),
+            (this_dir / ".." / "bfd_p" / "bfd-d65.json", 1.0),
+            (this_dir / ".." / "bfd_p" / "bfd-m.json", 1.0),
             (this_dir / ".." / "leeds" / "leeds.json", 9.0),
             (this_dir / ".." / "rit_dupont" / "rit-dupont.json", 9.0),
             (this_dir / ".." / "witt" / "witt.json", 7.0),

@@ -12,7 +12,9 @@ def test_show():
     # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
     # cs = colorio.cs.JzAzBz()
     cs = colorio.cs.XYY(1)
-    colorio.data.MacAdam1942(Y=50.0).plot(cs).show()
+    plt = colorio.data.MacAdam1942(Y=50.0).plot(cs)
+    plt.show()
+    plt.close()
 
 
 def test_stress():

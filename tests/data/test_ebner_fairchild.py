@@ -9,7 +9,9 @@ def test_show():
     # cs = colorio.cs.CIELCH()
     # cs = colorio.cs.OsaUcs()
     cs = colorio.cs.IPT()
-    colorio.data.EbnerFairchild().plot(cs).show()
+    plt = colorio.data.EbnerFairchild().plot(cs)
+    plt.show()
+    plt.close()
 
 
 def test_stress():

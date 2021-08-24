@@ -1,6 +1,3 @@
-import tempfile
-from pathlib import Path
-
 import colorio
 
 
@@ -14,13 +11,13 @@ def test_show():
     cs = colorio.cs.XYY(1)
     plt = colorio.data.LuoRigg(8).plot(cs)
     plt.show()
-    with tempfile.TemporaryDirectory() as tmpdir:
-        plt.savefig(Path(tmpdir) / "out.png")
+    plt.close()
 
 
 def test_residuals():
     data = colorio.data.LuoRigg(8)
-    cs = colorio.cs.CIELAB(data.whitepoint_xyz100)
+    # cs = colorio.cs.CIELAB(data.whitepoint_xyz100)
+    cs = colorio.cs.CIELAB()
     ref = 48.472622852849376
     res = data.stress(cs)
     print(res)
