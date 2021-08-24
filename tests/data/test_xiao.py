@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 import colorio
 
@@ -15,11 +16,31 @@ def test_show():
     plt.close()
 
 
-def test_residuals():
-    data = colorio.data.Xiao()
-    cs = colorio.cs.CIELAB(whitepoint=data.whitepoint_xyz100)
-    ref = 2.7883626042361533
-    res = np.average(data.stress(cs))
+@pytest.mark.parametrize(
+    "cs_class,ref",
+    [
+        (colorio.cs.CIELUV, 2.381285478701682),
+        (colorio.cs.XYY100, 2.3985002202066097),
+        (colorio.cs.CIELAB, 2.788362604236149),
+        (colorio.cs.PROLAB, 2.8038926193818785),
+        (colorio.cs.SRLAB2, 3.1075993110078013),
+        (colorio.cs.RLAB, 3.6814827262133005),
+        (colorio.cs.ICtCp, 3.924094855240532),
+        (colorio.cs.CAM02SCD, 4.556735406166622),
+        (colorio.cs.CAM02UCS, 4.58825706817219),
+        (colorio.cs.CAM02LCD, 4.618341690395547),
+        (colorio.cs.CAM16UCS, 4.626957018528581),
+        (colorio.cs.JzAzBz, 5.230529469594494),
+        (colorio.cs.OKLAB, 6.256386444491906),
+        (colorio.cs.OsaUcs, 8.22761086694146),
+        (colorio.cs.IPT, 8.853878081896712),
+        (colorio.cs.CIELCH, 9.983951212967135),
+        (colorio.cs.CIEHCL, 11.516088298979938),
+    ],
+)
+def test_stress(cs_class, ref):
+    res = np.average(colorio.data.Xiao().stress(cs_class))
+    print(cs_class)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 

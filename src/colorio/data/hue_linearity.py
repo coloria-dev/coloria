@@ -1,8 +1,11 @@
+from typing import Type
+
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import ArrayLike
 
 from ..cs import ColorSpace
+from .color_distance import create_cs_class_instance
 
 
 class HueLinearityDataset:
@@ -68,11 +71,13 @@ class HueLinearityDataset:
         plt.title(f"{self.name} hue linearity data for {cs.name}")
         return plt
 
-    def stress(self, cs: ColorSpace):
+    def stress(self, cs_class: Type[ColorSpace]):
         """Compute the TLS residuals for each of the arms."""
-        # return _compute_straight_line_stress(cs, self.whitepoint, self.arms)
-        # def _compute_straight_line_stress(cs, wp, d):
         # remove the row corresponding to lightness
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
+
         assert cs.k0 is not None
         idx = [True, True, True]
         idx[cs.k0] = False
