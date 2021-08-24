@@ -20,7 +20,8 @@ class Munsell:
         self.h = np.array(data["h"])
         self.V = np.array(data["V"])
         self.C = np.array(data["C"])
-        self.xyy100 = np.array([data["x"], data["y"], data["Y"]])
+        xyy100 = np.array([data["x"], data["y"], data["Y"]])
+        self.xyz100 = XYY(100).to_xyz100(xyy100)
 
         # Whitepoint and CIECAM02 info from the JzAzBz paper:
         self.whitepoint_xyz100 = whitepoints_cie1931["C"]
@@ -33,10 +34,7 @@ class Munsell:
 
     def plot(self, cs: ColorSpace, V: int):
         # pick the data from the given munsell level
-        xyy = self.xyy100[:, V == self.V]
-
-        x, y, Y = xyy
-        xyz100 = np.array([Y / y * x, Y, Y / y * (1 - x - y)])
+        xyz100 = self.xyz100[:, V == self.V]
         pts = cs.from_xyz100(xyz100)
 
         rgb = cs.to_rgb1(pts)
@@ -61,11 +59,8 @@ class Munsell:
         return plt
 
     def plot_lightness(self, cs: ColorSpace):
-        # print(self.xyy100.T)
-        # exit(1)
-
         L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
-        L_ = cs.from_xyz100(XYY(100).to_xyz100(self.xyy100))[cs.k0] - L0_
+        L_ = cs.from_xyz100(self.xyz100)[cs.k0] - L0_
         ref = self.V
         alpha = np.dot(ref, L_) / np.dot(ref, ref)
 
@@ -87,14 +82,14 @@ class Munsell:
         l_vals = []
         for k in range(1, 10):
             idx = self.V == k
-            y_vals.append(self.xyy100[2, idx][0])
+            y_vals.append(self.xyz100[1, idx][0])
             avg2 = np.sqrt(np.mean((L_[idx] ** 2)))
             # avg2 = np.mean(L_[idx])
             l_avg2.append(avg2)
             l_err0.append(avg2 - np.min(L_[idx]))
             l_err1.append(np.max(L_[idx]) - avg2)
             #
-            y_vals2.append(self.xyy100[2, idx])
+            y_vals2.append(self.xyz100[1, idx])
             l_vals.append(L_[idx])
 
         plt.errorbar(
@@ -124,7 +119,7 @@ class Munsell:
         # Move L0 into origin for translation invariance
         assert cs.k0 is not None
         L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
-        L_ = cs.from_xyz100(XYY(100).to_xyz100(self.xyy100))[cs.k0] - L0_
+        L_ = cs.from_xyz100(self.xyz100)[cs.k0] - L0_
 
         alpha = np.dot(ref, L_) / np.dot(ref, ref)
         diff = alpha * ref - L_

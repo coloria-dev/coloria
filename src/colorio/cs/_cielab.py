@@ -36,7 +36,7 @@ class CIELAB(ColorSpace):
     def __init__(self, whitepoint: ArrayLike = whitepoints_cie1931["D65"]):
         super().__init__("CIELAB", ("L*", "a*", "b*"), 0)
         self.whitepoint_xyz100 = np.asarray(whitepoint)
-        self.whitepoint = np.array([100.0, 0.0, 0.0])
+        # self.whitepoint = np.array([100.0, 0.0, 0.0])
 
     def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         xyz = np.asarray(xyz)
