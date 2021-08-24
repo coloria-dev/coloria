@@ -43,5 +43,4 @@ class CIELAB(ColorSpace):
         return npx.dot(A, f((xyz.T / self.whitepoint_xyz100).T))
 
     def to_xyz100(self, lab: ArrayLike) -> np.ndarray:
-        lab = np.asarray(lab)
         return (finv(npx.dot(Ainv, lab)).T * self.whitepoint_xyz100).T

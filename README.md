@@ -77,9 +77,8 @@ The following color spaces are implemented:
   import math
   import colorio
 
-  L_A = 64 / math.pi / 5
-  ciecam02 = colorio.cs.CIECAM02(0.69, 20, L_A)
-  cam02 = colorio.cs.CAM02("UCS", 0.69, 20, L_A)
+  ciecam02 = colorio.cs.CIECAM02(0.69, 20, 100)
+  cam02 = colorio.cs.CAM02("UCS", 0.69, 20, 100)
   ```
 
   The implementation contains a few improvements over the CIECAM02 specification (see
@@ -91,9 +90,8 @@ The following color spaces are implemented:
   import math
   import colorio
 
-  L_A = 64 / math.pi / 5
-  cam16 = colorio.cs.CAM16(0.69, 20, L_A)
-  cam16ucs = colorio.cs.CAM16UCS(0.69, 20, L_A)
+  cam16 = colorio.cs.CAM16(0.69, 20, 100)
+  cam16ucs = colorio.cs.CAM16UCS(0.69, 20, 100)
   ```
 
   The implementation contains a few improvements over the CAM16
