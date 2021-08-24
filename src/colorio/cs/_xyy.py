@@ -42,3 +42,13 @@ class XYY(ColorSpace):
         if self.Y_scaling == 1:
             out *= 100
         return out
+
+
+class XYY1(XYY):
+    def __init__(self):
+        super().__init__(1)
+
+
+class XYY100(XYY):
+    def __init__(self):
+        super().__init__(100)

@@ -27,3 +27,13 @@ class XYZ(ColorSpace):
         if self.scaling == 100:
             return xyz
         return xyz * 100
+
+
+class XYZ1(XYZ):
+    def __init__(self):
+        super().__init__(1)
+
+
+class XYZ100(XYZ):
+    def __init__(self):
+        super().__init__(100)
