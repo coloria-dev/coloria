@@ -5,7 +5,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from ..cs import ColorSpace
-from .color_distance import create_cs_class_instance
+from .helpers import create_cs_class_instance
 
 
 class HueLinearityDataset:
