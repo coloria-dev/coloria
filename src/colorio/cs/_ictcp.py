@@ -1,5 +1,6 @@
 import npx
 import numpy as np
+from numpy.typing import ArrayLike
 
 from ._color_space import ColorSpace
 from ._hdr import HdrLinear
@@ -31,7 +32,7 @@ class ICtCp(ColorSpace):
 
         self._hdr = HdrLinear()
 
-    def from_rec2100(self, rgb):
+    def from_rec2100(self, rgb: ArrayLike) -> ArrayLike:
         lms = npx.dot(self.M1, rgb)
 
         lms_ = (
@@ -41,7 +42,7 @@ class ICtCp(ColorSpace):
         ictcp = npx.dot(self.M2, lms_)
         return ictcp
 
-    def to_rec2100(self, ictcp):
+    def to_rec2100(self, ictcp: ArrayLike) -> ArrayLike:
         lms_ = npx.solve(self.M2, ictcp)
 
         t = lms_ ** (1 / self.m2) - self.c1
@@ -53,8 +54,8 @@ class ICtCp(ColorSpace):
         rgb = npx.solve(self.M1, lms)
         return rgb
 
-    def from_xyz100(self, xyz100):
+    def from_xyz100(self, xyz100: ArrayLike) -> ArrayLike:
         return self.from_rec2100(self._hdr.from_xyz100(xyz100))
 
-    def to_xyz100(self, ictcp):
+    def to_xyz100(self, ictcp: ArrayLike) -> ArrayLike:
         return self._hdr.to_xyz100(self.to_rec2100(ictcp))
