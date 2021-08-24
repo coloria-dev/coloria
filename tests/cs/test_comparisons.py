@@ -39,7 +39,6 @@ def test_from():
     Y_b = 20
     whitepoint = colorio.illuminants.whitepoints_cie1931["D65"]
     L_A = 20
-
     c = 0.69  # average
     cs2 = colorio.cs.CIECAM02(c, Y_b, L_A)
     J, C, H, h, M, s, Q = cs2.from_xyz100(xyz)
@@ -100,7 +99,6 @@ def performance_comparison_to():
 
     Y_b = 20
     L_A = 20
-
     c = 0.69  # average
     cam16 = colorio.cs.CAM16(c, Y_b, L_A)
 

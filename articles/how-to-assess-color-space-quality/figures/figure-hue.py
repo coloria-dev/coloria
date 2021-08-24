@@ -30,14 +30,14 @@ data_sets = {
             colorio.cs.CAM02(
                 "UCS",
                 c=data.c,
-                Y_b=data.Yb,
+                Y_b=data.Y_b,
                 L_A=data.L_A,
                 whitepoint=data.whitepoint_xyz100,
             )
         ),
         data.stress(
             colorio.cs.CAM16UCS(
-                c=data.c, Y_b=data.Yb, L_A=data.L_A, whitepoint=data.whitepoint_xyz100
+                c=data.c, Y_b=data.Y_b, L_A=data.L_A, whitepoint=data.whitepoint_xyz100
             )
         ),
         data.stress(colorio.cs.CIELAB(whitepoint=data.whitepoint_xyz100)),

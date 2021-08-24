@@ -24,6 +24,23 @@ class MacAdam1974(ColorDistanceDataset):
         with open(this_dir / "table2.json") as f:
             data = json.load(f)
 
+        # From the article:
+        #
+        # > Instead, the committee decided to study a limited sample, consisting of 43
+        # > colors (made in the form of 5-cm-hexagonal, matte-finish, painted ceramic
+        # > tiles, all having approximately the same luminous reflectance (30%) in CIE
+        # > Standard D65 daylight, [...]
+        #
+        # > The CIE specifications for D65 and for the 1964 supplementary observer for
+        # > 100 visual field, based on the agreed-upon spectral reflectance data, are
+        # > given in Table II.
+        #
+        # The angle of a 5cm tile viewed with 50 cm distance is
+        #
+        #   arctan(5cm / 40cm) ~= 7.1 degrees
+        #
+        # Close enough to the 10-degree-observer I guess?
+        #
         self.whitepoint_xyz100 = whitepoints_cie1964["D65"]
 
         t = dict(zip(data.keys(), range(len(data))))

@@ -25,7 +25,7 @@ class BfdP(ColorDistanceDataset):
         #
         self.c = 0.69  # average
         self.L_A = 100
-        self.Yb = 20
+        self.Y_b = 20
 
         dv = []
         xyz_pairs = []

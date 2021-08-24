@@ -28,6 +28,6 @@ class Leeds(ColorDistanceDataset):
         #
         self.c = 0.69  # average
         self.L_A = 100
-        self.Yb = 20
+        self.Y_b = 20
 
         super().__init__("Leeds", data["dv"], xyz[pairs])

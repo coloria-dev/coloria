@@ -34,7 +34,7 @@ class MacAdam1942(ColorDistanceDataset):
         # CIECAM02 viewing conditions from the JzAzBz paper:
         self.L_A = 24
         self.c = 0.69
-        self.Yb = 20
+        self.Y_b = 20
 
         # Extract ellipse centers and offsets from MacAdams data
         this_dir = pathlib.Path(__file__).resolve().parent

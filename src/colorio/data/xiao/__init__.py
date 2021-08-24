@@ -34,9 +34,9 @@ class Xiao(HueLinearityDataset):
         whitepoint_xyz100 = np.array([98.0, 100.0, 139.7])
         # CIECAM02 surround parameters, as given in the article
         self.Lw = 114.6
-        self.Yb = 20
+        self.Y_b = 20
         self.c = 0.59  # "dim"
-        self.L_A = 23  # ~ Lw * Yb / 100
+        self.L_A = 23  # ~ Lw * Y_b / 100
 
         data.pop("neutral-gray", None)
         arms = np.moveaxis(list(data.values()), 1, 2)

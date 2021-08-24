@@ -11,18 +11,18 @@ class HueLinearityDataset:
         self.whitepoint_xyz100 = np.asarray(whitepoint_xyz100)
         self.arms = arms
 
-    def plot(self, colorspace: ColorSpace):
+    def plot(self, cs: ColorSpace):
         # k0 is the coordinate that corresponds to "lightness"
-        assert colorspace.k0 is not None
+        assert cs.k0 is not None
         no_lightness = [True, True, True]
-        no_lightness[colorspace.k0] = False
+        no_lightness[cs.k0] = False
 
-        wp = colorspace.from_xyz100(self.whitepoint_xyz100)[no_lightness]
+        wp = cs.from_xyz100(self.whitepoint_xyz100)[no_lightness]
         all_pts = []
         all_rgb1 = []
         for xyz in self.arms:
-            pts = colorspace.from_xyz100(xyz)
-            rgb1 = colorspace.to_rgb1(pts)
+            pts = cs.from_xyz100(xyz)
+            rgb1 = cs.to_rgb1(pts)
             pts = pts[no_lightness]
 
             # get the eigenvector corresponding to the larger eigenvalue
@@ -53,7 +53,7 @@ class HueLinearityDataset:
         edge[~is_legal_srgb] = [0.0, 0.0, 0.0]  # black
         plt.scatter(all_pts[0], all_pts[1], marker="o", color=fill, edgecolors=edge)
 
-        l0, l1 = colorspace.labels[no_lightness]
+        l0, l1 = cs.labels[no_lightness]
         plt.xlabel(l0)
         plt.ylabel(l1, rotation=0)
         plt.axis("equal")
@@ -65,7 +65,7 @@ class HueLinearityDataset:
         ax.spines["right"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
         ax.spines["left"].set_visible(False)
-        plt.title(f"{self.name} hue linearity data for {colorspace.name}")
+        plt.title(f"{self.name} hue linearity data for {cs.name}")
         return plt
 
     def stress(self, cs: ColorSpace):

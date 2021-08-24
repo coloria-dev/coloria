@@ -199,12 +199,12 @@ class CIECAM02:
     c ..... surround parameter (average: 0.69, dim: 0.59, dark: 0.535)
     Y_b ... relative luminance of the background in %, i.e., 100 * Lb / Lw
             where Lb is the background luminance and Lw is the white luminance.
-            There is some discussion on the value of Yb, see
+            There is some discussion on the value of Y_b, see
             <https://groups.google.com/g/sci.engr.color/c/3P9DXaCAWAI>
             <https://rawpedia.rawtherapee.com/CIECAM02/de>
             The suggestion is to use 18 or 20 (gray world theory).
     L_A ... luminance of the adapting field in cd/m^2.
-            Can be approximated by Lw * Yb / 100, or Lb.
+            Can be approximated by Lw * Y_b / 100, or Lb.
 
     From the above article:
     Table 2.1 Parameter settings for some typical applications:
@@ -291,9 +291,9 @@ class CIECAM02:
         self.D_RGB = D * Y_w / RGB_w + 1 - D
 
         k = 1 / (5 * L_A + 1)
-        k4 = k * k * k * k
+        k4 = k ** 4
         l4 = 1 - k4
-        self.F_L = k4 * L_A + 0.1 * l4 * l4 * np.cbrt(5 * L_A)
+        self.F_L = k4 * L_A + 0.1 * l4 ** 2 * np.cbrt(5 * L_A)
 
         self.n = Y_b / Y_w
         self.z = 1.48 + np.sqrt(self.n)
@@ -377,3 +377,18 @@ class CAM02(ColorSpace):
         M_ = np.hypot(a, b)
         M = (np.exp(M_ * self.c2) - 1) / self.c2
         return self.ciecam02.to_xyz100(np.array([J, M, h]), "JMh")
+
+
+class CAM02LCD(CAM02):
+    def __init__(self, c, Y_b, L_A, whitepoint):
+        super().__init__("LCD", c, Y_b, L_A, whitepoint)
+
+
+class CAM02SCD(CAM02):
+    def __init__(self, c, Y_b, L_A, whitepoint):
+        super().__init__("SCD", c, Y_b, L_A, whitepoint)
+
+
+class CAM02UCS(CAM02):
+    def __init__(self, c, Y_b, L_A, whitepoint):
+        super().__init__("UCS", c, Y_b, L_A, whitepoint)

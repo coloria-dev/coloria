@@ -24,7 +24,7 @@ class Munsell:
         self.whitepoint_xyz100 = whitepoints_cie1931["C"]
         self.L_A = 64
         self.c = 0.69
-        self.Yb = 20
+        self.Y_b = 20
 
         with open(this_dir / "lightness.json") as f:
             self.lightness = json.load(f)

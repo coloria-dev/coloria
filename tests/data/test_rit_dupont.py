@@ -19,7 +19,7 @@ def test_show():
 
 def test_stress():
     data = colorio.data.RitDupont()
-    cs = colorio.cs.CIELAB(data.whitepoint_xyz100)
+    cs = colorio.cs.CIELAB
     ref = 33.41593673343391
     res = data.stress(cs)
     print(res)

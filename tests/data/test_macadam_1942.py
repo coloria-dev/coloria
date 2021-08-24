@@ -18,8 +18,8 @@ def test_show():
 
 
 def test_stress():
-    cs = colorio.cs.CIELAB()
-    ref = 44.89521555157901
+    cs = colorio.cs.CIELAB
+    ref = 44.95432696577654
     res = colorio.data.MacAdam1942(50.0).stress(cs)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref

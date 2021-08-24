@@ -27,6 +27,6 @@ class RitDupont(ColorDistanceDataset):
         # <https://doi.org/10.1364/JOSAA.25.001828>.
         self.c = 0.69  # average
         self.L_A = 127.3
-        self.Yb = 10.9
+        self.Y_b = 10.9
 
         super().__init__("RIT-DuPont", data["dv"], xyz[pairs])

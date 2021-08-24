@@ -1,5 +1,5 @@
 from ._cam16 import CAM16, CAM16UCS
-from ._ciecam02 import CAM02, CIECAM02
+from ._ciecam02 import CAM02, CAM02LCD, CAM02SCD, CAM02UCS, CIECAM02
 from ._ciehcl import CIEHCL
 from ._cielab import CIELAB
 from ._cielch import CIELCH
@@ -24,8 +24,11 @@ from ._xyz import XYZ
 __all__ = [
     "CAM16",
     "CAM16UCS",
-    "CIECAM02",
     "CAM02",
+    "CAM02LCD",
+    "CAM02SCD",
+    "CAM02UCS",
+    "CIECAM02",
     "CIEHCL",
     "CIELAB",
     "CIELCH",

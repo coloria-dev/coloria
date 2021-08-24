@@ -16,6 +16,8 @@ class Witt(ColorDistanceDataset):
         xyz = np.asarray(data["xyz"])
         pairs = np.asarray(data["pairs"])
 
+        self.whitepoint_xyz100 = data["reference_white"]
+
         # parameters as used in
         #
         # Melgosa, Huertas, Berns,
@@ -25,6 +27,6 @@ class Witt(ColorDistanceDataset):
         # <https://doi.org/10.1364/JOSAA.25.001828>.
         self.c = 0.69  # average
         self.L_A = 82.8
-        self.Yb = 24.9
+        self.Y_b = 24.9
 
         super().__init__("Witt", data["dv"], xyz[pairs])

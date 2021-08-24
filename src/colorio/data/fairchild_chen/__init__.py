@@ -32,7 +32,7 @@ class FairchildChen:
             #
             # CIECAM02 viewing conditions from the JzAzBz paper:
             self.c = 0.69  # "average"
-            self.Yb = 20
+            self.Y_b = 20
             self.L_A = 168
         else:
             assert key == "SL2"
@@ -43,9 +43,9 @@ class FairchildChen:
             #
             # CIECAM02 viewing conditions from the JzAzBz paper:
             self.c = 0.69  # "average"
-            self.Yb = 20
+            self.Y_b = 20
             self.Lw = 997
-            self.L_A = 199  # ~ Lw * Yb / 100
+            self.L_A = 199  # ~ Lw * Y_b / 100
 
         self.whitepoint_xyz100 = whitepoints_cie1931["D65"]
 

@@ -1,3 +1,5 @@
+import pytest
+
 import colorio
 
 
@@ -17,15 +19,21 @@ def test_show():
     plt.close()
 
 
-def test_stress():
-    data = colorio.data.Leeds()
-    cs = colorio.cs.CIELAB(data.whitepoint_xyz100)
-    ref = 40.093223056788965
-    res = data.stress(cs)
+@pytest.mark.parametrize(
+    "cs_class,ref",
+    [
+        (colorio.cs.CIELAB, 40.093223056788965),
+        (colorio.cs.CAM02UCS, 24.594471490362963),
+        (colorio.cs.CAM02LCD, 30.90794447931537),
+        (colorio.cs.CAM02SCD, 25.282643714845925),
+        (colorio.cs.OKLAB, 45.04796675693954),
+        (colorio.cs.JzAzBz, 40.12503467515118),
+        (colorio.cs.CAM16UCS, 24.465011926041896),
+        (colorio.cs.SRLAB2, 40.621076323588824),
+    ],
+)
+def test_stress(cs_class, ref):
+    res = colorio.data.Leeds().stress(cs_class)
+    print(cs_class)
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
-
-
-if __name__ == "__main__":
-    # test_show()
-    test_stress()

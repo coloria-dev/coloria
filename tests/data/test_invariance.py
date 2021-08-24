@@ -15,8 +15,8 @@ def dot(a, b):
 
 
 class CielabScaled:
-    def __init__(self):
-        self.cielab = colorio.cs.CIELAB()
+    def __init__(self, whitepoint):
+        self.cielab = colorio.cs.CIELAB(whitepoint)
         self.alpha = 2.41
         self.k0 = self.cielab.k0
 
@@ -28,8 +28,8 @@ class CielabScaled:
 
 
 class CielabTranslated:
-    def __init__(self):
-        self.cielab = colorio.cs.CIELAB()
+    def __init__(self, whitepoint):
+        self.cielab = colorio.cs.CIELAB(whitepoint)
         self.x = rng.random(3)
         self.k0 = self.cielab.k0
 
@@ -41,8 +41,8 @@ class CielabTranslated:
 
 
 class CielabRotated:
-    def __init__(self):
-        self.cielab = colorio.cs.CIELAB()
+    def __init__(self, whitepoint):
+        self.cielab = colorio.cs.CIELAB(whitepoint)
         self.R, _ = np.linalg.qr(rng.random((3, 3)))
         self.Rinv = np.linalg.inv(self.R)
         self.k0 = self.cielab.k0
@@ -61,9 +61,9 @@ class CielabRotated:
         colorio.data.Witt().stress,
     ],
 )
-@pytest.mark.parametrize("ct", [CielabScaled(), CielabTranslated(), CielabRotated()])
+@pytest.mark.parametrize("ct", [CielabScaled, CielabTranslated, CielabRotated])
 def test_invariance(fun, ct):
-    cs = colorio.cs.CIELAB()
+    cs = colorio.cs.CIELAB
 
     val0 = fun(cs)
     val1 = fun(ct)
@@ -87,9 +87,9 @@ def test_invariance(fun, ct):
         colorio.data.Munsell().stress_lightness,
     ],
 )
-@pytest.mark.parametrize("ct", [CielabScaled(), CielabTranslated()])
+@pytest.mark.parametrize("ct", [CielabScaled, CielabTranslated])
 def test_lightness(fun, ct):
-    cs = colorio.cs.CIELAB()
+    cs = colorio.cs.CIELAB
 
     val0 = fun(cs)
     val1 = fun(ct)

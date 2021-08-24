@@ -1,10 +1,31 @@
-from typing import Callable, Optional
+import inspect
+from typing import Callable, Optional, Type
 
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import ArrayLike
 
 from ..cs import CIELAB, ColorSpace
+
+
+def create_cs_class_instance(
+    cs_class: Type[ColorSpace], whitepoint: ArrayLike, c: float, Y_b: float, L_A: float
+):
+    spec = inspect.getfullargspec(cs_class)
+    kwargs = {}
+    if "whitepoint" in spec.args:
+        kwargs["whitepoint"] = whitepoint
+
+    if "c" in spec.args:
+        kwargs["c"] = c
+
+    if "Y_b" in spec.args:
+        kwargs["Y_b"] = Y_b
+
+    if "L_A" in spec.args:
+        kwargs["L_A"] = L_A
+
+    return cs_class(**kwargs)
 
 
 class ColorDistanceDataset:
@@ -36,7 +57,11 @@ class ColorDistanceDataset:
         ax.set_title(f"{self.name} dataset in {cs.name}")
         return plt
 
-    def stress(self, cs: ColorSpace, variant: str = "absolute"):
+    def stress(self, cs_class: Type[ColorSpace], variant: str = "absolute"):
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
+
         # compute Euclidean distance in colorspace cs
         cs_pairs = cs.from_xyz100(self.xyz_pairs.T).T
         cs_diff = cs_pairs[:, 1] - cs_pairs[:, 0]
