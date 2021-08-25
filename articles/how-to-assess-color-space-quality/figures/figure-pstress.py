@@ -15,19 +15,31 @@ rit_dupont = colorio.data.RitDupont()
 witt = colorio.data.Witt()
 
 color_spaces = [
-    colorio.cs.CAM02("UCS", 0.69, 20, 64 / np.pi / 5),
-    colorio.cs.CAM16UCS(0.69, 20, 64 / np.pi / 5),
-    colorio.cs.CIELAB(),
-    colorio.cs.CIELUV(),
-    colorio.cs.IPT(),
-    colorio.cs.ICtCp(),
-    colorio.cs.JzAzBz(),
-    colorio.cs.OKLAB(),
-    colorio.cs.OsaUcs(),
-    colorio.cs.XYY(1),
+    colorio.cs.CAM02UCS,
+    colorio.cs.CAM16UCS,
+    colorio.cs.CIELAB,
+    colorio.cs.CIELUV,
+    colorio.cs.IPT,
+    # colorio.cs.ICtCp,
+    colorio.cs.JzAzBz,
+    colorio.cs.OKLAB,
+    colorio.cs.OsaUcs,
+    colorio.cs.XYY1,
 ]
 
-xlabels = [cs.name for cs in color_spaces]
+cs_labels = [
+    "CAM02 (UCS)**",
+    "CAM16 (UCS)**",
+    "CIELAB*",
+    "CIELUV*",
+    "IPT",
+    # "$IC_tC_p$",
+    "$J_zA_zB_z$",
+    "OKLAB",
+    "OSA-UCS",
+    "xyY",
+]
+
 data_sets = {
     "BFD-P \\cite{luorigg}": [bfdp.stress(cs) for cs in color_spaces],
     "COMBVD": [combvd.stress(cs) for cs in color_spaces],
@@ -42,7 +54,7 @@ data_sets = {
 
 plt.style.use(dufte.style)
 
-x = np.arange(len(xlabels))
+x = np.arange(len(cs_labels))
 n = len(data_sets)
 bar_width = 0.8 / n
 
@@ -54,9 +66,9 @@ for (label, data), p in zip(data_sets.items(), pos):
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_title("$p_{STRESS}$")
 ax.set_xticks(x)
-ax.set_xticklabels(xlabels)
+ax.set_xticklabels(cs_labels)
 plt.xticks(rotation=45, ha="left")
-plt.xlim(-0.6, len(xlabels) - 1 + 0.6)
+plt.xlim(-0.6, len(cs_labels) - 1 + 0.6)
 plt.ylim(0, 100)
 ax.legend()
 

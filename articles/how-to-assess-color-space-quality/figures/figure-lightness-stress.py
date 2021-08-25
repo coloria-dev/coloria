@@ -27,28 +27,16 @@ cs_labels = [
 
 data_sets = {
     key: [
-        data.stress(
-            colorio.cs.CAM02(
-                "UCS",
-                c=data.c,
-                Y_b=data.Y_b,
-                L_A=data.L_A,
-                whitepoint=data.whitepoint_xyz100,
-            )
-        ),
-        data.stress(
-            colorio.cs.CAM16UCS(
-                c=data.c, Y_b=data.Y_b, L_A=data.L_A, whitepoint=data.whitepoint_xyz100
-            )
-        ),
-        data.stress(colorio.cs.CIELAB(whitepoint=data.whitepoint_xyz100)),
-        data.stress(colorio.cs.CIELUV(whitepoint=data.whitepoint_xyz100)),
-        # data.stress(colorio.cs.ICtCp()),
-        data.stress(colorio.cs.IPT()),
-        data.stress(colorio.cs.JzAzBz()),
-        data.stress(colorio.cs.OKLAB()),
-        data.stress(colorio.cs.OsaUcs()),
-        data.stress(colorio.cs.XYY(1)),
+        data.stress(colorio.cs.CAM02UCS),
+        data.stress(colorio.cs.CAM16UCS),
+        data.stress(colorio.cs.CIELAB),
+        data.stress(colorio.cs.CIELUV),
+        # data.stress(colorio.cs.ICtCp),
+        data.stress(colorio.cs.IPT),
+        data.stress(colorio.cs.JzAzBz),
+        data.stress(colorio.cs.OKLAB),
+        data.stress(colorio.cs.OsaUcs),
+        data.stress(colorio.cs.XYY1),
     ]
     for key, data in ex.items()
 }
