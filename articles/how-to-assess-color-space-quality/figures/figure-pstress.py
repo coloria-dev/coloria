@@ -27,19 +27,6 @@ color_spaces = [
     colorio.cs.XYY1,
 ]
 
-cs_labels = [
-    "CAM02 (UCS)**",
-    "CAM16 (UCS)**",
-    "CIELAB*",
-    "CIELUV*",
-    "IPT",
-    # "$IC_tC_p$",
-    "$J_zA_zB_z$",
-    "OKLAB",
-    "OSA-UCS",
-    "xyY",
-]
-
 data_sets = {
     "BFD-P \\cite{luorigg}": [bfdp.stress(cs) for cs in color_spaces],
     "COMBVD": [combvd.stress(cs) for cs in color_spaces],
@@ -54,7 +41,7 @@ data_sets = {
 
 plt.style.use(dufte.style)
 
-x = np.arange(len(cs_labels))
+x = np.arange(len(color_spaces))
 n = len(data_sets)
 bar_width = 0.8 / n
 
@@ -66,9 +53,9 @@ for (label, data), p in zip(data_sets.items(), pos):
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_title("$p_{STRESS}$")
 ax.set_xticks(x)
-ax.set_xticklabels(cs_labels)
+ax.set_xticklabels([cs.name for cs in color_spaces])
 plt.xticks(rotation=45, ha="left")
-plt.xlim(-0.6, len(cs_labels) - 1 + 0.6)
+plt.xlim(-0.6, len(color_spaces) - 1 + 0.6)
 plt.ylim(0, 100)
 ax.legend()
 

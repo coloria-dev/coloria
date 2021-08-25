@@ -6,13 +6,8 @@ import colorio
 
 plt.style.use(dufte.style)
 
-colorspaces = [
-    colorio.cs.IPT(),
-    colorio.cs.CIELAB(),
-    colorio.cs.OsaUcs(),
-]
 
-for cs in colorspaces:
+for cs in [colorio.cs.IPT, colorio.cs.CIELAB, colorio.cs.OsaUcs]:
     colorio.data.Munsell().plot_lightness(cs)
     plt.title(cs.name)
     tikzplotlib.clean_figure()

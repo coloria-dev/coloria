@@ -23,22 +23,23 @@ xtick style={color=white!58.8235294117647!black},
 xtick={0,1,2,3,4,5,6,7,8,9},
 xticklabel style={rotate=45.0,anchor=east},
 xticklabels={
-  CAM02 (UCS)**,
-  CAM16 (UCS)**,
-  CIELAB*,
-  CIELUV*,
-  \(\displaystyle IC_tC_p\),
+  CAM02 (UCS),
+  CAM16 (UCS),
+  CIELAB,
+  CIELUV,
+  IC\_TC\_P,
   IPT,
-  \(\displaystyle J_zA_zB_z\),
-  OKLAB,
+  J\_z a\_z b\_z,
+  Oklab,
   OSA-UCS,
-  xyY
+  xyY1
 },
 y grid style={white!58.8235294117647!black},
 ymajorgrids,
 ymin=0, ymax=20,
 ytick style={color=white!58.8235294117647!black},
-ytick={0,5,10,15,20}
+ytick={0,5,10,15,20},
+yticklabels={0.0,2.5,5.0,7.5,10.0}
 ]
 \draw[draw=none,fill=color0] (axis cs:-0.4,0) rectangle (axis cs:-0.133333333333333,3.18845620008038);
 \addlegendimage{ybar,ybar legend,draw=none,fill=color0}
