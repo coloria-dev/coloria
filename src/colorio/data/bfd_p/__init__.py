@@ -29,7 +29,7 @@ class BfdP:
         self.L_A = 100
         self.Y_b = 20
 
-        self.dv = []
+        self.target_dist = []
         self.xyz_pairs = []
         self.whitepoints = []
 
@@ -40,11 +40,9 @@ class BfdP:
                 data = json.load(f)
             xyz = np.asarray(data["xyz"])
             pairs = np.asarray(data["pairs"])
-            self.dv.append(data["dv"])
+            self.target_dist.append(data["dv"])
             self.xyz_pairs.append(xyz[pairs])
             self.whitepoints.append(data["reference_white"])
-
-        self.dv = np.concatenate(self.dv)
 
     def stress(self, cs_class: Type[ColorSpace], variant: str = "absolute"):
         deltas = []
@@ -56,10 +54,7 @@ class BfdP:
             deltas.append(np.sqrt(np.einsum("ij,ij->i", cs_diff, cs_diff)))
 
         delta = np.concatenate(deltas)
+        dv = np.concatenate(self.target_dist)
 
         fun = stress_absolute if variant == "absolute" else stress_relative
-        return fun(self.dv, delta)
-
-    # def plot(self, cs: ColorSpace):
-    #     import matplotlib.pyplot as plt
-    #     return plt
+        return fun(dv, delta)

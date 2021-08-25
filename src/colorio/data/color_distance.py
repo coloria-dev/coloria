@@ -12,13 +12,13 @@ class ColorDistanceDataset:
     def __init__(
         self,
         name: str,
-        dist: ArrayLike,
+        target_dist: ArrayLike,
         xyz_pairs: ArrayLike,
         weights: Union[float, ArrayLike] = 1.0,
     ):
         self.name = name
-        self.dist = np.asarray(dist)
-        n = len(self.dist)
+        self.target_dist = np.asarray(target_dist)
+        n = len(self.target_dist)
         self.xyz_pairs = np.asarray(xyz_pairs)
         assert n == len(self.xyz_pairs)
         self.weights = np.asarray(weights)
@@ -41,7 +41,7 @@ class ColorDistanceDataset:
         ax.set_title(f"{self.name} dataset in {cs.name}")
         return plt
 
-    # TODO variant: Literal["absolute"] | Literal["relative"]
+    # TODO Python 3.8+: variant: Literal["absolute"] | Literal["relative"]
     def stress(self, cs_class: Type[ColorSpace], variant: str = "absolute") -> float:
         cs = create_cs_class_instance(
             cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
@@ -52,13 +52,14 @@ class ColorDistanceDataset:
         cs_diff = cs_pairs[:, 1] - cs_pairs[:, 0]
         delta = np.sqrt(np.einsum("ij,ij->i", cs_diff, cs_diff))
         fun = stress_absolute if variant == "absolute" else stress_relative
-        return fun(self.dist, delta, self.weights)
+        return fun(self.target_dist, delta, self.weights)
 
     def stress_lab_diff(self, fun: Callable, variant: str = "absolute") -> float:
         """Same as stress(), but you can provide a color difference function that
         receives two LAB values and returns their scalar distance.
         """
-        lab_pairs = CIELAB().from_xyz100(self.xyz_pairs.T)
+        cielab = CIELAB(self.whitepoint_xyz100)
+        lab_pairs = cielab.from_xyz100(self.xyz_pairs.T)
         delta = fun(lab_pairs[:, 0], lab_pairs[:, 1])
         fun = stress_absolute if variant == "absolute" else stress_relative
-        return fun(self.dist, delta, self.weights)
+        return fun(self.target_dist, delta, self.weights)
