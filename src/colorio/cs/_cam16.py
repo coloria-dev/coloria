@@ -46,7 +46,7 @@ class CAM16:
                 [-0.002079, +0.048952, +0.953127],
             ]
         )
-        RGB_w = np.dot(self.M16, whitepoint)
+        RGB_w = self.M16 @ whitepoint
 
         D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
         D = min(D, 1.0)
@@ -109,6 +109,10 @@ class CAM16:
 
 
 class CAM16UCS(ColorSpace):
+    name = "CAM16 (UCS)"
+    labels = ("J'", "a'", "b'")
+    k0 = 0
+
     def __init__(
         self,
         c: float,
@@ -117,7 +121,6 @@ class CAM16UCS(ColorSpace):
         exact_inversion: bool = True,
         whitepoint: ArrayLike = whitepoints_cie1931["D65"],
     ):
-        super().__init__("CAM16 (UCS)", ("J'", "a'", "b'"), 0)
         self.K_L = 1.0
         self.c1 = 0.007
         self.c2 = 0.0228

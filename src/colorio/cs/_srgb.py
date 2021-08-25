@@ -1,5 +1,6 @@
 import npx
 import numpy as np
+from numpy.typing import ArrayLike
 
 from ..illuminants import whitepoints_cie1931
 
@@ -12,7 +13,7 @@ def _xyy_to_xyz100(xyy):
 class SrgbLinear:
     """Rec. 709 SRGB."""
 
-    def __init__(self, whitepoint_correction=True):
+    def __init__(self, whitepoint_correction: bool = True):
         # The standard actually gives the values in terms of M, but really inv(M) is a
         # direct derivative of the primary specification at
         # <https://en.wikipedia.org/wiki/SRGB>.
@@ -39,18 +40,18 @@ class SrgbLinear:
         # self.invM = np.linalg.inv(M)
         self.labels = ["R", "G", "B"]
 
-    def from_xyz100(self, xyz):
+    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         # https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
         # https://www.color.org/srgb.pdf
         # TODO NaN the values smaller than 0 and larger than 1
-        return npx.solve(self.invM, xyz / 100)
+        return npx.solve(self.invM, xyz) / 100
 
-    def to_xyz100(self, srgb1_linear):
+    def to_xyz100(self, srgb1_linear: ArrayLike) -> np.ndarray:
         # Note: The Y value is often used for grayscale conversion.
         # 0.2126 * R_linear + 0.7152 * G_linear + 0.0722 * B_linear
         return 100 * npx.dot(self.invM, srgb1_linear)
 
-    def from_rgb1(self, srgb1):
+    def from_rgb1(self, srgb1: ArrayLike) -> np.ndarray:
         srgb_linear = np.array(srgb1, dtype=float)
 
         a = 0.055
@@ -61,16 +62,16 @@ class SrgbLinear:
         srgb_linear[~is_smaller] = ((srgb_linear[~is_smaller] + a) / (1 + a)) ** 2.4
         return srgb_linear
 
-    def to_rgb1(self, srgb_linear):
+    def to_rgb1(self, srgb_linear: ArrayLike) -> np.ndarray:
         a = 0.055
-        is_smaller = srgb_linear <= 0.0031308
-        srgb = np.array(srgb_linear, dtype=float)
+        srgb = np.copy(srgb_linear)
+        is_smaller = srgb <= 0.0031308
         srgb[is_smaller] *= 12.92
         srgb[~is_smaller] = (1 + a) * srgb[~is_smaller] ** (1 / 2.4) - a
         return srgb
 
-    def from_rgb255(self, srgb255):
+    def from_rgb255(self, srgb255: ArrayLike) -> np.ndarray:
         return self.from_rgb1(np.asarray(srgb255) / 255)
 
-    def to_rgb255(self, srgb_linear):
+    def to_rgb255(self, srgb_linear: ArrayLike) -> np.ndarray:
         return 255 * self.to_rgb1(srgb_linear)

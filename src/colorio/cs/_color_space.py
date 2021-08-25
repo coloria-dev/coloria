@@ -1,23 +1,10 @@
-from typing import Optional, Tuple
-
-import numpy as np
-
 from ._srgb import SrgbLinear
 
 
 class ColorSpace:
-    def __init__(
-        self,
-        name: str,
-        labels: Tuple[str, str, str],
-        k0: Optional[int],
-        is_origin_well_defined: bool = True,
-    ):
-        self.name = name
-        self.labels = np.asarray(labels)
-        self.k0 = k0  # the index that corresponds to luminosity
-        self.is_origin_well_defined = is_origin_well_defined
-        self.srgb_linear = SrgbLinear()
+    is_origin_well_defined = True
+    k0 = None
+    srgb_linear = SrgbLinear()
 
     def __repr__(self):
         return f"<colorio color space {self.name}>"

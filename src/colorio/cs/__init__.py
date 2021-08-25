@@ -1,5 +1,5 @@
 from ._cam16 import CAM16, CAM16UCS
-from ._ciecam02 import CAM02, CIECAM02
+from ._ciecam02 import CAM02, CAM02LCD, CAM02SCD, CAM02UCS, CIECAM02
 from ._ciehcl import CIEHCL
 from ._cielab import CIELAB
 from ._cielch import CIELCH
@@ -18,14 +18,17 @@ from ._prolab import PROLAB
 from ._rlab import RLAB
 from ._srgb import SrgbLinear
 from ._srlab2 import SRLAB2
-from ._xyy import XYY
-from ._xyz import XYZ
+from ._xyy import XYY, XYY1, XYY100
+from ._xyz import XYZ, XYZ1, XYZ100
 
 __all__ = [
     "CAM16",
     "CAM16UCS",
-    "CIECAM02",
     "CAM02",
+    "CAM02LCD",
+    "CAM02SCD",
+    "CAM02UCS",
+    "CIECAM02",
     "CIEHCL",
     "CIELAB",
     "CIELCH",
@@ -45,5 +48,9 @@ __all__ = [
     "SrgbLinear",
     "SRLAB2",
     "XYY",
+    "XYY1",
+    "XYY100",
     "XYZ",
+    "XYZ1",
+    "XYZ100",
 ]

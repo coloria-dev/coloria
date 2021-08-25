@@ -7,13 +7,16 @@ https://doi.org/10.1364/JOSA.32.000247
 """
 import json
 import pathlib
+from typing import Type
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import XYY
+from ...cs import XYY, ColorSpace
 from ...illuminants import whitepoints_cie1931
-from ..helpers import ColorDistanceDataset, _plot_ellipses
+from ..color_distance import ColorDistanceDataset
+from ..ellipse import _plot_ellipses
+from ..helpers import create_cs_class_instance
 
 
 class MacAdam1942(ColorDistanceDataset):
@@ -33,7 +36,7 @@ class MacAdam1942(ColorDistanceDataset):
         # CIECAM02 viewing conditions from the JzAzBz paper:
         self.L_A = 24
         self.c = 0.69
-        self.Yb = 20
+        self.Y_b = 20
 
         # Extract ellipse centers and offsets from MacAdams data
         this_dir = pathlib.Path(__file__).resolve().parent
@@ -66,7 +69,11 @@ class MacAdam1942(ColorDistanceDataset):
 
         super().__init__("MacAdam (1942)", np.ones(len(xyz_pairs)), xyz_pairs)
 
-    def plot(self, cs, ellipse_scaling=10.0):
+    def plot(self, cs_class: Type[ColorSpace], ellipse_scaling: float = 10.0):
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
+
         Y = self.Y
         xyy100_centers = []
         xyy100_points = []
@@ -85,3 +92,4 @@ class MacAdam1942(ColorDistanceDataset):
         # )
         # if plot_srgb_gamut:
         #     cs.plot_rgb_slice(lightness)
+        return plt

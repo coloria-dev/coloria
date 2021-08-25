@@ -24,27 +24,26 @@ def finv(t):
     return out
 
 
-class CIELAB(ColorSpace):
-    def __init__(self, whitepoint: ArrayLike = whitepoints_cie1931["D65"]):
-        super().__init__("CIELAB", ("L*", "a*", "b*"), 0)
-        self.whitepoint_xyz100 = np.asarray(whitepoint)
-        self.whitepoint = np.array([100.0, 0.0, 0.0])
+# See
+# https://gist.github.com/nschloe/ad1d288917a140978f7db6c401cb7f17
+# for a speed comparison. None is really faster, but the matrix-approach is
+# easiest to read.
+A = np.array([[0.0, 1.0, 0.0], [125 / 29, -125 / 29, 0.0], [0.0, 50 / 29, -50 / 29]])
+Ainv = np.array([[1.0, 29 / 125, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, -116 / 200]])
 
-        # See
-        # https://gist.github.com/nschloe/ad1d288917a140978f7db6c401cb7f17
-        # for a speed comparison. None is really faster, but the matrix-approach is
-        # easiest to read.
-        self.A = np.array(
-            [[0.0, 1.0, 0.0], [125 / 29, -125 / 29, 0.0], [0.0, 50 / 29, -50 / 29]]
-        )
-        self.Ainv = np.array(
-            [[1.0, 29 / 125, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, -116 / 200]]
-        )
+
+class CIELAB(ColorSpace):
+    name = "CIELAB"
+    labels = ("L*", "a*", "b*")
+    k0 = 0
+
+    def __init__(self, whitepoint: ArrayLike = whitepoints_cie1931["D65"]):
+        self.whitepoint_xyz100 = np.asarray(whitepoint)
+        # self.whitepoint = np.array([100.0, 0.0, 0.0])
 
     def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         xyz = np.asarray(xyz)
-        return npx.dot(self.A, f((xyz.T / self.whitepoint_xyz100).T))
+        return npx.dot(A, f((xyz.T / self.whitepoint_xyz100).T))
 
     def to_xyz100(self, lab: ArrayLike) -> np.ndarray:
-        lab = np.asarray(lab)
-        return (finv(npx.dot(self.Ainv, lab)).T * self.whitepoint_xyz100).T
+        return (finv(npx.dot(Ainv, lab)).T * self.whitepoint_xyz100).T

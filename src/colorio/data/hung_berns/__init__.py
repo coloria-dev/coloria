@@ -11,7 +11,7 @@ import pathlib
 import numpy as np
 
 from ...illuminants import whitepoints_cie1931
-from ..helpers import HueLinearityDataset
+from ..hue_linearity import HueLinearityDataset
 
 
 class HungBerns(HueLinearityDataset):
@@ -31,7 +31,7 @@ class HungBerns(HueLinearityDataset):
         # Those are the CIECAM02 viewing conditions as given in the JzAzBz paper:
         self.L_A = 10
         self.c = 0.525  # "dark"
-        self.Yb = 20
+        self.Y_b = 20
 
         arms = [np.array(list(color.values())).T for color in data.values()]
         super().__init__("Hung-Berns", whitepoints_cie1931["C"], arms)

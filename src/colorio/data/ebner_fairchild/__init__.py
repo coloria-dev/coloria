@@ -9,7 +9,7 @@ import pathlib
 
 import numpy as np
 
-from ..helpers import HueLinearityDataset
+from ..hue_linearity import HueLinearityDataset
 
 
 class EbnerFairchild(HueLinearityDataset):
@@ -40,8 +40,8 @@ class EbnerFairchild(HueLinearityDataset):
         # > walls of the room were covered with black felt to eliminate possibility of
         # > reflection from the CRT.
         #
-        self.L_A = 25  # ~ 71 * Yb / 100
+        self.L_A = 25  # ~ 71 * Y_b / 100
         self.c = 0.525  # "dark"
-        self.Yb = 35
+        self.Y_b = 35
 
         super().__init__("Ebner-Fairchild", data["white point"], arms)

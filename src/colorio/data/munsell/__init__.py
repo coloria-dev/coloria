@@ -1,11 +1,13 @@
 import json
 import pathlib
+from typing import Type
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import XYY
+from ...cs import XYY, ColorSpace
 from ...illuminants import whitepoints_cie1931
+from ..helpers import create_cs_class_instance, stress_absolute
 
 this_dir = pathlib.Path(__file__).resolve().parent
 
@@ -18,33 +20,25 @@ class Munsell:
         self.h = np.array(data["h"])
         self.V = np.array(data["V"])
         self.C = np.array(data["C"])
-        self.xyy100 = np.array([data["x"], data["y"], data["Y"]])
+        xyy100 = np.array([data["x"], data["y"], data["Y"]])
+        self.xyz100 = XYY(100).to_xyz100(xyy100)
 
         # Whitepoint and CIECAM02 info from the JzAzBz paper:
         self.whitepoint_xyz100 = whitepoints_cie1931["C"]
         self.L_A = 64
         self.c = 0.69
-        self.Yb = 20
+        self.Y_b = 20
 
         with open(this_dir / "lightness.json") as f:
             self.lightness = json.load(f)
 
-    def show(self, *args, **kwargs):
-        self.plot(*args, **kwargs)
-        plt.show()
+    def plot(self, cs_class: Type[ColorSpace], V: int):
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
 
-    def savefig(self, filename, *args, **kwargs):
-        plt.figure()
-        self.plot(*args, **kwargs)
-        plt.savefig(filename, transparent=True, bbox_inches="tight")
-        plt.close()
-
-    def plot(self, cs, V):
         # pick the data from the given munsell level
-        xyy = self.xyy100[:, V == self.V]
-
-        x, y, Y = xyy
-        xyz100 = np.array([Y / y * x, Y, Y / y * (1 - x - y)])
+        xyz100 = self.xyz100[:, V == self.V]
         pts = cs.from_xyz100(xyz100)
 
         rgb = cs.to_rgb1(pts)
@@ -57,6 +51,7 @@ class Munsell:
         edge[~is_legal_srgb] = [0.0, 0.0, 0.0]
 
         idx = [0, 1, 2]
+        assert cs.k0 is not None
         k1, k2 = idx[: cs.k0] + idx[cs.k0 + 1 :]
 
         plt.scatter(pts[k1], pts[k2], marker="o", color=fill, edgecolors=edge)
@@ -65,21 +60,15 @@ class Munsell:
         plt.xlabel(cs.labels[k1])
         plt.ylabel(cs.labels[k2], rotation=0)
         plt.axis("equal")
+        return plt
 
-    def show_lightness(self, *args, **kwargs):
-        self.plot_lightness(*args, **kwargs)
-        plt.show()
-
-    def savefig_lightness(self, filename, *args, **kwargs):
-        self.plot_lightness(*args, **kwargs)
-        plt.savefig(filename, transparent=True, bbox_inches="tight")
-
-    def plot_lightness(self, cs):
-        # print(self.xyy100.T)
-        # exit(1)
+    def plot_lightness(self, cs_class: Type[ColorSpace]):
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
 
         L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
-        L_ = cs.from_xyz100(XYY(100).to_xyz100(self.xyy100))[cs.k0] - L0_
+        L_ = cs.from_xyz100(self.xyz100)[cs.k0] - L0_
         ref = self.V
         alpha = np.dot(ref, L_) / np.dot(ref, ref)
 
@@ -101,14 +90,14 @@ class Munsell:
         l_vals = []
         for k in range(1, 10):
             idx = self.V == k
-            y_vals.append(self.xyy100[2, idx][0])
+            y_vals.append(self.xyz100[1, idx][0])
             avg2 = np.sqrt(np.mean((L_[idx] ** 2)))
             # avg2 = np.mean(L_[idx])
             l_avg2.append(avg2)
             l_err0.append(avg2 - np.min(L_[idx]))
             l_err1.append(np.max(L_[idx]) - avg2)
             #
-            y_vals2.append(self.xyy100[2, idx])
+            y_vals2.append(self.xyz100[1, idx])
             l_vals.append(L_[idx])
 
         plt.errorbar(
@@ -126,16 +115,18 @@ class Munsell:
         #     marker="o",
         #     label=f"{cs.name} lightness",
         # )
+        return plt
 
-    def stress_lightness(self, cs):
-        ref = self.V
+    def stress_lightness(self, cs_class: Type[ColorSpace]) -> float:
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
 
         # Move L0 into origin for translation invariance
+        assert cs.k0 is not None
         L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
-        L_ = cs.from_xyz100(XYY(100).to_xyz100(self.xyy100))[cs.k0] - L0_
+        L_ = cs.from_xyz100(self.xyz100)[cs.k0] - L0_
 
-        alpha = np.dot(ref, L_) / np.dot(ref, ref)
-        diff = alpha * ref - L_
-        return 100 * np.sqrt(np.dot(diff, diff) / np.dot(L_, L_))
+        return stress_absolute(self.V, L_)
 
     stress = stress_lightness

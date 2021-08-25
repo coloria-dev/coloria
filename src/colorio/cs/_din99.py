@@ -8,6 +8,10 @@ from ._color_space import ColorSpace
 
 
 class DIN99(ColorSpace):
+    name = "DIN99"
+    labels = ("L99", "a99", "b99")
+    k0 = 0
+
     def __init__(
         self, k_E: float = 1.0, k_CH: float = 1.0, variant: Optional[str] = None
     ):
@@ -16,10 +20,6 @@ class DIN99(ColorSpace):
         # G. Cui, M.R. Luo, B. Rigg, G. Roesler, K. Witt,
         # Uniform colour spaces based on the DIN99 colour-difference formula
         # <https://doi.org/10.1002/col.10066>.
-        name = "DIN99"
-        if variant is not None:
-            name += variant
-        super().__init__(name, (f"L99{variant}", f"a99{variant}", f"b99{variant}"), 0)
         self.k_E = k_E
         self.k_CH = k_CH
         self.cielab = CIELAB()
@@ -89,5 +89,4 @@ class DIN99(ColorSpace):
 
         L = (np.exp(L99 * self.k_E / self.p[0]) - 1) / self.p[1]
 
-        lab = np.array([L, a, b])
-        return self.cielab.to_xyz100(lab)
+        return self.cielab.to_xyz100([L, a, b])

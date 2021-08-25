@@ -1,5 +1,6 @@
 import npx
 import numpy as np
+from numpy.typing import ArrayLike
 
 from ._color_space import ColorSpace
 
@@ -13,8 +14,11 @@ class IPT(ColorSpace):
     In: Proceedings of The Sixth Color Imaging Conference, 8-13, 1998.
     """
 
+    name = "IPT"
+    labels = ("I", "P", "T")
+    k0 = 0
+
     def __init__(self):
-        super().__init__("IPT", ("I", "P", "T"), 0)
         self.M1 = np.array(
             [
                 [0.4002, 0.7075, -0.0807],
@@ -30,12 +34,12 @@ class IPT(ColorSpace):
             ]
         )
 
-    def from_xyz100(self, xyz):
+    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         lms = npx.dot(self.M1, xyz)
         lms_ = np.sign(lms) * np.abs(lms) ** 0.43
         return npx.dot(self.M2, lms_)
 
-    def to_xyz100(self, ipt):
+    def to_xyz100(self, ipt: ArrayLike) -> np.ndarray:
         lms_ = npx.solve(self.M2, ipt)
         lms = np.sign(lms_) * np.abs(lms_) ** (1 / 0.43)
         return npx.solve(self.M1, lms)

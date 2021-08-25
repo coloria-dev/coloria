@@ -11,52 +11,26 @@ ex = {
     "Xiao et al. \\cite{xiao}": colorio.data.Xiao(),
 }
 
-cs_labels = [
-    "CAM02 (UCS)**",
-    "CAM16 (UCS)**",
-    "CIELAB*",
-    "CIELUV*",
-    "$IC_tC_p$",
-    "IPT",
-    "$J_zA_zB_z$",
-    "OKLAB",
-    "OSA-UCS",
-    "xyY",
+cs = [
+    colorio.cs.CAM02UCS,
+    colorio.cs.CAM16UCS,
+    colorio.cs.CIELAB,
+    colorio.cs.CIELUV,
+    colorio.cs.ICtCp,
+    colorio.cs.IPT,
+    colorio.cs.JzAzBz,
+    colorio.cs.OKLAB,
+    colorio.cs.OsaUcs,
+    colorio.cs.XYY1,
 ]
 
-data_sets = {
-    key: [
-        data.stress(
-            colorio.cs.CAM02(
-                "UCS",
-                c=data.c,
-                Y_b=data.Yb,
-                L_A=data.L_A,
-                whitepoint=data.whitepoint_xyz100,
-            )
-        ),
-        data.stress(
-            colorio.cs.CAM16UCS(
-                c=data.c, Y_b=data.Yb, L_A=data.L_A, whitepoint=data.whitepoint_xyz100
-            )
-        ),
-        data.stress(colorio.cs.CIELAB(whitepoint=data.whitepoint_xyz100)),
-        data.stress(colorio.cs.CIELUV(whitepoint=data.whitepoint_xyz100)),
-        data.stress(colorio.cs.ICtCp()),
-        data.stress(colorio.cs.IPT()),
-        data.stress(colorio.cs.JzAzBz()),
-        data.stress(colorio.cs.OKLAB()),
-        data.stress(colorio.cs.OsaUcs()),
-        data.stress(colorio.cs.XYY(1)),
-    ]
-    for key, data in ex.items()
-}
+data_sets = {key: [data.stress(c) for c in cs] for key, data in ex.items()}
 
 
 plt.style.use(dufte.style)
 
 # the label locations:
-x = np.arange(len(cs_labels))
+x = np.arange(len(cs))
 n = len(data_sets)
 bar_width = 0.8 / n
 
@@ -80,7 +54,6 @@ color_pairs = [
 for (label, data), p, cols in zip(data_sets.items(), pos, color_pairs):
     average = np.array([np.average(item) for item in data])
     maxval = np.array([np.max(item) for item in data])
-    minval = np.array([np.min(item) for item in data])
     ax.bar(x + p, average, bar_width, label=label, color=cols[0], zorder=5)
     ax.bar(
         x + p,
@@ -96,8 +69,8 @@ for (label, data), p, cols in zip(data_sets.items(), pos, color_pairs):
 ax.set_title("$h_{text{STRESS}}$")
 ax.yaxis.set_label_coords(-0.1, 1.02)
 plt.xticks(x, rotation=45, ha="right")
-ax.set_xticklabels(cs_labels)
-plt.xlim(-0.6, len(cs_labels) - 1 + 0.6)
+ax.set_xticklabels([c.name for c in cs])
+plt.xlim(-0.6, len(cs) - 1 + 0.6)
 plt.ylim(0, 20)
 ax.legend(framealpha=1, loc="upper right", bbox_to_anchor=(1, 1))
 

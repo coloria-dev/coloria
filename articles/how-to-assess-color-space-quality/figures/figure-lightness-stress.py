@@ -12,51 +12,26 @@ ex = {
     "Munsell value": colorio.data.Munsell(),
 }
 
-cs_labels = [
-    "CAM02 (UCS)**",
-    "CAM16 (UCS)**",
-    "CIELAB*",
-    "CIELUV*",
-    # "$IC_tC_p$",
-    "IPT",
-    "$J_zA_zB_z$",
-    "OKLAB",
-    "OSA-UCS",
-    "xyY",
+cs = [
+    colorio.cs.CAM02UCS,
+    colorio.cs.CAM16UCS,
+    colorio.cs.CIELAB,
+    colorio.cs.CIELUV,
+    # colorio.cs.ICtCp,
+    colorio.cs.IPT,
+    colorio.cs.JzAzBz,
+    colorio.cs.OKLAB,
+    colorio.cs.OsaUcs,
+    colorio.cs.XYY1,
 ]
 
-data_sets = {
-    key: [
-        data.stress(
-            colorio.cs.CAM02(
-                "UCS",
-                c=data.c,
-                Y_b=data.Yb,
-                L_A=data.L_A,
-                whitepoint=data.whitepoint_xyz100,
-            )
-        ),
-        data.stress(
-            colorio.cs.CAM16UCS(
-                c=data.c, Y_b=data.Yb, L_A=data.L_A, whitepoint=data.whitepoint_xyz100
-            )
-        ),
-        data.stress(colorio.cs.CIELAB(whitepoint=data.whitepoint_xyz100)),
-        data.stress(colorio.cs.CIELUV(whitepoint=data.whitepoint_xyz100)),
-        # data.stress(colorio.cs.ICtCp()),
-        data.stress(colorio.cs.IPT()),
-        data.stress(colorio.cs.JzAzBz()),
-        data.stress(colorio.cs.OKLAB()),
-        data.stress(colorio.cs.OsaUcs()),
-        data.stress(colorio.cs.XYY(1)),
-    ]
-    for key, data in ex.items()
-}
+
+data_sets = {key: [data.stress(c) for c in cs] for key, data in ex.items()}
 
 
 plt.style.use(dufte.style)
 
-x = np.arange(len(cs_labels))
+x = np.arange(len(cs))
 n = len(data_sets)
 bar_width = 0.8 / n
 
@@ -68,9 +43,9 @@ for (label, data), p in zip(data_sets.items(), pos):
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_title("l_{text{STRESS}}")
 ax.set_xticks(x)
-ax.set_xticklabels(cs_labels)
+ax.set_xticklabels([c.name for c in cs])
 plt.xticks(rotation=45, ha="right")
-plt.xlim(-0.6, len(cs_labels) - 1 + 0.6)
+plt.xlim(-0.6, len(cs) - 1 + 0.6)
 plt.ylim(0, 50)
 ax.legend(framealpha=1, loc="upper left", bbox_to_anchor=(0, 1))
 

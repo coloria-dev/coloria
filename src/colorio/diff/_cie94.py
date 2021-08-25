@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.typing import ArrayLike
 
 
 # parameters:
@@ -11,7 +12,13 @@ import numpy as np
 #   k_L = 2
 #   K_1 = 0.048
 #   K_2 = 0.014
-def cie94(lab1, lab2, k_L=1.0, K_1=0.045, K_2=0.015):
+def cie94(
+    lab1: ArrayLike,
+    lab2: ArrayLike,
+    k_L: float = 1.0,
+    K_1: float = 0.045,
+    K_2: float = 0.015,
+) -> np.ndarray:
     l1, a1, b1 = np.asarray(lab1)
     l2, a2, b2 = np.asarray(lab2)
 

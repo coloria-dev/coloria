@@ -45,8 +45,7 @@ class CAM16Legacy:
         RGB_w = np.dot(self.M16, whitepoint)
 
         D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
-        D = min(D, 1.0)
-        D = max(D, 0.0)
+        D = np.clip(D, 0.0, 1.0)
 
         self.D_RGB = D * Y_w / RGB_w + 1 - D
 

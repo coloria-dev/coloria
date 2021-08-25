@@ -7,17 +7,19 @@ Rochester Institute of Technology, Rochester, NY, USA 14623-5604,
 """
 import json
 import pathlib
+from typing import Type
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+from ...cs import ColorSpace
 from ...illuminants import whitepoints_cie1931
-from ..helpers import Dataset
+from ..helpers import create_cs_class_instance, stress_absolute
 
 this_dir = pathlib.Path(__file__).resolve().parent
 
 
-class FairchildChen(Dataset):
+class FairchildChen:
     def __init__(self, key: str):
         assert key in ["SL1", "SL2"]
         with open(this_dir / "fairchild_chen.json") as f:
@@ -33,7 +35,7 @@ class FairchildChen(Dataset):
             #
             # CIECAM02 viewing conditions from the JzAzBz paper:
             self.c = 0.69  # "average"
-            self.Yb = 20
+            self.Y_b = 20
             self.L_A = 168
         else:
             assert key == "SL2"
@@ -44,9 +46,9 @@ class FairchildChen(Dataset):
             #
             # CIECAM02 viewing conditions from the JzAzBz paper:
             self.c = 0.69  # "average"
-            self.Yb = 20
+            self.Y_b = 20
             self.Lw = 997
-            self.L_A = 199  # ~ Lw * Yb / 100
+            self.L_A = 199  # ~ Lw * Y_b / 100
 
         self.whitepoint_xyz100 = whitepoints_cie1931["D65"]
 
@@ -55,7 +57,11 @@ class FairchildChen(Dataset):
         for key in self.data:
             self.data[key] = np.asarray(self.data[key])
 
-    def plot(self, cs):
+    def plot(self, cs_class: Type[ColorSpace]):
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
+
         # experimental lightness
         L = self.data["lightness"]
         # predicted lightness
@@ -72,15 +78,19 @@ class FairchildChen(Dataset):
         plt.title(f"Fairchild-Chen {self.key} lightness data")
         # dufte.legend()
         plt.legend()
+        return plt
 
-    def stress(self, cs):
+    def stress(self, cs_class: Type[ColorSpace]) -> float:
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
+
         # experimental lightness
         L = self.data["lightness"]
         # predicted lightness
         # Move L0 into origin for translation invariance
+        assert cs.k0 is not None
         L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
         L_ = cs.from_xyz100(self.data["xyz"].T)[cs.k0] - L0_
 
-        alpha = np.dot(L, L_) / np.dot(L, L)
-        diff = alpha * L - L_
-        return 100 * np.sqrt(np.dot(diff, diff) / np.dot(L_, L_))
+        return stress_absolute(L, L_)

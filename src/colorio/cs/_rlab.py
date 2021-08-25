@@ -1,5 +1,6 @@
 import npx
 import numpy as np
+from numpy.typing import ArrayLike
 
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
@@ -28,10 +29,17 @@ class RLAB(ColorSpace):
     for the original RLAB. (This implementation uses the "refined RLAB" scheme.)
     """
 
+    name = "RLAB"
+    labels = ("LR", "aR", "bR")
+    k0 = 0
+
     def __init__(
-        self, Y_n=318.0, D=0.0, whitepoint=whitepoints_cie1931["D65"], sigma=1.0 / 2.3
+        self,
+        Y_n: float = 318.0,
+        D: float = 0.0,
+        whitepoint: ArrayLike = whitepoints_cie1931["D65"],
+        sigma: float = 1.0 / 2.3,
     ):
-        super().__init__("RLAB", ("LR", "aR", "bR"), 0)
         # One purpose of RLAB is to account for the adaptation in the human visual
         # system. That is, the visual system sees a red apple no matter if it is looked
         # at in bright daylight, at dawn, or in the light of a fire.  To achieve this,
@@ -95,7 +103,7 @@ class RLAB(ColorSpace):
     # The exponents in Equations 13.15–13.17 vary, depending on the relative luminance
     # of the surround. For an average surround sigma = 1/2.3, for a dim surround sigma =
     # 1/2.9, and for a dark surround sigma = 1/3.5.
-    def from_xyz100(self, xyz):
+    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         # First, the stimuli xyz are translated into reference stimuli xyz_ref to
         # account for the environment adaptation of the human visual system.
         lms_dash = (self.a_lms * npx.dot(self.M, xyz).T).T
@@ -112,8 +120,8 @@ class RLAB(ColorSpace):
 
         return np.array([L_R, a_R, b_R])
 
-    def to_xyz100(self, lab):
-        L_R, a_R, b_R = lab
+    def to_xyz100(self, lab: ArrayLike) -> np.ndarray:
+        L_R, a_R, b_R = np.asarray(lab)
 
         y_ref_s = L_R / 100
         x_ref_s = a_R / 430 + y_ref_s

@@ -7,13 +7,15 @@ Journal of the Optical Society of America, Vol. 64, Issue 12, pp. 1691-1702,
 """
 import json
 import pathlib
+from typing import Type
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import XYY, XYZ
+from ...cs import XYY, XYZ, ColorSpace
 from ...illuminants import whitepoints_cie1964
-from ..helpers import ColorDistanceDataset
+from ..color_distance import ColorDistanceDataset
+from ..helpers import create_cs_class_instance
 
 
 class MacAdam1974(ColorDistanceDataset):
@@ -24,7 +26,28 @@ class MacAdam1974(ColorDistanceDataset):
         with open(this_dir / "table2.json") as f:
             data = json.load(f)
 
+        # From the article:
+        #
+        # > Instead, the committee decided to study a limited sample, consisting of 43
+        # > colors (made in the form of 5-cm-hexagonal, matte-finish, painted ceramic
+        # > tiles, all having approximately the same luminous reflectance (30%) in CIE
+        # > Standard D65 daylight, [...]
+        #
+        # > The CIE specifications for D65 and for the 1964 supplementary observer for
+        # > 100 visual field, based on the agreed-upon spectral reflectance data, are
+        # > given in Table II.
+        #
+        # The angle of a 5cm tile viewed with 50 cm distance is
+        #
+        #   arctan(5cm / 40cm) ~= 7.1 degrees
+        #
+        # Close enough to the 10-degree-observer I guess?
+        #
         self.whitepoint_xyz100 = whitepoints_cie1964["D65"]
+        # Assume the surround parameters of a light booth
+        self.c = 0.69
+        self.Y_b = 20
+        self.L_A = 60
 
         t = dict(zip(data.keys(), range(len(data))))
         xyy100_tiles = np.array([[val[0], val[1], val[2]] for val in data.values()])
@@ -43,7 +66,11 @@ class MacAdam1974(ColorDistanceDataset):
 
         super().__init__("MacAdam (1974)", d, self.xyz100_tiles[pairs])
 
-    def plot(self, cs):
+    def plot(self, cs_class: Type[ColorSpace]):
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
+
         pairs = self.xyz_pairs[self.is_flat_pair]
         pairs = cs.from_xyz100(pairs.T).T
 
@@ -64,7 +91,7 @@ class MacAdam1974(ColorDistanceDataset):
 
         # scale the distances
         delta = np.linalg.norm(pairs[:, 0] - pairs[:, 1], axis=1)
-        d = self.dist[self.is_flat_pair]
+        d = self.target_dist[self.is_flat_pair]
         alpha = np.dot(d, delta) / np.dot(d, d)
         d *= alpha
 
@@ -113,7 +140,7 @@ class MacAdam1974(ColorDistanceDataset):
         plt.gca().set_aspect("equal")
         plt.title(f"MacAdam 1974 color distance data for {cs.name}")
 
-        labels = cs.labels[keep]
+        labels = np.asarray(cs.labels)[keep]
         plt.xlabel(labels[0])
         plt.ylabel(labels[1], rotation=0)
         return plt

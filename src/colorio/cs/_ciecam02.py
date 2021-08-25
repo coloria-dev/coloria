@@ -6,6 +6,21 @@ from .._exceptions import ColorioError
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
 
+M_cat02 = np.array(
+    [
+        [+0.7328, +0.4296, -0.1624],
+        [-0.7036, +1.6975, +0.0061],
+        [+0.0030, +0.0136, +0.9834],
+    ]
+)
+M_hpe = np.array(
+    [
+        [+0.38971, +0.68898, -0.07868],
+        [-0.22981, +1.18340, +0.04641],
+        [+0.00000, +0.00000, +1.00000],
+    ]
+)
+
 
 def compute_from(rgb_, cs):
     # Step 4: Calculate the post-adaptation cone response (resulting in dynamic range
@@ -184,12 +199,12 @@ class CIECAM02:
     c ..... surround parameter (average: 0.69, dim: 0.59, dark: 0.535)
     Y_b ... relative luminance of the background in %, i.e., 100 * Lb / Lw
             where Lb is the background luminance and Lw is the white luminance.
-            There is some discussion on the value of Yb, see
+            There is some discussion on the value of Y_b, see
             <https://groups.google.com/g/sci.engr.color/c/3P9DXaCAWAI>
             <https://rawpedia.rawtherapee.com/CIECAM02/de>
             The suggestion is to use 18 or 20 (gray world theory).
     L_A ... luminance of the adapting field in cd/m^2.
-            Can be approximated by Lw * Yb / 100, or Lb.
+            Can be approximated by Lw * Y_b / 100, or Lb.
 
     From the above article:
     Table 2.1 Parameter settings for some typical applications:
@@ -268,25 +283,17 @@ class CIECAM02:
         self.c = c
         self.N_c = F
 
-        self.M_cat02 = np.array(
-            [
-                [+0.7328, +0.4296, -0.1624],
-                [-0.7036, +1.6975, +0.0061],
-                [+0.0030, +0.0136, +0.9834],
-            ]
-        )
-        RGB_w = np.dot(self.M_cat02, whitepoint)
+        RGB_w = M_cat02 @ whitepoint
 
         D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
-        D = min(D, 1.0)
-        D = max(D, 0.0)
+        D = np.clip(D, 0.0, 1.0)
 
         self.D_RGB = D * Y_w / RGB_w + 1 - D
 
         k = 1 / (5 * L_A + 1)
-        k4 = k * k * k * k
+        k4 = k ** 4
         l4 = 1 - k4
-        self.F_L = k4 * L_A + 0.1 * l4 * l4 * np.cbrt(5 * L_A)
+        self.F_L = k4 * L_A + 0.1 * l4 ** 2 * np.cbrt(5 * L_A)
 
         self.n = Y_b / Y_w
         self.z = 1.48 + np.sqrt(self.n)
@@ -295,14 +302,7 @@ class CIECAM02:
 
         RGB_wc = self.D_RGB * RGB_w
 
-        self.M_hpe = np.array(
-            [
-                [+0.38971, +0.68898, -0.07868],
-                [-0.22981, +1.18340, +0.04641],
-                [+0.00000, +0.00000, +1.00000],
-            ]
-        )
-        RGB_w_ = np.dot(self.M_hpe, np.linalg.solve(self.M_cat02, RGB_wc))
+        RGB_w_ = M_hpe @ np.linalg.solve(M_cat02, RGB_wc)
 
         alpha = (self.F_L * RGB_w_ / 100) ** 0.42
         RGB_aw_ = 400 * alpha / (alpha + 27.13)
@@ -313,12 +313,7 @@ class CIECAM02:
         self.H = np.array([0.0, 100.0, 200.0, 300.0, 400.0])
 
         # Merge a bunch of matrices together here.
-        self.M_ = np.dot(
-            self.M_hpe,
-            np.linalg.solve(self.M_cat02, (self.M_cat02.T * self.D_RGB).T),
-        )
-        # Alternative: LU decomposition. That introduces a scipy dependency
-        # though and lusolve is slower than dot() as well.
+        self.M_ = M_hpe @ np.linalg.solve(M_cat02, (M_cat02.T * self.D_RGB).T)
         self.invM_ = np.linalg.inv(self.M_)
 
     def from_xyz100(self, xyz):
@@ -340,17 +335,20 @@ class CIECAM02:
         rgb_ = compute_to(data, description, self)
 
         # Step 6: Calculate RC, GC and BC
-        # rgb_c = dot(self.M_cat02, solve(self.M_hpe, rgb_))
+        # rgb_c = dot(M_cat02, solve(M_hpe, rgb_))
         #
         # Step 7: Calculate R, G and B
         # rgb = (rgb_c.T / self.D_RGB).T
         #
         # Step 8: Calculate X, Y and Z
-        # xyz = solve(self.M_cat02, rgb)
+        # xyz = solve(M_cat02, rgb)
         return npx.dot(self.invM_, rgb_)
 
 
 class CAM02(ColorSpace):
+    labels = ("J'", "a'", "b'")
+    k0 = 0
+
     def __init__(
         self,
         variant: str,
@@ -359,7 +357,6 @@ class CAM02(ColorSpace):
         L_A: float,
         whitepoint: ArrayLike = whitepoints_cie1931["D65"],
     ):
-        super().__init__(f"CAM02 ({variant})", ("J'", "a'", "b'"), 0)
         params = {
             "LCD": (0.77, 0.007, 0.0053),
             "SCD": (1.24, 0.007, 0.0363),
@@ -382,3 +379,24 @@ class CAM02(ColorSpace):
         M_ = np.hypot(a, b)
         M = (np.exp(M_ * self.c2) - 1) / self.c2
         return self.ciecam02.to_xyz100(np.array([J, M, h]), "JMh")
+
+
+class CAM02LCD(CAM02):
+    name = "CAM02 (LCD)"
+
+    def __init__(self, c, Y_b, L_A, whitepoint):
+        super().__init__("LCD", c, Y_b, L_A, whitepoint)
+
+
+class CAM02SCD(CAM02):
+    name = "CAM02 (SCD)"
+
+    def __init__(self, c, Y_b, L_A, whitepoint):
+        super().__init__("SCD", c, Y_b, L_A, whitepoint)
+
+
+class CAM02UCS(CAM02):
+    name = "CAM02 (UCS)"
+
+    def __init__(self, c, Y_b, L_A, whitepoint):
+        super().__init__("UCS", c, Y_b, L_A, whitepoint)
