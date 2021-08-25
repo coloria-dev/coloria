@@ -29,7 +29,7 @@ def test_show():
         (colorio.cs.CIELAB, 5.292068327281036),
         (colorio.cs.RLAB, 5.3335671752151335),
         (colorio.cs.ICtCp, 7.048597385158547),
-        (colorio.cs.CIELCH, 11.89507120054368),
+        # (colorio.cs.CIELCH, 11.89507120054368),
         (colorio.cs.CIEHCL, 13.037122547036798),
     ],
 )

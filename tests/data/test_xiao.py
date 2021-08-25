@@ -29,7 +29,7 @@ def test_show():
         (colorio.cs.OKLAB, 6.256386444491906),
         (colorio.cs.OsaUcs, 8.22761086694146),
         (colorio.cs.IPT, 8.853878081896712),
-        (colorio.cs.CIELCH, 9.983951212967135),
+        # (colorio.cs.CIELCH, 9.983951212967135),
         (colorio.cs.CIEHCL, 11.516088298979938),
     ],
 )
