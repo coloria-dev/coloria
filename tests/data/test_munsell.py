@@ -4,23 +4,14 @@ import colorio
 
 
 def test_show():
-    # cs = colorio.cs.CIELAB()
-    # cs = colorio.cs.CIEHCL()
-    # cs = colorio.cs.CIELCH()
-    # cs = colorio.cs.OsaUcs()
-    cs = colorio.cs.IPT()
+    cs = colorio.cs.IPT
     plt = colorio.data.Munsell().plot(cs, V=5)
     plt.show()
     plt.close()
 
 
 def test_show_lightness():
-    # cs = colorio.cs.CIELAB()
-    # cs = colorio.cs.CIEHCL()
-    # cs = colorio.cs.CIELCH()
-    # cs = colorio.cs.OsaUcs()
-    cs = colorio.cs.IPT()
-    # cs = colorio.cs.OKLAB()
+    cs = colorio.cs.IPT
     plt = colorio.data.Munsell().plot_lightness(cs)
     plt.show()
     plt.close()

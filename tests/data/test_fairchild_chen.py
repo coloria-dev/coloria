@@ -4,13 +4,7 @@ import colorio
 
 
 def test_show():
-    # cs = colorio.cs.CIELAB()
-    # cs = colorio.cs.OsaUcs()
-    # cs = colorio.cs.IPT()
-    # cs = colorio.cs.ICtCp()
-    # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
-    cs = colorio.cs.JzAzBz()
-    # cs = colorio.cs.XYY(1)
+    cs = colorio.cs.JzAzBz
     plt = colorio.data.FairchildChen("SL2").plot(cs)
     plt.show()
     plt.close()

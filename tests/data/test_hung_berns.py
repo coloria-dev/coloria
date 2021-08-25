@@ -5,12 +5,10 @@ import colorio
 
 
 def test_show():
-    cs = colorio.cs.CIELAB()
-    # cs = colorio.cs.CIEHCL()
-    # cs = colorio.cs.CIELCH()
-    # cs = colorio.cs.OsaUcs()
-    # cs = colorio.cs.IPT()
-    colorio.data.HungBerns().plot(cs).show()
+    cs = colorio.cs.CIELAB
+    plt = colorio.data.HungBerns().plot(cs)
+    plt.show()
+    plt.close()
 
 
 @pytest.mark.parametrize(

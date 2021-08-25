@@ -5,11 +5,7 @@ import colorio
 
 
 def test_show():
-    # cs = colorio.cs.CIELAB()
-    # cs = colorio.cs.CIEHCL()
-    # cs = colorio.cs.CIELCH()
-    # cs = colorio.cs.OsaUcs()
-    cs = colorio.cs.IPT()
+    cs = colorio.cs.IPT
     plt = colorio.data.EbnerFairchild().plot(cs)
     plt.show()
     plt.close()
@@ -38,8 +34,8 @@ def test_show():
     ],
 )
 def test_stress(cs_class, ref):
-    res = np.average(colorio.data.EbnerFairchild().stress(cs_class))
     print(cs_class)
+    res = np.average(colorio.data.EbnerFairchild().stress(cs_class))
     print(res)
     assert abs(res - ref) < 1.0e-14 * ref
 

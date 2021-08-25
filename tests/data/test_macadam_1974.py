@@ -4,16 +4,7 @@ import colorio
 
 
 def test_show():
-    cs = colorio.cs.CIELAB()
-    # cs = colorio.cs.CIEHCL()
-    # cs = colorio.cs.CIELCH()
-    # cs = colorio.cs.OsaUcs()
-    # cs = colorio.cs.IPT()
-    # cs = colorio.cs.OKLAB()
-    # cs = colorio.cs.CAM02("UCS", 0.69, 20, 4.074)
-    # cs = colorio.cs.CAM16UCS(0.69, 20, 4.074)
-    # cs = colorio.cs.JzAzBz()
-    # cs = colorio.cs.XYY(1)
+    cs = colorio.cs.CIELAB
     plt = colorio.data.MacAdam1974().plot(cs)
     plt.show()
     plt.close()
