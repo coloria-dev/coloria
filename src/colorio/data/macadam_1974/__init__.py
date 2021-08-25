@@ -85,7 +85,7 @@ class MacAdam1974(ColorDistanceDataset):
 
         # scale the distances
         delta = np.linalg.norm(pairs[:, 0] - pairs[:, 1], axis=1)
-        d = self.dist[self.is_flat_pair]
+        d = self.target_dist[self.is_flat_pair]
         alpha = np.dot(d, delta) / np.dot(d, d)
         d *= alpha
 
