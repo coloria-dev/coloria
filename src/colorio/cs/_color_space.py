@@ -3,6 +3,7 @@ from ._srgb import SrgbLinear
 
 class ColorSpace:
     is_origin_well_defined = True
+    k0 = None
     srgb_linear = SrgbLinear()
 
     def __repr__(self):

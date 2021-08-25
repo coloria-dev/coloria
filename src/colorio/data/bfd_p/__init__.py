@@ -7,11 +7,11 @@ Volume 98 January 1982,
 """
 import json
 import pathlib
-from typing import Type
+from typing import Callable, Type
 
 import numpy as np
 
-from ...cs import ColorSpace
+from ...cs import CIELAB, ColorSpace
 from ..helpers import create_cs_class_instance, stress_absolute, stress_relative
 
 
@@ -52,6 +52,18 @@ class BfdP:
             cs_pairs = cs.from_xyz100(xyz.T).T
             cs_diff = cs_pairs[:, 1] - cs_pairs[:, 0]
             deltas.append(np.sqrt(np.einsum("ij,ij->i", cs_diff, cs_diff)))
+
+        delta = np.concatenate(deltas)
+        dv = np.concatenate(self.target_dist)
+
+        fun = stress_absolute if variant == "absolute" else stress_relative
+        return fun(dv, delta)
+
+    def stress_lab_diff(self, fun: Callable, variant: str = "absolute") -> float:
+        deltas = []
+        for xyz, wp in zip(self.xyz_pairs, self.whitepoints):
+            lab_pairs = CIELAB(wp).from_xyz100(xyz.T)
+            deltas.append(fun(lab_pairs[:, 0], lab_pairs[:, 1]))
 
         delta = np.concatenate(deltas)
         dv = np.concatenate(self.target_dist)

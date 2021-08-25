@@ -75,7 +75,7 @@ class HueLinearityDataset:
         plt.title(f"{self.name} hue linearity data for {cs.name}")
         return plt
 
-    def stress(self, cs_class: Type[ColorSpace]):
+    def stress(self, cs_class: Type[ColorSpace]) -> np.ndarray:
         """Compute the TLS residuals for each of the arms."""
         cs = create_cs_class_instance(
             cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A

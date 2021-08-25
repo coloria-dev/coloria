@@ -38,3 +38,20 @@ def test_stress(cs_class, ref):
     print(cs_class)
     print(res)
     assert abs(res - ref) < 1.0e-11 * ref
+
+
+@pytest.mark.parametrize(
+    "fun,ref",
+    [
+        (colorio.diff.ciede2000, 30.218234357300684),
+        (colorio.diff.cie94, 31.704895635913026),
+        (colorio.diff.cmc, 42.1795697284095),
+        (colorio.diff.cie76, 51.70889935711488),
+    ],
+)
+def test_stress_diff(fun, ref):
+    print(fun)
+    data = colorio.data.Witt()
+    res = data.stress_lab_diff(fun)
+    print(res)
+    assert abs(res - ref) < 1.0e-14 * ref

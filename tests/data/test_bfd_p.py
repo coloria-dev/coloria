@@ -49,13 +49,25 @@ def test_stress(cs_class, ref):
     assert abs(res - ref) < 1.0e-13 * ref
 
 
-# TODO test relarive
+# TODO test relative
 # ref = 44.17345214550509
 # res = data.stress(cs, variant="relative")
 # print(res)
 # assert abs(res - ref) < 1.0e-14 * ref
 
 
-if __name__ == "__main__":
-    # test_show()
-    test_stress()
+@pytest.mark.parametrize(
+    "fun,ref",
+    [
+        (colorio.diff.ciede2000, 29.55418997072668),
+        (colorio.diff.cmc, 33.18432695639392),
+        (colorio.diff.cie94, 33.70433399277904),
+        (colorio.diff.cie76, 42.46259476788477),
+    ],
+)
+def test_stress_diff(fun, ref):
+    print(fun)
+    data = colorio.data.BfdP()
+    res = data.stress_lab_diff(fun)
+    print(res)
+    assert abs(res - ref) < 1.0e-14 * ref
