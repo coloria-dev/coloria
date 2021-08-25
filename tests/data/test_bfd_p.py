@@ -46,7 +46,7 @@ def test_stress(cs_class, ref):
     data = colorio.data.BfdP()
     res = data.stress(cs_class)
     print(res)
-    assert abs(res - ref) < 1.0e-14 * ref
+    assert abs(res - ref) < 1.0e-13 * ref
 
 
 # TODO test relarive

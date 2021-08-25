@@ -34,10 +34,10 @@ def test_show():
     ],
 )
 def test_stress(cs_class, ref):
-    res = colorio.data.MacAdam1942(50.0).stress(cs_class)
     print(cs_class)
+    res = colorio.data.MacAdam1942(50.0).stress(cs_class)
     print(res)
-    assert abs(res - ref) < 1.0e-14 * ref
+    assert abs(res - ref) < 1.0e-13 * ref
 
 
 if __name__ == "__main__":

@@ -34,10 +34,10 @@ def test_show():
     ],
 )
 def test_stress(cs_class, ref):
-    res = np.average(colorio.data.HungBerns().stress(cs_class))
     print(cs_class)
+    res = np.average(colorio.data.HungBerns().stress(cs_class))
     print(res)
-    assert abs(res - ref) < 1.0e-14 * ref
+    assert abs(res - ref) < 1.0e-13 * ref
 
 
 if __name__ == "__main__":
