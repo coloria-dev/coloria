@@ -108,7 +108,7 @@ def _plot_ellipses(
         # plt.show()
 
     plt.gca().set_aspect("equal")
-    labels = cs.labels[keep]
+    labels = np.asarray(cs.labels)[keep]
     plt.xlabel(labels[0])
     plt.ylabel(labels[1], rotation=0)
 

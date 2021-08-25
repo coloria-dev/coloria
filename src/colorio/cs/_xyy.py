@@ -8,16 +8,15 @@ from ._color_space import ColorSpace
 class XYY(ColorSpace):
     """xyY colorspace with Y scaled from 0 to 1."""
 
+    name = "xyY"
+    labels = ("x", "y", "Y")
+    k0 = 2
+    is_origin_well_defined = False
+
     def __init__(self, Y_scaling: int):
         if Y_scaling not in [1, 100]:
             raise ColorioError("Y_scaling needs to be 1 or 100.")
 
-        super().__init__(
-            f"xyY_{Y_scaling}",
-            ("x", "y", f"Y{Y_scaling}"),
-            2,
-            is_origin_well_defined=False,
-        )
         self.Y_scaling = Y_scaling
 
     def from_xyz100(self, xyz100: ArrayLike) -> np.ndarray:
@@ -45,10 +44,16 @@ class XYY(ColorSpace):
 
 
 class XYY1(XYY):
+    name = "xyY1"
+    labels = ("x", "y", "Y1")
+
     def __init__(self):
         super().__init__(1)
 
 
 class XYY100(XYY):
+    name = "xyY100"
+    labels = ("x", "y", "Y100")
+
     def __init__(self):
         super().__init__(100)

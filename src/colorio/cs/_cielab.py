@@ -33,8 +33,11 @@ Ainv = np.array([[1.0, 29 / 125, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, -116 / 200]])
 
 
 class CIELAB(ColorSpace):
+    name = "CIELAB"
+    labels = ("L*", "a*", "b*")
+    k0 = 0
+
     def __init__(self, whitepoint: ArrayLike = whitepoints_cie1931["D65"]):
-        super().__init__("CIELAB", ("L*", "a*", "b*"), 0)
         self.whitepoint_xyz100 = np.asarray(whitepoint)
         # self.whitepoint = np.array([100.0, 0.0, 0.0])
 

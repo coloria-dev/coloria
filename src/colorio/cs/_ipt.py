@@ -14,8 +14,11 @@ class IPT(ColorSpace):
     In: Proceedings of The Sixth Color Imaging Conference, 8-13, 1998.
     """
 
+    name = "IPT"
+    labels = ("I", "P", "T")
+    k0 = 0
+
     def __init__(self):
-        super().__init__("IPT", ("I", "P", "T"), 0)
         self.M1 = np.array(
             [
                 [0.4002, 0.7075, -0.0807],

@@ -15,8 +15,11 @@ class SRLAB2(ColorSpace):
     for details.
     """
 
+    name = "SRLAB2"
+    labels = ("L", "a", "b")
+    k0 = 0
+
     def __init__(self, whitepoint: ArrayLike = whitepoints_cie1931["D65"]):
-        super().__init__("SRLAB2", ("L", "a", "b"), 0)
         self.whitepoint_xyz100 = np.asarray(whitepoint)
 
         rgb_w = M_cat02 @ self.whitepoint_xyz100

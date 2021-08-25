@@ -60,7 +60,7 @@ class HueLinearityDataset:
         edge[~is_legal_srgb] = [0.0, 0.0, 0.0]  # black
         plt.scatter(all_pts[0], all_pts[1], marker="o", color=fill, edgecolors=edge)
 
-        l0, l1 = cs.labels[no_lightness]
+        l0, l1 = np.asarray(cs.labels)[no_lightness]
         plt.xlabel(l0)
         plt.ylabel(l1, rotation=0)
         plt.axis("equal")

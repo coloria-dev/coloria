@@ -6,8 +6,12 @@ from ._color_space import ColorSpace
 
 
 class CIELUV(ColorSpace):
+    name = "CIELUV"
+    labels = ("L*", "u*", "v*")
+    k0 = 0
+    is_origin_well_defined = False
+
     def __init__(self, whitepoint: ArrayLike = whitepoints_cie1931["D65"]):
-        super().__init__("CIELUV", ("L*", "u*", "v*"), 0, is_origin_well_defined=False)
         self.whitepoint_xyz100 = np.asarray(whitepoint)
         self.whitepoint = np.array([100.0, 0.0, 0.0])
 

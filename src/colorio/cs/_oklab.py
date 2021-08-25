@@ -7,8 +7,11 @@ from ._color_space import ColorSpace
 
 
 class OKLAB(ColorSpace):
+    name = "Oklab"
+    labels = ("L", "a", "b")
+    k0 = 0
+
     def __init__(self):
-        super().__init__("Oklab", ("L", "a", "b"), 0)
         self.M1 = np.array(
             [
                 [0.8189330101, 0.3618667424, -0.1288597137],

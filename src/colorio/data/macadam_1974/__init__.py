@@ -140,7 +140,7 @@ class MacAdam1974(ColorDistanceDataset):
         plt.gca().set_aspect("equal")
         plt.title(f"MacAdam 1974 color distance data for {cs.name}")
 
-        labels = cs.labels[keep]
+        labels = np.asarray(cs.labels)[keep]
         plt.xlabel(labels[0])
         plt.ylabel(labels[1], rotation=0)
         return plt

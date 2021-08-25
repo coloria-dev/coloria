@@ -346,6 +346,9 @@ class CIECAM02:
 
 
 class CAM02(ColorSpace):
+    labels = ("J'", "a'", "b'")
+    k0 = 0
+
     def __init__(
         self,
         variant: str,
@@ -354,7 +357,6 @@ class CAM02(ColorSpace):
         L_A: float,
         whitepoint: ArrayLike = whitepoints_cie1931["D65"],
     ):
-        super().__init__(f"CAM02 ({variant})", ("J'", "a'", "b'"), 0)
         params = {
             "LCD": (0.77, 0.007, 0.0053),
             "SCD": (1.24, 0.007, 0.0363),
@@ -380,15 +382,21 @@ class CAM02(ColorSpace):
 
 
 class CAM02LCD(CAM02):
+    name = "CAM02 (LCD)"
+
     def __init__(self, c, Y_b, L_A, whitepoint):
         super().__init__("LCD", c, Y_b, L_A, whitepoint)
 
 
 class CAM02SCD(CAM02):
+    name = "CAM02 (SCD)"
+
     def __init__(self, c, Y_b, L_A, whitepoint):
         super().__init__("SCD", c, Y_b, L_A, whitepoint)
 
 
 class CAM02UCS(CAM02):
+    name = "CAM02 (UCS)"
+
     def __init__(self, c, Y_b, L_A, whitepoint):
         super().__init__("UCS", c, Y_b, L_A, whitepoint)

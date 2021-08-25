@@ -19,9 +19,11 @@ class OsaUcs(ColorSpace):
     <https://arxiv.org/abs/1911.08323>.
     """
 
-    def __init__(self):
-        super().__init__("OSA-UCS", ("L", "j", "g"), 0)
+    name = "OSA-UCS"
+    labels = ("L", "j", "g")
+    k0 = 0
 
+    def __init__(self):
         # The whitepoint used in the experiments (MacAdam 1974 color distances) was the
         # 10-degree observer under the D65 illuminant.
 

@@ -29,6 +29,10 @@ class RLAB(ColorSpace):
     for the original RLAB. (This implementation uses the "refined RLAB" scheme.)
     """
 
+    name = "RLAB"
+    labels = ("LR", "aR", "bR")
+    k0 = 0
+
     def __init__(
         self,
         Y_n: float = 318.0,
@@ -36,7 +40,6 @@ class RLAB(ColorSpace):
         whitepoint: ArrayLike = whitepoints_cie1931["D65"],
         sigma: float = 1.0 / 2.3,
     ):
-        super().__init__("RLAB", ("LR", "aR", "bR"), 0)
         # One purpose of RLAB is to account for the adaptation in the human visual
         # system. That is, the visual system sees a red apple no matter if it is looked
         # at in bright daylight, at dawn, or in the light of a fire.  To achieve this,

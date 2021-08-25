@@ -6,8 +6,12 @@ from ._color_space import ColorSpace
 
 
 class CIEHCL(ColorSpace):
+    name = "CIEHCL"
+    labels = ("L", "C", "h")
+    k0 = 0
+    is_origin_well_defined = False
+
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
-        super().__init__("CIEHCL", ("L", "C", "h"), 0, is_origin_well_defined=False)
         self.cieluv = CIELUV(whitepoint=whitepoint)
 
     def from_xyz100(self, xyz):

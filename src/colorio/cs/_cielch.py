@@ -7,8 +7,11 @@ from ._color_space import ColorSpace
 
 
 class CIELCH(ColorSpace):
+    name = "CIELCH"
+    labels = ("L", "C", "h")
+    k0 = 0
+
     def __init__(self, whitepoint: ArrayLike = whitepoints_cie1931["D65"]):
-        super().__init__("CIELCH", ("L", "C", "h"), 0)
         self.cielab = CIELAB(whitepoint=whitepoint)
 
     def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:

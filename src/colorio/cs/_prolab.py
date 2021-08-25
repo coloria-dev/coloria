@@ -10,8 +10,11 @@ from ._color_space import ColorSpace
 
 
 class PROLAB(ColorSpace):
+    name = "proLab"
+    labels = ("L", "a", "b")
+    k0 = 0
+
     def __init__(self, whitepoint=whitepoints_cie1931["D65"]):
-        super().__init__("proLab", ("L", "a", "b"), 0)
         # The matrix Q in the article is
         #
         #  Q = ( Q 0 )

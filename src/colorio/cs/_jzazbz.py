@@ -15,8 +15,11 @@ class JzAzBz(ColorSpace):
     <https://doi.org/10.1364/OE.25.015131>.
     """
 
+    name = "J_z a_z b_z"
+    labels = ("J_z", "a_z", "b_z")
+    k0 = 0
+
     def __init__(self):
-        super().__init__("J_z a_z b_z", ("J_z", "a_z", "b_z"), 0)
         self.b = 1.15
         self.g = 0.66
         self.c1 = 3424 / 2 ** 12

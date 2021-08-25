@@ -12,8 +12,11 @@ class ICtCp(ColorSpace):
     <https://en.wikipedia.org/wiki/ICtCp>
     """
 
+    name = "IC_TC_P"
+    labels = ("I", "C_T", "C_P")
+    k0 = 0
+
     def __init__(self):
-        super().__init__("IC_TC_P", ("I", "C_T", "C_P"), 0)
         self.M1 = (
             np.array([[1688, 2146, 262], [683, 2951, 462], [99, 309, 3688]]) / 4096
         )
