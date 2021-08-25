@@ -37,4 +37,4 @@ def test_stress(cs_class, ref):
     print(cs_class)
     res = colorio.data.Leeds().stress(cs_class)
     print(res)
-    assert abs(res - ref) < 1.0e-13 * ref
+    assert abs(res - ref) < 1.0e-11 * ref
