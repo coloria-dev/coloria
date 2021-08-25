@@ -23,7 +23,11 @@ class ColorDistanceDataset:
         assert n == len(self.xyz_pairs)
         self.weights = np.asarray(weights)
 
-    def plot(self, cs: ColorSpace):
+    def plot(self, cs_class: Type[ColorSpace]):
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
+
         coords = cs.from_xyz100(self.xyz_pairs.T).T
 
         # reorder the coords such that the lightness in the last (the z-)component

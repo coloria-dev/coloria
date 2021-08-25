@@ -32,7 +32,11 @@ class Munsell:
         with open(this_dir / "lightness.json") as f:
             self.lightness = json.load(f)
 
-    def plot(self, cs: ColorSpace, V: int):
+    def plot(self, cs_class: Type[ColorSpace], V: int):
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
+
         # pick the data from the given munsell level
         xyz100 = self.xyz100[:, V == self.V]
         pts = cs.from_xyz100(xyz100)
@@ -58,7 +62,11 @@ class Munsell:
         plt.axis("equal")
         return plt
 
-    def plot_lightness(self, cs: ColorSpace):
+    def plot_lightness(self, cs_class: Type[ColorSpace]):
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
+
         L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
         L_ = cs.from_xyz100(self.xyz100)[cs.k0] - L0_
         ref = self.V

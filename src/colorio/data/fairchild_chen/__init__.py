@@ -57,7 +57,11 @@ class FairchildChen:
         for key in self.data:
             self.data[key] = np.asarray(self.data[key])
 
-    def plot(self, cs):
+    def plot(self, cs_class: Type[ColorSpace]):
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
+
         # experimental lightness
         L = self.data["lightness"]
         # predicted lightness

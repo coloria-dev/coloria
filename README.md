@@ -280,10 +280,10 @@ import colorio
 
 data = colorio.data.MacAdam1974()
 
-# Use the experimental whitepoint for adjustment
-cs = colorio.cs.CIELAB(data.whitepoint_xyz100)
+cs = colorio.cs.CIELAB
 
-data.show(cs)
+plt = data.plot(cs)
+plt.show()
 print(colorio.data.MacAdam1974().stress(cs))
 ```
 
@@ -315,8 +315,9 @@ visualized with
 ```python
 import colorio
 
-cs = colorio.cs.CIELUV()
-colorio.data.Munsell().show(cs, V=5)
+cs = colorio.cs.CIELUV
+plt = colorio.data.Munsell().plot(cs, V=5)
+plt.show()
 ```
 
 To retrieve the Munsell data in xyY format, use
@@ -346,12 +347,9 @@ article](https://doi.org/10.1364%2FJOSA.32.000247)) can be plotted with
 ```python
 import colorio
 
-# xyy = colorio.cs.XYY(100)
-# colorio.data.MacAdam1942(50.0).show(xyy)
-# colorio.data.MacAdam1942(50.0).savefig("macadam-xyy.png", xyy)
-
-cieluv = colorio.cs.CIELUV()
-colorio.data.MacAdam1942(50.0).show(cieluv)
+cs = colorio.cs.CIELUV
+plt = colorio.data.MacAdam1942(50.0).plot(cs)
+plt.show()
 ```
 
 The better the colorspace matches the data, the closer the ellipses are to circles of
@@ -373,7 +371,8 @@ import colorio
 # colorio.data.LuoRigg(8).savefig("luo-rigg-xyy.png", xyy, 0.4)
 
 cieluv = colorio.cs.CIELUV()
-colorio.data.LuoRigg(8).show(cieluv, 50)
+plt = colorio.data.LuoRigg(8).plot(cieluv, 50)
+plt.show()
 ```
 
 #### Hue linearity
@@ -389,8 +388,9 @@ For example
 ```python
 import colorio
 
-colorspace = colorio.cs.JzAzBz()
-colorio.data.EbnerFairchild().show(colorspace)
+colorspace = colorio.cs.JzAzBz
+plt = colorio.data.EbnerFairchild().plot(colorspace)
+plt.show()
 ```
 
 shows constant-hue data from [the Ebner-Fairchild
@@ -410,8 +410,9 @@ Note the dark blue distortion in CIELAB and CAM16.
 ```python
 import colorio
 
-colorspace = colorio.cs.JzAzBz()
-colorio.data.HungBerns().show(colorspace)
+colorspace = colorio.cs.JzAzBz
+plt = colorio.data.HungBerns().plot(colorspace)
+plt.show()
 ```
 
 ###### Xiao et al.
@@ -425,8 +426,9 @@ Likewise for [Xiao et al.](https://doi.org/10.1002/col.20637):
 ```python
 import colorio
 
-colorspace = colorio.cs.CIELAB()
-colorio.data.Xiao().show(colorspace)
+colorspace = colorio.cs.CIELAB
+plt = colorio.data.Xiao().plot(colorspace)
+plt.show()
 ```
 
 #### Lightness
@@ -442,8 +444,9 @@ Lightness experiment by [Fairchild-Chen](https://doi.org/10.1117/12.872075).
 ```python
 import colorio
 
-cs = colorio.cs.CIELAB()
-colorio.data.FairchildChen("SL2").show(cs)
+cs = colorio.cs.CIELAB
+plt = colorio.data.FairchildChen("SL2").plot(cs)
+plt.show()
 ```
 
 ### Articles

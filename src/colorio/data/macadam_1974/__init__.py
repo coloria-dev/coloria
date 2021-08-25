@@ -7,13 +7,15 @@ Journal of the Optical Society of America, Vol. 64, Issue 12, pp. 1691-1702,
 """
 import json
 import pathlib
+from typing import Type
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import XYY, XYZ
+from ...cs import XYY, XYZ, ColorSpace
 from ...illuminants import whitepoints_cie1964
 from ..color_distance import ColorDistanceDataset
+from ..helpers import create_cs_class_instance
 
 
 class MacAdam1974(ColorDistanceDataset):
@@ -64,7 +66,11 @@ class MacAdam1974(ColorDistanceDataset):
 
         super().__init__("MacAdam (1974)", d, self.xyz100_tiles[pairs])
 
-    def plot(self, cs):
+    def plot(self, cs_class: Type[ColorSpace]):
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
+
         pairs = self.xyz_pairs[self.is_flat_pair]
         pairs = cs.from_xyz100(pairs.T).T
 

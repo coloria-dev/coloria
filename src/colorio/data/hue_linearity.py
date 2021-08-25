@@ -14,7 +14,11 @@ class HueLinearityDataset:
         self.whitepoint_xyz100 = np.asarray(whitepoint_xyz100)
         self.arms = arms
 
-    def plot(self, cs: ColorSpace):
+    def plot(self, cs_class: Type[ColorSpace]):
+        cs = create_cs_class_instance(
+            cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
+        )
+
         # k0 is the coordinate that corresponds to "lightness"
         assert cs.k0 is not None
         no_lightness = [True, True, True]
