@@ -34,6 +34,10 @@ class HungBerns(HueLinearityDataset):
         # > Because the colorimetric characterization was used to calibrate the CRT to
         # > Illuminant C [...]
         #
+        # The shown patches are 2cm x 2cm. When viewed from 50 cm distance, the angle is
+        #
+        # 2 * arctan(2cm / 50cm / 2) * 180 / pi  ~=  2.3 degrees
+        #
         # Those are the CIECAM02 viewing conditions as given in the JzAzBz paper:
         self.c = 0.525  # "dark"
         self.Y_b = 20
