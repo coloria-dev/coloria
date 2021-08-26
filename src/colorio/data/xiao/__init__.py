@@ -20,10 +20,6 @@ class Xiao(HueLinearityDataset):
         with open(this_dir / "averages.json") as f:
             data = json.load(f)
 
-        whitepoint_xyz100 = np.array(data["neutral-gray"][0])
-        whitepoint_xyz100 /= whitepoint_xyz100[1]
-        whitepoint_xyz100 *= 100
-
         # The whitepoint as given in the article, table 3.
         # Note that this does not equal the "neutral gray" as given in the data,
         # [57.74156756756757, 59.86, 77.54005405405404], scaled [96.46102166, 100.0 ,
