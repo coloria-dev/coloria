@@ -146,8 +146,8 @@ def test_optimize(maxiter=1):
         vals = [npx.mean(stress, p=p) for p in [1.0, 2.0, np.infty]]
         print("  {} {:.3f}  {:.3f}  {:.3f}".format(name, *vals))
     print()
-    print("  Munsell.......... {:.3f}".format(munsell.stress_lightness(cs)))
-    print("  Fairchild-Chen... {:.3f}".format(fairchild_chen.stress(cs)))
+    print(f"  Munsell.......... {munsell.stress_lightness(cs):.3f}")
+    print(f"  Fairchild-Chen... {fairchild_chen.stress(cs):.3f}")
 
     colorio.show_primary_srgb_gradients(cs)
     # macadam_1942.show(cs)

@@ -62,7 +62,7 @@ def plot_visible_slice(colorspace, lightness, outline_prec=1.0e-2, fill_color="0
     mono_vals = np.array([_find_Y(colorspace, xy, lightness) for xy in mono_xy])
     conn_vals = np.array([_find_Y(colorspace, xy, lightness) for xy in conn_xy])
 
-    k1, k2 = [k for k in [0, 1, 2] if k != colorspace.k0]
+    k1, k2 = (k for k in [0, 1, 2] if k != colorspace.k0)
     plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
     plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
     #
