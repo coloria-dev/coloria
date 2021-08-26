@@ -267,7 +267,7 @@ certain properties of color spaces. Most data sets can also be visualized.
 
 #### Color differences
 
-| <img src="https://nschloe.github.io/colorio/macadam1974-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1974-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1974-cam16ucs.svg" width="100%"> |
+| <img src="https://nschloe.github.io/colorio/macadam1974-xyy1.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1974-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1974-cam16ucs.svg" width="100%"> |
 | :----------------------------------------------------------------------------: | :-------------------------------------------------------------------------------: | :------------------------------------------------------------------------------: |
 |                                      xyY                                       |                                      CIELAB                                       |                                      CAM16                                       |
 
@@ -305,7 +305,7 @@ colorio.data.COMBVD()  # a weighted combination of the above
 
 #### Munsell
 
-| <img src="https://nschloe.github.io/colorio/munsell-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cam16ucs.svg" width="100%"> |
+| <img src="https://nschloe.github.io/colorio/munsell-xyy1.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cam16ucs.svg" width="100%"> |
 | :------------------------------------------------------------------------: | :---------------------------------------------------------------------------: | :--------------------------------------------------------------------------: |
 |                                    xyY                                     |                                    CIELAB                                     |                                    CAM16                                     |
 
@@ -379,7 +379,7 @@ plt.show()
 
 ##### Ebner-Fairchild
 
-| <img src="https://nschloe.github.io/colorio/ebner-fairchild-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/ebner-fairchild-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/ebner-fairchild-cam16ucs.svg" width="100%"> |
+| <img src="https://nschloe.github.io/colorio/ebner-fairchild-xyy1.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/ebner-fairchild-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/ebner-fairchild-cam16ucs.svg" width="100%"> |
 | :--------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------: |
 |                                        xyY                                         |                                        CIELAB                                         |                                        CAM16                                         |
 
