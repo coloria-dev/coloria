@@ -17,15 +17,24 @@ def normalize(string):
 
 
 data = [
-    (colorio.cs.CIELAB(), 50),
-    (colorio.cs.OKLAB(), 0.5),
-    (colorio.cs.CAM16UCS(0.69, 20, 20), 50),
+    (colorio.cs.OKLAB(), 0.5, 2.0),
+    (colorio.cs.CIELAB(), 50, 500),
+    (colorio.cs.CAM16UCS(0.69, 20, 20), 50, 250),
 ]
-for cs, lightness in data:
-    p = colorio.plot_rgb_slice(cs, lightness=lightness, n=101, off_screen=True)
+for cs, lightness, camera_elevation in data:
+    p = colorio.plot_rgb_slice(
+        cs,
+        lightness=lightness,
+        camera_elevation=camera_elevation,
+        n=101,
+        off_screen=True,
+    )
+    # p.show()
     filename = f"srgb-gamut-slice-{normalize(cs.name)}.png"
+    # tight? https://github.com/pyvista/pyvista-support/issues/487
     p.screenshot(filename, transparent_background=True)
     p.close()
+
 
 data = [
     (colorio.cs.XYY(1), 0.5),

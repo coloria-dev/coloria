@@ -74,6 +74,7 @@ def plot_rgb_gamut(colorspace, n: int = 51, show_grid: bool = True):
 def plot_rgb_slice(
     colorspace,
     lightness: float,
+    camera_elevation: float,
     n: int = 51,
     variant: str = "srgb",
     off_screen: bool = False,
@@ -114,9 +115,10 @@ def plot_rgb_slice(
 
     # More camera tools:
     # https://github.com/pyvista/pyvista-support/issues/412
-    p.camera_position = [
-        (500.0, 0.0, 0.0),
-        (0.0, 0.0, 0.0),
-        (0.0, 0.0, 0.0),
-    ]
+    p.camera.position = (camera_elevation, 0.0, 0.0)
+    p.camera.focal_point = (lightness, 0.0, 0.0)
+    # p.camera.zoom(zoom)
+    # https://github.com/pyvista/pyvista-support/issues/490:
+    p.reset_camera_clipping_range()
+    # p.camera.Roll(-90.0)
     return p
