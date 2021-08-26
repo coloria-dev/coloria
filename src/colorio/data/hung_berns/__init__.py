@@ -28,10 +28,21 @@ class HungBerns(HueLinearityDataset):
         #
         # > All observations were made in a darkened room.
         #
+        # > Color differences (1931 Standard Observer and Illuminant C) were calculated
+        # > between the measurements and their estimates.
+        #
+        # > Because the colorimetric characterization was used to calibrate the CRT to
+        # > Illuminant C [...]
+        #
+        # The shown patches are 2cm x 2cm. When viewed from 50 cm distance, the angle is
+        #
+        # 2 * arctan(2cm / 50cm / 2) * 180 / pi  ~=  2.3 degrees
+        #
         # Those are the CIECAM02 viewing conditions as given in the JzAzBz paper:
-        self.L_A = 10
         self.c = 0.525  # "dark"
         self.Y_b = 20
+        self.L_A = 10
+        whitepoint_xyz100 = whitepoints_cie1931["C"]
 
         arms = [np.array(list(color.values())).T for color in data.values()]
-        super().__init__("Hung-Berns", whitepoints_cie1931["C"], arms)
+        super().__init__("Hung-Berns", whitepoint_xyz100, arms)
