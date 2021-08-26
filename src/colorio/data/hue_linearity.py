@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Optional, Type
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,22 +9,30 @@ from .helpers import create_cs_class_instance
 
 
 class HueLinearityDataset:
-    def __init__(self, name: str, whitepoint_xyz100: ArrayLike, arms):
+    def __init__(
+        self,
+        name: str,
+        whitepoint_xyz100: ArrayLike,
+        arms,
+        neutral_gray: Optional[ArrayLike] = None,
+    ):
         self.name = name
         self.whitepoint_xyz100 = np.asarray(whitepoint_xyz100)
         self.arms = arms
+        self.neutral_gray = (
+            self.whitepoint_xyz100 if neutral_gray is None else neutral_gray
+        )
 
     def plot(self, cs_class: Type[ColorSpace]):
         cs = create_cs_class_instance(
             cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
         )
-
         # k0 is the coordinate that corresponds to "lightness"
         assert cs.k0 is not None
         no_lightness = [True, True, True]
         no_lightness[cs.k0] = False
 
-        wp = cs.from_xyz100(self.whitepoint_xyz100)[no_lightness]
+        ng = cs.from_xyz100(self.neutral_gray)[no_lightness]
         all_pts = []
         all_rgb1 = []
         for xyz in self.arms:
@@ -33,17 +41,17 @@ class HueLinearityDataset:
             pts = pts[no_lightness]
 
             # get the eigenvector corresponding to the larger eigenvalue
-            pts_wp = (pts.T - wp).T
-            vals, vecs = np.linalg.eigh(pts_wp @ pts_wp.T)
+            pts_ng = (pts.T - ng).T
+            vals, vecs = np.linalg.eigh(pts_ng @ pts_ng.T)
             v = vecs[:, 0] if vals[0] > vals[1] else vecs[:, 1]
             # invert if necessary
-            if np.dot(v, np.average(pts_wp, axis=1)) < 0:
+            if np.dot(v, np.average(pts_ng, axis=1)) < 0:
                 v = -v
 
-            length = np.max(np.linalg.norm(pts_wp, axis=0))
-            end_point = wp + length * v
+            length = np.max(np.linalg.norm(pts_ng, axis=0))
+            end_point = ng + length * v
             plt.plot(
-                [wp[0], end_point[0]], [wp[1], end_point[1]], "-", color="0.5", zorder=0
+                [ng[0], end_point[0]], [ng[1], end_point[1]], "-", color="0.5", zorder=0
             )
 
             all_pts.append(pts)
@@ -86,13 +94,13 @@ class HueLinearityDataset:
         idx = [True, True, True]
         idx[cs.k0] = False
 
-        wp_cs = cs.from_xyz100(self.whitepoint_xyz100)[idx]
+        ng_cs = cs.from_xyz100(self.neutral_gray)[idx]
 
         s2 = []
         for dd in self.arms:
             vals = cs.from_xyz100(dd)[idx]
             # move values such that whitepoint is in the origin
-            vals = (vals.T - wp_cs).T
+            vals = (vals.T - ng_cs).T
             # could also be computed explicitly
             s_max, s_min = np.linalg.svd(vals, compute_uv=False)
             s2.append(s_min / s_max)
