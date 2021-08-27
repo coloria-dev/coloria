@@ -17,9 +17,19 @@ class VonKries:
         whitepoint_reference: ArrayLike,
         exact_inversion: bool = True,
     ):
-        self.judd = np.array([[0.0, 1.0, 0.0], [-0.46, 1.36, 0.1], [0.0, 0.0, 1.0]])
+        self.judd = np.array(
+            [
+                [0.0, 1.0, 0.0],
+                [-0.46, 1.36, 0.1],
+                [0.0, 0.0, 1.0],
+            ]
+        )
         judd_inv_approx = np.array(
-            [[2.954, -2.174, 0.22], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]]
+            [
+                [2.954, -2.174, 0.22],
+                [1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0],
+            ]
         )
         self.judd_inv = np.linalg.inv(self.judd) if exact_inversion else judd_inv_approx
 
@@ -28,7 +38,7 @@ class VonKries:
         self.abc = rgb_rw / rgb_w
 
     def apply(self, xyz: ArrayLike) -> np.ndarray:
-        return npx.dot(self.judd_inv, (np.dot(self.judd, xyz).T * self.abc).T)
+        return npx.dot(self.judd_inv, (npx.dot(self.judd, xyz).T * self.abc).T)
 
     def apply_inv(self, xyz: ArrayLike) -> np.ndarray:
-        return npx.dot(self.judd_inv, (np.dot(self.judd, xyz).T / self.abc).T)
+        return npx.dot(self.judd_inv, (npx.dot(self.judd, xyz).T / self.abc).T)
