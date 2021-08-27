@@ -23,11 +23,11 @@ import colorio
 )
 def test_reference_value(xyz, ref):
     cat = colorio.cat.CMCCAT2000(
+        whitepoint_test=colorio.illuminants.whitepoints_cie1931["D65"],
+        whitepoint_reference=colorio.illuminants.whitepoints_cie1964["C"],
         F=1.0,
         L_A1=20.0,
         L_A2=30.0,
-        whitepoint_test=colorio.illuminants.whitepoints_cie1931["D65"],
-        whitepoint_reference=colorio.illuminants.whitepoints_cie1964["C"],
     )
     out = cat.apply(xyz)
     print(list(out))
@@ -41,11 +41,11 @@ def test_reference():
     # Changjun Li, M. Ronnier Luo,* Bryan Rigg, Robert W. G. Hunt
     #
     cat = colorio.cat.CMCCAT2000(
+        whitepoint_test=[111.15, 100.00, 35.20],
+        whitepoint_reference=[94.81, 100.00, 107.30],
         F=1.0,
         L_A1=200.0,
         L_A2=200.0,
-        whitepoint_test=[111.15, 100.00, 35.20],
-        whitepoint_reference=[94.81, 100.00, 107.30],
     )
     out = cat.apply([22.48, 22.74, 8.54])
 

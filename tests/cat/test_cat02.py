@@ -20,10 +20,10 @@ import colorio
 )
 def test_reference_value(xyz, ref):
     cat = colorio.cat.CAT02(
-        F=1.0,
-        L_A=20.0,
         whitepoint_test=colorio.illuminants.whitepoints_cie1931["D65"],
         whitepoint_reference=colorio.illuminants.whitepoints_cie1964["C"],
+        F=1.0,
+        L_A=20.0,
     )
     out = cat.apply(xyz)
     print(list(out))

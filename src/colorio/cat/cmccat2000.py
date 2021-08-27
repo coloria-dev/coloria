@@ -11,11 +11,11 @@ from numpy.typing import ArrayLike
 class CMCCAT2000:
     def __init__(
         self,
+        whitepoint_test: ArrayLike,
+        whitepoint_reference: ArrayLike,
         F: float,
         L_A1: float,
         L_A2: float,
-        whitepoint_test: ArrayLike,
-        whitepoint_reference: ArrayLike,
     ):
         """
         F=1 for average viewing condition, F=0.8 for dim- and dark-surround (projected

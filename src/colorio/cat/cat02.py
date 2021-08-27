@@ -16,10 +16,10 @@ class CAT02:
 
     def __init__(
         self,
-        F: float,
-        L_A: float,
         whitepoint_test: ArrayLike,
         whitepoint_reference: ArrayLike,
+        F: float,
+        L_A: float,
     ):
         D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
         D = np.clip(D, 0.0, 1.0)
