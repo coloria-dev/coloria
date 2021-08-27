@@ -28,12 +28,13 @@ class CMCCAT97:
 
         D = F - F / (1 + 2 * L_A ** 0.25 + L_A ** 2 / 300)
 
-        r_w, g_w, b_w = self.M @ whitepoint_test
-        r_rw, g_rw, b_rw = self.M @ whitepoint_reference
+        rgb_w = self.M @ whitepoint_test
+        rgb_rw = self.M @ whitepoint_reference
 
-        self.p = (b_w / b_rw) ** 0.0834
-        ratio = np.array([r_rw / r_w, g_rw / g_w, b_rw / b_w ** self.p])
-        self.d_rgb = D * ratio + 1 - D
+        self.p = (rgb_w[2] / rgb_rw[2]) ** 0.0834
+        rgb_w[2] = rgb_w[2] ** self.p
+
+        self.d_rgb = D * (rgb_rw / rgb_w) + 1 - D
 
     def apply(self, xyz: ArrayLike) -> np.ndarray:
         xyz = np.asarray(xyz)
