@@ -3,16 +3,10 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from .._exceptions import ColorioError
+from ..cat import CAT02
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
 
-M_cat02 = np.array(
-    [
-        [+0.7328, +0.4296, -0.1624],
-        [-0.7036, +1.6975, +0.0061],
-        [+0.0030, +0.0136, +0.9834],
-    ]
-)
 M_hpe = np.array(
     [
         [+0.38971, +0.68898, -0.07868],
@@ -20,27 +14,6 @@ M_hpe = np.array(
         [+0.00000, +0.00000, +1.00000],
     ]
 )
-
-
-class CAT02:
-    """Chromatic adaptation transform for CIECAM02."""
-
-    def __init__(self, whitepoint: ArrayLike, F: float, L_A: float):
-        whitepoint = np.asarray(whitepoint)
-        D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
-        D = np.clip(D, 0.0, 1.0)
-        rgb_w = M_cat02 @ whitepoint
-        Y_w = whitepoint[1]
-        D_RGB = D * Y_w / rgb_w + 1 - D
-        M_cat02_inv = np.linalg.inv(M_cat02)
-        self.M = M_cat02_inv @ (M_cat02.T * D_RGB).T
-        self.Minv = M_cat02_inv @ (M_cat02.T / D_RGB).T
-
-    def apply(self, xyz):
-        return npx.dot(self.M, xyz)
-
-    def apply_inv(self, xyz):
-        return npx.dot(self.Minv, xyz)
 
 
 def compute_from(rgb_, cs):
@@ -304,7 +277,12 @@ class CIECAM02:
         self.c = c
         self.N_c = F
 
-        self.cat02 = CAT02(whitepoint, F, L_A)
+        self.cat02 = CAT02(
+            F,
+            L_A,
+            whitepoint_test=whitepoint,
+            whitepoint_reference=[100.0, 100.0, 100.0],
+        )
 
         k = 1 / (5 * L_A + 1)
         k4 = k ** 4

@@ -11,6 +11,7 @@ wp2 = colorio.illuminants.whitepoints_cie1964["C"]
 transforms = [
     (colorio.cat.VonKries(wp1, wp2), 1.0e-14),
     (colorio.cat.CMCCAT2000(1.0, 20.0, 30.0, wp1, wp2), 1.0e-14),
+    (colorio.cat.CAT02(1.0, 20.0, wp1, wp2), 1.0e-13),
 ]
 
 
@@ -44,6 +45,7 @@ def test_round_trip(cat, tol, xyz):
     print(xyz)
     print(cat)
     print(out)
+    print(np.max(np.abs(xyz - out)))
     assert np.asarray(xyz).shape == out.shape
     assert np.all(np.abs(np.asarray(xyz) - out) < tol * np.abs(xyz))
 
