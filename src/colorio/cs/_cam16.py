@@ -1,49 +1,10 @@
-import npx
 import numpy as np
 from numpy.typing import ArrayLike
 
+from ..cat import CAT16
 from ..illuminants import whitepoints_cie1931
 from ._ciecam02 import compute_from, compute_to
 from ._color_space import ColorSpace
-
-M16 = np.array(
-    [
-        [+0.401288, +0.650173, -0.051461],
-        [-0.250268, +1.204414, +0.045854],
-        [-0.002079, +0.048952, +0.953127],
-    ]
-)
-
-
-class CAT16:
-    """Chromatic adaptation transform for CAM16."""
-
-    def __init__(
-        self, whitepoint: ArrayLike, F: float, L_A: float, exact_inversion: bool = True
-    ):
-        whitepoint = np.asarray(whitepoint)
-        D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
-        D = np.clip(D, 0.0, 1.0)
-        rgb_w = M16 @ whitepoint
-        Y_w = whitepoint[1]
-        D_RGB = D * Y_w / rgb_w + 1 - D
-        self.M = (M16.T * D_RGB).T
-        # The standard actually recommends using this approximation as inversion
-        # operation.
-        approx_inv_M16 = np.array(
-            [
-                [+1.86206786, -1.01125463, +0.14918677],
-                [+0.38752654, +0.62144744, -0.00897398],
-                [-0.01584150, -0.03412294, +1.04996444],
-            ]
-        )
-        self.Minv = np.linalg.inv(self.M) if exact_inversion else approx_inv_M16 / D_RGB
-
-    def apply(self, xyz):
-        return npx.dot(self.M, xyz)
-
-    def apply_inv(self, xyz):
-        return npx.dot(self.Minv, xyz)
 
 
 class CAM16:
@@ -61,7 +22,6 @@ class CAM16:
         c: float,
         Y_b: float,
         L_A: float,
-        exact_inversion: bool = True,
         whitepoint: ArrayLike = whitepoints_cie1931["D65"],
     ):
         # step0: Calculate all values/parameters which are independent of input
@@ -78,7 +38,18 @@ class CAM16:
         self.c = c
         self.N_c = F
 
-        self.cat16 = CAT16(whitepoint, F, L_A, exact_inversion)
+        whitepoint_reference = [100.0, 100.0, 100.0]
+        self.cat16 = CAT16(
+            whitepoint,
+            whitepoint_reference,
+            F,
+            L_A,
+            # Skip transformation back in to XYZ space because the the lightness
+            # adaptation also happens in the transformed space. The fact that chromic
+            # and lightness adaption can happen in the same space is one of the main
+            # claims of CAM16.
+            back_transform=False,
+        )
 
         k = 1 / (5 * L_A + 1)
         l4 = 1 - k ** 4
@@ -131,13 +102,12 @@ class CAM16UCS(ColorSpace):
         c: float,
         Y_b: float,
         L_A: float,
-        exact_inversion: bool = True,
         whitepoint: ArrayLike = whitepoints_cie1931["D65"],
     ):
         self.K_L = 1.0
         self.c1 = 0.007
         self.c2 = 0.0228
-        self.cam16 = CAM16(c, Y_b, L_A, exact_inversion, whitepoint)
+        self.cam16 = CAM16(c, Y_b, L_A, whitepoint)
 
     def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         J, _, _, h, M, _, _ = self.cam16.from_xyz100(xyz)

@@ -12,6 +12,7 @@ transforms = [
     (colorio.cat.VonKries(wp1, wp2), 1.0e-14),
     (colorio.cat.CMCCAT2000(1.0, 20.0, 30.0, wp1, wp2), 1.0e-14),
     (colorio.cat.CAT02(1.0, 20.0, wp1, wp2), 1.0e-13),
+    (colorio.cat.CAT16(1.0, 20.0, wp1, wp2), 1.0e-13),
 ]
 
 
