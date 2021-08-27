@@ -32,18 +32,16 @@ class CMCCAT97:
         r_rw, g_rw, b_rw = self.M @ whitepoint_reference
 
         self.p = (b_w / b_rw) ** 0.0834
-        self.d_r = D * r_rw / r_w + 1 - D
-        self.d_g = D * g_rw / g_w + 1 - D
-        self.d_b = D * b_rw / b_w ** self.p + 1 - D
+        ratio = np.array([r_rw / r_w, g_rw / g_w, b_rw / b_w ** self.p])
+        self.d_rgb = D * ratio + 1 - D
 
     def apply(self, xyz: ArrayLike) -> np.ndarray:
         xyz = np.asarray(xyz)
         Y = xyz[1].copy()
-        r, g, b = self.M @ (xyz / Y)
-        r_c = self.d_r * r
-        g_c = self.d_g * g
-        b_c = np.sign(b) * self.d_b * np.abs(b) ** self.p
-        return self.Minv @ np.array([r_c * Y, g_c * Y, b_c * Y])
+        rgb = self.M @ (xyz / Y)
+        rgb[2] = np.sign(rgb[2]) * np.abs(rgb[2]) ** self.p
+        rgb_c = self.d_rgb * rgb
+        return self.Minv @ (rgb_c * Y)
 
     # def apply_inv(self, xyz: ArrayLike) -> np.ndarray:
     #     return npx.dot(self.judd_inv, (np.dot(self.judd, xyz).T / self.abc).T)
