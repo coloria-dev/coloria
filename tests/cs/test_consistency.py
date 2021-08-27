@@ -52,7 +52,7 @@ def test_zero(cs, tol):
         [1.0, 2.0, 3.0],
     ],
 )
-def test_conversion(cs, tol, xyz):
+def test_round_trip(cs, tol, xyz):
     xyz_orig = xyz.copy()
     print(xyz)
     out = cs.to_xyz100(cs.from_xyz100(xyz))
