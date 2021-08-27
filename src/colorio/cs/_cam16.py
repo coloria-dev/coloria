@@ -6,6 +6,45 @@ from ..illuminants import whitepoints_cie1931
 from ._ciecam02 import compute_from, compute_to
 from ._color_space import ColorSpace
 
+M16 = np.array(
+    [
+        [+0.401288, +0.650173, -0.051461],
+        [-0.250268, +1.204414, +0.045854],
+        [-0.002079, +0.048952, +0.953127],
+    ]
+)
+
+
+class CAT16:
+    """Chromatic adaptation transform for CAM16."""
+
+    def __init__(
+        self, whitepoint: ArrayLike, F: float, L_A: float, exact_inversion: bool = True
+    ):
+        whitepoint = np.asarray(whitepoint)
+        D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
+        D = np.clip(D, 0.0, 1.0)
+        rgb_w = M16 @ whitepoint
+        Y_w = whitepoint[1]
+        D_RGB = D * Y_w / rgb_w + 1 - D
+        self.M = (M16.T * D_RGB).T
+        # The standard actually recommends using this approximation as inversion
+        # operation.
+        approx_inv_M16 = np.array(
+            [
+                [+1.86206786, -1.01125463, +0.14918677],
+                [+0.38752654, +0.62144744, -0.00897398],
+                [-0.01584150, -0.03412294, +1.04996444],
+            ]
+        )
+        self.Minv = np.linalg.inv(self.M) if exact_inversion else approx_inv_M16 / D_RGB
+
+    def apply(self, xyz):
+        return npx.dot(self.M, xyz)
+
+    def apply_inv(self, xyz):
+        return npx.dot(self.Minv, xyz)
+
 
 class CAM16:
     """
@@ -39,20 +78,7 @@ class CAM16:
         self.c = c
         self.N_c = F
 
-        self.M16 = np.array(
-            [
-                [+0.401288, +0.650173, -0.051461],
-                [-0.250268, +1.204414, +0.045854],
-                [-0.002079, +0.048952, +0.953127],
-            ]
-        )
-        RGB_w = self.M16 @ whitepoint
-
-        D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
-        D = min(D, 1.0)
-        D = max(D, 0.0)
-
-        self.D_RGB = D * Y_w / RGB_w + 1 - D
+        self.cat16 = CAT16(whitepoint, F, L_A, exact_inversion)
 
         k = 1 / (5 * L_A + 1)
         l4 = 1 - k ** 4
@@ -64,7 +90,8 @@ class CAM16:
         self.N_bb = 0.725 / self.n ** 0.2
         self.N_cb = self.N_bb
 
-        RGB_wc = self.D_RGB * RGB_w
+        RGB_wc = self.cat16.apply(whitepoint)
+
         alpha = (self.F_L * RGB_wc / 100) ** 0.42
         RGB_aw_ = np.array(
             [400.1 if a == np.inf else 400 * a / (a + 27.13) + 0.1 for a in alpha]
@@ -75,27 +102,13 @@ class CAM16:
         self.e = np.array([0.8, 0.7, 1.0, 1.2, 0.8])
         self.H = np.array([0.0, 100.0, 200.0, 300.0, 400.0])
 
-        self.M_ = (self.M16.T * self.D_RGB).T
-        # The standard acutally recommends using this approximation as
-        # inversion operation.
-        approx_inv_M16 = np.array(
-            [
-                [+1.86206786, -1.01125463, +0.14918677],
-                [+0.38752654, +0.62144744, -0.00897398],
-                [-0.01584150, -0.03412294, +1.04996444],
-            ]
-        )
-        self.invM_ = (
-            np.linalg.inv(self.M_) if exact_inversion else approx_inv_M16 / self.D_RGB
-        )
-
     def from_xyz100(self, xyz):
         # Step 1: Calculate 'cone' responses
         # rgb = dot(self.M16, xyz)
         # Step 2: Complete the color adaptation of the illuminant in
         #         the corresponding cone response space
         # rgb_c = (rgb.T * self.D_RGB).T
-        rgb_c = npx.dot(self.M_, xyz)
+        rgb_c = self.cat16.apply(xyz)
         return compute_from(rgb_c, self)
 
     def to_xyz100(self, data, description):
@@ -105,7 +118,7 @@ class CAM16:
         # rgb = (rgb_c.T / self.D_RGB).T
         # Step 7: Calculate X, Y and Z
         # xyz = self.solve_M16(rgb)
-        return npx.dot(self.invM_, rgb_c)
+        return self.cat16.apply_inv(rgb_c)
 
 
 class CAM16UCS(ColorSpace):

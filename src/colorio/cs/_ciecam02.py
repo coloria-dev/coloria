@@ -22,6 +22,27 @@ M_hpe = np.array(
 )
 
 
+class CAT02:
+    """Chromatic adaptation transform for CIECAM02."""
+
+    def __init__(self, whitepoint: ArrayLike, F: float, L_A: float):
+        whitepoint = np.asarray(whitepoint)
+        D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
+        D = np.clip(D, 0.0, 1.0)
+        rgb_w = M_cat02 @ whitepoint
+        Y_w = whitepoint[1]
+        D_RGB = D * Y_w / rgb_w + 1 - D
+        M_cat02_inv = np.linalg.inv(M_cat02)
+        self.M = M_cat02_inv @ (M_cat02.T * D_RGB).T
+        self.Minv = M_cat02_inv @ (M_cat02.T / D_RGB).T
+
+    def apply(self, xyz):
+        return npx.dot(self.M, xyz)
+
+    def apply_inv(self, xyz):
+        return npx.dot(self.Minv, xyz)
+
+
 def compute_from(rgb_, cs):
     # Step 4: Calculate the post-adaptation cone response (resulting in dynamic range
     #         compression)
@@ -35,10 +56,10 @@ def compute_from(rgb_, cs):
 
     # Deal with alpha == 0, alpha == inf
     beta = np.empty(alpha.shape)
-    idx = alpha < 1.0
-    beta[idx] = alpha[idx] / (alpha[idx] + 27.13)  # + 0.1
-    idx = ~idx
-    beta[idx] = 1.0 / (1.0 + 27.13 / alpha[idx])  # + 0.1
+    idx0 = alpha < 1.0
+    beta[idx0] = alpha[idx0] / (alpha[idx0] + 27.13)  # + 0.1
+    idx1 = ~idx0
+    beta[idx1] = 1.0 / (1.0 + 27.13 / alpha[idx1])  # + 0.1
     rgb_a_ = np.sign(rgb_) * 400 * beta  # + 0.1
 
     # Mix steps 5, 7, and part of step 10 here in one big dot-product.
@@ -283,12 +304,7 @@ class CIECAM02:
         self.c = c
         self.N_c = F
 
-        RGB_w = M_cat02 @ whitepoint
-
-        D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
-        D = np.clip(D, 0.0, 1.0)
-
-        self.D_RGB = D * Y_w / RGB_w + 1 - D
+        self.cat02 = CAT02(whitepoint, F, L_A)
 
         k = 1 / (5 * L_A + 1)
         k4 = k ** 4
@@ -300,9 +316,7 @@ class CIECAM02:
         self.N_bb = 0.725 / self.n ** 0.2
         self.N_cb = self.N_bb
 
-        RGB_wc = self.D_RGB * RGB_w
-
-        RGB_w_ = M_hpe @ np.linalg.solve(M_cat02, RGB_wc)
+        RGB_w_ = M_hpe @ self.cat02.apply(whitepoint)
 
         alpha = (self.F_L * RGB_w_ / 100) ** 0.42
         RGB_aw_ = 400 * alpha / (alpha + 27.13)
@@ -312,9 +326,7 @@ class CIECAM02:
         self.e = np.array([0.8, 0.7, 1.0, 1.2, 0.8])
         self.H = np.array([0.0, 100.0, 200.0, 300.0, 400.0])
 
-        # Merge a bunch of matrices together here.
-        self.M_ = M_hpe @ np.linalg.solve(M_cat02, (M_cat02.T * self.D_RGB).T)
-        self.invM_ = np.linalg.inv(self.M_)
+        self.M_hpe_inv = np.linalg.inv(M_hpe)
 
     def from_xyz100(self, xyz):
         # Step 1: Calculate (sharpened) cone responses (transfer
@@ -325,7 +337,11 @@ class CIECAM02:
         #         included in D; hence, in DR, DG and DB)
         #
         # Step 3: Calculate the Hunt-Pointer-Estevez response
-        rgb_ = npx.dot(self.M_, xyz)
+
+        # cat02: Illuminant color adaptation
+
+        rgb_ = npx.dot(M_hpe, self.cat02.apply(xyz))
+
         # Steps 4-10
         return compute_from(rgb_, self)
 
@@ -342,7 +358,7 @@ class CIECAM02:
         #
         # Step 8: Calculate X, Y and Z
         # xyz = solve(M_cat02, rgb)
-        return npx.dot(self.invM_, rgb_)
+        return self.cat02.apply_inv(npx.dot(self.M_hpe_inv, rgb_))
 
 
 class CAM02(ColorSpace):

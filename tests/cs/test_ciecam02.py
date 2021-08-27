@@ -70,20 +70,32 @@ def test_gold():
     xyz = [19.31, 23.93, 10.14]
     ciecam02 = colorio.cs.CIECAM02(0.69, 18, 200, whitepoint=[98.88, 90, 32.03])
     values = ciecam02.from_xyz100(xyz)
-    reference_values = np.array(
-        # J, C, H, h, M, s, Q
-        [48.0314, 38.7789, 240.8884, 191.0452, 38.7789, 46.0177, 183.1240]
-    )
+    # J, C, H, h, M, s, Q
+    reference_values = [
+        48.0314,
+        38.7789,
+        240.8884,
+        191.0452,
+        38.7789,
+        46.0177,
+        183.1240,
+    ]
     assert np.all(values.round(4) == reference_values)
 
     # different L_A
     xyz = [19.31, 23.93, 10.14]
     ciecam02 = colorio.cs.CIECAM02(0.69, 18, 20, whitepoint=[98.88, 90, 32.03])
     values = ciecam02.from_xyz100(xyz)
-    reference_values = np.array(
-        # J, C, H, h, M, s, Q
-        [47.6856, 36.0527, 232.6630, 185.3445, 29.7580, 51.1275, 113.8401]
-    )
+    # J, C, H, h, M, s, Q
+    reference_values = [
+        47.6856,
+        36.0527,
+        232.6630,
+        185.3445,
+        29.7580,
+        51.1275,
+        113.8401,
+    ]
     assert np.all(values.round(4) == reference_values)
 
     # gold values from Mark Fairchild's spreadsheet at
@@ -112,10 +124,16 @@ def test_gold():
         0.69, 20, 31.830988618379, whitepoint=[95.05, 100.0, 108.88]
     )
     values = ciecam02.from_xyz100(xyz)
-    reference_values = np.array(
-        # J, C, H, h, M, s, Q
-        [65.95523, 48.57048, 399.38844, 19.55738, 41.67325, 52.24548, 152.67220]
-    )
+    # J, C, H, h, M, s, Q
+    reference_values = [
+        65.95523,
+        48.57048,
+        399.38844,
+        19.55738,
+        41.67325,
+        52.24548,
+        152.67220,
+    ]
     print(values.round(5))
     assert np.all(values.round(5) == reference_values)
 
