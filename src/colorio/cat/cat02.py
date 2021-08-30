@@ -21,7 +21,7 @@ class CAT02:
         F: float,
         L_A: float,
     ):
-        D = F * (1 - 1 / 3.6 * np.exp((-L_A - 42) / 92))
+        D = F * (1.0 - np.exp((-L_A - 42) / 92) / 3.6)
         D = np.clip(D, 0.0, 1.0)
 
         rgb_wr = M_cat02 @ whitepoint_reference

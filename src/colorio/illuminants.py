@@ -159,7 +159,7 @@ def a(interval=1.0e-9):
     return lmbda, vals
 
 
-def d(nominal_temperature):
+def d(nominal_temperature: float):
     """CIE D-series illuminants.
 
     The technical report `Colorimetry, 3rd edition, 2004` gives the data for D50, D55,

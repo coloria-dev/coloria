@@ -11,12 +11,12 @@ def test_cmccat97():
     whitepoint_reference = colorio.illuminants.whitepoints_cie1964["C"]
     ref = [68.57996639633065, 20.830994233615545, 77.36920346230376]
 
-    cat = colorio.cat.CMCCAT97(F, L_A, whitepoint_test, whitepoint_reference)
+    cat = colorio.cat.CMCCAT97(whitepoint_test, whitepoint_reference, F, L_A)
     out = cat.apply(xyz)
 
     print(list(out))
     assert np.all(np.abs(out - ref) < 1.0e-13 * out)
 
-    # check backwards tranformation
+    # check backwards transformation
     xyz2 = cat.apply_inv(out)
     assert np.all(np.abs(xyz - xyz2) < 1.0e-13 * out)
