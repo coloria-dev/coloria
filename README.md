@@ -134,17 +134,29 @@ colorio implements the following color difference formulas:
 
 colorio implements the following CATs:
 
+- [von Kries](src/colorio/cat/von_kries.py)
+  <!--pytest-codeblocks:skip-->
+  ```python
+  cat, cat_inv = colorio.cat.von_kries(whitepoint_source, whitepoint_destination)
+  xyz1 = cat @ xyz0
+  ```
+- [CMCCAT2000](src/colorio/cat/cmccat2000.py)
+  <!--pytest-codeblocks:skip-->
+  ```python
+  cat, cat_inv = colorio.cat.cmccat2000(whitepoint_source, whitepoint_destination, F, L_A1, L_A2)
+  xyz1 = cat @ xyz0
+  ```
 - [CAT02](src/colorio/cat/cat02.py)
   <!--pytest-codeblocks:skip-->
   ```python
-  cat = colorio.cat.cat02(whitepoint_source, whitepoint_destination, F, L_A)
-  xyz1 = cat.apply(xyz0)
+  cat, cat_inv = colorio.cat.cat02(whitepoint_source, whitepoint_destination, F, L_A)
+  xyz1 = cat @ xyz0
   ```
 - [CAT16](src/colorio/cat/cat16.py)
   <!--pytest-codeblocks:skip-->
   ```python
-  cat = colorio.cat.cat16(whitepoint_source, whitepoint_destination, F, L_A)
-  xyz1 = cat.apply(xyz0)
+  cat, cat_inv = colorio.cat.cat16(whitepoint_source, whitepoint_destination, F, L_A)
+  xyz1 = cat @ xyz0
   ```
 
 
