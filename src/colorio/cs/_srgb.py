@@ -1,3 +1,6 @@
+"""
+https://en.wikipedia.org/wiki/SRGB
+"""
 import npx
 import numpy as np
 from numpy.typing import ArrayLike

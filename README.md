@@ -42,18 +42,18 @@ colorspace.to_rgb255(vals)
 
 The following color spaces are implemented:
 
-- [XYZ](https://en.wikipedia.org/wiki/CIE_1931_color_space) (`colorio.cs.XYZ(100)`, the
+- [XYZ](src/colorio/cs/_xyz.py) (`colorio.cs.XYZ(100)`, the
   parameter determining the scaling)
-- [xyY](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space)
+- [xyY](src/colorio/cs/_xyy.py)
   (`colorio.cs.XYY(100)`, the paramter determining the scaling of `Y`)
-- [Linear sRGB](https://en.wikipedia.org/wiki/SRGB) (`colorio.SrgbLinear()`)
+- [Linear sRGB](src/colorio/cs/_srgb.py) (`colorio.SrgbLinear()`)
   This class has the two additional methods
   ```
   from_rgb1()
   to_rgb1()
   ```
   for conversion from and to standard RGB.
-- [HSL and HSV](https://en.wikipedia.org/wiki/HSL_and_HSV) (`colorio.cs.HSL()`,
+- [HSL](src/colorio/cs/_hsl.py) and [HSV](src/colorio/cs/_hsv.py) (`colorio.cs.HSL()`,
   `colorio.cs.HSV()`)
   These classes have the two methods
   ```
@@ -61,17 +61,14 @@ The following color spaces are implemented:
   to_srgb1()
   ```
   for conversion from and to standard RGB.
-- [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS) (`colorio.cs.OsaUcs()`)
-- [CIELAB](https://en.wikipedia.org/wiki/Lab_color_space) (`colorio.cs.CIELAB()`)
-- [CIELUV](https://en.wikipedia.org/wiki/CIELUV) (`colorio.cs.CIELUV()`)
-- [RLAB](<https://doi.org/10.1002/(SICI)1520-6378(199610)21:5<338::AID-COL3>3.0.CO;2-Z>)
-  (`colorio.cs.RLAB()`)
-- [DIN99](https://de.wikipedia.org/wiki/DIN99-Farbraum) and its variants DIN99{b,c,d}
-  (`colorio.cs.DIN99()`)
-- [ICtCp](https://en.wikipedia.org/wiki/ICtCp) (`colorio.cs.ICtCp()`)
-- [IPT](https://www.ingentaconnect.com/content/ist/cic/1998/00001998/00000001/art00003)
-  (`colorio.cs.IPT()`)
-- [CIECAM02 / CAM02-UCS](https://en.wikipedia.org/wiki/CIECAM02)
+- [OSA-UCS](src/colorio/cs/_osa_ucs.py) (`colorio.cs.OsaUcs()`)
+- [CIELAB](src/colorio/cs/_cielab.py) (`colorio.cs.CIELAB()`)
+- [CIELUV](src/colorio/cs/_cieluv.py) (`colorio.cs.CIELUV()`)
+- [RLAB](src/colorio/cs/_rlab.py) (`colorio.cs.RLAB()`)
+- [DIN99](src/colorio/cs/_din99.py) and its variants DIN99{b,c,d} (`colorio.cs.DIN99()`)
+- [ICtCp](src/colorio/cs/_ictcp.py) (`colorio.cs.ICtCp()`)
+- [IPT](src/colorio/cs/_ipt.py) (`colorio.cs.IPT()`)
+- [CIECAM02 / CAM02-UCS](src/colorio/cs/_ciecam02.py)
 
   ```python
   import math
@@ -84,7 +81,7 @@ The following color spaces are implemented:
   The implementation contains a few improvements over the CIECAM02 specification (see
   [here](https://arxiv.org/abs/1802.06067)).
 
-- [CAM16 / CAM16-UCS](https://doi.org/10.1002/col.22131)
+- [CAM16 / CAM16-UCS](src/colorio/cs/_cam16.py)
 
   ```python
   import math
@@ -99,9 +96,9 @@ The following color spaces are implemented:
 
 - [J<sub>z</sub>a<sub>z</sub>b<sub>z</sub>](https://doi.org/10.1364/OE.25.015131)
   (`colorio.cs.JzAzBz()`)
-- [Oklab](https://bottosson.github.io/posts/oklab/)(`colorio.cs.OKLAB()`)
-- [proLab](https://arxiv.org/abs/2012.07653)(`colorio.cs.PROLAB()`)
-- [SRLAB2](https://www.magnetkern.de/srlab2.html)(`colorio.cs.SRLAB2()`)
+- [Oklab](src/colorio/cs/_oklab.py) (`colorio.cs.OKLAB()`)
+- [proLab](src/colorio/cs/_prolab.py) (`colorio.cs.PROLAB()`)
+- [SRLAB2](src/colorio/cs/_srlab2.py) (`colorio.cs.SRLAB2()`)
 
 All methods in colorio are fully vectorized, i.e., computation is _really_ fast.
 

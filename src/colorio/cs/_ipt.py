@@ -12,6 +12,7 @@ class IPT(ColorSpace):
     Ebner, Fairchild
     Development and Testing of a Color Space (IPT) with Improved Hue Uniformity,
     In: Proceedings of The Sixth Color Imaging Conference, 8-13, 1998.
+    https://www.ingentaconnect.com/content/ist/cic/1998/00001998/00000001/art00003
     """
 
     name = "IPT"

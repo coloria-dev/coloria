@@ -1,3 +1,8 @@
+"""
+XYZ colorspace.
+
+https://en.wikipedia.org/wiki/CIE_1931_color_space
+"""
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -6,8 +11,6 @@ from ._color_space import ColorSpace
 
 
 class XYZ(ColorSpace):
-    """XYZ colorspace."""
-
     name = "XYZ"
     labels = ("X", "Y", "Z")
     k0 = None

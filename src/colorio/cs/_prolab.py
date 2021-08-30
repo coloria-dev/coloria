@@ -1,6 +1,8 @@
-# Ivan A. Konovalenko, Anna A. Smagina, Dmitry P. Nikolaev, Petr P. Nikolaev,
-# ProLab: perceptually uniform projective colour coordinate system,
-# https://arxiv.org/abs/2012.07653
+"""
+Ivan A. Konovalenko, Anna A. Smagina, Dmitry P. Nikolaev, Petr P. Nikolaev,
+ProLab: perceptually uniform projective colour coordinate system,
+https://arxiv.org/abs/2012.07653
+"""
 import npx
 import numpy as np
 from numpy.typing import ArrayLike

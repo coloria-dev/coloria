@@ -1,4 +1,6 @@
-# https://bottosson.github.io/posts/oklab/
+"""
+https://bottosson.github.io/posts/oklab/
+"""
 import npx
 import numpy as np
 from numpy.typing import ArrayLike
