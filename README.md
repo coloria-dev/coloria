@@ -143,7 +143,9 @@ colorio implements the following CATs:
 - [CMCCAT2000](src/colorio/cat/cmccat2000.py)
   <!--pytest-codeblocks:skip-->
   ```python
-  cat, cat_inv = colorio.cat.cmccat2000(whitepoint_source, whitepoint_destination, F, L_A1, L_A2)
+  cat, cat_inv = colorio.cat.cmccat2000(
+      whitepoint_source, whitepoint_destination, F, L_A1, L_A2
+  )
   xyz1 = cat @ xyz0
   ```
 - [CAT02](src/colorio/cat/cat02.py)
