@@ -144,16 +144,15 @@ colorio implements the following CATs:
 - [CAT16](src/colorio/cat/cat16.py) (`colorio.cat.cat16`)
 - [Bianco-Schettini](src/colorio/cat/bianco_schettini.py) (`colorio.cat.bianco_schettini`)
 
-
 ### Gamut visualization
 
 colorio provides a number of useful tools for analyzing and visualizing color spaces.
 
 #### sRGB gamut
 
-|                                         CIELAB                                         |                                       CAM16-UCS                                       |                                         Oklab                                         |
-| :------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: |
-|    <img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="100%">    |    <img src="https://nschloe.github.io/colorio/srgb-gamut-cam16.png" width="100%">    |    <img src="https://nschloe.github.io/colorio/srgb-gamut-oklab.png" width="100%">    |
+|                                         CIELAB                                         |                                        CAM16-UCS                                         |                                         Oklab                                         |
+| :------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: |
+|    <img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="100%">    |     <img src="https://nschloe.github.io/colorio/srgb-gamut-cam16.png" width="100%">      |    <img src="https://nschloe.github.io/colorio/srgb-gamut-oklab.png" width="100%">    |
 | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cam16ucs.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-oklab.png" width="100%"> |
 
 The sRGB gamut is a perfect cube in sRGB space, and takes curious shapes when translated
@@ -283,8 +282,8 @@ certain properties of color spaces. Most data sets can also be visualized.
 #### Color differences
 
 | <img src="https://nschloe.github.io/colorio/macadam1974-xyy1.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1974-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1974-cam16ucs.svg" width="100%"> |
-| :----------------------------------------------------------------------------: | :-------------------------------------------------------------------------------: | :------------------------------------------------------------------------------: |
-|                                      xyY                                       |                                      CIELAB                                       |                                      CAM16                                       |
+| :-----------------------------------------------------------------------------: | :-------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------: |
+|                                       xyY                                       |                                      CIELAB                                       |                                        CAM16                                        |
 
 Color difference data from [MacAdam (1974)](https://doi.org/10.1364/JOSA.64.001691). The
 above plots show the 43 color pairs that are of comparable lightness. The data is
@@ -317,12 +316,11 @@ colorio.data.Witt()
 colorio.data.COMBVD()  # a weighted combination of the above
 ```
 
-
 #### Munsell
 
 | <img src="https://nschloe.github.io/colorio/munsell-xyy1.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cam16ucs.svg" width="100%"> |
-| :------------------------------------------------------------------------: | :---------------------------------------------------------------------------: | :--------------------------------------------------------------------------: |
-|                                    xyY                                     |                                    CIELAB                                     |                                    CAM16                                     |
+| :-------------------------------------------------------------------------: | :---------------------------------------------------------------------------: | :-----------------------------------------------------------------------------: |
+|                                     xyY                                     |                                    CIELAB                                     |                                      CAM16                                      |
 
 [Munsell color data](https://www.rit.edu/cos/colorscience/rc_munsell_renotation.php) is
 visualized with
@@ -373,8 +371,8 @@ the same size.
 ##### Luo-Rigg ellipses
 
 | <img src="https://nschloe.github.io/colorio/luo-rigg-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/luo-rigg-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/luo-rigg-cam16ucs.svg" width="100%"> |
-| :-------------------------------------------------------------------------: | :----------------------------------------------------------------------------: | :---------------------------------------------------------------------------: |
-|                                     xyY                                     |                                     CIELAB                                     |                                     CAM16                                     |
+| :-------------------------------------------------------------------------: | :----------------------------------------------------------------------------: | :------------------------------------------------------------------------------: |
+|                                     xyY                                     |                                     CIELAB                                     |                                      CAM16                                       |
 
 Likewise for [Luo-Rigg](https://doi.org/10.1002/col.5080110107).
 
@@ -395,8 +393,8 @@ plt.show()
 ##### Ebner-Fairchild
 
 | <img src="https://nschloe.github.io/colorio/ebner-fairchild-xyy1.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/ebner-fairchild-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/ebner-fairchild-cam16ucs.svg" width="100%"> |
-| :--------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------: |
-|                                        xyY                                         |                                        CIELAB                                         |                                        CAM16                                         |
+| :---------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------: |
+|                                         xyY                                         |                                        CIELAB                                         |                                          CAM16                                          |
 
 For example
 
