@@ -106,22 +106,22 @@ All methods in colorio are fully vectorized, i.e., computation is _really_ fast.
 
 colorio implements the following color difference formulas:
 
-- [CIE76](https://en.wikipedia.org/wiki/Color_difference#CIE76)
+- [CIE76](src/colorio/diff/_cie76.py)
   <!--pytest-codeblocks:skip-->
   ```python
   colorio.diff.cie76(lab1, lab2)
   ```
-- [CIE94](https://en.wikipedia.org/wiki/Color_difference#CIE94)
+- [CIE94](src/colorio/diff/_cie94.py)
   <!--pytest-codeblocks:skip-->
   ```python
   colorio.diff.cie94(lab1, lab2)
   ```
-- [CIEDE2000](https://en.wikipedia.org/wiki/Color_difference#CIEDE2000)
+- [CIEDE2000](src/colorio/diff/_ciede2000.py)
   <!--pytest-codeblocks:skip-->
   ```python
   colorio.diff.ciede2000(lab1, lab2)
   ```
-- [CMC l:c](<https://en.wikipedia.org/wiki/Color_difference#CMC_l:c_(1984)>)
+- [CMC l:c](src/colorio/diff/_cmc.py)
   <!--pytest-codeblocks:skip-->
   ```python
   colorio.diff.cmc(lab1, lab2)
