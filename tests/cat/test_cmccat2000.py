@@ -22,14 +22,14 @@ import colorio
     ],
 )
 def test_reference_value(xyz, ref):
-    cat = colorio.cat.CMCCAT2000(
-        whitepoint_test=colorio.illuminants.whitepoints_cie1931["D65"],
-        whitepoint_reference=colorio.illuminants.whitepoints_cie1964["C"],
+    cat, _ = colorio.cat.cmccat2000(
+        colorio.illuminants.whitepoints_cie1931["D65"],
+        colorio.illuminants.whitepoints_cie1964["C"],
         F=1.0,
         L_A1=20.0,
         L_A2=30.0,
     )
-    out = cat.apply(xyz)
+    out = cat @ xyz
     print(list(out))
     assert np.all(np.abs(out - ref) < 1.0e-13 * out)
 
@@ -40,13 +40,13 @@ def test_reference():
     # CMC 2000 Chromatic Adaptation Transform: CMCCAT2000
     # Changjun Li, M. Ronnier Luo,* Bryan Rigg, Robert W. G. Hunt
     #
-    cat = colorio.cat.CMCCAT2000(
-        whitepoint_test=[111.15, 100.00, 35.20],
-        whitepoint_reference=[94.81, 100.00, 107.30],
+    cat, _ = colorio.cat.cmccat2000(
+        [111.15, 100.00, 35.20],
+        [94.81, 100.00, 107.30],
         F=1.0,
         L_A1=200.0,
         L_A2=200.0,
     )
-    out = cat.apply([22.48, 22.74, 8.54])
+    out = cat @ [22.48, 22.74, 8.54]
 
     assert np.all(out.round(2) == [19.53, 23.07, 24.97])

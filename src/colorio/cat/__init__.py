@@ -1,6 +1,6 @@
-from .cat02 import CAT02
-from .cat16 import CAT16
-from .cmccat2000 import CMCCAT2000
-from .von_kries import VonKries
+from .cat02 import cat02
+from .cat16 import cat16
+from .cmccat2000 import cmccat2000
+from .von_kries import von_kries
 
-__all__ = ["VonKries", "CMCCAT2000", "CAT02", "CAT16"]
+__all__ = ["cat02", "cat16", "cmccat2000", "von_kries"]

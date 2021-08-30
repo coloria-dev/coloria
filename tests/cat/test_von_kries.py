@@ -16,11 +16,11 @@ import colorio
     ],
 )
 def test_von_kries(xyz, ref):
-    cat = colorio.cat.VonKries(
-        whitepoint_test=colorio.illuminants.whitepoints_cie1931["D65"],
-        whitepoint_reference=colorio.illuminants.whitepoints_cie1964["C"],
+    cat, _ = colorio.cat.von_kries(
+        colorio.illuminants.whitepoints_cie1931["D65"],
+        colorio.illuminants.whitepoints_cie1964["C"],
     )
-    out = cat.apply(xyz)
+    out = cat @ xyz
 
     print(list(out))
     assert np.all(np.abs(out - ref) < 1.0e-13 * out)

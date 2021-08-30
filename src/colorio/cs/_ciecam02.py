@@ -3,7 +3,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from .._exceptions import ColorioError
-from ..cat import CAT02
+from ..cat import cat02
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
 
@@ -277,12 +277,14 @@ class CIECAM02:
         self.c = c
         self.N_c = F
 
-        self.cat02 = CAT02(
-            F,
-            L_A,
-            whitepoint_test=whitepoint,
-            whitepoint_reference=[100.0, 100.0, 100.0],
+        self.M, self.Minv = cat02(
+            whitepoint_source=whitepoint,
+            whitepoint_target=[100.0, 100.0, 100.0],
+            F=F,
+            L_A=L_A,
         )
+        self.M = M_hpe @ self.M
+        self.Minv = self.Minv @ np.linalg.inv(M_hpe)
 
         k = 1 / (5 * L_A + 1)
         k4 = k ** 4
@@ -294,7 +296,7 @@ class CIECAM02:
         self.N_bb = 0.725 / self.n ** 0.2
         self.N_cb = self.N_bb
 
-        RGB_w_ = M_hpe @ self.cat02.apply(whitepoint)
+        RGB_w_ = self.M @ whitepoint
 
         alpha = (self.F_L * RGB_w_ / 100) ** 0.42
         RGB_aw_ = 400 * alpha / (alpha + 27.13)
@@ -303,8 +305,6 @@ class CIECAM02:
         self.h = np.array([20.14, 90.00, 164.25, 237.53, 380.14])
         self.e = np.array([0.8, 0.7, 1.0, 1.2, 0.8])
         self.H = np.array([0.0, 100.0, 200.0, 300.0, 400.0])
-
-        self.M_hpe_inv = np.linalg.inv(M_hpe)
 
     def from_xyz100(self, xyz):
         # Step 1: Calculate (sharpened) cone responses (transfer
@@ -318,7 +318,7 @@ class CIECAM02:
 
         # cat02: Illuminant color adaptation
 
-        rgb_ = npx.dot(M_hpe, self.cat02.apply(xyz))
+        rgb_ = npx.dot(self.M, xyz)
 
         # Steps 4-10
         return compute_from(rgb_, self)
@@ -336,7 +336,7 @@ class CIECAM02:
         #
         # Step 8: Calculate X, Y and Z
         # xyz = solve(M_cat02, rgb)
-        return self.cat02.apply_inv(npx.dot(self.M_hpe_inv, rgb_))
+        return npx.dot(self.Minv, rgb_)
 
 
 class CAM02(ColorSpace):

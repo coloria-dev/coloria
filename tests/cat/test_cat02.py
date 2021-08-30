@@ -19,12 +19,12 @@ import colorio
     ],
 )
 def test_reference_value(xyz, ref):
-    cat = colorio.cat.CAT02(
-        whitepoint_test=colorio.illuminants.whitepoints_cie1931["D65"],
-        whitepoint_reference=colorio.illuminants.whitepoints_cie1964["C"],
+    cat, _ = colorio.cat.cat02(
+        colorio.illuminants.whitepoints_cie1931["D65"],
+        colorio.illuminants.whitepoints_cie1964["C"],
         F=1.0,
         L_A=20.0,
     )
-    out = cat.apply(xyz)
+    out = cat @ xyz
     print(list(out))
     assert np.all(np.abs(out - ref) < 1.0e-13 * out)

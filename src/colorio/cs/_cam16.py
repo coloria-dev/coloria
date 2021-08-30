@@ -1,7 +1,8 @@
+import npx
 import numpy as np
 from numpy.typing import ArrayLike
 
-from ..cat import CAT16
+from ..cat import cat16
 from ..illuminants import whitepoints_cie1931
 from ._ciecam02 import compute_from, compute_to
 from ._color_space import ColorSpace
@@ -38,17 +39,16 @@ class CAM16:
         self.c = c
         self.N_c = F
 
-        whitepoint_reference = [100.0, 100.0, 100.0]
-        self.cat16 = CAT16(
+        self.M, self.Minv = cat16(
             whitepoint,
-            whitepoint_reference,
-            F,
-            L_A,
+            whitepoint_target=[100.0, 100.0, 100.0],
+            F=F,
+            L_A=L_A,
             # Skip transformation back in to XYZ space because the the lightness
             # adaptation also happens in the transformed space. The fact that chromic
             # and lightness adaption can happen in the same space is one of the main
             # claims of CAM16.
-            back_transform=False,
+            include_back_transform=False,
         )
 
         k = 1 / (5 * L_A + 1)
@@ -61,7 +61,7 @@ class CAM16:
         self.N_bb = 0.725 / self.n ** 0.2
         self.N_cb = self.N_bb
 
-        RGB_wc = self.cat16.apply(whitepoint)
+        RGB_wc = self.M @ whitepoint
 
         alpha = (self.F_L * RGB_wc / 100) ** 0.42
         RGB_aw_ = np.array(
@@ -79,7 +79,7 @@ class CAM16:
         # Step 2: Complete the color adaptation of the illuminant in
         #         the corresponding cone response space
         # rgb_c = (rgb.T * self.D_RGB).T
-        rgb_c = self.cat16.apply(xyz)
+        rgb_c = npx.dot(self.M, xyz)
         return compute_from(rgb_c, self)
 
     def to_xyz100(self, data, description):
@@ -89,7 +89,7 @@ class CAM16:
         # rgb = (rgb_c.T / self.D_RGB).T
         # Step 7: Calculate X, Y and Z
         # xyz = self.solve_M16(rgb)
-        return self.cat16.apply_inv(rgb_c)
+        return npx.dot(self.Minv, rgb_c)
 
 
 class CAM16UCS(ColorSpace):
