@@ -17,11 +17,11 @@ def _von_kries_type(
 
     rgb_rw = M @ whitepoint_target
     rgb_w = M @ whitepoint_source
-    abc = rgb_rw / rgb_w
+    d = rgb_rw / rgb_w
 
-    M = np.linalg.solve(M, (M.T * abc).T)
-    Minv = np.linalg.solve(M, (M.T / abc).T)
-    return M, Minv
+    A = np.linalg.solve(M, (M.T * d).T)
+    Ainv = np.linalg.solve(M, (M.T / d).T)
+    return A, Ainv
 
 
 def von_kries(whitepoint_source: ArrayLike, whitepoint_target: ArrayLike):
