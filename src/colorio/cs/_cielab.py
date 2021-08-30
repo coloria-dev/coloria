@@ -1,3 +1,6 @@
+"""
+https://en.wikipedia.org/wiki/Lab_color_space
+"""
 import npx
 import numpy as np
 from numpy.typing import ArrayLike

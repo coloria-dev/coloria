@@ -1,3 +1,8 @@
+"""
+xyY colorspace.
+
+https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space
+"""
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -6,8 +11,6 @@ from ._color_space import ColorSpace
 
 
 class XYY(ColorSpace):
-    """xyY colorspace with Y scaled from 0 to 1."""
-
     name = "xyY"
     labels = ("x", "y", "Y")
     k0 = 2

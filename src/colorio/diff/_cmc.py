@@ -1,3 +1,6 @@
+"""
+https://en.wikipedia.org/wiki/Color_difference#CMC_l:c_(1984)
+"""
 import numpy as np
 from numpy.typing import ArrayLike
 

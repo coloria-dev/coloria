@@ -1,3 +1,8 @@
+"""
+SRLAB2 is an alternative to CIELAB. It simply replaces the white-point adjustment with
+the more modern CIECAM02 variant. See <https://www.magnetkern.de/srlab2.html> for
+details.
+"""
 import npx
 import numpy as np
 from numpy.typing import ArrayLike
@@ -10,12 +15,6 @@ from ._color_space import ColorSpace
 
 
 class SRLAB2(ColorSpace):
-    """
-    SRLAB2 is an alternative to CIELAB. It simply replaces the white-point adjustment
-    with the more modern CIECAM02 variant. See <https://www.magnetkern.de/srlab2.html>
-    for details.
-    """
-
     name = "SRLAB2"
     labels = ("L", "a", "b")
     k0 = 0

@@ -1,3 +1,6 @@
+"""
+https://en.wikipedia.org/wiki/CIECAM02
+"""
 import npx
 import numpy as np
 from numpy.typing import ArrayLike

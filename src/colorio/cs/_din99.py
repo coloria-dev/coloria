@@ -1,3 +1,6 @@
+"""
+https://de.wikipedia.org/wiki/DIN99-Farbraum
+"""
 from typing import Optional
 
 import numpy as np

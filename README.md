@@ -42,18 +42,18 @@ colorspace.to_rgb255(vals)
 
 The following color spaces are implemented:
 
-- [XYZ](https://en.wikipedia.org/wiki/CIE_1931_color_space) (`colorio.cs.XYZ(100)`, the
+- [XYZ](src/colorio/cs/_xyz.py) (`colorio.cs.XYZ(100)`, the
   parameter determining the scaling)
-- [xyY](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space)
+- [xyY](src/colorio/cs/_xyy.py)
   (`colorio.cs.XYY(100)`, the paramter determining the scaling of `Y`)
-- [Linear sRGB](https://en.wikipedia.org/wiki/SRGB) (`colorio.SrgbLinear()`)
+- [Linear sRGB](src/colorio/cs/_srgb.py) (`colorio.SrgbLinear()`)
   This class has the two additional methods
   ```
   from_rgb1()
   to_rgb1()
   ```
   for conversion from and to standard RGB.
-- [HSL and HSV](https://en.wikipedia.org/wiki/HSL_and_HSV) (`colorio.cs.HSL()`,
+- [HSL](src/colorio/cs/_hsl.py) and [HSV](src/colorio/cs/_hsv.py) (`colorio.cs.HSL()`,
   `colorio.cs.HSV()`)
   These classes have the two methods
   ```
@@ -61,17 +61,14 @@ The following color spaces are implemented:
   to_srgb1()
   ```
   for conversion from and to standard RGB.
-- [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS) (`colorio.cs.OsaUcs()`)
-- [CIELAB](https://en.wikipedia.org/wiki/Lab_color_space) (`colorio.cs.CIELAB()`)
-- [CIELUV](https://en.wikipedia.org/wiki/CIELUV) (`colorio.cs.CIELUV()`)
-- [RLAB](<https://doi.org/10.1002/(SICI)1520-6378(199610)21:5<338::AID-COL3>3.0.CO;2-Z>)
-  (`colorio.cs.RLAB()`)
-- [DIN99](https://de.wikipedia.org/wiki/DIN99-Farbraum) and its variants DIN99{b,c,d}
-  (`colorio.cs.DIN99()`)
-- [ICtCp](https://en.wikipedia.org/wiki/ICtCp) (`colorio.cs.ICtCp()`)
-- [IPT](https://www.ingentaconnect.com/content/ist/cic/1998/00001998/00000001/art00003)
-  (`colorio.cs.IPT()`)
-- [CIECAM02 / CAM02-UCS](https://en.wikipedia.org/wiki/CIECAM02)
+- [OSA-UCS](src/colorio/cs/_osa_ucs.py) (`colorio.cs.OsaUcs()`)
+- [CIELAB](src/colorio/cs/_cielab.py) (`colorio.cs.CIELAB()`)
+- [CIELUV](src/colorio/cs/_cieluv.py) (`colorio.cs.CIELUV()`)
+- [RLAB](src/colorio/cs/_rlab.py) (`colorio.cs.RLAB()`)
+- [DIN99](src/colorio/cs/_din99.py) and its variants DIN99{b,c,d} (`colorio.cs.DIN99()`)
+- [ICtCp](src/colorio/cs/_ictcp.py) (`colorio.cs.ICtCp()`)
+- [IPT](src/colorio/cs/_ipt.py) (`colorio.cs.IPT()`)
+- [CIECAM02 / CAM02-UCS](src/colorio/cs/_ciecam02.py)
 
   ```python
   import math
@@ -84,7 +81,7 @@ The following color spaces are implemented:
   The implementation contains a few improvements over the CIECAM02 specification (see
   [here](https://arxiv.org/abs/1802.06067)).
 
-- [CAM16 / CAM16-UCS](https://doi.org/10.1002/col.22131)
+- [CAM16 / CAM16-UCS](src/colorio/cs/_cam16.py)
 
   ```python
   import math
@@ -99,9 +96,9 @@ The following color spaces are implemented:
 
 - [J<sub>z</sub>a<sub>z</sub>b<sub>z</sub>](https://doi.org/10.1364/OE.25.015131)
   (`colorio.cs.JzAzBz()`)
-- [Oklab](https://bottosson.github.io/posts/oklab/)(`colorio.cs.OKLAB()`)
-- [proLab](https://arxiv.org/abs/2012.07653)(`colorio.cs.PROLAB()`)
-- [SRLAB2](https://www.magnetkern.de/srlab2.html)(`colorio.cs.SRLAB2()`)
+- [Oklab](src/colorio/cs/_oklab.py) (`colorio.cs.OKLAB()`)
+- [proLab](src/colorio/cs/_prolab.py) (`colorio.cs.PROLAB()`)
+- [SRLAB2](src/colorio/cs/_srlab2.py) (`colorio.cs.SRLAB2()`)
 
 All methods in colorio are fully vectorized, i.e., computation is _really_ fast.
 
@@ -109,22 +106,22 @@ All methods in colorio are fully vectorized, i.e., computation is _really_ fast.
 
 colorio implements the following color difference formulas:
 
-- [CIE76](https://en.wikipedia.org/wiki/Color_difference#CIE76)
+- [CIE76](src/colorio/diff/_cie76.py)
   <!--pytest-codeblocks:skip-->
   ```python
   colorio.diff.cie76(lab1, lab2)
   ```
-- [CIE94](https://en.wikipedia.org/wiki/Color_difference#CIE94)
+- [CIE94](src/colorio/diff/_cie94.py)
   <!--pytest-codeblocks:skip-->
   ```python
   colorio.diff.cie94(lab1, lab2)
   ```
-- [CIEDE2000](https://en.wikipedia.org/wiki/Color_difference#CIEDE2000)
+- [CIEDE2000](src/colorio/diff/_ciede2000.py)
   <!--pytest-codeblocks:skip-->
   ```python
   colorio.diff.ciede2000(lab1, lab2)
   ```
-- [CMC l:c](<https://en.wikipedia.org/wiki/Color_difference#CMC_l:c_(1984)>)
+- [CMC l:c](src/colorio/diff/_cmc.py)
   <!--pytest-codeblocks:skip-->
   ```python
   colorio.diff.cmc(lab1, lab2)
@@ -140,27 +137,12 @@ colorio implements the following CATs:
   cat, cat_inv = colorio.cat.von_kries(whitepoint_source, whitepoint_destination)
   xyz1 = cat @ xyz0
   ```
-- [CMCCAT2000](src/colorio/cat/cmccat2000.py)
-  <!--pytest-codeblocks:skip-->
-  ```python
-  cat, cat_inv = colorio.cat.cmccat2000(
-      whitepoint_source, whitepoint_destination, F, L_A1, L_A2
-  )
-  xyz1 = cat @ xyz0
-  ```
-- [CAT02](src/colorio/cat/cat02.py)
-  <!--pytest-codeblocks:skip-->
-  ```python
-  cat, cat_inv = colorio.cat.cat02(whitepoint_source, whitepoint_destination, F, L_A)
-  xyz1 = cat @ xyz0
-  ```
-- [CAT16](src/colorio/cat/cat16.py)
-  <!--pytest-codeblocks:skip-->
-  ```python
-  cat, cat_inv = colorio.cat.cat16(whitepoint_source, whitepoint_destination, F, L_A)
-  xyz1 = cat @ xyz0
-  ```
-
+- [Bradford](src/colorio/cat/bradford.py) (`colorio.cat.bradford`)
+- [sharp](src/colorio/cat/sharp.py) (`colorio.cat.sharp`)
+- [CMCCAT2000](src/colorio/cat/cmccat2000.py) (`colorio.cat.cmccat2000`)
+- [CAT02](src/colorio/cat/cat02.py) (`colorio.cat.cat02`)
+- [CAT16](src/colorio/cat/cat16.py) (`colorio.cat.cat16`)
+- [Bianco-Schettini](src/colorio/cat/bianco_schettini.py) (`colorio.cat.bianco_schettini`)
 
 ### Gamut visualization
 
@@ -168,9 +150,9 @@ colorio provides a number of useful tools for analyzing and visualizing color sp
 
 #### sRGB gamut
 
-|                                         CIELAB                                         |                                       CAM16-UCS                                       |                                         Oklab                                         |
-| :------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: |
-|    <img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="100%">    |    <img src="https://nschloe.github.io/colorio/srgb-gamut-cam16.png" width="100%">    |    <img src="https://nschloe.github.io/colorio/srgb-gamut-oklab.png" width="100%">    |
+|                                         CIELAB                                         |                                        CAM16-UCS                                         |                                         Oklab                                         |
+| :------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: |
+|    <img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="100%">    |     <img src="https://nschloe.github.io/colorio/srgb-gamut-cam16.png" width="100%">      |    <img src="https://nschloe.github.io/colorio/srgb-gamut-oklab.png" width="100%">    |
 | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cam16ucs.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-oklab.png" width="100%"> |
 
 The sRGB gamut is a perfect cube in sRGB space, and takes curious shapes when translated
@@ -300,8 +282,8 @@ certain properties of color spaces. Most data sets can also be visualized.
 #### Color differences
 
 | <img src="https://nschloe.github.io/colorio/macadam1974-xyy1.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1974-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/macadam1974-cam16ucs.svg" width="100%"> |
-| :----------------------------------------------------------------------------: | :-------------------------------------------------------------------------------: | :------------------------------------------------------------------------------: |
-|                                      xyY                                       |                                      CIELAB                                       |                                      CAM16                                       |
+| :-----------------------------------------------------------------------------: | :-------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------: |
+|                                       xyY                                       |                                      CIELAB                                       |                                        CAM16                                        |
 
 Color difference data from [MacAdam (1974)](https://doi.org/10.1364/JOSA.64.001691). The
 above plots show the 43 color pairs that are of comparable lightness. The data is
@@ -334,12 +316,11 @@ colorio.data.Witt()
 colorio.data.COMBVD()  # a weighted combination of the above
 ```
 
-
 #### Munsell
 
 | <img src="https://nschloe.github.io/colorio/munsell-xyy1.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/munsell-cam16ucs.svg" width="100%"> |
-| :------------------------------------------------------------------------: | :---------------------------------------------------------------------------: | :--------------------------------------------------------------------------: |
-|                                    xyY                                     |                                    CIELAB                                     |                                    CAM16                                     |
+| :-------------------------------------------------------------------------: | :---------------------------------------------------------------------------: | :-----------------------------------------------------------------------------: |
+|                                     xyY                                     |                                    CIELAB                                     |                                      CAM16                                      |
 
 [Munsell color data](https://www.rit.edu/cos/colorscience/rc_munsell_renotation.php) is
 visualized with
@@ -390,8 +371,8 @@ the same size.
 ##### Luo-Rigg ellipses
 
 | <img src="https://nschloe.github.io/colorio/luo-rigg-xyy.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/luo-rigg-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/luo-rigg-cam16ucs.svg" width="100%"> |
-| :-------------------------------------------------------------------------: | :----------------------------------------------------------------------------: | :---------------------------------------------------------------------------: |
-|                                     xyY                                     |                                     CIELAB                                     |                                     CAM16                                     |
+| :-------------------------------------------------------------------------: | :----------------------------------------------------------------------------: | :------------------------------------------------------------------------------: |
+|                                     xyY                                     |                                     CIELAB                                     |                                      CAM16                                       |
 
 Likewise for [Luo-Rigg](https://doi.org/10.1002/col.5080110107).
 
@@ -412,8 +393,8 @@ plt.show()
 ##### Ebner-Fairchild
 
 | <img src="https://nschloe.github.io/colorio/ebner-fairchild-xyy1.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/ebner-fairchild-cielab.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/ebner-fairchild-cam16ucs.svg" width="100%"> |
-| :--------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------: |
-|                                        xyY                                         |                                        CIELAB                                         |                                        CAM16                                         |
+| :---------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------: |
+|                                         xyY                                         |                                        CIELAB                                         |                                          CAM16                                          |
 
 For example
 

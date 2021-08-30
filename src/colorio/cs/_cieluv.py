@@ -1,3 +1,6 @@
+"""
+https://en.wikipedia.org/wiki/CIELUV
+"""
 import numpy as np
 from numpy.typing import ArrayLike
 
