@@ -2,8 +2,9 @@ import npx
 import numpy as np
 from numpy.typing import ArrayLike
 
+from ..cat.cat02 import M_cat02
 from ..illuminants import whitepoints_cie1931
-from ._ciecam02 import M_cat02, M_hpe
+from ._ciecam02 import M_hpe
 from ._cielab import A, f, finv
 from ._color_space import ColorSpace
 

@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/nschloe/colorio"><img alt="colorio" src="https://nschloe.github.io/colorio/colorio-logo.svg" width="60%"></a>
-  <p align="center">Tools for color models.</p>
+  <p align="center">Tools for color research.</p>
 </p>
 
 [![PyPi Version](https://img.shields.io/pypi/v/colorio.svg?style=flat-square)](https://pypi.org/project/colorio/)
@@ -129,6 +129,38 @@ colorio implements the following color difference formulas:
   ```python
   colorio.diff.cmc(lab1, lab2)
   ```
+
+### Chromatic adaptation transforms
+
+colorio implements the following CATs:
+
+- [von Kries](src/colorio/cat/von_kries.py)
+  <!--pytest-codeblocks:skip-->
+  ```python
+  cat, cat_inv = colorio.cat.von_kries(whitepoint_source, whitepoint_destination)
+  xyz1 = cat @ xyz0
+  ```
+- [CMCCAT2000](src/colorio/cat/cmccat2000.py)
+  <!--pytest-codeblocks:skip-->
+  ```python
+  cat, cat_inv = colorio.cat.cmccat2000(
+      whitepoint_source, whitepoint_destination, F, L_A1, L_A2
+  )
+  xyz1 = cat @ xyz0
+  ```
+- [CAT02](src/colorio/cat/cat02.py)
+  <!--pytest-codeblocks:skip-->
+  ```python
+  cat, cat_inv = colorio.cat.cat02(whitepoint_source, whitepoint_destination, F, L_A)
+  xyz1 = cat @ xyz0
+  ```
+- [CAT16](src/colorio/cat/cat16.py)
+  <!--pytest-codeblocks:skip-->
+  ```python
+  cat, cat_inv = colorio.cat.cat16(whitepoint_source, whitepoint_destination, F, L_A)
+  xyz1 = cat @ xyz0
+  ```
+
 
 ### Gamut visualization
 

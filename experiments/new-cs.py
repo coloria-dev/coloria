@@ -840,7 +840,7 @@ def _main():
 
         print()
         print(f"n = {n}")
-        print("num parameters: {}".format(len(problem.alpha)))
+        print(f"num parameters: {len(problem.alpha)}")
 
         alpha0 = problem.alpha.copy()
 

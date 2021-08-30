@@ -91,7 +91,7 @@ class Munsell:
         for k in range(1, 10):
             idx = self.V == k
             y_vals.append(self.xyz100[1, idx][0])
-            avg2 = np.sqrt(np.mean((L_[idx] ** 2)))
+            avg2 = np.sqrt(np.mean(L_[idx] ** 2))
             # avg2 = np.mean(L_[idx])
             l_avg2.append(avg2)
             l_err0.append(avg2 - np.min(L_[idx]))

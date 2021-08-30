@@ -159,7 +159,7 @@ def a(interval=1.0e-9):
     return lmbda, vals
 
 
-def d(nominal_temperature):
+def d(nominal_temperature: float):
     """CIE D-series illuminants.
 
     The technical report `Colorimetry, 3rd edition, 2004` gives the data for D50, D55,
@@ -200,10 +200,10 @@ def d(nominal_temperature):
     this_dir = pathlib.Path(__file__).resolve().parent
     with open(this_dir / "data/illuminants/d.json") as f:
         data = json.load(f)
-    data = np.array(data).T
 
-    lmbda = data[0]
-    s = data[1:]
+    print(data)
+    lmbda = np.linspace(*data["lambda"], data["num"])
+    s = np.asarray(data["s"])
 
     return lmbda, s[0] + m1 * s[1] + m2 * s[2]
 
@@ -241,4 +241,4 @@ def f2():
     this_dir = pathlib.Path(__file__).resolve().parent
     with open(this_dir / "data/illuminants/f2.json") as f:
         data = json.load(f)
-    return np.array(data["lambda"]), np.array(data["values"])
+    return np.linspace(*data["lambda"], data["num"]), np.array(data["values"])
