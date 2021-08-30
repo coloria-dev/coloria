@@ -11,7 +11,7 @@ wp2 = colorio.illuminants.whitepoints_cie1964["C"]
 
 transforms = [
     (colorio.cat.von_kries(wp1, wp2), 1.0e-13),
-    (colorio.cat.bfd(wp1, wp2), 1.0e-13),
+    (colorio.cat.bradford(wp1, wp2), 1.0e-13),
     (colorio.cat.sharp(wp1, wp2), 1.0e-13),
     (colorio.cat.cmccat2000(wp1, wp2, 1.0, 20.0, 30.0), 1.0e-13),
     (colorio.cat.cat02(wp1, wp2, 1.0, 20.0), 1.0e-13),

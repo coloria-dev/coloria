@@ -16,7 +16,7 @@ import colorio
     ],
 )
 def test_bfd(xyz, ref):
-    cat, _ = colorio.cat.bfd(
+    cat, _ = colorio.cat.bradford(
         colorio.illuminants.whitepoints_cie1931["D65"],
         colorio.illuminants.whitepoints_cie1964["C"],
     )
