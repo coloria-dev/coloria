@@ -239,11 +239,13 @@ def d(nominal_temperature: float):
     with open(this_dir / "data/illuminants/d.json") as f:
         data = json.load(f)
 
+    lmbda_start, lmbda_end, lmbda_step = data["lambda_nm"]
+    lmbda = np.arange(lmbda_start, lmbda_end + 1, lmbda_step)
     s = np.asarray(data["s"])
 
     return SpectralData(
-        "D" + str(nominal_temperature)[:2],
-        *data["lambda_nm"],
+        "Illuminant D" + str(nominal_temperature)[:2],
+        lmbda,
         s[0] + m1 * s[1] + m2 * s[2],
     )
 
@@ -272,9 +274,7 @@ def e():
     """This is a hypothetical reference radiator. All wavelengths in CIE illuminant E
     are weighted equally with a relative spectral power of 100.0.
     """
-    lmbda = 1.0e-9 * np.arange(300, 831)
-    data = np.full(lmbda.shape, 100.0)
-    return lmbda, data
+    return SpectralData("Illuminant E", np.arange(300, 831), np.full(530, 100.0))
 
 
 def f2():
