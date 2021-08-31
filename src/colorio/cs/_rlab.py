@@ -46,50 +46,60 @@ class RLAB(ColorSpace):
         # RLAB first converts a tristimulus value XYZ into a tristimulus value under the
         # reference illuminant D65.
 
-        # M_HPE, normalized to D65:
-        # M_HPE, normalized to equal-energy illuminant,
         # <https://en.wikipedia.org/wiki/LMS_color_space#Hunt,_RLAB>.
-        self.M = np.array(
+        # M_HPE, normalized to equal-energy illuminant:
+        M = np.array(
             [[0.3897, 0.6890, -0.0787], [-0.2298, 1.1834, 0.0464], [0.0, 0.0, 1.0]]
         )
 
-        lms_n = self.M @ whitepoint
+        self.whitepoint = np.asarray(whitepoint)
+
+        lms_n = M @ self.whitepoint
         lms_e = 3.0 * lms_n / np.sum(lms_n)
         Yn3 = Y_n ** (1 / 3)
         p_lms = (1.0 + Yn3 + lms_e) / (1.0 + Yn3 + 1.0 / lms_e)
-        self.a_lms = (p_lms + D * (1 - p_lms)) / lms_n
+        a_lms = (p_lms + D * (1 - p_lms)) / lms_n
 
-        # reference stimul
+        # reference stimulus
         # The matrix R below can be computed explicitly with
         #
         #   wp = whitepoints_cie1931["D65"]
         #   Y_n = 318.0
         #   D = 0.0
         #   #
-        #   lms_n = self.M @ wp
+        #   lms_n = M @ wp
         #   lms_e = 3 * lms_n / np.sum(lms_n)
         #   Yn3 = Y_n ** (1 / 3)
         #   p_lms = (1 + Yn3 + lms_e) / (1 + Yn3 + 1 / lms_e)
         #   a_lms = (p_lms + D * (1 - p_lms)) / lms_n
-        #   self.R = np.diag(1 / wp) @ np.linalg.inv(M) @ np.diag(1 / a_lms)
-        #
-        # with M being the D65-normalized Hunt-Pointer-Estevez matrix.
-        #
-        # self.M = np.array([
-        #     [0.4002, 0.7076, -0.0808],
-        #     [-0.2263, 1.1653, 0.0457],
-        #     [0.0, 0.0, 0.9182]
-        # ]).
+        #   # D65-normalized Hunt-Pointer-Estevez matrix:
+        #   M = np.array([
+        #       [0.4002, 0.7076, -0.0808],
+        #       [-0.2263, 1.1653, 0.0457],
+        #       [0.0, 0.0, 0.9182]
+        #   ])
+        #   R = np.diag(1 / wp) @ np.linalg.inv(M) @ np.diag(1 / a_lms)
         #
         # In the remainder of model, however, one uses the equal-energy normalized
-        # matrixi. This seems to be a mistake in the model.
-        # TODO self.M looks like it already is the inverse of another matrix given to
+        # matrix. This seems to be a mistake in the model.
+        # TODO M looks like it already is the inverse of another matrix given to
         # some digits. Find out which.
-        self.R = np.array(
-            [[1.9569, -1.1882, 0.2313], [0.3612, 0.6388, 0.0], [0.0, 0.0, 1.0]]
+        S = np.array(
+            [
+                [1.03565229, -0.05781178, 0.02215949],
+                [-0.0060366, 1.00482272, 0.00121388],
+                [0.0, 0.0, 1.0],
+            ]
         )
+        # R = np.array(
+        #     [[1.9569, -1.1882, 0.2313], [0.3612, 0.6388, 0.0], [0.0, 0.0, 1.0]]
+        # )
+        # R = S @ np.linalg.inv(M)
 
         self.sigma = sigma
+
+        self.A = S @ np.linalg.solve(M, (a_lms * M.T).T)
+        self.Ainv = np.linalg.solve(M, ((M @ np.linalg.inv(S)).T / a_lms).T)
 
     # Y_n is the absolute luminance of the adapting stimulus (typically a stimulus that
     # appears white in the image) in cd/m2 (=nit). Most laptop displays have a
@@ -106,14 +116,13 @@ class RLAB(ColorSpace):
     def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         # First, the stimuli xyz are translated into reference stimuli xyz_ref to
         # account for the environment adaptation of the human visual system.
-        lms_dash = (self.a_lms * npx.dot(self.M, xyz).T).T
-        xyz_ref = npx.dot(self.R, lms_dash)
+        xyz_ref = npx.dot(self.A, xyz)
 
         x_ref_s, y_ref_s, z_ref_s = xyz_ref ** self.sigma
 
-        # LR represents an achromatic response analogous to CIELAB L*. The redgreen
-        # chromatic response is given by a R (analogous to CIELAB a*) and the
-        # yellow–blue chromatic response is given by bR (analogous to CIELAB b*).
+        # LR represents an achromatic response analogous to CIELAB L*. The red-green
+        # chromatic response is given by a_R (analogous to CIELAB a*) and the
+        # yellow–blue chromatic response is given by b_R (analogous to CIELAB b*).
         L_R = 100 * y_ref_s
         a_R = 430 * (x_ref_s - y_ref_s)
         b_R = 170 * (y_ref_s - z_ref_s)
@@ -128,4 +137,4 @@ class RLAB(ColorSpace):
         z_ref_s = y_ref_s - b_R / 170
 
         xyz_ref = np.array([x_ref_s, y_ref_s, z_ref_s]) ** (1.0 / self.sigma)
-        return npx.solve(self.M, (npx.solve(self.R, xyz_ref).T / self.a_lms).T)
+        return npx.dot(self.Ainv, xyz_ref)
