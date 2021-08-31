@@ -14,6 +14,9 @@ whitepoints_cie1931 = {
     "D55": np.array([95.682, 100, 92.149]),
     "D65": np.array([95.047, 100, 108.883]),
     "D75": np.array([94.972, 100, 122.638]),
+    "F2": np.array([99.186, 100, 67.393]),
+    "F7": np.array([95.041, 100, 108.747]),
+    "F11": np.array([100.962, 100, 64.350]),
 }
 
 # The "supplementary" 10 degree observer (CIE 1964). From
@@ -25,6 +28,9 @@ whitepoints_cie1964 = {
     "D55": np.array([95.799, 100, 90.926]),
     "D65": np.array([94.811, 100, 107.304]),
     "D75": np.array([94.416, 100, 120.641]),
+    "F2": np.array([103.279, 100, 69.027]),
+    "F7": np.array([95.792, 100, 107.686]),
+    "F11": np.array([103.863, 100, 65.607]),
 }
 
 
@@ -94,7 +100,7 @@ def spectrum_to_xyz100(spectrum, observer):
     #   4) a Sprague interpolation (see Seve, 2003).
     # ```
     # Well, don't do that but simply use linear interpolation now. We only use the
-    # midpoint rule for integration anyways.
+    # midpoint rule for integration anyway.
     idata_s = np.interp(lmbda, lambda_s, data_s)
 
     # step sizes
