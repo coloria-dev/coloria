@@ -3,7 +3,7 @@ import pathlib
 
 import numpy as np
 
-from . import observers
+from ._helpers import SpectralData
 
 # The "standard" 2 degree observer (CIE 1931). From
 # <https://github.com/njsmith/colorspacious/blob/master/colorspacious/illuminants.py>
@@ -34,7 +34,7 @@ whitepoints_cie1964 = {
 }
 
 
-def spectrum_to_xyz100(spectrum, observer):
+def spectrum_to_xyz100(spectrum: SpectralData, observer: SpectralData):
     """Computes the tristimulus values XYZ from a given spectrum for a given observer
     via
 
@@ -74,11 +74,25 @@ def spectrum_to_xyz100(spectrum, observer):
     Note that any constant factor (like delta_lambda) gets canceled out in x and y (of
     xyY), so being careless might not be punished in all applications.
     """
+    print(observer)
     lambda_o, data_o = observer
     lambda_s, data_s = spectrum
+    print()
+    print(lambda_s.shape, data_s.shape)
+    print(lambda_o.shape, data_o.shape)
+
+    print()
+    print("lambda_s")
+    print(lambda_s)
+    print()
+    print("lambda_o")
+    print(lambda_o)
 
     # form the union of lambdas
     lmbda = np.sort(np.unique(np.concatenate([lambda_o, lambda_s])))
+    print()
+    print("lmbda")
+    print(lmbda)
 
     # The technical document prescribes that the integration be performed over
     # the wavelength range corresponding to the entire visible spectrum, 360 nm
@@ -104,18 +118,36 @@ def spectrum_to_xyz100(spectrum, observer):
     idata_s = np.interp(lmbda, lambda_s, data_s)
 
     # step sizes
-    delta = np.zeros(len(lmbda))
-    diff = lmbda[1:] - lmbda[:-1]
-    delta[1:] += diff
-    delta[:-1] += diff
-    delta /= 2
+    # delta = np.zeros(len(lmbda))
+    # diff = lmbda[1:] - lmbda[:-1]
+    # delta[1:] += diff
+    # delta[:-1] += diff
+    # delta /= 2
+
+    delta = lmbda[1] - lmbda[0]
+    print()
+    print(delta)
+    print()
+
+    print(lmbda.shape)
+
+    k = 100 / np.sum(data_s[1] * data_o[1]) / delta
+    print()
+    print(k)
+
+    # X = k * np.sum(data_s * data_o[0]) * delta
+    # Y = k * np.sum(data_s * data_o[1]) * delta
+    # Z = k * np.sum(data_s * data_o[2]) * delta
+
+    # print(X)
+    # exit(1)
 
     values = np.dot(idata_o, idata_s * delta)
 
     return values * 100
 
 
-def white_point(illuminant, observer=observers.cie_1931_2()):
+def white_point(illuminant, observer: SpectralData):
     """From <https://en.wikipedia.org/wiki/White_point>:
     The white point of an illuminant is the chromaticity of a white object under the
     illuminant.
@@ -207,10 +239,13 @@ def d(nominal_temperature: float):
     with open(this_dir / "data/illuminants/d.json") as f:
         data = json.load(f)
 
-    lmbda = np.linspace(*data["lambda"], data["num"])
     s = np.asarray(data["s"])
 
-    return lmbda, s[0] + m1 * s[1] + m2 * s[2]
+    return SpectralData(
+        "D" + str(nominal_temperature)[:2],
+        *data["lambda_nm"],
+        s[0] + m1 * s[1] + m2 * s[2],
+    )
 
 
 def d50():
