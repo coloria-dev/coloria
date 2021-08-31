@@ -247,3 +247,17 @@ def f2():
     with open(this_dir / "data/illuminants/f2.json") as f:
         data = json.load(f)
     return np.linspace(*data["lambda"], data["num"]), np.array(data["values"])
+
+
+def f7():
+    this_dir = pathlib.Path(__file__).resolve().parent
+    with open(this_dir / "data/illuminants/f7.json") as f:
+        data = json.load(f)
+    return np.linspace(*data["lambda"], data["num"]), np.array(data["values"])
+
+
+def f11():
+    this_dir = pathlib.Path(__file__).resolve().parent
+    with open(this_dir / "data/illuminants/f11.json") as f:
+        data = json.load(f)
+    return np.linspace(*data["lambda"], data["num"]), np.array(data["values"])
