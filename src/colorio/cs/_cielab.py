@@ -31,8 +31,20 @@ def finv(t):
 # https://gist.github.com/nschloe/ad1d288917a140978f7db6c401cb7f17
 # for a speed comparison. None is really faster, but the matrix-approach is
 # easiest to read.
-A = np.array([[0.0, 1.0, 0.0], [125 / 29, -125 / 29, 0.0], [0.0, 50 / 29, -50 / 29]])
-Ainv = np.array([[1.0, 29 / 125, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, -116 / 200]])
+A = np.array(
+    [
+        [0.0, 1.0, 0.0],
+        [125 / 29, -125 / 29, 0.0],
+        [0.0, 50 / 29, -50 / 29],
+    ]
+)
+Ainv = np.array(
+    [
+        [1.0, 29 / 125, 0.0],
+        [1.0, 0.0, 0.0],
+        [1.0, 0.0, -116 / 200],
+    ]
+)
 
 
 class CIELAB(ColorSpace):

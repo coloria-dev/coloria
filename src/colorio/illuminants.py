@@ -201,7 +201,6 @@ def d(nominal_temperature: float):
     with open(this_dir / "data/illuminants/d.json") as f:
         data = json.load(f)
 
-    print(data)
     lmbda = np.linspace(*data["lambda"], data["num"])
     s = np.asarray(data["s"])
 
