@@ -49,15 +49,15 @@ class RLAB(ColorSpace):
         # M_HPE, normalized to D65:
         # M_HPE, normalized to equal-energy illuminant,
         # <https://en.wikipedia.org/wiki/LMS_color_space#Hunt,_RLAB>.
-        self.M = np.array(
+        M = np.array(
             [[0.3897, 0.6890, -0.0787], [-0.2298, 1.1834, 0.0464], [0.0, 0.0, 1.0]]
         )
 
-        lms_n = self.M @ whitepoint
+        lms_n = M @ whitepoint
         lms_e = 3.0 * lms_n / np.sum(lms_n)
         Yn3 = Y_n ** (1 / 3)
         p_lms = (1.0 + Yn3 + lms_e) / (1.0 + Yn3 + 1.0 / lms_e)
-        self.a_lms = (p_lms + D * (1 - p_lms)) / lms_n
+        a_lms = (p_lms + D * (1 - p_lms)) / lms_n
 
         # reference stimul
         # The matrix R below can be computed explicitly with
@@ -82,14 +82,17 @@ class RLAB(ColorSpace):
         # ]).
         #
         # In the remainder of model, however, one uses the equal-energy normalized
-        # matrixi. This seems to be a mistake in the model.
+        # matrix. This seems to be a mistake in the model.
         # TODO self.M looks like it already is the inverse of another matrix given to
         # some digits. Find out which.
-        self.R = np.array(
+        R = np.array(
             [[1.9569, -1.1882, 0.2313], [0.3612, 0.6388, 0.0], [0.0, 0.0, 1.0]]
         )
 
         self.sigma = sigma
+
+        self.A = R @ (a_lms * M.T).T
+        self.Ainv = np.linalg.solve(M, (np.linalg.inv(R).T / a_lms).T)
 
     # Y_n is the absolute luminance of the adapting stimulus (typically a stimulus that
     # appears white in the image) in cd/m2 (=nit). Most laptop displays have a
@@ -106,8 +109,7 @@ class RLAB(ColorSpace):
     def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         # First, the stimuli xyz are translated into reference stimuli xyz_ref to
         # account for the environment adaptation of the human visual system.
-        lms_dash = (self.a_lms * npx.dot(self.M, xyz).T).T
-        xyz_ref = npx.dot(self.R, lms_dash)
+        xyz_ref = npx.dot(self.A, xyz)
 
         x_ref_s, y_ref_s, z_ref_s = xyz_ref ** self.sigma
 
@@ -128,4 +130,4 @@ class RLAB(ColorSpace):
         z_ref_s = y_ref_s - b_R / 170
 
         xyz_ref = np.array([x_ref_s, y_ref_s, z_ref_s]) ** (1.0 / self.sigma)
-        return npx.solve(self.M, (npx.solve(self.R, xyz_ref).T / self.a_lms).T)
+        return npx.dot(self.Ainv, xyz_ref)
