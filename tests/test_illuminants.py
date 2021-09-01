@@ -23,25 +23,32 @@ import colorio
 #     assert rdata[1] == values[1]
 #     assert rdata[2] == values[2]
 
+ob2 = colorio.observers.cie_1931_2()
+
 
 # TODO make sure we see the actual whitepoints here
 @pytest.mark.parametrize(
-    "illuminant,ref",
+    "illuminant,observer,ref",
     [
-        (colorio.illuminants.d65(), [95.04897383777654, 100.0, 108.89219744235048]),
-        # (colorio.illuminants.e(), [100.01501815954022, 100.0, 100.06659759493049]),
-        # (colorio.illuminants.f2(), [99.14684057651468, 100.0, 67.31849751003291]),
-        # (colorio.illuminants.f7(), [95.01911237699836, 100.0, 108.63853342005218]),
-        # (colorio.illuminants.f11(), [100.90356906939995, 100.0, 64.28441370480544]),
+        (colorio.illuminants.d50(), ob2, [96.424, 100.0, 82.513]),
+        (
+            colorio.illuminants.d65(),
+            ob2,
+            colorio.illuminants.whitepoints_cie1931["D65"],
+        ),
+        (colorio.illuminants.d75(), ob2, [94.972, 100.0, 122.619]),
+        (colorio.illuminants.e(), ob2, [100.008, 100.0, 100.033]),
+        (colorio.illuminants.f2(), ob2, [99.147, 100.0, 67.319]),
+        (colorio.illuminants.f7(), ob2, [95.019, 100.0, 108.639]),
+        (colorio.illuminants.f11(), ob2, [100.904, 100.0, 64.284]),
     ],
 )
-def test_white_point(illuminant, ref):
+def test_white_point(illuminant, observer, ref):
     print(illuminant)
-    observer = colorio.observers.cie_1931_2()
     print(observer)
     values = colorio.illuminants.white_point(illuminant, observer)
     print(list(values))
-    assert np.all(abs(values - ref) < 1.0e-13 * np.abs(ref))
+    assert np.all(np.round(values, 3) == ref)
 
 
 # def test_show():

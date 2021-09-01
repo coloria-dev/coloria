@@ -74,34 +74,17 @@ def spectrum_to_xyz100(spectrum: SpectralData, observer: SpectralData):
     Note that any constant factor (like delta_lambda) gets canceled out in x and y (of
     xyY), so being careless might not be punished in all applications.
     """
-    print(observer)
-    lambda_o, data_o = observer
-    lambda_s, data_s = spectrum
-    print()
-    print(lambda_s.shape, data_s.shape)
-    print(lambda_o.shape, data_o.shape)
-
-    print()
-    print("lambda_s")
-    print(lambda_s)
-    print()
-    print("lambda_o")
-    print(lambda_o)
-
-    # form the union of lambdas
-    lmbda = np.sort(np.unique(np.concatenate([lambda_o, lambda_s])))
-    print()
-    print("lmbda")
-    print(lmbda)
-
     # The technical document prescribes that the integration be performed over
     # the wavelength range corresponding to the entire visible spectrum, 360 nm
-    # to 830 nm.
-    assert lmbda[0] < 361e-9
-    assert lmbda[-1] > 829e-9
+    # to 830 nm. Make sure the observer has the appropriate data.
+    assert np.all(observer.lmbda_nm == np.arange(360, 831))
 
-    # interpolate data
-    idata_o = np.array([np.interp(lmbda, lambda_o, dt) for dt in data_o])
+    # Adapt the illuminant
+    mask = (360 <= spectrum.lmbda_nm) & (spectrum.lmbda_nm <= 830)
+    lambda_s = spectrum.lmbda_nm[mask]
+    data_s = spectrum.data[mask]
+    interpolated_data_s = np.interp(observer.lmbda_nm, lambda_s, data_s)
+
     # The technical report specifies the interpolation techniques, too:
     # ```
     # Use one of the four following methods to calculate needed but unmeasured
@@ -115,36 +98,11 @@ def spectrum_to_xyz100(spectrum: SpectralData, observer: SpectralData):
     # ```
     # Well, don't do that but simply use linear interpolation now. We only use the
     # midpoint rule for integration anyway.
-    idata_s = np.interp(lmbda, lambda_s, data_s)
 
-    # step sizes
-    # delta = np.zeros(len(lmbda))
-    # diff = lmbda[1:] - lmbda[:-1]
-    # delta[1:] += diff
-    # delta[:-1] += diff
-    # delta /= 2
-
-    delta = lmbda[1] - lmbda[0]
-    print()
-    print(delta)
-    print()
-
-    print(lmbda.shape)
-
-    k = 100 / np.sum(data_s[1] * data_o[1]) / delta
-    print()
-    print(k)
-
-    # X = k * np.sum(data_s * data_o[0]) * delta
-    # Y = k * np.sum(data_s * data_o[1]) * delta
-    # Z = k * np.sum(data_s * data_o[2]) * delta
-
-    # print(X)
-    # exit(1)
-
-    values = np.dot(idata_o, idata_s * delta)
-
-    return values * 100
+    delta = 1
+    k = 100 / np.sum(interpolated_data_s * observer.data[1] * delta)
+    xyz100 = k * np.sum(interpolated_data_s * observer.data * delta, axis=1)
+    return xyz100
 
 
 def white_point(illuminant, observer: SpectralData):
@@ -172,7 +130,7 @@ def planckian_radiator(temperature):
     return lmbda, c1 / lmbda ** 5 / (np.exp(c2 / lmbda / temperature) - 1)
 
 
-def a(interval=1.0e-9):
+def a(interval_nm: float = 1):
     """CIE Standard Illuminants for Colorimetry, 1999:
     CIE standard illuminant A is intended to represent typical, domestic,
     tungsten-filament lighting. Its relative spectral power distribution is that of a
@@ -182,7 +140,7 @@ def a(interval=1.0e-9):
     illuminant.
     """
     # https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_A
-    lmbda = np.arange(300e-9, 831e-9, interval)
+    lmbda = 1.0e-9 * np.arange(300, 831, interval_nm)
     c2 = 1.435e-2
     color_temp = 2848
     np.exp(c2 / (color_temp * 560e-9))
@@ -239,14 +197,17 @@ def d(nominal_temperature: float):
     with open(this_dir / "data/illuminants/d.json") as f:
         data = json.load(f)
 
+    # https://www.wikiwand.com/en/Standard_illuminant:
+    # > The tabulated SPDs presented by the CIE today are derived by linear
+    # > interpolation of the 10 nm data set down to 5 nm.
     lmbda_start, lmbda_end, lmbda_step = data["lambda_nm"]
     lmbda = np.arange(lmbda_start, lmbda_end + 1, lmbda_step)
-    s = np.asarray(data["s"])
+    S = np.asarray(data["S"])
 
     return SpectralData(
         "Illuminant D" + str(nominal_temperature)[:2],
         lmbda,
-        s[0] + m1 * s[1] + m2 * s[2],
+        S[0] + m1 * S[1] + m2 * S[2],
     )
 
 
@@ -274,25 +235,29 @@ def e():
     """This is a hypothetical reference radiator. All wavelengths in CIE illuminant E
     are weighted equally with a relative spectral power of 100.0.
     """
-    return SpectralData("Illuminant E", np.arange(300, 831), np.full(530, 100.0))
+    return SpectralData("Illuminant E", np.arange(300, 831), np.full(531, 100.0))
+
+
+def _from_file(filename):
+    with open(filename) as f:
+        data = json.load(f)
+
+    start, stop, step = data["lambda_nm"]
+    return SpectralData(
+        data["description"], np.arange(start, stop + 1, step), data["values"]
+    )
 
 
 def f2():
     this_dir = pathlib.Path(__file__).resolve().parent
-    with open(this_dir / "data/illuminants/f2.json") as f:
-        data = json.load(f)
-    return np.linspace(*data["lambda"], data["num"]), np.array(data["values"])
+    return _from_file(this_dir / "data/illuminants/f2.json")
 
 
 def f7():
     this_dir = pathlib.Path(__file__).resolve().parent
-    with open(this_dir / "data/illuminants/f7.json") as f:
-        data = json.load(f)
-    return np.linspace(*data["lambda"], data["num"]), np.array(data["values"])
+    return _from_file(this_dir / "data/illuminants/f7.json")
 
 
 def f11():
     this_dir = pathlib.Path(__file__).resolve().parent
-    with open(this_dir / "data/illuminants/f11.json") as f:
-        data = json.load(f)
-    return np.linspace(*data["lambda"], data["num"]), np.array(data["values"])
+    return _from_file(this_dir / "data/illuminants/f11.json")
