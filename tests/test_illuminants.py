@@ -31,17 +31,13 @@ ob2 = colorio.observers.cie_1931_2()
     "illuminant,observer,ref",
     [
         (colorio.illuminants.a(), ob2, colorio.illuminants.whitepoints_cie1931["A"]),
-        (colorio.illuminants.d50(), ob2, [96.424, 100.0, 82.513]),
-        (
-            colorio.illuminants.d65(),
-            ob2,
-            colorio.illuminants.whitepoints_cie1931["D65"],
-        ),
-        (colorio.illuminants.d75(), ob2, [94.972, 100.0, 122.619]),
+        (colorio.illuminants.d50(), ob2, [96.415, 100.0, 82.547]),
+        (colorio.illuminants.d65(), ob2, [95.045, 100.0, 108.941]),
+        (colorio.illuminants.d75(), ob2, [94.974, 100.0, 122.690]),
         (colorio.illuminants.e(), ob2, [100.008, 100.0, 100.033]),
-        (colorio.illuminants.f2(), ob2, [99.147, 100.0, 67.319]),
-        (colorio.illuminants.f7(), ob2, [95.019, 100.0, 108.639]),
-        (colorio.illuminants.f11(), ob2, [100.904, 100.0, 64.284]),
+        (colorio.illuminants.f2(), ob2, [99.184, 100.0, 67.383]),
+        (colorio.illuminants.f7(), ob2, [95.039, 100.0, 108.737]),
+        (colorio.illuminants.f11(), ob2, [100.964, 100.0, 64.359]),
     ],
 )
 def test_white_point(illuminant, observer, ref):
@@ -49,6 +45,7 @@ def test_white_point(illuminant, observer, ref):
     print(observer)
     values = colorio.illuminants.spectrum_to_xyz100(illuminant, observer)
     print(list(values))
+    print(list(np.round(values, 3)))
     assert np.all(np.round(values, 3) == ref)
 
 
@@ -101,8 +98,9 @@ def test_white_point(illuminant, observer, ref):
 #     print()
 #     print(np.sum(dat, axis=1))
 #     exit(1)
-#
-#
-# if __name__ == "__main__":
-#     # test_white_point()
-#     test_show()
+
+
+if __name__ == "__main__":
+    test_white_point(
+        colorio.illuminants.d50(), ob2, colorio.illuminants.whitepoints_cie1931["D50"]
+    )

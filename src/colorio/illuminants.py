@@ -2,6 +2,7 @@ import json
 import pathlib
 
 import numpy as np
+from scipy.interpolate import CubicSpline
 
 from ._helpers import SpectralData
 
@@ -34,7 +35,11 @@ whitepoints_cie1964 = {
 }
 
 
-def spectrum_to_xyz100(spectrum: SpectralData, observer: SpectralData):
+def spectrum_to_xyz100(
+    spectrum: SpectralData,
+    observer: SpectralData,
+    interpolation_type: str = "cubic spline",
+) -> np.ndarray:
     """Computes the tristimulus values XYZ from a given spectrum for a given observer
     via
 
@@ -77,31 +82,38 @@ def spectrum_to_xyz100(spectrum: SpectralData, observer: SpectralData):
     # The technical document prescribes that the integration be performed over
     # the wavelength range corresponding to the entire visible spectrum, 360 nm
     # to 830 nm. Make sure the observer has the appropriate data.
-    assert np.all(observer.lmbda_nm == np.arange(360, 831))
+    lmbda = np.arange(360, 831)
+    assert np.all(observer.lmbda_nm == lmbda)
 
     # Adapt the illuminant
     mask = (360 <= spectrum.lmbda_nm) & (spectrum.lmbda_nm <= 830)
     lambda_s = spectrum.lmbda_nm[mask]
     data_s = spectrum.data[mask]
 
-    # The technical report specifies the interpolation techniques, too:
-    # ```
-    # Use one of the four following methods to calculate needed but unmeasured
-    # values of phi(l), R(l) or tau(l) within the range of measurements:
-    #   1) the third-order polynomial interpolation (Lagrange) from the four
-    #      neighbouring data points around the point to be interpolated, or
-    #   2) cubic spline interpolation formula, or
-    #   3) a fifth order polynomial interpolation formula from the six
-    #      neighboring data points around the point to be interpolated, or
-    #   4) a Sprague interpolation (see Seve, 2003).
-    # ```
-    # Well, don't do that but simply use linear interpolation now. We only use the
-    # midpoint rule for integration anyway.
-    interpolated_data_s = np.interp(observer.lmbda_nm, lambda_s, data_s)
+    if not np.all(lambda_s == lmbda):
+        # The technical report specifies the interpolation techniques, too:
+        # ```
+        # Use one of the four following methods to calculate needed but unmeasured
+        # values of phi(l), R(l) or tau(l) within the range of measurements:
+        #   1) the third-order polynomial interpolation (Lagrange) from the four
+        #      neighbouring data points around the point to be interpolated, or
+        #   2) cubic spline interpolation formula, or
+        #   3) a fifth order polynomial interpolation formula from the six
+        #      neighboring data points around the point to be interpolated, or
+        #   4) a Sprague interpolation (see Seve, 2003).
+        # ```
+        if interpolation_type == "linear":
+            # actually not intended in the standard
+            data_s = np.interp(observer.lmbda_nm, lambda_s, data_s)
+        else:
+            assert interpolation_type == "cubic spline"
+            print(lambda_s)
+            cs = CubicSpline(lambda_s, data_s)
+            data_s = cs(lmbda)
 
     delta = 1
-    k = 100 / np.sum(interpolated_data_s * observer.data[1] * delta)
-    xyz100 = k * np.sum(interpolated_data_s * observer.data * delta, axis=1)
+    k = 100 / np.sum(data_s * observer.data[1] * delta)
+    xyz100 = k * np.sum(data_s * observer.data * delta, axis=1)
     return xyz100
 
 
