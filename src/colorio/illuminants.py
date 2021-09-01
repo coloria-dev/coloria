@@ -83,7 +83,6 @@ def spectrum_to_xyz100(spectrum: SpectralData, observer: SpectralData):
     mask = (360 <= spectrum.lmbda_nm) & (spectrum.lmbda_nm <= 830)
     lambda_s = spectrum.lmbda_nm[mask]
     data_s = spectrum.data[mask]
-    interpolated_data_s = np.interp(observer.lmbda_nm, lambda_s, data_s)
 
     # The technical report specifies the interpolation techniques, too:
     # ```
@@ -98,23 +97,12 @@ def spectrum_to_xyz100(spectrum: SpectralData, observer: SpectralData):
     # ```
     # Well, don't do that but simply use linear interpolation now. We only use the
     # midpoint rule for integration anyway.
+    interpolated_data_s = np.interp(observer.lmbda_nm, lambda_s, data_s)
 
     delta = 1
     k = 100 / np.sum(interpolated_data_s * observer.data[1] * delta)
     xyz100 = k * np.sum(interpolated_data_s * observer.data * delta, axis=1)
     return xyz100
-
-
-def white_point(illuminant, observer: SpectralData):
-    """From <https://en.wikipedia.org/wiki/White_point>:
-    The white point of an illuminant is the chromaticity of a white object under the
-    illuminant.
-    """
-    values = spectrum_to_xyz100(illuminant, observer)
-    # normalize for relative luminance, Y=100
-    values /= values[1]
-    values *= 100
-    return values
 
 
 def planckian_radiator(temperature):

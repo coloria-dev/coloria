@@ -47,7 +47,7 @@ ob2 = colorio.observers.cie_1931_2()
 def test_white_point(illuminant, observer, ref):
     print(illuminant)
     print(observer)
-    values = colorio.illuminants.white_point(illuminant, observer)
+    values = colorio.illuminants.spectrum_to_xyz100(illuminant, observer)
     print(list(values))
     assert np.all(np.round(values, 3) == ref)
 
