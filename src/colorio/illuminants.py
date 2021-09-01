@@ -140,19 +140,19 @@ def a(interval_nm: float = 1):
     illuminant.
     """
     # https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_A
-    lmbda = 1.0e-9 * np.arange(300, 831, interval_nm)
+    lmbda_nm = np.arange(300, 831, interval_nm)
     c2 = 1.435e-2
     color_temp = 2848
     np.exp(c2 / (color_temp * 560e-9))
     vals = (
         100
-        * (560e-9 / lmbda) ** 5
+        * (560 / lmbda_nm) ** 5
         * (
             (np.exp(c2 / (color_temp * 560e-9)) - 1)
-            / (np.exp(c2 / (color_temp * lmbda)) - 1)
+            / (np.exp(c2 / (color_temp * lmbda_nm * 1.0e-9)) - 1)
         )
     )
-    return lmbda, vals
+    return SpectralData("Illuminant A", lmbda_nm, vals)
 
 
 def d(nominal_temperature: float):

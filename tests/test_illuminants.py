@@ -30,6 +30,7 @@ ob2 = colorio.observers.cie_1931_2()
 @pytest.mark.parametrize(
     "illuminant,observer,ref",
     [
+        (colorio.illuminants.a(), ob2, colorio.illuminants.whitepoints_cie1931["A"]),
         (colorio.illuminants.d50(), ob2, [96.424, 100.0, 82.513]),
         (
             colorio.illuminants.d65(),
