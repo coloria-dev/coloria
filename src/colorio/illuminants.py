@@ -106,19 +106,25 @@ def spectrum_to_xyz100(spectrum: SpectralData, observer: SpectralData):
 
 
 def planckian_radiator(temperature):
-    lmbda = 1.0e-9 * np.arange(300, 831)
+    lmbda_nm = np.arange(300, 831)
     # light speed
     c = 299792458.0
     # Plank constant
-    h = 6.62607004e-34
+    h = 6.62607015e-34
     # Boltzmann constant
-    k = 1.38064852e-23
+    k = 1.380649e-23
     c1 = 2 * np.pi * h * c ** 2
     c2 = h * c / k
-    return lmbda, c1 / lmbda ** 5 / (np.exp(c2 / lmbda / temperature) - 1)
+    print(c2)
+    lmbda = 1.0e-9 * lmbda_nm
+    return SpectralData(
+        f"Planckian radiator ({temperature} K)",
+        lmbda_nm,
+        c1 / lmbda ** 5 / (np.exp(c2 / lmbda / temperature) - 1),
+    )
 
 
-def a(interval_nm: float = 1):
+def a(interval_nm: int = 1):
     """CIE Standard Illuminants for Colorimetry, 1999:
     CIE standard illuminant A is intended to represent typical, domestic,
     tungsten-filament lighting. Its relative spectral power distribution is that of a
@@ -129,9 +135,12 @@ def a(interval_nm: float = 1):
     """
     # https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_A
     lmbda_nm = np.arange(300, 831, interval_nm)
+    # When Ill. A was standardized, the natural constants where such that this was the
+    # value of c2. The values of the constants have since been revised. In order to
+    # avoid further possible changes in the color temperature, the CIE now specifies the
+    # SPD directly, based on the original (1931) value of c2.
     c2 = 1.435e-2
     color_temp = 2848
-    np.exp(c2 / (color_temp * 560e-9))
     vals = (
         100
         * (560 / lmbda_nm) ** 5
