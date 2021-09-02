@@ -2,8 +2,6 @@ import json
 import pathlib
 
 import numpy as np
-import scipyx
-from scipy.interpolate import CubicSpline
 
 from ._helpers import SpectralData
 
@@ -86,6 +84,9 @@ def spectrum_to_xyz100(
     lmbda = np.arange(360, 831)
     assert np.all(observer.lmbda_nm == lmbda)
 
+    print(observer.lmbda_nm)
+    exit(1)
+
     # Adapt the illuminant
     mask = (360 <= spectrum.lmbda_nm) & (spectrum.lmbda_nm <= 830)
     lambda_s = spectrum.lmbda_nm[mask]
@@ -104,13 +105,19 @@ def spectrum_to_xyz100(
         #   4) a Sprague interpolation (see Seve, 2003).
         # ```
         if interpolation_type == "lagrange-3":
+            import scipyx
+
             poly = scipyx.interp_rolling_lagrange(lambda_s, data_s, order=3)
             data_s = poly(lmbda)
         elif interpolation_type == "cubic spline":
             # The standard doesn't give the boundary conditions
+            from scipy.interpolate import CubicSpline
+
             cs = CubicSpline(lambda_s, data_s, bc_type="not-a-knot")
             data_s = cs(lmbda)
         elif interpolation_type == "lagrange-5":
+            import scipyx
+
             poly = scipyx.interp_rolling_lagrange(lambda_s, data_s, order=5)
             data_s = poly(lmbda)
         else:
@@ -134,7 +141,6 @@ def planckian_radiator(temperature):
     k = 1.380649e-23
     c1 = 2 * np.pi * h * c ** 2
     c2 = h * c / k
-    print(c2)
     lmbda = 1.0e-9 * lmbda_nm
     return SpectralData(
         f"Planckian radiator ({temperature} K)",
@@ -220,7 +226,6 @@ def d(nominal_temperature: float):
     assert lmbda_step == 10
     lmbda10 = np.arange(lmbda_start, lmbda_end + 1, lmbda_step)
     S10 = np.asarray(data["S"])
-
     # 6. Interpolate the 10 nm values of S(lambda) linearly to obtain values at
     #    intermediate wavelengths.
     # nschloe: I think that's pretty useless, but yeah, that's the standard.
