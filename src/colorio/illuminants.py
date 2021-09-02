@@ -2,6 +2,7 @@ import json
 import pathlib
 
 import numpy as np
+import scipyx
 from scipy.interpolate import CubicSpline
 
 from ._helpers import SpectralData
@@ -102,14 +103,20 @@ def spectrum_to_xyz100(
         #      neighboring data points around the point to be interpolated, or
         #   4) a Sprague interpolation (see Seve, 2003).
         # ```
-        if interpolation_type == "linear":
-            # actually not intended in the standard
-            data_s = np.interp(observer.lmbda_nm, lambda_s, data_s)
-        else:
-            assert interpolation_type == "cubic spline"
+        if interpolation_type == "lagrange-3":
+            poly = scipyx.interp_rolling_lagrange(lambda_s, data_s, order=3)
+            data_s = poly(lmbda)
+        elif interpolation_type == "cubic spline":
             # The standard doesn't give the boundary conditions
             cs = CubicSpline(lambda_s, data_s, bc_type="not-a-knot")
             data_s = cs(lmbda)
+        elif interpolation_type == "lagrange-5":
+            poly = scipyx.interp_rolling_lagrange(lambda_s, data_s, order=5)
+            data_s = poly(lmbda)
+        else:
+            # actually not intended in the standard
+            assert interpolation_type == "linear"
+            data_s = np.interp(observer.lmbda_nm, lambda_s, data_s)
 
     delta = 1
     k = 100 / np.sum(data_s * observer.data[1] * delta)
@@ -216,6 +223,7 @@ def d(nominal_temperature: float):
 
     # 6. Interpolate the 10 nm values of S(lambda) linearly to obtain values at
     #    intermediate wavelengths.
+    # nschloe: I think that's pretty useless, but yeah, that's the standard.
     lmbda5 = np.arange(lmbda_start, lmbda_end + 1, 5)
     S5 = np.array(
         [

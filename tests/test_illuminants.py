@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 
 import colorio
+from colorio.illuminants import whitepoints_cie1931
 
 # @pytest.mark.parametrize(
 #     "illuminant,decimals,values",
@@ -30,12 +31,12 @@ ob2 = colorio.observers.cie_1931_2()
 @pytest.mark.parametrize(
     "illuminant,observer,ref",
     [
-        (colorio.illuminants.a(), ob2, colorio.illuminants.whitepoints_cie1931["A"]),
-        (colorio.illuminants.d50(), ob2, [96.415, 100.0, 82.547]),
-        (colorio.illuminants.d65(), ob2, [95.045, 100.0, 108.941]),
-        (colorio.illuminants.d75(), ob2, [94.974, 100.0, 122.690]),
+        (colorio.illuminants.a(), ob2, whitepoints_cie1931["A"]),
+        (colorio.illuminants.d50(), ob2, whitepoints_cie1931["D50"]),
+        (colorio.illuminants.d65(), ob2, [95.047, 100.0, 108.897]),
+        (colorio.illuminants.d75(), ob2, [94.972, 100.0, 122.636]),
         (colorio.illuminants.e(), ob2, [100.008, 100.0, 100.033]),
-        (colorio.illuminants.f2(), ob2, [99.184, 100.0, 67.383]),
+        (colorio.illuminants.f2(), ob2, [103.797, 100.0, 49.922]),
         (colorio.illuminants.f7(), ob2, [95.039, 100.0, 108.737]),
         (colorio.illuminants.f11(), ob2, [100.964, 100.0, 64.359]),
     ],
