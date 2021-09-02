@@ -107,8 +107,8 @@ def spectrum_to_xyz100(
             data_s = np.interp(observer.lmbda_nm, lambda_s, data_s)
         else:
             assert interpolation_type == "cubic spline"
-            print(lambda_s)
-            cs = CubicSpline(lambda_s, data_s)
+            # The standard doesn't give the boundary conditions
+            cs = CubicSpline(lambda_s, data_s, bc_type="not-a-knot")
             data_s = cs(lmbda)
 
     delta = 1
@@ -185,7 +185,7 @@ def d(nominal_temperature: float):
     #        S(lambda) = S0(lambda) + M1 S1(lambda) + M2 S2(lambda)
     #      using values of S0(lambda), S1(lambda) and S2(lambda) from Table T.2.
     #   6. Interpolate the 10 nm values of S(lambda) linearly to obtain values at
-    #   intermediate wavelengths.
+    #      intermediate wavelengths.
     tcp = 1.4388e-2 / 1.4380e-2 * nominal_temperature
 
     if 4000 <= tcp <= 7000:
@@ -210,13 +210,25 @@ def d(nominal_temperature: float):
     # > The tabulated SPDs presented by the CIE today are derived by linear
     # > interpolation of the 10 nm data set down to 5 nm.
     lmbda_start, lmbda_end, lmbda_step = data["lambda_nm"]
-    lmbda = np.arange(lmbda_start, lmbda_end + 1, lmbda_step)
-    S = np.asarray(data["S"])
+    assert lmbda_step == 10
+    lmbda10 = np.arange(lmbda_start, lmbda_end + 1, lmbda_step)
+    S10 = np.asarray(data["S"])
+
+    # 6. Interpolate the 10 nm values of S(lambda) linearly to obtain values at
+    #    intermediate wavelengths.
+    lmbda5 = np.arange(lmbda_start, lmbda_end + 1, 5)
+    S5 = np.array(
+        [
+            np.interp(lmbda5, lmbda10, S10[0]),
+            np.interp(lmbda5, lmbda10, S10[1]),
+            np.interp(lmbda5, lmbda10, S10[2]),
+        ]
+    )
 
     return SpectralData(
         "Illuminant D" + str(nominal_temperature)[:2],
-        lmbda,
-        S[0] + m1 * S[1] + m2 * S[2],
+        lmbda5,
+        S5[0] + m1 * S5[1] + m2 * S5[2],
     )
 
 
