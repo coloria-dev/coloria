@@ -8,12 +8,11 @@ from ._helpers import SpectralData
 this_dir = pathlib.Path(__file__).resolve().parent
 
 
-# use 5nm as the default step size; it's consistent with the CIE standard
-def cie_1931_2(stepsize: int = 5):
+def cie_1931_2(stepsize: int = 1):
     return _from_file(this_dir / "data/observers/cie-1931-2.json", stepsize)
 
 
-def cie_1964_10(stepsize: int = 5):
+def cie_1964_10(stepsize: int = 1):
     return _from_file(this_dir / "data/observers/cie-1964-10.json", stepsize)
 
 
@@ -26,4 +25,4 @@ def _from_file(filename: pathlib.Path, stepsize: int):
     lmbda = np.arange(lmbda_start, lmbda_end + 1, stepsize)
     vals = np.array(data["xyz"])[:, ::stepsize]
 
-    return SpectralData(data["name"], lmbda, vals)
+    return SpectralData(lmbda, vals, data["name"])

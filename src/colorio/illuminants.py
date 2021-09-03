@@ -81,23 +81,16 @@ def spectrum_to_xyz100(
     # The technical document prescribes that the integration be performed over
     # the wavelength range corresponding to the entire visible spectrum, 360 nm
     # to 830 nm. Make sure the observer has the appropriate data.
-    delta = 5
+    delta = 1
     lmbda = np.arange(360, 831, delta)
     assert np.all(observer.lmbda_nm == lmbda)
-
-    # print(observer.lmbda_nm)
-    # exit(1)
 
     # Adapt the spectrum
     mask = (360 <= spectrum.lmbda_nm) & (spectrum.lmbda_nm <= 830)
     lambda_s = spectrum.lmbda_nm[mask]
     data_s = spectrum.data[mask]
 
-    print(lambda_s)
-
-    if not np.all(lambda_s == lmbda):
-        print("A")
-        exit(1)
+    if not np.array_equal(lambda_s, lmbda):
         # The technical report specifies the interpolation techniques, too:
         # ```
         # Use one of the four following methods to calculate needed but unmeasured
@@ -147,9 +140,9 @@ def planckian_radiator(temperature):
     c2 = h * c / k
     lmbda = 1.0e-9 * lmbda_nm
     return SpectralData(
-        f"Planckian radiator ({temperature} K)",
         lmbda_nm,
         c1 / lmbda ** 5 / (np.exp(c2 / lmbda / temperature) - 1),
+        f"Planckian radiator ({temperature} K)",
     )
 
 
@@ -178,7 +171,7 @@ def a(interval_nm: int = 1):
             / (np.exp(c2 / (color_temp * lmbda_nm * 1.0e-9)) - 1)
         )
     )
-    return SpectralData("Illuminant A", lmbda_nm, vals)
+    return SpectralData(lmbda_nm, vals, "Illuminant A")
 
 
 def d(nominal_temperature: float):
@@ -243,9 +236,9 @@ def d(nominal_temperature: float):
     )
 
     return SpectralData(
-        "Illuminant D" + str(nominal_temperature)[:2],
         lmbda5,
         S5[0] + m1 * S5[1] + m2 * S5[2],
+        "Illuminant D" + str(nominal_temperature)[:2],
     )
 
 
@@ -273,7 +266,7 @@ def e():
     """This is a hypothetical reference radiator. All wavelengths in CIE illuminant E
     are weighted equally with a relative spectral power of 100.0.
     """
-    return SpectralData("Illuminant E", np.arange(300, 831), np.full(531, 100.0))
+    return SpectralData(np.arange(300, 831), np.full(531, 100.0), "Illuminant E")
 
 
 def _from_file(filename):
@@ -282,7 +275,9 @@ def _from_file(filename):
 
     start, stop, step = data["lambda_nm"]
     return SpectralData(
-        data["description"], np.arange(start, stop + 1, step), data["values"]
+        np.arange(start, stop + 1, step),
+        data["values"],
+        data["description"],
     )
 
 

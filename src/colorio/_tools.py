@@ -27,7 +27,8 @@ def _plot_monochromatic(observer, fill_horseshoe=True):
     for k, _ in enumerate(lmbda):
         data = np.zeros(len(lmbda))
         data[k] = 1.0
-        values.append(_xyy_from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[:2])
+        sd = SpectralData(lmbda, data)
+        values.append(_xyy_from_xyz100(spectrum_to_xyz100(sd, observer))[:2])
     values = np.array(values)
 
     # Add the values between the first and the last point of the horseshoe
@@ -97,9 +98,8 @@ def xy_gamut_mesh(lcar):
     for k in range(len(lmbda)):
         data = np.zeros(len(lmbda))
         data[k] = 1.0
-        all_points[k] = _xyy_from_xyz100(spectrum_to_xyz100((lmbda, data), observer))[
-            :2
-        ]
+        xyz100 = spectrum_to_xyz100(SpectralData(lmbda, data), observer)
+        all_points[k] = _xyy_from_xyz100(xyz100)[:2]
 
     # Generate gmsh geometry: spline + straight line
     all_points = np.column_stack([all_points, np.zeros(len(all_points))])
@@ -129,11 +129,11 @@ def get_mono_outline_xy(observer, max_stepsize):
     # first the straight connector at the bottom
     mono[:] = 0.0
     mono[-1] = 1.0
-    mono_spectrum = SpectralData("mono", observer.lmbda_nm, mono)
+    mono_spectrum = SpectralData(observer.lmbda_nm, mono)
     first = _xyy_from_xyz100(spectrum_to_xyz100(mono_spectrum, observer))[:2]
     mono[:] = 0.0
     mono[0] = 1.0
-    mono_spectrum = SpectralData("mono", observer.lmbda_nm, mono)
+    mono_spectrum = SpectralData(observer.lmbda_nm, mono)
     last = _xyy_from_xyz100(spectrum_to_xyz100(mono_spectrum, observer))[:2]
     #
     diff = first - last
@@ -149,7 +149,7 @@ def get_mono_outline_xy(observer, max_stepsize):
     for k in range(1, m):
         mono[:] = 0.0
         mono[k] = 1.0
-        mono_spectrum = SpectralData("mono", observer.lmbda_nm, mono)
+        mono_spectrum = SpectralData(observer.lmbda_nm, mono)
         val = _xyy_from_xyz100(spectrum_to_xyz100(mono_spectrum, observer))[:2]
 
         diff = vals_mono[-1] - val
