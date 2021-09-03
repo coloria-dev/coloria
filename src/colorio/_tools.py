@@ -21,13 +21,13 @@ def _xyy_from_xyz100(xyz):
 
 def _plot_monochromatic(observer, fill_horseshoe=True):
     # draw outline of monochromatic spectra
-    lmbda = 1.0e-9 * np.arange(380, 701)
+    lmbda_nm = np.arange(380, 701)
     values = []
     # TODO vectorize (see <https://github.com/numpy/numpy/issues/10439>)
-    for k, _ in enumerate(lmbda):
-        data = np.zeros(len(lmbda))
+    for k, _ in enumerate(lmbda_nm):
+        data = np.zeros(len(lmbda_nm))
         data[k] = 1.0
-        sd = SpectralData(lmbda, data)
+        sd = SpectralData(lmbda_nm, data)
         values.append(_xyy_from_xyz100(spectrum_to_xyz100(sd, observer))[:2])
     values = np.array(values)
 
@@ -93,12 +93,12 @@ def xy_gamut_mesh(lcar):
     observer = observers.cie_1931_2()
 
     # Gather all points on the horseshoe outline
-    lmbda = 1.0e-9 * np.arange(380, 701)
-    all_points = np.empty((len(lmbda), 2))
-    for k in range(len(lmbda)):
-        data = np.zeros(len(lmbda))
+    lmbda_nm = np.arange(380, 701)
+    all_points = np.empty((len(lmbda_nm), 2))
+    for k in range(len(lmbda_nm)):
+        data = np.zeros(len(lmbda_nm))
         data[k] = 1.0
-        xyz100 = spectrum_to_xyz100(SpectralData(lmbda, data), observer)
+        xyz100 = spectrum_to_xyz100(SpectralData(lmbda_nm, data), observer)
         all_points[k] = _xyy_from_xyz100(xyz100)[:2]
 
     # Generate gmsh geometry: spline + straight line
