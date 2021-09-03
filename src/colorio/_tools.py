@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from . import observers
+from ._helpers import SpectralData
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
 
@@ -122,18 +123,18 @@ def get_mono_outline_xy(observer, max_stepsize):
     """Monochromatic light of different frequencies form a horseshoe-like shape in
     xy-space. Get the outline of that space.
     """
-    lmbda, _ = observer
-
-    m = lmbda.shape[0]
+    m = observer.lmbda_nm.shape[0]
     mono = np.zeros(m)
 
     # first the straight connector at the bottom
     mono[:] = 0.0
     mono[-1] = 1.0
-    first = _xyy_from_xyz100(spectrum_to_xyz100((lmbda, mono), observer))[:2]
+    mono_spectrum = SpectralData("mono", observer.lmbda_nm, mono)
+    first = _xyy_from_xyz100(spectrum_to_xyz100(mono_spectrum, observer))[:2]
     mono[:] = 0.0
     mono[0] = 1.0
-    last = _xyy_from_xyz100(spectrum_to_xyz100((lmbda, mono), observer))[:2]
+    mono_spectrum = SpectralData("mono", observer.lmbda_nm, mono)
+    last = _xyy_from_xyz100(spectrum_to_xyz100(mono_spectrum, observer))[:2]
     #
     diff = first - last
     dist = np.sqrt(np.sum(diff ** 2))
@@ -148,7 +149,8 @@ def get_mono_outline_xy(observer, max_stepsize):
     for k in range(1, m):
         mono[:] = 0.0
         mono[k] = 1.0
-        val = _xyy_from_xyz100(spectrum_to_xyz100((lmbda, mono), observer))[:2]
+        mono_spectrum = SpectralData("mono", observer.lmbda_nm, mono)
+        val = _xyy_from_xyz100(spectrum_to_xyz100(mono_spectrum, observer))[:2]
 
         diff = vals_mono[-1] - val
         dist = np.sqrt(np.dot(diff, diff))

@@ -81,18 +81,23 @@ def spectrum_to_xyz100(
     # The technical document prescribes that the integration be performed over
     # the wavelength range corresponding to the entire visible spectrum, 360 nm
     # to 830 nm. Make sure the observer has the appropriate data.
-    lmbda = np.arange(360, 831)
+    delta = 5
+    lmbda = np.arange(360, 831, delta)
     assert np.all(observer.lmbda_nm == lmbda)
 
-    print(observer.lmbda_nm)
-    exit(1)
+    # print(observer.lmbda_nm)
+    # exit(1)
 
-    # Adapt the illuminant
+    # Adapt the spectrum
     mask = (360 <= spectrum.lmbda_nm) & (spectrum.lmbda_nm <= 830)
     lambda_s = spectrum.lmbda_nm[mask]
     data_s = spectrum.data[mask]
 
+    print(lambda_s)
+
     if not np.all(lambda_s == lmbda):
+        print("A")
+        exit(1)
         # The technical report specifies the interpolation techniques, too:
         # ```
         # Use one of the four following methods to calculate needed but unmeasured
@@ -125,7 +130,6 @@ def spectrum_to_xyz100(
             assert interpolation_type == "linear"
             data_s = np.interp(observer.lmbda_nm, lambda_s, data_s)
 
-    delta = 1
     k = 100 / np.sum(data_s * observer.data[1] * delta)
     xyz100 = k * np.sum(data_s * observer.data * delta, axis=1)
     return xyz100

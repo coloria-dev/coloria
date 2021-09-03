@@ -25,4 +25,5 @@ def _from_file(filename: pathlib.Path, stepsize: int):
     assert lmbda_step == 1
     lmbda = np.arange(lmbda_start, lmbda_end + 1, stepsize)
     vals = np.array(data["xyz"])[:, ::stepsize]
+
     return SpectralData(data["name"], lmbda, vals)
