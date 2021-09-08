@@ -19,7 +19,7 @@
 ### Illuminants, observers, white points
 
 | Illuminants | CIE 1931 Observer |
-| :-------: | :----------: | :-------------------------: |
+| :-------: | :----------: |
 | <img src="https://nschloe.github.io/colorio/illuminants.svg" width="100%">    |     <img src="https://nschloe.github.io/colorio/cie-standard-observer-2.svg" width="100%">   |
 
 ```python
