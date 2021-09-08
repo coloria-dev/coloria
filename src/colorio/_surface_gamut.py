@@ -18,19 +18,21 @@ def _get_surface_gamut_mesh(
 
     # Iterate over every possible illuminant input and store it in values
     n = len(illuminant.lmbda_nm)
-    data = np.zeros(n)
+    mask = np.zeros(n)
     # frequency blocks
     values = []
-    for width in range(n):
-        data[:] = 0.0
-        data[:width] = 1.0
+    # no light
+    xyz100 = spectrum_to_xyz100(SpectralData(illuminant.lmbda_nm, mask), observer)
+    values.append(xyz100)
+    for width in range(1, n):
+        mask[:] = 0.0
+        mask[:width] = 1.0
         for _ in range(n):
-            values.append(
-                spectrum_to_xyz100(
-                    SpectralData(illuminant.lmbda_nm, data * illuminant.data), observer
-                )
-            )
-            data = np.roll(data, shift=1)
+            spec = SpectralData(illuminant.lmbda_nm, mask * illuminant.data)
+            xyz100 = spectrum_to_xyz100(spec, observer)
+            assert np.all(xyz100 >= 0), xyz100
+            values.append(xyz100)
+            mask = np.roll(mask, shift=1)
     # Full illuminant
     values.append(spectrum_to_xyz100(illuminant, observer))
     values = np.array(values)

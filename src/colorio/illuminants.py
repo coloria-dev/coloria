@@ -37,7 +37,7 @@ whitepoints_cie1964 = {
 def spectrum_to_xyz100(
     spectrum: SpectralData,
     observer: SpectralData,
-    interpolation_type: str = "cubic spline",
+    interpolation_type: str = "linear",
 ) -> np.ndarray:
     """Computes the tristimulus values XYZ from a given spectrum for a given observer
     via
@@ -102,6 +102,11 @@ def spectrum_to_xyz100(
         #      neighboring data points around the point to be interpolated, or
         #   4) a Sprague interpolation (see Seve, 2003).
         # ```
+        if interpolation_type == "linear":
+            # Linear interpolation isn't actually part of the standard. All types
+            # except this one are bad. One reason: Results can be negative even if the
+            # function isn't.
+            data_s = np.interp(observer.lmbda_nm, lambda_s, data_s)
         if interpolation_type == "lagrange-3":
             import scipyx
 
@@ -114,17 +119,28 @@ def spectrum_to_xyz100(
             cs = CubicSpline(lambda_s, data_s, bc_type="not-a-knot")
             data_s = cs(lmbda)
         elif interpolation_type == "lagrange-5":
+            assert interpolation_type == "lagrange-5"
             import scipyx
 
             poly = scipyx.interp_rolling_lagrange(lambda_s, data_s, order=5)
             data_s = poly(lmbda)
-        else:
-            # actually not intended in the standard
-            assert interpolation_type == "linear"
-            data_s = np.interp(observer.lmbda_nm, lambda_s, data_s)
 
-    k = 100 / np.sum(data_s * observer.data[1] * delta)
-    xyz100 = k * np.sum(data_s * observer.data * delta, axis=1)
+    xyz100 = np.sum(data_s * observer.data * delta, axis=1)
+
+    # For transmittant or reflectant objects, data_s is typically the illuminant
+    # spectrum S times a reflectance/transmittance factor R, 0<=R<=1. In this case, one
+    # should multiply by
+    #
+    # k = 100 / np.sum(S * observer.data[1] * delta)
+    #
+
+    return xyz100
+
+
+def compute_whitepoint(illuminant: SpectralData, observer: SpectralData) -> np.ndarray:
+    xyz100 = spectrum_to_xyz100(illuminant, observer)
+    # make sure the Y value is 100
+    xyz100 *= 100 / xyz100[1]
     return xyz100
 
 
