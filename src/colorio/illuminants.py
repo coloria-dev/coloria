@@ -173,8 +173,8 @@ def a(interval_nm: int = 1):
     """
     # https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_A
     lmbda_nm = np.arange(300, 831, interval_nm)
-    # When Ill. A was standardized, the natural constants where such that this was the
-    # value of c2. The values of the constants have since been revised. In order to
+    # When Illuminant A was standardized, the natural constants where such that this was
+    # the value of c2. The values of the constants have since been revised. In order to
     # avoid further possible changes in the color temperature, the CIE now specifies the
     # SPD directly, based on the original (1931) value of c2.
     c2 = 1.435e-2
