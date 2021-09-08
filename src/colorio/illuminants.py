@@ -3,7 +3,7 @@ import pathlib
 
 import numpy as np
 
-from . import observers
+from ._helpers import SpectralData
 
 # The "standard" 2 degree observer (CIE 1931). From
 # <https://github.com/njsmith/colorspacious/blob/master/colorspacious/illuminants.py>
@@ -14,6 +14,9 @@ whitepoints_cie1931 = {
     "D55": np.array([95.682, 100, 92.149]),
     "D65": np.array([95.047, 100, 108.883]),
     "D75": np.array([94.972, 100, 122.638]),
+    "F2": np.array([99.186, 100, 67.393]),
+    "F7": np.array([95.041, 100, 108.747]),
+    "F11": np.array([100.962, 100, 64.350]),
 }
 
 # The "supplementary" 10 degree observer (CIE 1964). From
@@ -25,10 +28,17 @@ whitepoints_cie1964 = {
     "D55": np.array([95.799, 100, 90.926]),
     "D65": np.array([94.811, 100, 107.304]),
     "D75": np.array([94.416, 100, 120.641]),
+    "F2": np.array([103.279, 100, 69.027]),
+    "F7": np.array([95.792, 100, 107.686]),
+    "F11": np.array([103.863, 100, 65.607]),
 }
 
 
-def spectrum_to_xyz100(spectrum, observer):
+def spectrum_to_xyz100(
+    spectrum: SpectralData,
+    observer: SpectralData,
+    interpolation_type: str = "linear",
+) -> np.ndarray:
     """Computes the tristimulus values XYZ from a given spectrum for a given observer
     via
 
@@ -68,73 +78,91 @@ def spectrum_to_xyz100(spectrum, observer):
     Note that any constant factor (like delta_lambda) gets canceled out in x and y (of
     xyY), so being careless might not be punished in all applications.
     """
-    lambda_o, data_o = observer
-    lambda_s, data_s = spectrum
-
-    # form the union of lambdas
-    lmbda = np.sort(np.unique(np.concatenate([lambda_o, lambda_s])))
-
     # The technical document prescribes that the integration be performed over
     # the wavelength range corresponding to the entire visible spectrum, 360 nm
-    # to 830 nm.
-    assert lmbda[0] < 361e-9
-    assert lmbda[-1] > 829e-9
+    # to 830 nm. Make sure the observer has the appropriate data.
+    delta = 1
+    lmbda = np.arange(360, 831, delta)
+    assert np.all(observer.lmbda_nm == lmbda)
 
-    # interpolate data
-    idata_o = np.array([np.interp(lmbda, lambda_o, dt) for dt in data_o])
-    # The technical report specifies the interpolation techniques, too:
-    # ```
-    # Use one of the four following methods to calculate needed but unmeasured
-    # values of phi(l), R(l) or tau(l) within the range of measurements:
-    #   1) the third-order polynomial interpolation (Lagrange) from the four
-    #      neighbouring data points around the point to be interpolated, or
-    #   2) cubic spline interpolation formula, or
-    #   3) a fifth order polynomial interpolation formula from the six
-    #      neighboring data points around the point to be interpolated, or
-    #   4) a Sprague interpolation (see Seve, 2003).
-    # ```
-    # Well, don't do that but simply use linear interpolation now. We only use the
-    # midpoint rule for integration anyways.
-    idata_s = np.interp(lmbda, lambda_s, data_s)
+    # Adapt the spectrum
+    mask = (360 <= spectrum.lmbda_nm) & (spectrum.lmbda_nm <= 830)
+    lambda_s = spectrum.lmbda_nm[mask]
+    data_s = spectrum.data[mask]
 
-    # step sizes
-    delta = np.zeros(len(lmbda))
-    diff = lmbda[1:] - lmbda[:-1]
-    delta[1:] += diff
-    delta[:-1] += diff
-    delta /= 2
+    if not np.array_equal(lambda_s, lmbda):
+        # The technical report specifies the interpolation techniques, too:
+        # ```
+        # Use one of the four following methods to calculate needed but unmeasured
+        # values of phi(l), R(l) or tau(l) within the range of measurements:
+        #   1) the third-order polynomial interpolation (Lagrange) from the four
+        #      neighbouring data points around the point to be interpolated, or
+        #   2) cubic spline interpolation formula, or
+        #   3) a fifth order polynomial interpolation formula from the six
+        #      neighboring data points around the point to be interpolated, or
+        #   4) a Sprague interpolation (see Seve, 2003).
+        # ```
+        if interpolation_type == "linear":
+            # Linear interpolation isn't actually part of the standard. All types
+            # except this one are bad. One reason: Results can be negative even if the
+            # function isn't.
+            data_s = np.interp(observer.lmbda_nm, lambda_s, data_s)
+        if interpolation_type == "lagrange-3":
+            import scipyx
 
-    values = np.dot(idata_o, idata_s * delta)
+            poly = scipyx.interp_rolling_lagrange(lambda_s, data_s, order=3)
+            data_s = poly(lmbda)
+        elif interpolation_type == "cubic spline":
+            # The standard doesn't give the boundary conditions
+            from scipy.interpolate import CubicSpline
 
-    return values * 100
+            cs = CubicSpline(lambda_s, data_s, bc_type="not-a-knot")
+            data_s = cs(lmbda)
+        elif interpolation_type == "lagrange-5":
+            assert interpolation_type == "lagrange-5"
+            import scipyx
+
+            poly = scipyx.interp_rolling_lagrange(lambda_s, data_s, order=5)
+            data_s = poly(lmbda)
+
+    xyz100 = np.sum(data_s * observer.data * delta, axis=1)
+
+    # For transmittant or reflectant objects, data_s is typically the illuminant
+    # spectrum S times a reflectance/transmittance factor R, 0<=R<=1. In this case, one
+    # should multiply by
+    #
+    # k = 100 / np.sum(S * observer.data[1] * delta)
+    #
+
+    return xyz100
 
 
-def white_point(illuminant, observer=observers.cie_1931_2()):
-    """From <https://en.wikipedia.org/wiki/White_point>:
-    The white point of an illuminant is the chromaticity of a white object under the
-    illuminant.
-    """
-    values = spectrum_to_xyz100(illuminant, observer)
-    # normalize for relative luminance, Y=100
-    values /= values[1]
-    values *= 100
-    return values
+def compute_whitepoint(illuminant: SpectralData, observer: SpectralData) -> np.ndarray:
+    xyz100 = spectrum_to_xyz100(illuminant, observer)
+    # make sure the Y value is 100
+    xyz100 *= 100 / xyz100[1]
+    return xyz100
 
 
 def planckian_radiator(temperature):
-    lmbda = 1.0e-9 * np.arange(300, 831)
+    lmbda_nm = np.arange(300, 831)
     # light speed
     c = 299792458.0
     # Plank constant
-    h = 6.62607004e-34
+    h = 6.62607015e-34
     # Boltzmann constant
-    k = 1.38064852e-23
+    k = 1.380649e-23
     c1 = 2 * np.pi * h * c ** 2
     c2 = h * c / k
-    return lmbda, c1 / lmbda ** 5 / (np.exp(c2 / lmbda / temperature) - 1)
+    lmbda = 1.0e-9 * lmbda_nm
+    return SpectralData(
+        lmbda_nm,
+        c1 / lmbda ** 5 / (np.exp(c2 / lmbda / temperature) - 1),
+        f"Planckian radiator ({temperature} K)",
+    )
 
 
-def a(interval=1.0e-9):
+def a(interval_nm: int = 1):
     """CIE Standard Illuminants for Colorimetry, 1999:
     CIE standard illuminant A is intended to represent typical, domestic,
     tungsten-filament lighting. Its relative spectral power distribution is that of a
@@ -144,19 +172,27 @@ def a(interval=1.0e-9):
     illuminant.
     """
     # https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_A
-    lmbda = np.arange(300e-9, 831e-9, interval)
+    lmbda_nm = np.arange(300, 831, interval_nm)
+    # When Illuminant A was standardized, the natural constants where such that this was
+    # the value of c2. The values of the constants have since been revised. In order to
+    # avoid further possible changes in the color temperature, the CIE now specifies the
+    # SPD directly, based on the original (1931) value of c2.
     c2 = 1.435e-2
     color_temp = 2848
-    np.exp(c2 / (color_temp * 560e-9))
     vals = (
         100
-        * (560e-9 / lmbda) ** 5
+        * (560 / lmbda_nm) ** 5
         * (
             (np.exp(c2 / (color_temp * 560e-9)) - 1)
-            / (np.exp(c2 / (color_temp * lmbda)) - 1)
+            / (np.exp(c2 / (color_temp * lmbda_nm * 1.0e-9)) - 1)
         )
     )
-    return lmbda, vals
+    return SpectralData(lmbda_nm, vals, "Illuminant A")
+
+
+def c():
+    this_dir = pathlib.Path(__file__).resolve().parent
+    return _from_file(this_dir / "data/illuminants/c.json")
 
 
 def d(nominal_temperature: float):
@@ -180,7 +216,7 @@ def d(nominal_temperature: float):
     #        S(lambda) = S0(lambda) + M1 S1(lambda) + M2 S2(lambda)
     #      using values of S0(lambda), S1(lambda) and S2(lambda) from Table T.2.
     #   6. Interpolate the 10 nm values of S(lambda) linearly to obtain values at
-    #   intermediate wavelengths.
+    #      intermediate wavelengths.
     tcp = 1.4388e-2 / 1.4380e-2 * nominal_temperature
 
     if 4000 <= tcp <= 7000:
@@ -201,10 +237,30 @@ def d(nominal_temperature: float):
     with open(this_dir / "data/illuminants/d.json") as f:
         data = json.load(f)
 
-    lmbda = np.linspace(*data["lambda"], data["num"])
-    s = np.asarray(data["s"])
+    # https://www.wikiwand.com/en/Standard_illuminant:
+    # > The tabulated SPDs presented by the CIE today are derived by linear
+    # > interpolation of the 10 nm data set down to 5 nm.
+    lmbda_start, lmbda_end, lmbda_step = data["lambda_nm"]
+    assert lmbda_step == 10
+    lmbda10 = np.arange(lmbda_start, lmbda_end + 1, lmbda_step)
+    S10 = np.asarray(data["S"])
+    # 6. Interpolate the 10 nm values of S(lambda) linearly to obtain values at
+    #    intermediate wavelengths.
+    # nschloe: I think that's pretty useless, but yeah, that's the standard.
+    lmbda5 = np.arange(lmbda_start, lmbda_end + 1, 5)
+    S5 = np.array(
+        [
+            np.interp(lmbda5, lmbda10, S10[0]),
+            np.interp(lmbda5, lmbda10, S10[1]),
+            np.interp(lmbda5, lmbda10, S10[2]),
+        ]
+    )
 
-    return lmbda, s[0] + m1 * s[1] + m2 * s[2]
+    return SpectralData(
+        lmbda5,
+        S5[0] + m1 * S5[1] + m2 * S5[2],
+        "Illuminant D" + str(nominal_temperature)[:2],
+    )
 
 
 def d50():
@@ -231,13 +287,31 @@ def e():
     """This is a hypothetical reference radiator. All wavelengths in CIE illuminant E
     are weighted equally with a relative spectral power of 100.0.
     """
-    lmbda = 1.0e-9 * np.arange(300, 831)
-    data = np.full(lmbda.shape, 100.0)
-    return lmbda, data
+    return SpectralData(np.arange(300, 831), np.full(531, 100.0), "Illuminant E")
+
+
+def _from_file(filename):
+    with open(filename) as f:
+        data = json.load(f)
+
+    start, stop, step = data["lambda_nm"]
+    return SpectralData(
+        np.arange(start, stop + 1, step),
+        data["values"],
+        data["description"],
+    )
 
 
 def f2():
     this_dir = pathlib.Path(__file__).resolve().parent
-    with open(this_dir / "data/illuminants/f2.json") as f:
-        data = json.load(f)
-    return np.linspace(*data["lambda"], data["num"]), np.array(data["values"])
+    return _from_file(this_dir / "data/illuminants/f2.json")
+
+
+def f7():
+    this_dir = pathlib.Path(__file__).resolve().parent
+    return _from_file(this_dir / "data/illuminants/f7.json")
+
+
+def f11():
+    this_dir = pathlib.Path(__file__).resolve().parent
+    return _from_file(this_dir / "data/illuminants/f11.json")

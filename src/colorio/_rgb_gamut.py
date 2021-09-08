@@ -21,8 +21,7 @@ def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50
         cells = cells[~np.any(cells == 0, axis=1)]
         cells -= 1
 
-    pts = colorspace.from_rgb_linear(points.T).T
-    # pts = colorspace.from_xyz100(rgb_linear.to_xyz100(points.T)).T
+    pts = colorspace.from_xyz100(rgb_linear.to_xyz100(points.T)).T
     assert pts.shape[1] == 3
     rgb = rgb_linear.to_rgb1(points)
     meshio.write_points_cells(

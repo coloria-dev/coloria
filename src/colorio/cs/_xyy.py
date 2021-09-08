@@ -27,9 +27,10 @@ class XYY(ColorSpace):
         if np.any(xyz100 < 0):
             raise ColorioError("Negative XYZ100 value.")
 
-        xyz = np.asarray(xyz100)
+        xyz = xyz100
         if self.Y_scaling == 1:
             xyz = xyz100 / 100
+
         sum_xyz = np.sum(xyz, axis=0)
         x = xyz[0]
         y = xyz[1]
@@ -40,7 +41,7 @@ class XYY(ColorSpace):
         if np.any(xyy < 0):
             raise ColorioError("Negative xyY value.")
         x, y, Y = xyy
-        out = np.array([Y / y * x, Y, Y / y * (1 - x - y)])
+        out = np.array([Y / y * x, Y, Y / y * (1 - (x + y))])
         if self.Y_scaling == 1:
             out *= 100
         return out

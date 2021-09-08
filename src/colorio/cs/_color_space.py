@@ -1,3 +1,6 @@
+import numpy as np
+from numpy.typing import ArrayLike
+
 from ._srgb import SrgbLinear
 
 
@@ -15,20 +18,14 @@ class ColorSpace:
     def from_xyz100(self, _):
         raise NotImplementedError("ColorSpace needs to implement from_xyz100()")
 
-    def to_rgb_linear(self, cs_coords):
-        return self.srgb_linear.from_xyz100(self.to_xyz100(cs_coords))
+    def to_rgb1(self, cs_coords: ArrayLike, mode: str = "error"):
+        xyz100 = self.to_xyz100(cs_coords)
+        rgb_linear = self.srgb_linear.from_xyz100(xyz100, mode)
+        return self.srgb_linear.to_rgb1(rgb_linear)
 
-    def to_rgb1(self, cs_coords):
-        return self.srgb_linear.to_rgb1(self.to_rgb_linear(cs_coords))
-
-    def to_rgb255(self, cs_coords):
-        return self.srgb_linear.to_rgb255(self.to_rgb_linear(cs_coords))
-
-    def from_rgb_linear(self, rgb_lin):
-        return self.from_xyz100(self.srgb_linear.to_xyz100(rgb_lin))
-
-    def from_rgb1(self, rgb1):
-        return self.from_rgb_linear(self.srgb_linear.from_rgb1(rgb1))
-
-    def from_rgb255(self, rgb255):
-        return self.from_rgb_linear(self.srgb_linear.from_rgb255(rgb255))
+    def to_rgb_hex(
+        self, cs_coords: ArrayLike, mode: str = "error", prepend: str = "#"
+    ) -> np.ndarray:
+        xyz100 = self.to_xyz100(cs_coords)
+        rgb_linear = self.srgb_linear.from_xyz100(xyz100, mode)
+        return self.srgb_linear.to_rgb_hex(rgb_linear, prepend=prepend)

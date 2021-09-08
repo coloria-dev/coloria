@@ -1,35 +1,41 @@
+from typing import Tuple
+
 import numpy as np
+from numpy.typing import ArrayLike
 
+from ._helpers import SpectralData
 from ._tools import spectrum_to_xyz100
+from .cs import ColorSpace
 
 
-def _get_surface_gamut_mesh(colorspace, observer, illuminant):
+def _get_surface_gamut_mesh(
+    colorspace: ColorSpace, observer: SpectralData, illuminant: SpectralData
+) -> Tuple[ArrayLike, ArrayLike]:
     from scipy.spatial import ConvexHull
 
-    lmbda, illu = illuminant
+    # lmbda, illu = illuminant
     values = []
 
     # Iterate over every possible illuminant input and store it in values
-    n = len(lmbda)
-    values = np.empty((n * (n - 1) + 2, 3))
-    k = 0
-
-    # No light
-    data = np.zeros(n)
-    values[k] = spectrum_to_xyz100((lmbda, illu * data), observer=observer)
-    k += 1
+    n = len(illuminant.lmbda_nm)
+    mask = np.zeros(n)
     # frequency blocks
+    values = []
+    # no light
+    xyz100 = spectrum_to_xyz100(SpectralData(illuminant.lmbda_nm, mask), observer)
+    values.append(xyz100)
     for width in range(1, n):
-        data = np.zeros(n)
-        data[:width] = 1.0
+        mask[:] = 0.0
+        mask[:width] = 1.0
         for _ in range(n):
-            values[k] = spectrum_to_xyz100((lmbda, illu * data), observer=observer)
-            k += 1
-            data = np.roll(data, shift=1)
+            spec = SpectralData(illuminant.lmbda_nm, mask * illuminant.data)
+            xyz100 = spectrum_to_xyz100(spec, observer)
+            assert np.all(xyz100 >= 0), xyz100
+            values.append(xyz100)
+            mask = np.roll(mask, shift=1)
     # Full illuminant
-    data = np.ones(len(lmbda))
-    values[k] = spectrum_to_xyz100((lmbda, illu * data), observer=observer)
-    k += 1
+    values.append(spectrum_to_xyz100(illuminant, observer))
+    values = np.array(values)
 
     # scale the values such that the Y-coordinate of the white point (last entry)
     # has value 100.

@@ -3,18 +3,26 @@ import pathlib
 
 import numpy as np
 
+from ._helpers import SpectralData
+
 this_dir = pathlib.Path(__file__).resolve().parent
 
 
-def cie_1931_2():
-    """CIE 1931 standard observer, 2 degrees."""
-    with open(this_dir / "data/observers/cie-1931-2.json") as f:
-        data = json.load(f)
-    return np.linspace(*data["lambda"], data["num"]), np.asarray(data["xyz"])
+def cie_1931_2(stepsize: int = 1):
+    return _from_file(this_dir / "data/observers/cie-1931-2.json", stepsize)
 
 
-def cie_1964_10():
-    """CIE 1964 standard observer, 10 degrees."""
-    with open(this_dir / "data/observers/cie-1964-10.json") as f:
+def cie_1964_10(stepsize: int = 1):
+    return _from_file(this_dir / "data/observers/cie-1964-10.json", stepsize)
+
+
+def _from_file(filename: pathlib.Path, stepsize: int):
+    with open(filename) as f:
         data = json.load(f)
-    return np.linspace(*data["lambda"], data["num"]), np.asarray(data["xyz"])
+
+    lmbda_start, lmbda_end, lmbda_step = data["lambda_nm"]
+    assert lmbda_step == 1
+    lmbda = np.arange(lmbda_start, lmbda_end + 1, stepsize)
+    vals = np.array(data["xyz"])[:, ::stepsize]
+
+    return SpectralData(lmbda, vals, data["name"])

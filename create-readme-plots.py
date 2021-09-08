@@ -126,3 +126,38 @@ for filename, cs in [colorio.cs.XYY1, colorio.cs.CIELAB, colorio.cs.CAM16UCS]:
     filename = f"fairchild-chen-{normalize(cs.name)}.svg"
     plt.savefig(filename, transparent=True, bbox_inches="tight")
     plt.close()
+
+
+# illuminants
+illu = colorio.illuminants.a()
+plt.plot(illu.lmbda_nm, illu.data, label="A")
+illu = colorio.illuminants.c()
+plt.plot(illu.lmbda_nm, illu.data, label="C")
+illu = colorio.illuminants.d50()
+plt.plot(illu.lmbda_nm, illu.data, label="D50")
+illu = colorio.illuminants.d65()
+plt.plot(illu.lmbda_nm, illu.data, label="D65")
+illu = colorio.illuminants.f2()
+plt.plot(illu.lmbda_nm, illu.data, label="F2")
+plt.xlabel("wavelength [nm]")
+dufte.legend()
+plt.savefig("illuminants.svg", transparent=True, bbox_inches="tight")
+
+
+# observer
+srgb = colorio.cs.SrgbLinear()
+xyz = colorio.cs.XYZ100()
+
+cols = [
+    xyz.to_rgb_hex([30.0, 0.0, 0.0], mode="clip").item(),
+    xyz.to_rgb_hex([0.0, 30.0, 0.0], mode="clip").item(),
+    xyz.to_rgb_hex([0.0, 0.0, 30.0], mode="clip").item(),
+]
+obs = colorio.observers.cie_1931_2()
+plt.plot(obs.lmbda_nm, obs.data[0], color=cols[0], label="$\\overline{x}$")
+plt.plot(obs.lmbda_nm, obs.data[1], color=cols[1], label="$\\overline{y}$")
+plt.plot(obs.lmbda_nm, obs.data[2], color=cols[2], label="$\\overline{z}$")
+plt.xlabel("wavelength [nm]")
+plt.legend()
+plt.savefig("cie-standard-observer-2.svg", transparent=True, bbox_inches="tight")
+plt.show()

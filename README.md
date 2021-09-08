@@ -16,6 +16,36 @@
 [![LGTM](https://img.shields.io/lgtm/grade/python/github/nschloe/colorio.svg?style=flat-square)](https://lgtm.com/projects/g/nschloe/colorio)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
 
+### Illuminants, observers, white points
+
+| Illuminants | CIE 1931 Observer |
+| :-------: | :----------: |
+| <img src="https://nschloe.github.io/colorio/illuminants.svg" width="100%">    |     <img src="https://nschloe.github.io/colorio/cie-standard-observer-2.svg" width="100%">   |
+
+```python
+import colorio
+import matplotlib.pyplot as plt
+
+illu = colorio.illuminants.d65()
+plt.plot(illu.lmbda_nm, illu.data)
+plt.xlabel("wavelength [nm]")
+plt.show()
+```
+The following illuminants are provided:
+- Illuminant A ("indoor light", `colorio.illuminants.a(resolution_in_nm)`)
+- Illuminant C (obsolete, "indoor light", `colorio.illuminants.c()`)
+- Illuminants D ("natural daylight", `colorio.illuminants.d(nominal_temp)` or
+  `colorio.illuminants.d65()`
+  etc.)
+- Illuminant E (equal energy, `colorio.illuminants.e()`)
+- Illuminant series F ("fluorescent lighting", `colorio.illuminants.f2()` etc.)
+
+Observers:
+- CIE 1931 Standard 2-degree observer (`colorio.observers.colorio.observers.cie_1931_2()`)
+- CIE 1964 Standard 10-degree observer (`colorio.observers.colorio.observers.cie_1964_10()`)
+
+
+
 ### Color spaces
 
 All color spaces implement the two methods
@@ -30,14 +60,12 @@ xyz = colorspace.to_xyz100(vals)
 for conversion from and to XYZ100. Adding new color spaces is as easy as writing a class
 that provides those two methods.
 
+To convert a colorspace coordinates to sRGB values, do
+
 <!--pytest-codeblocks:skip-->
 
 ```python
-colorspace.to_rgb_linear(vals)
-colorspace.to_rgb1(vals)
-colorspace.to_rgb255(vals)
-
-# same for from_rgb*
+colorspace.to_rgb_hex(vals)
 ```
 
 The following color spaces are implemented:
@@ -47,12 +75,11 @@ The following color spaces are implemented:
 - [xyY](src/colorio/cs/_xyy.py)
   (`colorio.cs.XYY(100)`, the paramter determining the scaling of `Y`)
 - [Linear sRGB](src/colorio/cs/_srgb.py) (`colorio.SrgbLinear()`)
-  This class has the two additional methods
+  This class has the additional methods
   ```
-  from_rgb1()
-  to_rgb1()
+  [to,from]_rgb[1,255,_hex]()
   ```
-  for conversion from and to standard RGB.
+  for conversion from and to standard RGB (Gamma correction).
 - [HSL](src/colorio/cs/_hsl.py) and [HSV](src/colorio/cs/_hsv.py) (`colorio.cs.HSL()`,
   `colorio.cs.HSV()`)
   These classes have the two methods
@@ -150,8 +177,8 @@ colorio provides a number of useful tools for analyzing and visualizing color sp
 
 #### sRGB gamut
 
-|                                         CIELAB                                         |                                        CAM16-UCS                                         |                                         Oklab                                         |
-| :------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: |
+|  CIELAB     |   CAM16-UCS |   Oklab    |
+| :-------: | :----------: | :-------------------------: |
 |    <img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="100%">    |     <img src="https://nschloe.github.io/colorio/srgb-gamut-cam16.png" width="100%">      |    <img src="https://nschloe.github.io/colorio/srgb-gamut-oklab.png" width="100%">    |
 | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cam16ucs.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-oklab.png" width="100%"> |
 
