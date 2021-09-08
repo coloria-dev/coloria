@@ -16,6 +16,27 @@
 [![LGTM](https://img.shields.io/lgtm/grade/python/github/nschloe/colorio.svg?style=flat-square)](https://lgtm.com/projects/g/nschloe/colorio)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
 
+### Illuminants, observers, white points
+
+|  <img src="https://nschloe.github.io/colorio/illuminants.svg" width="100%">    |     <img src="https://nschloe.github.io/colorio/cie-standard-observer-2.svg" width="100%">      |
+|: --- :|: --- :|
+
+```python
+import colorio
+import matplotlib.pyplot as plt
+
+illu = colorio.illuminants.d65()
+plt.plot(illu.lmbda_nm, illu.data)
+plt.xlabel("wavelength [nm]")
+plt.show()
+```
+The following illuminants and observers are provided:
+- Illuminant A ("indoor light", `colorio.illuminants.a(resolution_in_nm)`)
+- Illuminants D ("outdoor light", `colorio.illuminants.d(nominal_temp)` or
+  `colorio.illuminants.d65()`
+  etc.)
+- Illuminant E (equal energy, `colorio.illuminants.e()`)
+
 ### Color spaces
 
 All color spaces implement the two methods

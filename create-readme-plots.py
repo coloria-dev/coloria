@@ -126,3 +126,31 @@ for filename, cs in [colorio.cs.XYY1, colorio.cs.CIELAB, colorio.cs.CAM16UCS]:
     filename = f"fairchild-chen-{normalize(cs.name)}.svg"
     plt.savefig(filename, transparent=True, bbox_inches="tight")
     plt.close()
+
+
+# illuminants
+illu = colorio.illuminants.a()
+plt.plot(illu.lmbda_nm, illu.data, label="A")
+illu = colorio.illuminants.c()
+plt.plot(illu.lmbda_nm, illu.data, label="C")
+illu = colorio.illuminants.d50()
+plt.plot(illu.lmbda_nm, illu.data, label="D50")
+illu = colorio.illuminants.d65()
+plt.plot(illu.lmbda_nm, illu.data, label="D65")
+illu = colorio.illuminants.f2()
+plt.plot(illu.lmbda_nm, illu.data, label="F2")
+plt.xlabel("wavelength [nm]")
+plt.title("SPDs of some standard illuminants")
+dufte.legend()
+plt.savefig("illuminants.svg", transparent=True, bbox_inches="tight")
+
+
+# observer
+obs = colorio.observers.cie_1931_2()
+plt.plot(obs.lmbda_nm, obs.data[0], color="r", label="$\\overline{x}$")
+plt.plot(obs.lmbda_nm, obs.data[1], color="g", label="$\\overline{y}$")
+plt.plot(obs.lmbda_nm, obs.data[2], color="b", label="$\\overline{z}$")
+plt.xlabel("wavelength [nm]")
+plt.title("CIE XYZ Standard 2-degree observer")
+plt.legend()
+plt.savefig("cie-standard-observer-2.svg", transparent=True, bbox_inches="tight")

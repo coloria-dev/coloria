@@ -190,6 +190,11 @@ def a(interval_nm: int = 1):
     return SpectralData(lmbda_nm, vals, "Illuminant A")
 
 
+def c():
+    this_dir = pathlib.Path(__file__).resolve().parent
+    return _from_file(this_dir / "data/illuminants/c.json")
+
+
 def d(nominal_temperature: float):
     """CIE D-series illuminants.
 
