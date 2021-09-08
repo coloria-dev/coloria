@@ -1,9 +1,11 @@
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy.typing import ArrayLike
 
 from . import observers
 from ._helpers import SpectralData
+from .cs import ColorSpace, SrgbLinear
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
 
@@ -176,34 +178,44 @@ def plot_srgb1_gradient(colorspace, srgb0, srgb1, n=256):
     return plt
 
 
-def get_srgb1_gradient(colorspace, srgb0, srgb1, n):
+def get_srgb1_gradient(
+    colorspace: ColorSpace, srgb0: ArrayLike, srgb1: ArrayLike, n: int
+) -> np.ndarray:
     # convert to colorspace
-    cs = [colorspace.from_rgb1(srgb0), colorspace.from_rgb1(srgb1)]
+    s = SrgbLinear()
+
+    def to_cs(srgb):
+        return colorspace.from_xyz100(s.to_xyz100(s.from_rgb1(srgb)))
+
+    def to_rgb1(vals):
+        return s.to_rgb1(s.from_xyz100(colorspace.to_xyz100(vals), mode="clip"))
+
+    cs = [to_cs(srgb0), to_cs(srgb1)]
 
     # linspace
     ls = np.linspace(cs[0], cs[1], endpoint=True, num=n, axis=0)
 
     # back to srgb
-    srgb = colorspace.to_rgb1(ls.T).T
-
-    srgb[srgb < 0] = 0.0
-    srgb[srgb > 1] = 1.0
-    return srgb
+    return to_rgb1(ls.T).T
 
 
-def plot_srgb255_gradient(colorspace, srgb0, srgb1, n=256):
+def plot_srgb255_gradient(
+    colorspace: ColorSpace, srgb0: ArrayLike, srgb1: ArrayLike, n: int = 256
+):
     srgb0 = np.asarray(srgb0)
     srgb1 = np.asarray(srgb1)
     return plot_srgb1_gradient(colorspace, srgb0 / 255, srgb1 / 255, n)
 
 
-def get_srgb255_gradient(colorspace, srgb0, srgb1, n):
+def get_srgb255_gradient(
+    colorspace: ColorSpace, srgb0: ArrayLike, srgb1: ArrayLike, n: int
+) -> np.ndarray:
     srgb0 = np.asarray(srgb0)
     srgb1 = np.asarray(srgb1)
     return get_srgb1_gradient(colorspace, srgb0 / 255, srgb1 / 255, n) * 255
 
 
-def plot_primary_srgb_gradients(colorspace, n=256):
+def plot_primary_srgb_gradients(colorspace: ColorSpace, n: int = 256):
     pairs = [
         [([1, 1, 1], [1, 0, 0]), ([1, 0, 0], [0, 1, 0])],
         [([1, 1, 1], [0, 1, 0]), ([0, 1, 0], [0, 0, 1])],

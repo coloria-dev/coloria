@@ -37,7 +37,7 @@ class HueLinearityDataset:
         all_rgb1 = []
         for xyz in self.arms:
             pts = cs.from_xyz100(xyz)
-            rgb1 = cs.to_rgb1(pts)
+            rgb1 = cs.to_rgb1(pts, mode="clip")
             pts = pts[no_lightness]
 
             # get the eigenvector corresponding to the larger eigenvalue

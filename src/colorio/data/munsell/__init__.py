@@ -41,10 +41,10 @@ class Munsell:
         xyz100 = self.xyz100[:, V == self.V]
         pts = cs.from_xyz100(xyz100)
 
-        rgb = cs.to_rgb1(pts)
+        rgb = cs.to_rgb1(pts, mode="nan")
 
         # plot the ones that cannot be represented in SRGB in black
-        is_legal_srgb = np.all((0 <= rgb) & (rgb <= 1), axis=0)
+        is_legal_srgb = np.any(np.isnan(rgb), axis=0)
         fill = rgb.T.copy()
         fill[~is_legal_srgb] = [1.0, 1.0, 1.0]
         edge = rgb.T.copy()

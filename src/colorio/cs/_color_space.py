@@ -18,6 +18,11 @@ class ColorSpace:
     def from_xyz100(self, _):
         raise NotImplementedError("ColorSpace needs to implement from_xyz100()")
 
+    def to_rgb1(self, cs_coords: ArrayLike, mode: str = "error"):
+        xyz100 = self.to_xyz100(cs_coords)
+        rgb_linear = self.srgb_linear.from_xyz100(xyz100, mode)
+        return self.srgb_linear.to_rgb1(rgb_linear)
+
     def to_rgb_hex(
         self, cs_coords: ArrayLike, mode: str = "error", prepend: str = "#"
     ) -> np.ndarray:
