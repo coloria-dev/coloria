@@ -19,7 +19,7 @@
 ### Illuminants, observers, white points
 
 |  <img src="https://nschloe.github.io/colorio/illuminants.svg" width="100%">    |     <img src="https://nschloe.github.io/colorio/cie-standard-observer-2.svg" width="100%">      |
-|: --- :|: --- :|
+| :-------: | :----------: | :-------------------------: |
 
 ```python
 import colorio
@@ -171,8 +171,8 @@ colorio provides a number of useful tools for analyzing and visualizing color sp
 
 #### sRGB gamut
 
-|                                         CIELAB                                         |                                        CAM16-UCS                                         |                                         Oklab                                         |
-| :------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: |
+|  CIELAB     |   CAM16-UCS |   Oklab    |
+| :-------: | :----------: | :-------------------------: |
 |    <img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="100%">    |     <img src="https://nschloe.github.io/colorio/srgb-gamut-cam16.png" width="100%">      |    <img src="https://nschloe.github.io/colorio/srgb-gamut-oklab.png" width="100%">    |
 | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cam16ucs.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-oklab.png" width="100%"> |
 
