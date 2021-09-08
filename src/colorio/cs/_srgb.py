@@ -43,11 +43,27 @@ class SrgbLinear:
         # self.invM = np.linalg.inv(M)
         self.labels = ["R", "G", "B"]
 
-    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
+    def from_xyz100(self, xyz: ArrayLike, mode: str = "error") -> np.ndarray:
         # https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
         # https://www.color.org/srgb.pdf
-        # TODO NaN the values smaller than 0 and larger than 1
-        return npx.solve(self.invM, xyz) / 100
+        out = npx.solve(self.invM, xyz) / 100
+
+        if mode == "error":
+            if np.any(out < 0) or np.any(out > 1):
+                raise ValueError(
+                    "Not all XYZ values could be converted to legal sRGB. "
+                    + 'Try with `mode="clip"`.'
+                )
+        elif mode == "ignore":
+            pass
+        elif mode == "nan":
+            out[out < 0] = np.nan
+            out[out > 1] = np.nan
+        else:
+            assert mode == "clip"
+            out = out.clip(0.0, 1.0)
+
+        return out
 
     def to_xyz100(self, srgb1_linear: ArrayLike) -> np.ndarray:
         # Note: The Y value is often used for grayscale conversion.
@@ -78,3 +94,16 @@ class SrgbLinear:
 
     def to_rgb255(self, srgb_linear: ArrayLike) -> np.ndarray:
         return 255 * self.to_rgb1(srgb_linear)
+
+    def to_rgb_hex(self, srgb1: ArrayLike, prepend: str = "#") -> np.ndarray:
+        rgb255 = self.to_rgb255(srgb1)
+        # round to closest int
+        rgb255 = np.around(rgb255).astype(int)
+        # convert to hex, preserve shape
+        shape = rgb255.shape
+        assert shape[0] == 3
+        rgb255 = rgb255.reshape(3, -1)
+        hex_vals = np.array(
+            [prepend + f"{r:02x}{g:02x}{b:02x}" for r, g, b in rgb255.T]
+        ).reshape(shape[1:])
+        return hex_vals

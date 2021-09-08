@@ -60,14 +60,12 @@ xyz = colorspace.to_xyz100(vals)
 for conversion from and to XYZ100. Adding new color spaces is as easy as writing a class
 that provides those two methods.
 
+To convert a colorspace coordinates to sRGB values, do
+
 <!--pytest-codeblocks:skip-->
 
 ```python
-colorspace.to_rgb_linear(vals)
-colorspace.to_rgb1(vals)
-colorspace.to_rgb255(vals)
-
-# same for from_rgb*
+colorspace.to_rgb_hex(vals)
 ```
 
 The following color spaces are implemented:
@@ -77,12 +75,11 @@ The following color spaces are implemented:
 - [xyY](src/colorio/cs/_xyy.py)
   (`colorio.cs.XYY(100)`, the paramter determining the scaling of `Y`)
 - [Linear sRGB](src/colorio/cs/_srgb.py) (`colorio.SrgbLinear()`)
-  This class has the two additional methods
+  This class has the additional methods
   ```
-  from_rgb1()
-  to_rgb1()
+  [to,from]_rgb[1,255,_hex]()
   ```
-  for conversion from and to standard RGB.
+  for conversion from and to standard RGB (Gamma correction).
 - [HSL](src/colorio/cs/_hsl.py) and [HSV](src/colorio/cs/_hsv.py) (`colorio.cs.HSL()`,
   `colorio.cs.HSV()`)
   These classes have the two methods
