@@ -32,16 +32,16 @@ ob2 = colorio.observers.cie_1931_2()
     "illuminant,observer,ref",
     [
         (colorio.illuminants.a(), ob2, whitepoints_cie1931["A"]),
-        (colorio.illuminants.d50(), ob2, whitepoints_cie1931["D50"]),
-        (colorio.illuminants.d65(), ob2, [95.047, 100.0, 108.897]),
-        (colorio.illuminants.d75(), ob2, [94.972, 100.0, 122.636]),
+        (colorio.illuminants.d50(), ob2, [96.424, 100.0, 82.513]),
+        (colorio.illuminants.d65(), ob2, [95.047, 100.0, 108.883]),
+        (colorio.illuminants.d75(), ob2, [94.972, 100.0, 122.619]),
         # Should all sum up to 100, but the standard doesn't actually provide values
         # that do so. There's a newer not-yet-standard, CIE 2012, where this condition
         # is fulfilled up to approx 1.0e-6.
         (colorio.illuminants.e(), ob2, [100.008, 100.0, 100.033]),
-        (colorio.illuminants.f2(), ob2, [103.797, 100.0, 49.922]),
-        (colorio.illuminants.f7(), ob2, [95.039, 100.0, 108.737]),
-        (colorio.illuminants.f11(), ob2, [100.964, 100.0, 64.359]),
+        (colorio.illuminants.f2(), ob2, [103.755, 100.0, 49.864]),
+        (colorio.illuminants.f7(), ob2, [95.019, 100.0, 108.639]),
+        (colorio.illuminants.f11(), ob2, [100.904, 100.0, 64.284]),
     ],
 )
 def test_white_point(illuminant, observer, ref):
