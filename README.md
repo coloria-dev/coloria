@@ -31,12 +31,20 @@ plt.plot(illu.lmbda_nm, illu.data)
 plt.xlabel("wavelength [nm]")
 plt.show()
 ```
-The following illuminants and observers are provided:
+The following illuminants are provided:
 - Illuminant A ("indoor light", `colorio.illuminants.a(resolution_in_nm)`)
-- Illuminants D ("outdoor light", `colorio.illuminants.d(nominal_temp)` or
+- Illuminant C (obsolete, "indoor light", `colorio.illuminants.c()`)
+- Illuminants D ("natural daylight", `colorio.illuminants.d(nominal_temp)` or
   `colorio.illuminants.d65()`
   etc.)
 - Illuminant E (equal energy, `colorio.illuminants.e()`)
+- Illuminant series F ("fluorescent lighting", `colorio.illuminants.f2()` etc.)
+
+Observers:
+- CIE 1931 Standard 2-degree observer (`colorio.observers.colorio.observers.cie_1931_2()`)
+- CIE 1964 Standard 10-degree observer (`colorio.observers.colorio.observers.cie_1964_10()`)
+
+
 
 ### Color spaces
 
