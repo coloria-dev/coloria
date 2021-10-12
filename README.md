@@ -33,7 +33,7 @@ plt.show()
 ```
 The following illuminants are provided:
 - Illuminant A ("indoor light", `colorio.illuminants.a(resolution_in_nm)`)
-- Illuminant C (obsolete, "indoor light", `colorio.illuminants.c()`)
+- Illuminant C (obsolete, "North sky daylight", `colorio.illuminants.c()`)
 - Illuminants D ("natural daylight", `colorio.illuminants.d(nominal_temp)` or
   `colorio.illuminants.d65()`
   etc.)
