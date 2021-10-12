@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import ArrayLike
@@ -35,8 +37,8 @@ class EllipseDataset:
 
 def _plot_ellipses(
     cs: ColorSpace,
-    xyy100_centers: ArrayLike,
-    xyy100_points: ArrayLike,
+    xyy100_centers: list[ArrayLike],
+    xyy100_points: list[ArrayLike],
     ellipse_scaling: float,
 ):
     from matplotlib.patches import Ellipse

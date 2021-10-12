@@ -1,7 +1,6 @@
 from typing import Tuple
 
 import numpy as np
-from numpy.typing import ArrayLike
 
 from ._helpers import SpectralData
 from ._tools import spectrum_to_xyz100
@@ -10,7 +9,7 @@ from .cs import ColorSpace
 
 def _get_surface_gamut_mesh(
     colorspace: ColorSpace, observer: SpectralData, illuminant: SpectralData
-) -> Tuple[ArrayLike, ArrayLike]:
+) -> Tuple[np.ndarray, np.ndarray]:
     from scipy.spatial import ConvexHull
 
     # lmbda, illu = illuminant
