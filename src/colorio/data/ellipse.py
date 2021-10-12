@@ -48,6 +48,9 @@ def _plot_ellipses(
     # make the ellipses the same color as the axes labels
     color = plt.gca().xaxis.label.get_color()
 
+    xyy100_centers = np.asarray(xyy100_centers)
+    xyy100_points = np.asarray(xyy100_points)
+
     for center, points in zip(xyy100_centers, xyy100_points):
         # cut off the irrelevant index
         cs_center = cs.from_xyz100(_xyy100_to_xyz100(center))
