@@ -18,9 +18,9 @@
 
 ### Illuminants, observers, white points
 
-| Illuminants | CIE 1931 Observer |
-| :-------: | :----------: |
-| <img src="https://nschloe.github.io/colorio/illuminants.svg" width="100%">    |     <img src="https://nschloe.github.io/colorio/cie-standard-observer-2.svg" width="100%">   |
+|                                Illuminants                                 |                                   CIE 1931 Observer                                    |
+| :------------------------------------------------------------------------: | :------------------------------------------------------------------------------------: |
+| <img src="https://nschloe.github.io/colorio/illuminants.svg" width="100%"> | <img src="https://nschloe.github.io/colorio/cie-standard-observer-2.svg" width="100%"> |
 
 ```python
 import colorio
@@ -31,7 +31,9 @@ plt.plot(illu.lmbda_nm, illu.data)
 plt.xlabel("wavelength [nm]")
 plt.show()
 ```
+
 The following illuminants are provided:
+
 - Illuminant A ("indoor light", `colorio.illuminants.a(resolution_in_nm)`)
 - Illuminant C (obsolete, "North sky daylight", `colorio.illuminants.c()`)
 - Illuminants D ("natural daylight", `colorio.illuminants.d(nominal_temp)` or
@@ -41,10 +43,9 @@ The following illuminants are provided:
 - Illuminant series F ("fluorescent lighting", `colorio.illuminants.f2()` etc.)
 
 Observers:
+
 - CIE 1931 Standard 2-degree observer (`colorio.observers.colorio.observers.cie_1931_2()`)
 - CIE 1964 Standard 10-degree observer (`colorio.observers.colorio.observers.cie_1964_10()`)
-
-
 
 ### Color spaces
 
@@ -177,8 +178,8 @@ colorio provides a number of useful tools for analyzing and visualizing color sp
 
 #### sRGB gamut
 
-|  CIELAB     |   CAM16-UCS |   Oklab    |
-| :-------: | :----------: | :-------------------------: |
+|                                         CIELAB                                         |                                        CAM16-UCS                                         |                                         Oklab                                         |
+| :------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: |
 |    <img src="https://nschloe.github.io/colorio/srgb-gamut-cielab.png" width="100%">    |     <img src="https://nschloe.github.io/colorio/srgb-gamut-cam16.png" width="100%">      |    <img src="https://nschloe.github.io/colorio/srgb-gamut-oklab.png" width="100%">    |
 | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cielab.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-cam16ucs.png" width="100%"> | <img src="https://nschloe.github.io/colorio/srgb-gamut-slice-oklab.png" width="100%"> |
 
