@@ -31,7 +31,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Checkout code
-        uses: nschloe/action-checkout-with-lfs-cache@0.1
+        uses: nschloe/action-checkout-with-lfs-cache@v0.1
 
       - name: Install system dependencies
         run: sudo apt-get install gmsh
