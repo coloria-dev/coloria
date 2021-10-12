@@ -23,14 +23,30 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        # VTK is still missing for 3.10
+        python-version: ["3.7", "3.8", "3.9"]
     steps:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/checkout@v2
+
+      # Don't use lfs directly, but cache the lfs results.
+      # See <https://github.com/actions/checkout/issues/165#issuecomment-657673315>.
+      - name: Checkout code
+        uses: actions/checkout@v2
+        # with:
+        #   lfs: true
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+      - name: Restore LFS cache
+        uses: actions/cache@v2
+        id: lfs-cache
         with:
-          lfs: true
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}-v1
+      - name: Git LFS Pull
+        run: git lfs pull
+
       - name: Install system dependencies
         run: sudo apt-get install gmsh
       - name: Test with tox
