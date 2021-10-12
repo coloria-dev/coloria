@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import ArrayLike
@@ -35,8 +37,8 @@ class EllipseDataset:
 
 def _plot_ellipses(
     cs: ColorSpace,
-    xyy100_centers: ArrayLike,
-    xyy100_points: ArrayLike,
+    xyy100_centers: list[ArrayLike],
+    xyy100_points: list[ArrayLike],
     ellipse_scaling: float,
 ):
     from matplotlib.patches import Ellipse
@@ -47,9 +49,6 @@ def _plot_ellipses(
 
     # make the ellipses the same color as the axes labels
     color = plt.gca().xaxis.label.get_color()
-
-    xyy100_centers = np.asarray(xyy100_centers)
-    xyy100_points = np.asarray(xyy100_points)
 
     for center, points in zip(xyy100_centers, xyy100_points):
         # cut off the irrelevant index
