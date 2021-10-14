@@ -329,7 +329,7 @@ M_{16} \coloneqq \begin{pmatrix}
 >   &k = \frac{1}{5L_A + 1},\\
 >   &F_L = k^4 L_A + 0.1 {(1-k^4)}^2 {(5L_A)}^{1/3},\\
 >   &n = \frac{Y_b}{Y_W},\\
->   &z = 1.58 + \sqrt{n},\\
+>   &z = 1.48 + \sqrt{n},\\
 >   &N_{bb} = \frac{0.725}{n^{0.2}},\\
 >   &N_{cb} = N_{bb},\\
 >   &[R,G,B]_{wc} = D_{[R,G,B]} [R,G,B]_w,\\
