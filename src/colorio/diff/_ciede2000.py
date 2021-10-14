@@ -42,17 +42,10 @@ def ciede2000(
     Lp_mean = (L1 + L2) / 2
     Cp_mean = (C1p + C2p) / 2
 
-    # TODO clean this up
-    hp_mean = np.empty_like(h1p)
-    hp_avg = (h1p + h2p) / 2
-    idx = np.abs(hp_diff) <= 180
-    hp_mean[idx] = hp_avg[idx]
-    idx = ~(np.abs(hp_diff) <= 180) & (hp_avg < 180)
-    hp_mean[idx] = hp_avg[idx] + 180
-    idx = ~(np.abs(hp_diff) <= 180) & (hp_avg >= 180)
-    hp_mean[idx] = hp_avg[idx] - 180
-    idx = (C1p == 0.0) | (C2p == 0.0)
-    hp_mean[idx] = 2 * hp_avg[idx]
+    hp_mean = np.asarray((h1p + h2p) / 2)
+
+    idx = np.abs(hp_diff) > 180
+    hp_mean[idx] = (hp_mean[idx] - 180) % 360
 
     T = (
         1.0
