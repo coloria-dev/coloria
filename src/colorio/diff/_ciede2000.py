@@ -29,10 +29,12 @@ def ciede2000(
     C1p = np.sqrt(a1p ** 2 + b1 ** 2)
     C2p = np.sqrt(a2p ** 2 + b2 ** 2)
 
+    # 0 <= h1p, h2p <= 360
     h1p = np.degrees(np.arctan2(b1, a1p)) % 360
     h2p = np.degrees(np.arctan2(b2, a2p)) % 360
-    # make sure dhp is in the (-180, 180) range
+    # -360 <= hp_diff <= 360
     hp_diff = h2p - h1p
+    # make sure dhp is in the (-180, 180) range
     dhp = ((hp_diff + 180) % 360) - 180
 
     dLp = L2 - L1
@@ -47,10 +49,13 @@ def ciede2000(
     hp_avg = (h1p + h2p) / 2
     idx = np.abs(hp_diff) <= 180
     hp_mean[idx] = hp_avg[idx]
-    idx = ~(np.abs(hp_diff) <= 180) & (hp_avg < 180)
+
+    idx = (np.abs(hp_diff) > 180) & (hp_avg < 180)
     hp_mean[idx] = hp_avg[idx] + 180
-    idx = ~(np.abs(hp_diff) <= 180) & (hp_avg >= 180)
+
+    idx = (np.abs(hp_diff) > 180) & (hp_avg >= 180)
     hp_mean[idx] = hp_avg[idx] - 180
+
     idx = (C1p == 0.0) | (C2p == 0.0)
     hp_mean[idx] = 2 * hp_avg[idx]
 
