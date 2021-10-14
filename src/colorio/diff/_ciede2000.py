@@ -34,6 +34,7 @@ def ciede2000(
     h2p = np.degrees(np.arctan2(b2, a2p)) % 360
     # -360 <= hp_diff <= 360
     hp_diff = h2p - h1p
+    # dhp is the circular distance between the angles h1p and h2p in degrees
     # make sure dhp is in the (-180, 180) range
     dhp = ((hp_diff + 180) % 360) - 180
 
@@ -56,8 +57,10 @@ def ciede2000(
     idx = (np.abs(hp_diff) > 180) & (hp_avg >= 180)
     hp_mean[idx] = hp_avg[idx] - 180
 
-    idx = (C1p == 0.0) | (C2p == 0.0)
-    hp_mean[idx] = 2 * hp_avg[idx]
+    # Don't adapt hp_mean here. Ultimately, it's only used in conjunction with dHp which
+    # is 0 if one of C1p, C2p is zero, so it never has any effect.
+    # idx = (C1p == 0.0) | (C2p == 0.0)
+    # hp_mean[idx] = 2 * hp_avg[idx]
 
     T = (
         1.0
@@ -67,6 +70,7 @@ def ciede2000(
         - 0.20 * np.cos(np.radians(4 * hp_mean - 63))
     )
     dtheta = 30 * np.exp(-(((hp_mean - 275) / 25) ** 2))
+
     R_C = 2 * np.sqrt(Cp_mean ** 7 / (Cp_mean ** 7 + 25 ** 7))
     S_L = 1 + 0.015 * (Lp_mean - 50) ** 2 / np.sqrt(20 + (Lp_mean - 50) ** 2)
     S_C = 1 + 0.045 * Cp_mean
