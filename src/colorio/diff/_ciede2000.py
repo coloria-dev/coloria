@@ -45,17 +45,21 @@ def ciede2000(
     Lp_mean = (L1 + L2) / 2
     Cp_mean = (C1p + C2p) / 2
 
-    # TODO clean this up
-    hp_mean = np.empty_like(h1p)
-    hp_avg = (h1p + h2p) / 2
-    idx = np.abs(hp_diff) <= 180
-    hp_mean[idx] = hp_avg[idx]
-
-    idx = (np.abs(hp_diff) > 180) & (hp_avg < 180)
-    hp_mean[idx] = hp_avg[idx] + 180
-
-    idx = (np.abs(hp_diff) > 180) & (hp_avg >= 180)
-    hp_mean[idx] = hp_avg[idx] - 180
+    # Here, we try to find the "average" of two angles. If the angles are exactly
+    # opposite, the "average" is discontinuous. This leads to a discontinuity in
+    # CIEDE2000. Compare, for example the distance between
+    #
+    #   (50.0000, -0.0010 + 1.0e-13, 2.4900), (50.0000, 0.0010, -2.4900),
+    #   4.7460664530392656,
+    #
+    # and
+    #
+    #   (50.0000, -0.0010 - 1.0e-13, 2.4900), (50.0000, 0.0010, -2.4900),
+    #   4.804524508211764.
+    #
+    # It's a matter of preference which value is chosen right at the discontinuity;
+    # colorio just goes with what the simplest implementation yields.
+    hp_mean = ((dhp / 2) + h1p) % 360
 
     # Don't adapt hp_mean here. Ultimately, it's only used in conjunction with dHp which
     # is 0 if one of C1p, C2p is zero, so it never has any effect.
