@@ -13,7 +13,11 @@ def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50
         assert variant.lower() in ["hdr", "rec2020", "rec2100"]
         rgb_linear = HdrLinear()
 
-    points, cells = meshzoo.cube_hexa((0.0, 1.0), (0.0, 1.0), (0.0, 1.0), n)
+    points, cells = meshzoo.cube_hexa(
+        np.linspace(0.0, 1.0, n + 1),
+        np.linspace(0.0, 1.0, n + 1),
+        np.linspace(0.0, 1.0, n + 1),
+    )
 
     if not colorspace.is_origin_well_defined:
         # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
@@ -37,7 +41,11 @@ def plot_rgb_gamut(colorspace, n: int = 51, show_grid: bool = True):
     import pyvista as pv
     import vtk
 
-    points, cells = meshzoo.cube_hexa((0.0, 1.0), (0.0, 1.0), (0.0, 1.0), n)
+    points, cells = meshzoo.cube_hexa(
+        np.linspace(0.0, 1.0, n + 1),
+        np.linspace(0.0, 1.0, n + 1),
+        np.linspace(0.0, 1.0, n + 1),
+    )
     cells = np.column_stack([np.full(cells.shape[0], cells.shape[1]), cells])
 
     srgb_linear = SrgbLinear()
@@ -88,7 +96,11 @@ def plot_rgb_slice(
     # TODO HDR
     assert variant in ["srgb", "rec709"]
 
-    points, cells = meshzoo.cube_hexa((0.0, 1.0), (0.0, 1.0), (0.0, 1.0), n)
+    points, cells = meshzoo.cube_hexa(
+        np.linspace(0.0, 1.0, n + 1),
+        np.linspace(0.0, 1.0, n + 1),
+        np.linspace(0.0, 1.0, n + 1),
+    )
     cells = np.column_stack([np.full(cells.shape[0], cells.shape[1]), cells])
 
     srgb_linear = SrgbLinear()

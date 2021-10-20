@@ -3,7 +3,7 @@ import numpy as np
 
 from . import observers
 from ._tools import get_mono_outline_xy
-from .cs import XYY, XYZ, ColorCoordinates, convert
+from .cs import XYY, XYZ, ColorCoordinates, ColorSpace, convert
 
 
 def _get_visible_gamut_mesh(observer, max_Y1, h=4.0e-2):
@@ -58,29 +58,39 @@ def plot_visible_gamut(colorspace, observer, max_Y1, show_grid=True, h=4.0e-2):
     return p
 
 
-def plot_visible_slice(colorspace, lightness, outline_prec=1.0e-2, fill_color="0.8"):
+def plot_visible_slice(
+    colorspace: ColorSpace,
+    lightness: float,
+    outline_prec: float = 1.0e-2,
+    fill_color="0.8",
+):
     # first plot the monochromatic outline
     mono_xy, conn_xy = get_mono_outline_xy(
         observer=observers.cie_1931_2(), max_stepsize=outline_prec
     )
 
-    mono_vals = np.array([_find_Y(colorspace, xy, lightness) for xy in mono_xy])
-    conn_vals = np.array([_find_Y(colorspace, xy, lightness) for xy in conn_xy])
+    mono_vals = ColorCoordinates(
+        np.array([_find_Y(colorspace, xy, lightness).data for xy in mono_xy]).T,
+        colorspace,
+    )
+    conn_vals = ColorCoordinates(
+        np.array([_find_Y(colorspace, xy, lightness).data for xy in conn_xy]).T,
+        colorspace,
+    )
 
-    k1, k2 = (k for k in [0, 1, 2] if k != colorspace.k0)
-    plt.plot(mono_vals[:, k1], mono_vals[:, k2], "-", color="k")
-    plt.plot(conn_vals[:, k1], conn_vals[:, k2], ":", color="k")
+    plt.plot(*mono_vals.data_hue, "-", color="k")
+    plt.plot(*conn_vals.data_hue, ":", color="k")
     #
     if fill_color is not None:
-        xyz = np.vstack([mono_vals, conn_vals[1:]])
-        plt.fill(xyz[:, k1], xyz[:, k2], facecolor=fill_color, zorder=0)
+        x, y = np.column_stack([mono_vals.data_hue, conn_vals.data_hue[:, 1:]])
+        plt.fill(x, y, facecolor=fill_color, zorder=0)
 
     plt.axis("equal")
-    plt.xlabel(colorspace.labels[k1])
-    plt.ylabel(colorspace.labels[k2])
+    plt.xlabel(colorspace.hue_labels[0])
+    plt.ylabel(colorspace.hue_labels[1])
     plt.title(
         f"visible gamut slice in {colorspace.name} with "
-        f"{colorspace.labels[colorspace.k0]}={lightness}"
+        f"{colorspace.lightness_label}={lightness}"
     )
 
     return plt
