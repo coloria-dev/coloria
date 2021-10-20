@@ -47,7 +47,28 @@ Observers:
 - CIE 1931 Standard 2-degree observer (`colorio.observers.colorio.observers.cie_1931_2()`)
 - CIE 1964 Standard 10-degree observer (`colorio.observers.colorio.observers.cie_1964_10()`)
 
-### Color spaces
+### Color coordinates and spaces
+
+Color coordinates are handled as NumPy arrays or as `ColorCoordinates`, a thin wrapper
+that retains the color space information and has some handy helper methods:
+
+```python
+from colorio.cs import ColorCoordinates, CIELAB, OKLAB
+
+# you can also plug in large numpy arrays here
+cc = ColorCoordinates([0.1, 0.5, 13.3], CIELAB())
+
+cc.color_space
+# access the raw numpy array:
+cc.data
+
+# get RGB represenations
+cc.get_rgb1("clip")
+cc.get_rgb_hex("clip")
+
+# convert to other color space
+cc_oklab = cc.convert(OKLAB())
+```
 
 All color spaces implement the two methods
 
@@ -59,17 +80,7 @@ xyz = colorspace.to_xyz100(vals)
 ```
 
 for conversion from and to XYZ100. Adding new color spaces is as easy as writing a class
-that provides those two methods.
-
-To convert a colorspace coordinates to sRGB values, do
-
-<!--pytest-codeblocks:skip-->
-
-```python
-colorspace.to_rgb_hex(vals)
-```
-
-The following color spaces are implemented:
+that provides those two methods. The following color spaces are already implemented:
 
 - [XYZ](src/colorio/cs/_xyz.py) (`colorio.cs.XYZ(100)`, the
   parameter determining the scaling)
