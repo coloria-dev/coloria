@@ -45,8 +45,6 @@ class LuoRigg(EllipseDataset):
                 offsets = np.dot(J, circle_pts)
                 pts = (c + offsets.T).T
 
-                print(pts.shape)
-
                 xyy100_centers.append(np.array([*c, Y]))
                 xyy100_points.append(np.array([*pts, np.full(pts.shape[1], Y)]).T)
 
