@@ -2,6 +2,7 @@ import dufte
 import matplotlib.pyplot as plt
 
 import colorio
+from colorio.cs import ColorCoordinates
 
 plt.style.use(dufte.style)
 
@@ -89,7 +90,7 @@ for cs in [colorio.cs.XYY1, colorio.cs.CIELAB, colorio.cs.CAM16UCS]:
     plt.close()
 
 
-for filename, cs in [colorio.cs.XYY1, colorio.cs.CIELAB, colorio.cs.CAM16UCS]:
+for cs in [colorio.cs.XYY1, colorio.cs.CIELAB, colorio.cs.CAM16UCS]:
     colorio.data.HungBerns().plot(cs)
     plt.gca().set_aspect("equal")
     plt.gca().grid(False)
@@ -118,7 +119,7 @@ for cs in [colorio.cs.XYY1, colorio.cs.CIELAB, colorio.cs.CAM16UCS]:
     plt.close()
 
 
-for filename, cs in [colorio.cs.XYY1, colorio.cs.CIELAB, colorio.cs.CAM16UCS]:
+for cs in [colorio.cs.XYY1, colorio.cs.CIELAB, colorio.cs.CAM16UCS]:
     colorio.data.FairchildChen("SL2").plot(cs)
     # plt.gca().set_aspect("equal")
     # plt.gca().grid(False)
@@ -142,16 +143,17 @@ plt.plot(illu.lmbda_nm, illu.data, label="F2")
 plt.xlabel("wavelength [nm]")
 dufte.legend()
 plt.savefig("illuminants.svg", transparent=True, bbox_inches="tight")
+plt.close()
 
 
 # observer
 srgb = colorio.cs.SrgbLinear()
-xyz = colorio.cs.XYZ100()
+xyz100 = colorio.cs.XYZ100()
 
 cols = [
-    xyz.to_rgb_hex([30.0, 0.0, 0.0], mode="clip").item(),
-    xyz.to_rgb_hex([0.0, 30.0, 0.0], mode="clip").item(),
-    xyz.to_rgb_hex([0.0, 0.0, 30.0], mode="clip").item(),
+    ColorCoordinates([30.0, 0.0, 0.0], xyz100).get_rgb1("clip"),
+    ColorCoordinates([0.0, 30.0, 0.0], xyz100).get_rgb1("clip"),
+    ColorCoordinates([0.0, 0.0, 30.0], xyz100).get_rgb1("clip"),
 ]
 obs = colorio.observers.cie_1931_2()
 plt.plot(obs.lmbda_nm, obs.data[0], color=cols[0], label="$\\overline{x}$")

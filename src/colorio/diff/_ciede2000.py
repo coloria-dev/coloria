@@ -57,12 +57,22 @@ def ciede2000(
     #   (50.0000, -0.0010 - 1.0e-13, 2.4900), (50.0000, 0.0010, -2.4900),
     #   4.804524508211764.
     #
+    # See
+    #
+    #   Gaurav Sharma, Wencheng Wu, Edul N. Dalal,
+    #   The CIEDE2000 Color-Difference Formula: Implementation Notes, Supplementary Test
+    #   Data, and Mathematical Observations,
+    #   <https://doi.org/10.1002/col.20070>,
+    #   <http://www2.ece.rochester.edu/~gsharma/ciede2000/ciede2000noteCRNA.pdf>
+    #
+    # for a closer look at the discontinuity.
+    #
     # It's a matter of preference which value is chosen right at the discontinuity;
     # colorio just goes with what the simplest implementation yields.
     hp_mean = ((dhp / 2) + h1p) % 360
 
-    # Don't adapt hp_mean here. Ultimately, it's only used in conjunction with dHp which
-    # is 0 if one of C1p, C2p is zero, so it never has any effect.
+    # No need to adapt hp_mean here. Ultimately, it's only used in conjunction with dHp
+    # which is 0 if one of C1p, C2p is zero, so it never has any effect.
     # idx = (C1p == 0.0) | (C2p == 0.0)
     # hp_mean[idx] = 2 * hp_avg[idx]
 

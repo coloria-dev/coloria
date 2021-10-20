@@ -9,6 +9,7 @@ import pathlib
 
 import numpy as np
 
+from ...cs import XYY, ColorCoordinates
 from ..ellipse import EllipseDataset
 
 
@@ -45,6 +46,9 @@ class LuoRigg(EllipseDataset):
                 pts = (c + offsets.T).T
 
                 xyy100_centers.append(np.array([*c, Y]))
-                xyy100_points.append(np.array([*pts, np.full(pts.shape[1], Y)]))
+                xyy100_points.append(np.array([*pts, np.full(pts.shape[1], Y)]).T)
+
+        xyy100_centers = ColorCoordinates(np.array(xyy100_centers).T, XYY(100))
+        xyy100_points = ColorCoordinates(np.array(xyy100_points).T, XYY(100))
 
         super().__init__("Luo-Rigg", xyy100_centers, xyy100_points)

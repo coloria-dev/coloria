@@ -5,7 +5,7 @@ from typing import Type
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import XYY, ColorSpace
+from ...cs import XYY, XYZ, ColorCoordinates, ColorSpace
 from ...illuminants import whitepoints_cie1931
 from ..helpers import create_cs_class_instance, stress_absolute
 
@@ -20,8 +20,9 @@ class Munsell:
         self.h = np.array(data["h"])
         self.V = np.array(data["V"])
         self.C = np.array(data["C"])
-        xyy100 = np.array([data["x"], data["y"], data["Y"]])
-        self.xyz100 = XYY(100).to_xyz100(xyy100)
+
+        xyy100 = ColorCoordinates([data["x"], data["y"], data["Y"]], XYY(100))
+        self.xyz100 = xyy100.convert(XYZ(100))
 
         # Whitepoint and CIECAM02 info from the JzAzBz paper:
         self.whitepoint_xyz100 = whitepoints_cie1931["C"]
@@ -38,27 +39,28 @@ class Munsell:
         )
 
         # pick the data from the given munsell level
-        xyz100 = self.xyz100[:, V == self.V]
-        pts = cs.from_xyz100(xyz100)
-
-        rgb = cs.to_rgb1(pts, mode="nan")
+        xyz100 = ColorCoordinates(self.xyz100.data[:, V == self.V], XYZ(100))
+        coords = xyz100.convert(cs)
+        rgb = coords.get_rgb1(mode="nan")
 
         # plot the ones that cannot be represented in SRGB in black
-        is_legal_srgb = np.any(np.isnan(rgb), axis=0)
+        is_legal_srgb = ~np.any(np.isnan(rgb), axis=0)
         fill = rgb.T.copy()
         fill[~is_legal_srgb] = [1.0, 1.0, 1.0]
         edge = rgb.T.copy()
         edge[~is_legal_srgb] = [0.0, 0.0, 0.0]
 
-        idx = [0, 1, 2]
-        assert cs.k0 is not None
-        k1, k2 = idx[: cs.k0] + idx[cs.k0 + 1 :]
-
-        plt.scatter(pts[k1], pts[k2], marker="o", color=fill, edgecolors=edge)
+        plt.scatter(
+            coords.data_hue[0],
+            coords.data_hue[1],
+            marker="o",
+            color=fill,
+            edgecolors=edge,
+        )
 
         plt.title(f"Munsell points at lightness V={V} in {cs.name}")
-        plt.xlabel(cs.labels[k1])
-        plt.ylabel(cs.labels[k2], rotation=0)
+        plt.xlabel(cs.hue_labels[0])
+        plt.ylabel(cs.hue_labels[1], rotation=0)
         plt.axis("equal")
         return plt
 
@@ -67,8 +69,10 @@ class Munsell:
             cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
         )
 
-        L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
-        L_ = cs.from_xyz100(self.xyz100)[cs.k0] - L0_
+        xyz_origin = ColorCoordinates(np.zeros(3), XYZ(100))
+        L0_ = xyz_origin.convert(cs).data_lightness
+        L_ = self.xyz100.convert(cs).data_lightness - L0_
+
         ref = self.V
         alpha = np.dot(ref, L_) / np.dot(ref, ref)
 
@@ -78,7 +82,7 @@ class Munsell:
         plt.plot(y, alpha * v, label="scaled Munsell lightness")
         # plt.grid()
         plt.xlabel("Y")
-        plt.ylabel(cs.labels[cs.k0], rotation=0)
+        plt.ylabel(cs.lightness_label, rotation=0)
         plt.title(f"{cs.name} lightness of Munsell samples")
 
         y_vals = []
@@ -90,14 +94,14 @@ class Munsell:
         l_vals = []
         for k in range(1, 10):
             idx = self.V == k
-            y_vals.append(self.xyz100[1, idx][0])
+            y_vals.append(self.xyz100.data[1, idx][0])
             avg2 = np.sqrt(np.mean(L_[idx] ** 2))
             # avg2 = np.mean(L_[idx])
             l_avg2.append(avg2)
             l_err0.append(avg2 - np.min(L_[idx]))
             l_err1.append(np.max(L_[idx]) - avg2)
             #
-            y_vals2.append(self.xyz100[1, idx])
+            y_vals2.append(self.xyz100.data[1, idx])
             l_vals.append(L_[idx])
 
         plt.errorbar(
@@ -123,9 +127,9 @@ class Munsell:
         )
 
         # Move L0 into origin for translation invariance
-        assert cs.k0 is not None
-        L0_ = cs.from_xyz100(np.zeros(3))[cs.k0]
-        L_ = cs.from_xyz100(self.xyz100)[cs.k0] - L0_
+        xyz_origin = ColorCoordinates(np.zeros(3), XYZ(100))
+        L0_ = xyz_origin.convert(cs).data_lightness
+        L_ = self.xyz100.convert(cs).data_lightness - L0_
 
         return stress_absolute(self.V, L_)
 

@@ -2,62 +2,57 @@ from __future__ import annotations
 
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy.typing import ArrayLike
 
-from ..cs import ColorSpace
+from ..cs import ColorCoordinates, ColorSpace
 
 
 class EllipseDataset:
-    def __init__(self, name: str, xyy100_centers: ArrayLike, xyy100_points: ArrayLike):
+    def __init__(self, name: str, centers: ColorCoordinates, points: ColorCoordinates):
         self.name = name
-        self.xyy100_centers = np.asarray(xyy100_centers)
-        self.xyy100_points = np.asarray(xyy100_points)
+        self.centers = centers
+        self.points = points
 
     def stress(self, cs: ColorSpace):
-        distances = []
-        for xyy100_center, xyy100_pts in zip(self.xyy100_centers, self.xyy100_points):
-            # append Y
-            cs_center = cs.from_xyz100(_xyy100_to_xyz100(xyy100_center))
-            cs_ellips = cs.from_xyz100(_xyy100_to_xyz100(xyy100_pts))
-            # compute distances to ellipse center
-            diff = (cs_center - cs_ellips.T).T
-            distances.append(np.sqrt(np.einsum("ij,ij->j", diff, diff)))
+        cs_centers = self.centers.convert(cs)
+        cs_points = self.points.convert(cs)
 
-        distances = np.concatenate(distances)
+        diff = (cs_centers.data[:, None] - cs_points.data).reshape(3, -1)
+        distances = np.sqrt(np.einsum("ij,ij->j", diff, diff))
+
         alpha = np.average(distances)
         return 100 * np.sqrt(np.sum((alpha - distances) ** 2) / np.sum(distances ** 2))
 
     def plot(self, cs: ColorSpace, ellipse_scaling: float = 1.0):
-        _plot_ellipses(
-            cs, self.xyy100_centers, self.xyy100_points, ellipse_scaling=ellipse_scaling
-        )
+        # merge centers and points
+        centers_points = [
+            ColorCoordinates(np.column_stack([center, pts.T]), self.centers.color_space)
+            for center, pts in zip(self.centers.data.T, self.points.data.T)
+        ]
+        _plot_ellipses(cs, centers_points, ellipse_scaling=ellipse_scaling)
         plt.title(f"{self.name} ellipses for {cs.name}")
         return plt
 
 
 def _plot_ellipses(
     cs: ColorSpace,
-    xyy100_centers: list[ArrayLike],
-    xyy100_points: list[ArrayLike],
+    centers_points: list[ColorCoordinates],
     ellipse_scaling: float,
 ):
     from matplotlib.patches import Ellipse
     from scipy.optimize import leastsq
 
-    keep = [True, True, True]
-    keep[cs.k0] = False
-
     # make the ellipses the same color as the axes labels
     color = plt.gca().xaxis.label.get_color()
 
-    for center, points in zip(xyy100_centers, xyy100_points):
-        # cut off the irrelevant index
-        cs_center = cs.from_xyz100(_xyy100_to_xyz100(center))
-        cs_points = cs.from_xyz100(_xyy100_to_xyz100(points))
+    cs_centers = []
 
-        # project out lightness component
-        tcenter = cs_center[keep]
-        tvals = cs_points[keep]
+    for center_points in centers_points:
+        cp = center_points.convert(cs).data_hue
+        # The first entry is the center, the rest the surrounding points
+        tcenter = cp[:, 0]
+        cs_centers.append(tcenter)
+
+        tvals = cp[:, 1:]
 
         # Given these new transformed vals, find the ellipse that best fits those
         # points
@@ -110,28 +105,20 @@ def _plot_ellipses(
         # plt.show()
 
     plt.gca().set_aspect("equal")
-    labels = np.asarray(cs.labels)[keep]
-    plt.xlabel(labels[0])
-    plt.ylabel(labels[1], rotation=0)
+    plt.xlabel(cs.hue_labels[0])
+    plt.ylabel(cs.hue_labels[1], rotation=0)
 
     # mpl doesn't update axis limits when adding artists,
     # <https://github.com/matplotlib/matplotlib/issues/19290>.
     # Handle it manually for now.
-    tcenters = []
-    for center, points in zip(xyy100_centers, xyy100_points):
-        cs_center = cs.from_xyz100(_xyy100_to_xyz100(center))
-        tcenters.append(np.delete(cs_center, cs.k0))
-    tcenters = np.asarray(tcenters).T
-    xmin = np.min(tcenters[0])
-    xmax = np.max(tcenters[0])
-    ymin = np.min(tcenters[1])
-    ymax = np.max(tcenters[1])
+
+    cs_centers = np.array(cs_centers)
+
+    xmin = np.min(cs_centers[:, 0])
+    xmax = np.max(cs_centers[:, 0])
+    ymin = np.min(cs_centers[:, 1])
+    ymax = np.max(cs_centers[:, 1])
     width = xmax - xmin
     height = ymax - ymin
     plt.xlim(xmin - 0.2 * width, xmax + 0.2 * width)
     plt.ylim(ymin - 0.2 * height, ymax + 0.2 * height)
-
-
-def _xyy100_to_xyz100(xyy: ArrayLike) -> np.ndarray:
-    x, y, Y = np.asarray(xyy)
-    return np.array([Y / y * x, Y, Y / y * (1 - x - y)])

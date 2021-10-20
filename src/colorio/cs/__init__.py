@@ -4,6 +4,7 @@ from ._ciehcl import CIEHCL
 from ._cielab import CIELAB
 from ._cielch import CIELCH
 from ._cieluv import CIELUV
+from ._color_coordinates import ColorCoordinates, convert
 from ._color_space import ColorSpace
 from ._din99 import DIN99
 from ._hdr import HdrLinear
@@ -53,4 +54,7 @@ __all__ = [
     "XYZ",
     "XYZ1",
     "XYZ100",
+    #
+    "ColorCoordinates",
+    "convert",
 ]

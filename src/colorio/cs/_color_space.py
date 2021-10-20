@@ -1,15 +1,8 @@
-import numpy as np
-from numpy.typing import ArrayLike
-
-from ._srgb import SrgbLinear
-
-
 class ColorSpace:
     name = "unknown"
     labels = ("", "", "")
     is_origin_well_defined = True
     k0 = None
-    srgb_linear = SrgbLinear()
 
     def __repr__(self):
         return f"<colorio color space {self.name}>"
@@ -20,14 +13,14 @@ class ColorSpace:
     def from_xyz100(self, _):
         raise NotImplementedError("ColorSpace needs to implement from_xyz100()")
 
-    def to_rgb1(self, cs_coords: ArrayLike, mode: str = "error"):
-        xyz100 = self.to_xyz100(cs_coords)
-        rgb_linear = self.srgb_linear.from_xyz100(xyz100, mode)
-        return self.srgb_linear.to_rgb1(rgb_linear)
+    @property
+    def lightness_label(self):
+        assert self.k0 is not None
+        return self.labels[self.k0]
 
-    def to_rgb_hex(
-        self, cs_coords: ArrayLike, mode: str = "error", prepend: str = "#"
-    ) -> np.ndarray:
-        xyz100 = self.to_xyz100(cs_coords)
-        rgb_linear = self.srgb_linear.from_xyz100(xyz100, mode)
-        return self.srgb_linear.to_rgb_hex(rgb_linear, prepend=prepend)
+    @property
+    def hue_labels(self):
+        assert self.k0 is not None
+        hue_idx = [True, True, True]
+        hue_idx[self.k0] = False
+        return [label for k, label in enumerate(self.labels) if k != self.k0]

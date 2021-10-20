@@ -42,8 +42,15 @@ class XYZ1(XYZ):
         super().__init__(1)
 
 
-class XYZ100(XYZ):
+class XYZ100(ColorSpace):
     name = "XYZ100"
+    labels = ("X", "Y", "Z")
 
     def __init__(self):
-        super().__init__(100)
+        super().__init__()
+
+    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
+        return np.asarray(xyz)
+
+    def to_xyz100(self, xyz: ArrayLike) -> np.ndarray:
+        return np.asarray(xyz)

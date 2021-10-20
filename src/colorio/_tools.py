@@ -5,33 +5,28 @@ from numpy.typing import ArrayLike
 
 from . import observers
 from ._helpers import SpectralData
-from .cs import ColorSpace, SrgbLinear
+from .cs import XYY100, XYZ100, ColorCoordinates, ColorSpace, SrgbLinear
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
 
-def _xyy_from_xyz100(xyz):
-    sum_xyz = np.sum(xyz, axis=0)
-    x = xyz[0]
-    y = xyz[1]
-    return np.array([x / sum_xyz, y / sum_xyz, y / 100])
-
-
-# def _xyy_to_xyz100(xyy):
-#     x, y, Y = xyy
-#     return np.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
+def _unit_vector(n, k):
+    vec = np.zeros(n)
+    vec[k] = 1.0
+    return vec
 
 
 def _plot_monochromatic(observer, fill_horseshoe=True):
     # draw outline of monochromatic spectra
     lmbda_nm = np.arange(380, 701)
-    values = []
-    # TODO vectorize (see <https://github.com/numpy/numpy/issues/10439>)
-    for k, _ in enumerate(lmbda_nm):
-        data = np.zeros(len(lmbda_nm))
-        data[k] = 1.0
-        sd = SpectralData(lmbda_nm, data)
-        values.append(_xyy_from_xyz100(spectrum_to_xyz100(sd, observer))[:2])
-    values = np.array(values)
+
+    n = len(lmbda_nm)
+    values = np.array(
+        [
+            spectrum_to_xyz100(SpectralData(lmbda_nm, _unit_vector(n, k)), observer)
+            for k in range(n)
+        ]
+    )
+    values = ColorCoordinates(values.T, XYZ100()).convert(XYY100()).data_hue.T
 
     # Add the values between the first and the last point of the horseshoe
     t = np.linspace(0.0, 1.0, 101)
@@ -54,13 +49,14 @@ def _plot_monochromatic(observer, fill_horseshoe=True):
 
 def _plot_planckian_locus(observer):
     # plot planckian locus
-    values = []
-    for temp in np.arange(1000, 20001, 100):
-        values.append(
-            _xyy_from_xyz100(spectrum_to_xyz100(planckian_radiator(temp), observer))
-        )
-    values = np.array(values)
-    plt.plot(values[:, 0], values[:, 1], ":k", label="Planckian locus")
+    values = np.array(
+        [
+            spectrum_to_xyz100(planckian_radiator(temp), observer)
+            for temp in np.arange(1000, 20001, 100)
+        ]
+    )
+    x, y = ColorCoordinates(values.T, XYZ100()).convert(XYY100()).data[:2]
+    plt.plot(x, y, ":k", label="Planckian locus")
 
 
 def plot_xy_gamut(fill_horseshoe=True, plot_planckian_locus=True):
@@ -96,15 +92,19 @@ def xy_gamut_mesh(lcar):
 
     # Gather all points on the horseshoe outline
     lmbda_nm = np.arange(380, 701)
-    all_points = np.empty((len(lmbda_nm), 2))
-    for k in range(len(lmbda_nm)):
-        data = np.zeros(len(lmbda_nm))
-        data[k] = 1.0
-        xyz100 = spectrum_to_xyz100(SpectralData(lmbda_nm, data), observer)
-        all_points[k] = _xyy_from_xyz100(xyz100)[:2]
+
+    n = len(lmbda_nm)
+    xyz100 = np.array(
+        [
+            spectrum_to_xyz100(SpectralData(lmbda_nm, _unit_vector(n, k)), observer)
+            for k in range(n)
+        ]
+    )
+
+    x, y = ColorCoordinates(xyz100.T, XYZ100()).convert(XYY100()).data[:2]
 
     # Generate gmsh geometry: spline + straight line
-    all_points = np.column_stack([all_points, np.zeros(len(all_points))])
+    all_points = np.column_stack([x, y, np.zeros_like(x)])
     with pygmsh.geo.Geometry() as geom:
         gmsh_points = [geom.add_point(pt, lcar) for pt in all_points]
         s1 = geom.add_spline(gmsh_points)
@@ -132,11 +132,20 @@ def get_mono_outline_xy(observer, max_stepsize):
     mono[:] = 0.0
     mono[-1] = 1.0
     mono_spectrum = SpectralData(observer.lmbda_nm, mono)
-    first = _xyy_from_xyz100(spectrum_to_xyz100(mono_spectrum, observer))[:2]
+    first = (
+        ColorCoordinates(spectrum_to_xyz100(mono_spectrum, observer), XYZ100())
+        .convert(XYY100())
+        .data[:2]
+    )
+
     mono[:] = 0.0
     mono[0] = 1.0
     mono_spectrum = SpectralData(observer.lmbda_nm, mono)
-    last = _xyy_from_xyz100(spectrum_to_xyz100(mono_spectrum, observer))[:2]
+    last = (
+        ColorCoordinates(spectrum_to_xyz100(mono_spectrum, observer), XYZ100())
+        .convert(XYY100())
+        .data[:2]
+    )
     #
     diff = first - last
     dist = np.sqrt(np.sum(diff ** 2))
@@ -152,7 +161,11 @@ def get_mono_outline_xy(observer, max_stepsize):
         mono[:] = 0.0
         mono[k] = 1.0
         mono_spectrum = SpectralData(observer.lmbda_nm, mono)
-        val = _xyy_from_xyz100(spectrum_to_xyz100(mono_spectrum, observer))[:2]
+        val = (
+            ColorCoordinates(spectrum_to_xyz100(mono_spectrum, observer), XYZ100())
+            .convert(XYY100())
+            .data[:2]
+        )
 
         diff = vals_mono[-1] - val
         dist = np.sqrt(np.dot(diff, diff))
@@ -182,21 +195,14 @@ def get_srgb1_gradient(
     colorspace: ColorSpace, srgb0: ArrayLike, srgb1: ArrayLike, n: int
 ) -> np.ndarray:
     # convert to colorspace
-    s = SrgbLinear()
-
-    def to_cs(srgb):
-        return colorspace.from_xyz100(s.to_xyz100(s.from_rgb1(srgb)))
-
-    def to_rgb1(vals):
-        return s.to_rgb1(s.from_xyz100(colorspace.to_xyz100(vals), mode="clip"))
-
-    cs = [to_cs(srgb0), to_cs(srgb1)]
+    srgb_linear = SrgbLinear()
+    cs0 = ColorCoordinates(srgb0, srgb_linear).convert(colorspace).data
+    cs1 = ColorCoordinates(srgb1, srgb_linear).convert(colorspace).data
 
     # linspace
-    ls = np.linspace(cs[0], cs[1], endpoint=True, num=n, axis=0)
-
-    # back to srgb
-    return to_rgb1(ls.T).T
+    ls = np.linspace(cs0, cs1, endpoint=True, num=n, axis=0)
+    coords = ColorCoordinates(ls.T, colorspace)
+    return coords.get_rgb1(mode="clip").T
 
 
 def plot_srgb255_gradient(

@@ -1,6 +1,6 @@
 import numpy as np
 
-from .cs import HdrLinear, SrgbLinear
+from .cs import ColorCoordinates, HdrLinear, SrgbLinear, convert
 
 
 def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50):
@@ -13,7 +13,11 @@ def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50
         assert variant.lower() in ["hdr", "rec2020", "rec2100"]
         rgb_linear = HdrLinear()
 
-    points, cells = meshzoo.cube_hexa((0.0, 1.0), (0.0, 1.0), (0.0, 1.0), n)
+    points, cells = meshzoo.cube_hexa(
+        np.linspace(0.0, 1.0, n + 1),
+        np.linspace(0.0, 1.0, n + 1),
+        np.linspace(0.0, 1.0, n + 1),
+    )
 
     if not colorspace.is_origin_well_defined:
         # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
@@ -21,11 +25,14 @@ def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50
         cells = cells[~np.any(cells == 0, axis=1)]
         cells -= 1
 
-    pts = colorspace.from_xyz100(rgb_linear.to_xyz100(points.T)).T
-    assert pts.shape[1] == 3
-    rgb = rgb_linear.to_rgb1(points)
+    l = ColorCoordinates(points.T, rgb_linear)
+    coords = convert(l, colorspace)
+
     meshio.write_points_cells(
-        filename, pts, {"hexahedron": cells}, point_data={"srgb": rgb}
+        filename,
+        coords.data.T,
+        {"hexahedron": cells},
+        point_data={"srgb": coords.get_rgb1(mode="clip").T},
     )
 
 
@@ -34,17 +41,19 @@ def plot_rgb_gamut(colorspace, n: int = 51, show_grid: bool = True):
     import pyvista as pv
     import vtk
 
-    points, cells = meshzoo.cube_hexa((0.0, 1.0), (0.0, 1.0), (0.0, 1.0), n)
+    points, cells = meshzoo.cube_hexa(
+        np.linspace(0.0, 1.0, n + 1),
+        np.linspace(0.0, 1.0, n + 1),
+        np.linspace(0.0, 1.0, n + 1),
+    )
     cells = np.column_stack([np.full(cells.shape[0], cells.shape[1]), cells])
 
-    srgb_linear = SrgbLinear()
-    xyz100_coords = srgb_linear.to_xyz100(points.T)
-    cs_coords = colorspace.from_xyz100(xyz100_coords).T
+    cs_coords = ColorCoordinates(points.T, SrgbLinear()).convert(colorspace)
 
     # each cell is a VTK_HEXAHEDRON
     celltypes = np.full(len(cells), vtk.VTK_HEXAHEDRON, dtype=np.uint8)
 
-    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, cs_coords)
+    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, cs_coords.data)
     # grid = grid.slice_orthogonal()
     # grid.slice_along_axis(n=7, axis="z")
     # single_slice = mesh.slice(normal=[0, 0, 1])
@@ -52,7 +61,7 @@ def plot_rgb_gamut(colorspace, n: int = 51, show_grid: bool = True):
     p = pv.Plotter()
     p.add_mesh(
         grid,
-        scalars=srgb_linear.to_rgb1(points.T).T,
+        scalars=cs_coords.get_rgb1("clip"),
         rgb=True,
         # show_edges=True,
     )
@@ -74,7 +83,7 @@ def plot_rgb_slice(
     colorspace,
     lightness: float,
     camera_elevation: float,
-    n: int = 51,
+    n: int = 50,
     variant: str = "srgb",
     off_screen: bool = False,
 ):
@@ -85,19 +94,22 @@ def plot_rgb_slice(
     # TODO HDR
     assert variant in ["srgb", "rec709"]
 
-    points, cells = meshzoo.cube_hexa((0.0, 1.0), (0.0, 1.0), (0.0, 1.0), n)
+    points, cells = meshzoo.cube_hexa(
+        np.linspace(0.0, 1.0, n + 1),
+        np.linspace(0.0, 1.0, n + 1),
+        np.linspace(0.0, 1.0, n + 1),
+    )
     cells = np.column_stack([np.full(cells.shape[0], cells.shape[1]), cells])
 
-    srgb_linear = SrgbLinear()
-    xyz100_coords = srgb_linear.to_xyz100(points.T)
-    cs_coords = colorspace.from_xyz100(xyz100_coords).T
+    srgb_coords = ColorCoordinates(points.T, SrgbLinear())
+    cs_coords = srgb_coords.convert(colorspace)
 
     # each cell is a VTK_HEXAHEDRON
     celltypes = np.full(len(cells), vtk.VTK_HEXAHEDRON, dtype=np.uint8)
 
     # https://github.com/pyvista/pyvista-support/issues/351#issuecomment-814574043
-    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, cs_coords)
-    grid["rgb"] = srgb_linear.to_rgb1(points.T).T
+    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, cs_coords.data.T)
+    grid["rgb"] = cs_coords.get_rgb1("clip").T
 
     slc = grid.slice([1.0, 0.0, 0.0], [lightness, 0.0, 0.0])
     # slc = grid.slice_along_axis(10, 0)
