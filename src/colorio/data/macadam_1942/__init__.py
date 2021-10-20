@@ -12,7 +12,7 @@ from typing import Type
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import XYY, ColorSpace
+from ...cs import XYY, ColorCoordinates, ColorSpace
 from ...illuminants import whitepoints_cie1931
 from ..color_distance import ColorDistanceDataset
 from ..ellipse import _plot_ellipses
@@ -73,16 +73,17 @@ class MacAdam1942(ColorDistanceDataset):
         cs = create_cs_class_instance(
             cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
         )
+        xyy100 = XYY(100)
 
         Y = self.Y
-        xyy100_centers = []
-        xyy100_points = []
+        centers_points = []
         for c, off in zip(self.xy_centers, self.xy_offsets):
-            xyy100_centers.append(np.array([*c, Y]))
+            ctr = np.array([*c, Y])
             p = (c + off.T).T
-            xyy100_points.append(np.array([*p, np.full(p.shape[1], Y)]))
+            pts = np.array([*p, np.full(p.shape[1], Y)])
+            centers_points.append(ColorCoordinates(np.column_stack([ctr, pts]), xyy100))
 
-        _plot_ellipses(cs, xyy100_centers, xyy100_points, ellipse_scaling)
+        _plot_ellipses(cs, centers_points, ellipse_scaling)
         plt.title(f"MacAdam ellipses for {cs.name}")
 
         # cs.plot_visible_slice(
