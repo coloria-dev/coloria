@@ -90,33 +90,29 @@ def _find_Y(cs, xy, level, tol=1.0e-5):
     """Use bisection to find a matching Y value that projects the xy into the given
     level.
     """
-    xyy = XYY(1)
-
     x, y = xy
     min_Y = 0.0
-    xyz100 = xyy.to_xyz100([x, y, min_Y])
-    min_val = cs.from_xyz100(xyz100)[cs.k0]
+
+    xyy1 = XYY(1)
+
+    xyy = ColorCoordinates([x, y, min_Y], xyy1)
+    min_val = xyy.convert(cs).data_lightness
     assert min_val <= level
 
     # search for an appropriate max_Y to start with
     max_Y = 1.0
-    while True:
-        xyz100 = xyy.to_xyz100([x, y, max_Y])
-        max_val = cs.from_xyz100(xyz100)[cs.k0]
-        if max_val >= level:
-            break
+    while ColorCoordinates([x, y, max_Y], xyy1).convert(cs).data_lightness < level:
         max_Y *= 2
 
     while True:
         Y = (max_Y + min_Y) / 2
-        xyz100 = xyy.to_xyz100([x, y, Y])
-        val = cs.from_xyz100(xyz100)
-        if abs(val[cs.k0] - level) < tol:
+        val = ColorCoordinates([x, y, Y], xyy1).convert(cs)
+        if abs(val.data_lightness - level) < tol:
             break
-        elif val[cs.k0] > level:
+        elif val.data_lightness > level:
             max_Y = Y
         else:
-            assert val[cs.k0] < level
+            assert val.data_lightness < level
             min_Y = Y
 
     return val
