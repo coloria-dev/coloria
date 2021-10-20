@@ -5,7 +5,7 @@ from numpy.typing import ArrayLike
 
 from . import observers
 from ._helpers import SpectralData
-from .cs import ColorSpace, SrgbLinear
+from .cs import ColorCoordinates, ColorSpace, SrgbLinear
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
 
@@ -187,16 +187,10 @@ def get_srgb1_gradient(
     def to_cs(srgb):
         return colorspace.from_xyz100(s.to_xyz100(s.from_rgb1(srgb)))
 
-    def to_rgb1(vals):
-        return s.to_rgb1(s.from_xyz100(colorspace.to_xyz100(vals), mode="clip"))
-
-    cs = [to_cs(srgb0), to_cs(srgb1)]
-
     # linspace
-    ls = np.linspace(cs[0], cs[1], endpoint=True, num=n, axis=0)
-
-    # back to srgb
-    return to_rgb1(ls.T).T
+    ls = np.linspace(to_cs(srgb0), to_cs(srgb1), endpoint=True, num=n, axis=0)
+    coords = ColorCoordinates(ls.T, colorspace)
+    return coords.get_rgb1(mode="clip").T
 
 
 def plot_srgb255_gradient(

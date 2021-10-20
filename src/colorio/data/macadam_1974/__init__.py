@@ -12,7 +12,7 @@ from typing import Type
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import XYY, XYZ, ColorSpace
+from ...cs import XYY, XYZ, ColorCoordinates, ColorSpace
 from ...illuminants import whitepoints_cie1964
 from ..color_distance import ColorDistanceDataset
 from ..helpers import create_cs_class_instance
@@ -127,20 +127,22 @@ class MacAdam1974(ColorDistanceDataset):
             )
 
         # plot colors dots for the first 43 tiles
-        tiles = self.xyz100_tiles[:43]
-        fill = XYZ(100).to_rgb1(tiles.T).T
-        assert np.all((0 <= fill) & (fill <= 1))
+        tiles = ColorCoordinates(self.xyz100_tiles[:43].T, XYZ(100))
+        coords = tiles.convert(cs)
 
-        coords = cs.from_xyz100(tiles.T).T
-        coords = coords[:, keep]
         plt.scatter(
-            coords[:, 0], coords[:, 1], marker="s", color=fill, edgecolors="w", zorder=2
+            coords.data_hue[0],
+            coords.data_hue[1],
+            marker="s",
+            color=tiles.get_rgb1(mode="clip").T,
+            edgecolors="w",
+            zorder=2,
         )
 
         plt.gca().set_aspect("equal")
         plt.title(f"MacAdam 1974 color distance data for {cs.name}")
 
-        labels = np.asarray(cs.labels)[keep]
+        labels = cs.hue_labels
         plt.xlabel(labels[0])
         plt.ylabel(labels[1], rotation=0)
         return plt

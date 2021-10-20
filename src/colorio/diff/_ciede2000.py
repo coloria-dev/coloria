@@ -71,8 +71,8 @@ def ciede2000(
     # colorio just goes with what the simplest implementation yields.
     hp_mean = ((dhp / 2) + h1p) % 360
 
-    # Don't adapt hp_mean here. Ultimately, it's only used in conjunction with dHp which
-    # is 0 if one of C1p, C2p is zero, so it never has any effect.
+    # No need to adapt hp_mean here. Ultimately, it's only used in conjunction with dHp
+    # which is 0 if one of C1p, C2p is zero, so it never has any effect.
     # idx = (C1p == 0.0) | (C2p == 0.0)
     # hp_mean[idx] = 2 * hp_avg[idx]
 

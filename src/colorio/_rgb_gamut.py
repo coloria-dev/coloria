@@ -1,6 +1,6 @@
 import numpy as np
 
-from .cs import HdrLinear, SrgbLinear
+from .cs import ColorCoordinates, HdrLinear, SrgbLinear, convert
 
 
 def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50):
@@ -21,11 +21,14 @@ def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50
         cells = cells[~np.any(cells == 0, axis=1)]
         cells -= 1
 
-    pts = colorspace.from_xyz100(rgb_linear.to_xyz100(points.T)).T
-    assert pts.shape[1] == 3
-    rgb = rgb_linear.to_rgb1(points)
+    l = ColorCoordinates(points.T, rgb_linear)
+    coords = convert(l, colorspace)
+
     meshio.write_points_cells(
-        filename, pts, {"hexahedron": cells}, point_data={"srgb": rgb}
+        filename,
+        coords.data.T,
+        {"hexahedron": cells},
+        point_data={"srgb": coords.get_rgb1(mode="clip").T},
     )
 
 

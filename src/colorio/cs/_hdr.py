@@ -1,13 +1,15 @@
 import npx
 import numpy as np
 
+from ._color_space import ColorSpace
+
 
 def _xyy_to_xyz100(xyy):
     x, y, Y = xyy
     return np.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
 
 
-class HdrLinear:
+class HdrLinear(ColorSpace):
     """
     RGB color space from the Rec. 2020. Same as Rec. 2100, used in HDR. The
     primary colors are monochromatic at wave lengths 467nm, 532nm, and 630nm.

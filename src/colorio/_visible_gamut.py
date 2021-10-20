@@ -3,7 +3,7 @@ import numpy as np
 
 from . import observers
 from ._tools import get_mono_outline_xy
-from .cs import XYY
+from .cs import XYY, XYZ, ColorCoordinates, convert
 
 
 def _get_visible_gamut_mesh(observer, max_Y1, h=4.0e-2):
@@ -27,9 +27,14 @@ def plot_visible_gamut(colorspace, observer, max_Y1, show_grid=True, h=4.0e-2):
 
     points, cells = _get_visible_gamut_mesh(observer, max_Y1, h=h)
 
-    xyz100 = XYY(1).to_xyz100(points.T)
-    xyz100[xyz100 < 0] = 0.0
-    points = colorspace.from_xyz100(xyz100).T
+    xyy1 = ColorCoordinates(points.T, XYY(1))
+    xyz100 = convert(xyy1, XYZ(100))
+    xyz100.data[xyz100.data < 0] = 0.0
+    coords = convert(xyz100, colorspace)
+
+    # xyz100 = XYY(1).to_xyz100(points.T)
+    # xyz100[xyz100 < 0] = 0.0
+    # points = colorspace.from_xyz100(xyz100).T
 
     cells = np.column_stack(
         [np.full(cells.shape[0], cells.shape[1], dtype=cells.dtype), cells]
@@ -38,7 +43,7 @@ def plot_visible_gamut(colorspace, observer, max_Y1, show_grid=True, h=4.0e-2):
     # each cell is a VTK_HEXAHEDRON
     celltypes = np.full(len(cells), vtk.VTK_TETRA)
 
-    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, points)
+    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, coords.data.T)
     # grid.plot()
 
     p = pv.Plotter()

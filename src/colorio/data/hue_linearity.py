@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import ArrayLike
 
-from ..cs import ColorSpace
+from ..cs import XYZ, ColorCoordinates, ColorSpace
 from .helpers import create_cs_class_instance
 
 
@@ -28,17 +28,15 @@ class HueLinearityDataset:
             cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
         )
         # k0 is the coordinate that corresponds to "lightness"
-        assert cs.k0 is not None
-        no_lightness = [True, True, True]
-        no_lightness[cs.k0] = False
+        ng = ColorCoordinates(self.neutral_gray, XYZ(100)).convert(cs).data_hue
 
-        ng = cs.from_xyz100(self.neutral_gray)[no_lightness]
         all_pts = []
         all_rgb1 = []
         for xyz in self.arms:
-            pts = cs.from_xyz100(xyz)
-            rgb1 = cs.to_rgb1(pts, mode="clip")
-            pts = pts[no_lightness]
+            coords = ColorCoordinates(xyz, XYZ(100)).convert(cs)
+            rgb1 = coords.get_rgb1(mode="clip")
+
+            pts = coords.data_hue
 
             # get the eigenvector corresponding to the larger eigenvalue
             pts_ng = (pts.T - ng).T
@@ -68,7 +66,7 @@ class HueLinearityDataset:
         edge[~is_legal_srgb] = [0.0, 0.0, 0.0]  # black
         plt.scatter(all_pts[0], all_pts[1], marker="o", color=fill, edgecolors=edge)
 
-        l0, l1 = np.asarray(cs.labels)[no_lightness]
+        l0, l1 = cs.hue_labels
         plt.xlabel(l0)
         plt.ylabel(l1, rotation=0)
         plt.axis("equal")

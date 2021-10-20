@@ -6,6 +6,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from ..illuminants import whitepoints_cie1931
+from ._color_space import ColorSpace
 
 
 def _xyy_to_xyz100(xyy):
@@ -13,7 +14,7 @@ def _xyy_to_xyz100(xyy):
     return np.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
 
 
-class SrgbLinear:
+class SrgbLinear(ColorSpace):
     """Rec. 709 SRGB."""
 
     def __init__(self, whitepoint_correction: bool = True):
