@@ -83,7 +83,7 @@ def plot_rgb_slice(
     colorspace,
     lightness: float,
     camera_elevation: float,
-    n: int = 51,
+    n: int = 50,
     variant: str = "srgb",
     off_screen: bool = False,
 ):
@@ -101,16 +101,15 @@ def plot_rgb_slice(
     )
     cells = np.column_stack([np.full(cells.shape[0], cells.shape[1]), cells])
 
-    srgb_linear = SrgbLinear()
-    xyz100_coords = srgb_linear.to_xyz100(points.T)
-    cs_coords = colorspace.from_xyz100(xyz100_coords).T
+    srgb_coords = ColorCoordinates(points.T, SrgbLinear())
+    cs_coords = srgb_coords.convert(colorspace)
 
     # each cell is a VTK_HEXAHEDRON
     celltypes = np.full(len(cells), vtk.VTK_HEXAHEDRON, dtype=np.uint8)
 
     # https://github.com/pyvista/pyvista-support/issues/351#issuecomment-814574043
-    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, cs_coords)
-    grid["rgb"] = srgb_linear.to_rgb1(points.T).T
+    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, cs_coords.data.T)
+    grid["rgb"] = cs_coords.get_rgb1("clip").T
 
     slc = grid.slice([1.0, 0.0, 0.0], [lightness, 0.0, 0.0])
     # slc = grid.slice_along_axis(10, 0)
