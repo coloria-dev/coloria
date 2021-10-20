@@ -9,18 +9,23 @@ from .cs import XYY100, XYZ100, ColorCoordinates, ColorSpace, SrgbLinear
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
 
+def _unit_vector(n, k):
+    vec = np.zeros(n)
+    vec[k] = 1.0
+    return vec
+
+
 def _plot_monochromatic(observer, fill_horseshoe=True):
     # draw outline of monochromatic spectra
     lmbda_nm = np.arange(380, 701)
-    values = []
-    # TODO vectorize (see <https://github.com/numpy/numpy/issues/10439>)
-    for k, _ in enumerate(lmbda_nm):
-        data = np.zeros(len(lmbda_nm))
-        data[k] = 1.0
-        sd = SpectralData(lmbda_nm, data)
-        values.append(spectrum_to_xyz100(sd, observer))
-    values = np.array(values)
 
+    n = len(lmbda_nm)
+    values = np.array(
+        [
+            spectrum_to_xyz100(SpectralData(lmbda_nm, _unit_vector(n, k)), observer)
+            for k in range(n)
+        ]
+    )
     values = ColorCoordinates(values.T, XYZ100()).convert(XYY100()).data_hue.T
 
     # Add the values between the first and the last point of the horseshoe
@@ -77,12 +82,6 @@ def plot_xy_gamut(fill_horseshoe=True, plot_planckian_locus=True):
     plt.xlabel("x")
     plt.ylabel("y")
     return plt
-
-
-def _unit_vector(n, k):
-    vec = np.zeros(n)
-    vec[k] = 1.0
-    return vec
 
 
 def xy_gamut_mesh(lcar):
