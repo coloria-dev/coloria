@@ -184,8 +184,8 @@ class OsaUcs(ColorSpace):
         # > is important to find a good estimation of an initial approximation of the
         # > solution. We utilize the analytical characteristics of the equation (e.g.
         # > smoothness, monotony, and convexity of a function) to find a good
-        # > approximation for the exact solution, and to garantee the global convergence
-        # > of the iteration. (Details are omitted.)
+        # > approximation for the exact solution, and to guarantee the global
+        # > convergence of the iteration. (Details are omitted.)
         #
         # Ah, the good old omittted details.
         # We find that it is crucial to start the Newton iteration to the right of the
