@@ -7,7 +7,8 @@
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/colorio.svg?style=flat-square)](https://pypi.org/project/colorio/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1172995.svg?style=flat-square)](https://doi.org/10.5281/zenodo.1172995)
 [![GitHub stars](https://img.shields.io/github/stars/nschloe/colorio.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/nschloe/colorio)
-[![PyPi downloads](https://img.shields.io/pypi/dm/colorio.svg?style=flat-square)](https://pypistats.org/packages/colorio)
+[![Downloads](https://pepy.tech/badge/colorio/month?style=flat-square)](https://pepy.tech/project/colorio)
+<!--[![PyPi downloads](https://img.shields.io/pypi/dm/colorio.svg?style=flat-square)](https://pypistats.org/packages/colorio)-->
 
 [![Discord](https://img.shields.io/static/v1?logo=discord&label=chat&message=on%20discord&color=7289da&style=flat-square)](https://discord.gg/hnTJ5MRX2Y)
 
@@ -62,7 +63,7 @@ cc.color_space
 # access the raw numpy array:
 cc.data
 
-# get RGB represenations
+# get RGB representations
 cc.get_rgb1("clip")
 cc.get_rgb_hex("clip")
 
@@ -85,7 +86,7 @@ that provides those two methods. The following color spaces are already implemen
 - [XYZ](src/colorio/cs/_xyz.py) (`colorio.cs.XYZ(100)`, the
   parameter determining the scaling)
 - [xyY](src/colorio/cs/_xyy.py)
-  (`colorio.cs.XYY(100)`, the paramter determining the scaling of `Y`)
+  (`colorio.cs.XYY(100)`, the parameter determining the scaling of `Y`)
 - [Linear sRGB](src/colorio/cs/_srgb.py) (`colorio.SrgbLinear()`)
   This class has the additional methods
   ```
