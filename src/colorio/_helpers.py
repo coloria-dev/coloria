@@ -1,13 +1,11 @@
-from typing import Optional
+from __future__ import annotations
 
 import numpy as np
 from numpy.typing import ArrayLike
 
 
 class SpectralData:
-    def __init__(
-        self, lmbda_nm: ArrayLike, data: ArrayLike, name: Optional[str] = None
-    ):
+    def __init__(self, lmbda_nm: ArrayLike, data: ArrayLike, name: str | None = None):
         self.name = "spectral data" if name is None else name
         self.lmbda_nm = np.asarray(lmbda_nm)
         self.data = np.asarray(data)

@@ -1,7 +1,7 @@
 """
 https://de.wikipedia.org/wiki/DIN99-Farbraum
 """
-from typing import Optional
+from __future__ import annotations
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -15,9 +15,7 @@ class DIN99(ColorSpace):
     labels = ("L99", "a99", "b99")
     k0 = 0
 
-    def __init__(
-        self, k_E: float = 1.0, k_CH: float = 1.0, variant: Optional[str] = None
-    ):
+    def __init__(self, k_E: float = 1.0, k_CH: float = 1.0, variant: str | None = None):
         # variants from
         #
         # G. Cui, M.R. Luo, B. Rigg, G. Roesler, K. Witt,
