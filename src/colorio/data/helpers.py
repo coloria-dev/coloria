@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import inspect
-from typing import Type, Union
+from typing import Type
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -28,7 +30,7 @@ def create_cs_class_instance(
 
 
 def stress_absolute(
-    target: ArrayLike, actual: ArrayLike, weights: Union[float, ArrayLike] = 1.0
+    target: ArrayLike, actual: ArrayLike, weights: float | ArrayLike = 1.0
 ) -> float:
     target = np.asarray(target)
     actual = np.asarray(actual)
@@ -41,7 +43,7 @@ def stress_absolute(
 
 
 def stress_relative(
-    target: ArrayLike, actual: ArrayLike, weights: Union[float, ArrayLike] = 1.0
+    target: ArrayLike, actual: ArrayLike, weights: float | ArrayLike = 1.0
 ) -> float:
     target = np.asarray(target)
     actual = np.asarray(actual)

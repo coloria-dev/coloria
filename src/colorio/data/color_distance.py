@@ -1,4 +1,6 @@
-from typing import Callable, Type, Union
+from __future__ import annotations
+
+from typing import Callable, Type
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +16,7 @@ class ColorDistanceDataset:
         name: str,
         target_dist: ArrayLike,
         xyz_pairs: ArrayLike,
-        weights: Union[float, ArrayLike] = 1.0,
+        weights: float | ArrayLike = 1.0,
     ):
         self.name = name
         self.target_dist = np.asarray(target_dist)

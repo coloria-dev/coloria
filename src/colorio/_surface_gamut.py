@@ -1,4 +1,4 @@
-from typing import Tuple
+from __future__ import annotations
 
 import numpy as np
 
@@ -9,7 +9,7 @@ from .cs import ColorSpace
 
 def _get_surface_gamut_mesh(
     colorspace: ColorSpace, observer: SpectralData, illuminant: SpectralData
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     from scipy.spatial import ConvexHull
 
     # lmbda, illu = illuminant

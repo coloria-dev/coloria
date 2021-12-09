@@ -1,4 +1,6 @@
-from typing import Optional, Type
+from __future__ import annotations
+
+from typing import Type
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +16,7 @@ class HueLinearityDataset:
         name: str,
         whitepoint_xyz100: ArrayLike,
         arms,
-        neutral_gray: Optional[ArrayLike] = None,
+        neutral_gray: ArrayLike | None = None,
     ):
         self.name = name
         self.whitepoint_xyz100 = np.asarray(whitepoint_xyz100)
