@@ -51,11 +51,7 @@ class Munsell:
         edge[~is_legal_srgb] = [0.0, 0.0, 0.0]
 
         plt.scatter(
-            coords.data_hue[0],
-            coords.data_hue[1],
-            marker="o",
-            color=fill,
-            edgecolors=edge,
+            coords.hue[0], coords.hue[1], marker="o", color=fill, edgecolors=edge
         )
 
         plt.title(f"Munsell points at lightness V={V} in {cs.name}")
@@ -70,8 +66,8 @@ class Munsell:
         )
 
         xyz_origin = ColorCoordinates(np.zeros(3), XYZ(100))
-        L0_ = convert(xyz_origin, cs).data_lightness
-        L_ = convert(self.xyz100, cs).data_lightness - L0_
+        L0_ = convert(xyz_origin, cs).lightness
+        L_ = convert(self.xyz100, cs).lightness - L0_
 
         ref = self.V
         alpha = np.dot(ref, L_) / np.dot(ref, ref)
@@ -128,8 +124,8 @@ class Munsell:
 
         # Move L0 into origin for translation invariance
         xyz_origin = ColorCoordinates(np.zeros(3), XYZ(100))
-        L0_ = convert(xyz_origin, cs).data_lightness
-        L_ = convert(self.xyz100, cs).data_lightness - L0_
+        L0_ = convert(xyz_origin, cs).lightness
+        L_ = convert(self.xyz100, cs).lightness - L0_
 
         return stress_absolute(self.V, L_)
 

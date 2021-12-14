@@ -47,7 +47,7 @@ def _plot_ellipses(
     cs_centers = []
 
     for center_points in centers_points:
-        cp = convert(center_points, cs).data_hue
+        cp = convert(center_points, cs).hue
         # The first entry is the center, the rest the surrounding points
         tcenter = cp[:, 0]
         cs_centers.append(tcenter)

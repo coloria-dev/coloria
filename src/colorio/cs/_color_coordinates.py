@@ -29,12 +29,12 @@ class ColorCoordinates:
         self.color_space = cs
 
     @property
-    def data_lightness(self) -> np.ndarray:
+    def lightness(self) -> np.ndarray:
         assert self.color_space.k0 is not None
         return self.data[self.color_space.k0]
 
     @property
-    def data_hue(self) -> np.ndarray:
+    def hue(self) -> np.ndarray:
         assert self.color_space.k0 is not None
         hue_idx = np.array([True, True, True])
         hue_idx[self.color_space.k0] = False

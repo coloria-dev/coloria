@@ -26,7 +26,7 @@ def _plot_monochromatic(observer, fill_horseshoe=True):
             for k in range(n)
         ]
     )
-    values = convert(ColorCoordinates(values.T, XYZ100()), XYY100()).data_hue.T
+    values = convert(ColorCoordinates(values.T, XYZ100()), XYY100()).hue.T
 
     # Add the values between the first and the last point of the horseshoe
     t = np.linspace(0.0, 1.0, 101)

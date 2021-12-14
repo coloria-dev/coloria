@@ -131,8 +131,8 @@ class MacAdam1974(ColorDistanceDataset):
         coords = convert(tiles, cs)
 
         plt.scatter(
-            coords.data_hue[0],
-            coords.data_hue[1],
+            coords.hue[0],
+            coords.hue[1],
             marker="s",
             color=tiles.get_rgb1(mode="clip").T,
             edgecolors="w",
