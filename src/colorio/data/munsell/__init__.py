@@ -5,7 +5,7 @@ from typing import Type
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import XYY, XYZ, ColorCoordinates, ColorSpace
+from ...cs import SRGB1, XYY, XYZ, ColorCoordinates, ColorSpace, convert
 from ...illuminants import whitepoints_cie1931
 from ..helpers import create_cs_class_instance, stress_absolute
 
@@ -22,7 +22,7 @@ class Munsell:
         self.C = np.array(data["C"])
 
         xyy100 = ColorCoordinates([data["x"], data["y"], data["Y"]], XYY(100))
-        self.xyz100 = xyy100.convert(XYZ(100))
+        self.xyz100 = convert(xyy100, XYZ(100))
 
         # Whitepoint and CIECAM02 info from the JzAzBz paper:
         self.whitepoint_xyz100 = whitepoints_cie1931["C"]
@@ -40,8 +40,8 @@ class Munsell:
 
         # pick the data from the given munsell level
         xyz100 = ColorCoordinates(self.xyz100.data[:, V == self.V], XYZ(100))
-        coords = xyz100.convert(cs)
-        rgb = coords.get_rgb1(mode="nan")
+        coords = convert(xyz100, cs)
+        rgb = convert(coords, SRGB1(mode="nan")).data
 
         # plot the ones that cannot be represented in SRGB in black
         is_legal_srgb = ~np.any(np.isnan(rgb), axis=0)
@@ -51,11 +51,7 @@ class Munsell:
         edge[~is_legal_srgb] = [0.0, 0.0, 0.0]
 
         plt.scatter(
-            coords.data_hue[0],
-            coords.data_hue[1],
-            marker="o",
-            color=fill,
-            edgecolors=edge,
+            coords.hue[0], coords.hue[1], marker="o", color=fill, edgecolors=edge
         )
 
         plt.title(f"Munsell points at lightness V={V} in {cs.name}")
@@ -70,8 +66,8 @@ class Munsell:
         )
 
         xyz_origin = ColorCoordinates(np.zeros(3), XYZ(100))
-        L0_ = xyz_origin.convert(cs).data_lightness
-        L_ = self.xyz100.convert(cs).data_lightness - L0_
+        L0_ = convert(xyz_origin, cs).lightness
+        L_ = convert(self.xyz100, cs).lightness - L0_
 
         ref = self.V
         alpha = np.dot(ref, L_) / np.dot(ref, ref)
@@ -128,8 +124,8 @@ class Munsell:
 
         # Move L0 into origin for translation invariance
         xyz_origin = ColorCoordinates(np.zeros(3), XYZ(100))
-        L0_ = xyz_origin.convert(cs).data_lightness
-        L_ = self.xyz100.convert(cs).data_lightness - L0_
+        L0_ = convert(xyz_origin, cs).lightness
+        L_ = convert(self.xyz100, cs).lightness - L0_
 
         return stress_absolute(self.V, L_)
 

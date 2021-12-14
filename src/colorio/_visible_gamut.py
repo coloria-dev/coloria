@@ -78,11 +78,11 @@ def plot_visible_slice(
         colorspace,
     )
 
-    plt.plot(*mono_vals.data_hue, "-", color="k")
-    plt.plot(*conn_vals.data_hue, ":", color="k")
+    plt.plot(*mono_vals.hue, "-", color="k")
+    plt.plot(*conn_vals.hue, ":", color="k")
     #
     if fill_color is not None:
-        x, y = np.column_stack([mono_vals.data_hue, conn_vals.data_hue[:, 1:]])
+        x, y = np.column_stack([mono_vals.hue, conn_vals.hue[:, 1:]])
         plt.fill(x, y, facecolor=fill_color, zorder=0)
 
     plt.axis("equal")
@@ -106,23 +106,23 @@ def _find_Y(cs, xy, level, tol=1.0e-5):
     xyy1 = XYY(1)
 
     xyy = ColorCoordinates([x, y, min_Y], xyy1)
-    min_val = xyy.convert(cs).data_lightness
+    min_val = convert(xyy, cs).lightness
     assert min_val <= level
 
     # search for an appropriate max_Y to start with
     max_Y = 1.0
-    while ColorCoordinates([x, y, max_Y], xyy1).convert(cs).data_lightness < level:
+    while convert(ColorCoordinates([x, y, max_Y], xyy1), cs).lightness < level:
         max_Y *= 2
 
     while True:
         Y = (max_Y + min_Y) / 2
-        val = ColorCoordinates([x, y, Y], xyy1).convert(cs)
-        if abs(val.data_lightness - level) < tol:
+        val = convert(ColorCoordinates([x, y, Y], xyy1), cs)
+        if abs(val.lightness - level) < tol:
             break
-        elif val.data_lightness > level:
+        elif val.lightness > level:
             max_Y = Y
         else:
-            assert val.data_lightness < level
+            assert val.lightness < level
             min_Y = Y
 
     return val

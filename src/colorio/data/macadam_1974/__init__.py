@@ -12,7 +12,7 @@ from typing import Type
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import XYY, XYZ, ColorCoordinates, ColorSpace
+from ...cs import SRGB1, XYY, XYZ, ColorCoordinates, ColorSpace, convert
 from ...illuminants import whitepoints_cie1964
 from ..color_distance import ColorDistanceDataset
 from ..helpers import create_cs_class_instance
@@ -128,13 +128,13 @@ class MacAdam1974(ColorDistanceDataset):
 
         # plot colors dots for the first 43 tiles
         tiles = ColorCoordinates(self.xyz100_tiles[:43].T, XYZ(100))
-        coords = tiles.convert(cs)
+        coords = convert(tiles, cs)
 
         plt.scatter(
-            coords.data_hue[0],
-            coords.data_hue[1],
+            coords.hue[0],
+            coords.hue[1],
             marker="s",
-            color=tiles.get_rgb1(mode="clip").T,
+            color=convert(tiles, SRGB1(mode="clip")).data.T,
             edgecolors="w",
             zorder=2,
         )

@@ -52,24 +52,35 @@ Observers:
 ### Color coordinates and spaces
 
 Color coordinates are handled as NumPy arrays or as `ColorCoordinates`, a thin wrapper
-that retains the color space information and has some handy helper methods:
+that retains the color space information and has some handy helper methods. For example, to interpolate two sRGB colors in OKLAB, and return the sRGB:
 
 ```python
-from colorio.cs import ColorCoordinates, CIELAB, OKLAB
+from colorio.cs import ColorCoordinates, OKLAB, SRGB1, SRGBhex
 
-# you can also plug in large numpy arrays here
-cc = ColorCoordinates([0.1, 0.5, 13.3], CIELAB())
+# you can also plug in large numpy arrays instead of two lists here
+c0 = ColorCoordinates([1.0, 1.0, 0.0], SRGB1())  # yellow
+c1 = ColorCoordinates([0.0, 0.0, 1.0], SRGB1())  # blue
 
-cc.color_space
-# access the raw numpy array:
-cc.data
+# naive interpolation gives [0.5, 0.5, 0.5], a mid gray
 
-# get RGB representations
-cc.get_rgb1("clip")
-cc.get_rgb_hex("clip")
+# convert to OKLAB
+c0.convert(OKLAB())
+c1.convert(OKLAB())
 
-# convert to other color space
-cc_oklab = cc.convert(OKLAB())
+# interpolate
+c2 = (c0 + c1) * 0.5
+
+c2.convert(SRGBhex(mode="clip"))
+
+print(c2.color_space)
+print(c2.data)
+```
+
+<!--pytest-codeblocks:expected-output-->
+
+```
+<colorio color space sRGB-hex>
+#6cabc7
 ```
 
 All color spaces implement the two methods
@@ -88,12 +99,8 @@ that provides those two methods. The following color spaces are already implemen
   parameter determining the scaling)
 - [xyY](src/colorio/cs/_xyy.py)
   (`colorio.cs.XYY(100)`, the parameter determining the scaling of `Y`)
-- [Linear sRGB](src/colorio/cs/_srgb.py) (`colorio.SrgbLinear()`)
-  This class has the additional methods
-  ```
-  [to,from]_rgb[1,255,_hex]()
-  ```
-  for conversion from and to standard RGB (Gamma correction).
+- [sRGB](src/colorio/cs/_srgb.py) (`colorio.cs.SRGBlinear()`,
+  `colorio.cs.SRGB1()`, `colorio.cs.SRGB255()`, `colorio.cs.SRGBhex()`)
 - [HSL](src/colorio/cs/_hsl.py) and [HSV](src/colorio/cs/_hsv.py) (`colorio.cs.HSL()`,
   `colorio.cs.HSV()`)
   These classes have the two methods

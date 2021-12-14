@@ -3,7 +3,7 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..cs import ColorCoordinates, ColorSpace
+from ..cs import ColorCoordinates, ColorSpace, convert
 
 
 class EllipseDataset:
@@ -13,8 +13,8 @@ class EllipseDataset:
         self.points = points
 
     def stress(self, cs: ColorSpace):
-        cs_centers = self.centers.convert(cs)
-        cs_points = self.points.convert(cs)
+        cs_centers = convert(self.centers, cs)
+        cs_points = convert(self.points, cs)
 
         diff = (cs_centers.data[:, None] - cs_points.data).reshape(3, -1)
         distances = np.sqrt(np.einsum("ij,ij->j", diff, diff))
@@ -47,7 +47,7 @@ def _plot_ellipses(
     cs_centers = []
 
     for center_points in centers_points:
-        cp = center_points.convert(cs).data_hue
+        cp = convert(center_points, cs).hue
         # The first entry is the center, the rest the surrounding points
         tcenter = cp[:, 0]
         cs_centers.append(tcenter)
