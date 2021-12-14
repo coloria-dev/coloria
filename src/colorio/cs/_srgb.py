@@ -113,27 +113,49 @@ class SRGB255(ColorSpace):
         return self._srgb1.to_xyz100(np.asarray(coords) / 255)
 
 
-# class SRGBhex(ColorSpace):
-#     def __init__(self):
-#         self._srgb255 = SRGB255()
-#
-#     def from_xyz100(self, xyz: ArrayLike, prepend: str = "#") -> np.ndarray:
-#         rgb255 = self._srgb255.from_xyz100(xyz)
-#         # round to closest int
-#         rgb255 = np.around(rgb255).astype(int)
-#         # convert to hex, preserve shape
-#         shape = rgb255.shape
-#         assert shape[0] == 3
-#         rgb255 = rgb255.reshape(3, -1)
-#         hex_vals = np.array(
-#             [prepend + f"{r:02x}{g:02x}{b:02x}" for r, g, b in rgb255.T]
-#         ).reshape(shape[1:])
-#         return hex_vals
-#
-#     def to_xyz100(self, coords: ArrayLike) -> np.ndarray:
-#
-#         coords = np.asarray(coords)
-#
-#         int("deadbeef", 16)
-#
-#         return self._srgb1.to_xyz100(np.asarray(coords) / 255)
+class SRGBhex(ColorSpace):
+    def __init__(self, mode: str = "error", prepend: str = "#"):
+        self._srgb255 = SRGB255(mode=mode)
+        self.name = "sRGB-hex"
+        self.prepend = prepend
+        self.mode = mode
+
+    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
+        rgb255 = self._srgb255.from_xyz100(xyz)
+
+        # round to closest int
+        rgb255_rounded = np.around(rgb255).astype(int)
+
+        if self.mode == "error":
+            raise ValueError(
+                "Rounding in sRGB-hex conversion "
+                + f"from\n\n{rgb255.tolist()}\nto\n{rgb255_rounded.tolist()}\n"
+            )
+
+        # convert to hex, preserve shape
+        shape = rgb255_rounded.shape
+        assert shape[0] == 3
+        rgb255_rounded = rgb255_rounded.reshape(3, -1)
+        hex_vals = np.array(
+            [self.prepend + f"{r:02x}{g:02x}{b:02x}" for r, g, b in rgb255_rounded.T]
+        ).reshape(shape[1:])
+
+        return hex_vals
+
+    def to_xyz100(self, coords: ArrayLike) -> np.ndarray:
+        def _string_to_rgb255(string):
+            return [
+                int(string[0:2], 16),
+                int(string[2:4], 16),
+                int(string[4:6], 16),
+            ]
+
+        coords = np.asarray(coords)
+
+        shape = coords.shape
+
+        srgb255 = [
+            _string_to_rgb255(coord.item()[len(self.prepend) :])
+            for coord in coords.reshape(-1)
+        ]
+        return self._srgb255.to_xyz100(np.asarray(srgb255).T).reshape(3, *shape)

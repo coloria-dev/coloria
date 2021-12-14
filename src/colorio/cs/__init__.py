@@ -17,7 +17,7 @@ from ._oklab import OKLAB
 from ._osa_ucs import OsaUcs
 from ._prolab import PROLAB
 from ._rlab import RLAB
-from ._srgb import SRGB1, SRGB255, SRGBlinear
+from ._srgb import SRGB1, SRGB255, SRGBhex, SRGBlinear
 from ._srlab2 import SRLAB2
 from ._xyy import XYY, XYY1, XYY100
 from ._xyz import XYZ, XYZ1, XYZ100
@@ -46,9 +46,10 @@ __all__ = [
     "PROLAB",
     "HdrLinear",
     "RLAB",
-    "SRGBlinear",
     "SRGB1",
     "SRGB255",
+    "SRGBhex",
+    "SRGBlinear",
     "SRLAB2",
     "XYY",
     "XYY1",
