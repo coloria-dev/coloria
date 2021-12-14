@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -12,31 +14,33 @@ class ColorCoordinates:
             raise ValueError(f"Input data needs shape [3,...], got {self.data.shape}.")
         self.color_space = color_space
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             "<ColorCoordinates, "
             + f"{self.color_space.name}, "
             + f"data.shape={self.data.shape}>"
         )
 
-    def convert(self, cs: ColorSpace):
-        return ColorCoordinates(
-            cs.from_xyz100(self.color_space.to_xyz100(self.data)), cs
-        )
+    def copy(self):
+        return deepcopy(self)
+
+    def convert(self, cs: ColorSpace) -> None:
+        self.data = cs.from_xyz100(self.color_space.to_xyz100(self.data))
+        self.color_space = cs
 
     @property
-    def data_lightness(self):
+    def data_lightness(self) -> np.ndarray:
         assert self.color_space.k0 is not None
         return self.data[self.color_space.k0]
 
     @property
-    def data_hue(self):
+    def data_hue(self) -> np.ndarray:
         assert self.color_space.k0 is not None
         hue_idx = np.array([True, True, True])
         hue_idx[self.color_space.k0] = False
         return self.data[hue_idx]
 
-    def get_rgb1(self, mode: str = "error"):
+    def get_rgb1(self, mode: str = "error") -> np.ndarray:
         s = SrgbLinear()
         return s.to_rgb1(
             s.from_xyz100(self.color_space.to_xyz100(self.data), mode=mode)
@@ -49,7 +53,7 @@ class ColorCoordinates:
         return s.to_rgb_hex(rgb_linear, prepend=prepend)
 
 
-def convert(coords: ColorCoordinates, cs: ColorSpace):
-    return ColorCoordinates(
-        cs.from_xyz100(coords.color_space.to_xyz100(coords.data)), cs
-    )
+def convert(coords: ColorCoordinates, cs: ColorSpace) -> ColorCoordinates:
+    out = coords.copy()
+    out.convert(cs)
+    return out

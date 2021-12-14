@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import ArrayLike
 
-from ..cs import XYZ, ColorCoordinates, ColorSpace
+from ..cs import XYZ, ColorCoordinates, ColorSpace, convert
 from .helpers import create_cs_class_instance
 
 
@@ -30,12 +30,12 @@ class HueLinearityDataset:
             cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
         )
         # k0 is the coordinate that corresponds to "lightness"
-        ng = ColorCoordinates(self.neutral_gray, XYZ(100)).convert(cs).data_hue
+        ng = convert(ColorCoordinates(self.neutral_gray, XYZ(100)), cs).data_hue
 
         all_pts = []
         all_rgb1 = []
         for xyz in self.arms:
-            coords = ColorCoordinates(xyz, XYZ(100)).convert(cs)
+            coords = convert(ColorCoordinates(xyz, XYZ(100)), cs)
             rgb1 = coords.get_rgb1(mode="clip")
 
             pts = coords.data_hue

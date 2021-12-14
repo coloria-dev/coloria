@@ -5,7 +5,7 @@ from typing import Type
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import XYY, XYZ, ColorCoordinates, ColorSpace
+from ...cs import XYY, XYZ, ColorCoordinates, ColorSpace, convert
 from ...illuminants import whitepoints_cie1931
 from ..helpers import create_cs_class_instance, stress_absolute
 
@@ -22,7 +22,7 @@ class Munsell:
         self.C = np.array(data["C"])
 
         xyy100 = ColorCoordinates([data["x"], data["y"], data["Y"]], XYY(100))
-        self.xyz100 = xyy100.convert(XYZ(100))
+        self.xyz100 = convert(xyy100, XYZ(100))
 
         # Whitepoint and CIECAM02 info from the JzAzBz paper:
         self.whitepoint_xyz100 = whitepoints_cie1931["C"]
@@ -40,7 +40,7 @@ class Munsell:
 
         # pick the data from the given munsell level
         xyz100 = ColorCoordinates(self.xyz100.data[:, V == self.V], XYZ(100))
-        coords = xyz100.convert(cs)
+        coords = convert(xyz100, cs)
         rgb = coords.get_rgb1(mode="nan")
 
         # plot the ones that cannot be represented in SRGB in black
@@ -70,8 +70,8 @@ class Munsell:
         )
 
         xyz_origin = ColorCoordinates(np.zeros(3), XYZ(100))
-        L0_ = xyz_origin.convert(cs).data_lightness
-        L_ = self.xyz100.convert(cs).data_lightness - L0_
+        L0_ = convert(xyz_origin, cs).data_lightness
+        L_ = convert(self.xyz100, cs).data_lightness - L0_
 
         ref = self.V
         alpha = np.dot(ref, L_) / np.dot(ref, ref)
@@ -128,8 +128,8 @@ class Munsell:
 
         # Move L0 into origin for translation invariance
         xyz_origin = ColorCoordinates(np.zeros(3), XYZ(100))
-        L0_ = xyz_origin.convert(cs).data_lightness
-        L_ = self.xyz100.convert(cs).data_lightness - L0_
+        L0_ = convert(xyz_origin, cs).data_lightness
+        L_ = convert(self.xyz100, cs).data_lightness - L0_
 
         return stress_absolute(self.V, L_)
 

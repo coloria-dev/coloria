@@ -55,7 +55,7 @@ Color coordinates are handled as NumPy arrays or as `ColorCoordinates`, a thin w
 that retains the color space information and has some handy helper methods:
 
 ```python
-from colorio.cs import ColorCoordinates, CIELAB, OKLAB
+from colorio.cs import ColorCoordinates, CIELAB, OKLAB, convert
 
 # you can also plug in large numpy arrays here
 cc = ColorCoordinates([0.1, 0.5, 13.3], CIELAB())
@@ -69,7 +69,7 @@ cc.get_rgb1("clip")
 cc.get_rgb_hex("clip")
 
 # convert to other color space
-cc_oklab = cc.convert(OKLAB())
+cc_oklab = convert(cc, OKLAB())
 ```
 
 All color spaces implement the two methods

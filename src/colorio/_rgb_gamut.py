@@ -48,7 +48,8 @@ def plot_rgb_gamut(colorspace, n: int = 51, show_grid: bool = True):
     )
     cells = np.column_stack([np.full(cells.shape[0], cells.shape[1]), cells])
 
-    cs_coords = ColorCoordinates(points.T, SrgbLinear()).convert(colorspace)
+    srgb_coords = ColorCoordinates(points.T, SrgbLinear())
+    cs_coords = convert(srgb_coords, colorspace)
 
     # each cell is a VTK_HEXAHEDRON
     celltypes = np.full(len(cells), vtk.VTK_HEXAHEDRON, dtype=np.uint8)
@@ -102,7 +103,7 @@ def plot_rgb_slice(
     cells = np.column_stack([np.full(cells.shape[0], cells.shape[1]), cells])
 
     srgb_coords = ColorCoordinates(points.T, SrgbLinear())
-    cs_coords = srgb_coords.convert(colorspace)
+    cs_coords = convert(srgb_coords, colorspace)
 
     # each cell is a VTK_HEXAHEDRON
     celltypes = np.full(len(cells), vtk.VTK_HEXAHEDRON, dtype=np.uint8)
