@@ -20,6 +20,18 @@ class ColorCoordinates:
             + f"data.shape={self.data.shape}>"
         )
 
+    def __mul__(self, alpha):
+        return ColorCoordinates(alpha * self.data, self.color_space)
+
+    def __add__(self, cc):
+        assert isinstance(cc, ColorCoordinates)
+        if self.color_space.name != cc.color_space.name:
+            raise ValueError(
+                "Color spaces not equal "
+                f"({self.color_space.name} != {cc.color_space.name})"
+            )
+        return ColorCoordinates(self.data + cc.data, self.color_space)
+
     def copy(self):
         return deepcopy(self)
 
