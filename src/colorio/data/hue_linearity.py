@@ -36,7 +36,7 @@ class HueLinearityDataset:
         all_rgb1 = []
         for xyz in self.arms:
             coords = convert(ColorCoordinates(xyz, XYZ(100)), cs)
-            rgb1 = convert(coords, SRGB1(), mode="clip").data
+            rgb1 = convert(coords, SRGB1(mode="clip")).data
 
             pts = coords.hue
 

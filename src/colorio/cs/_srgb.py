@@ -17,7 +17,7 @@ def _xyy_to_xyz100(xyy):
 class SRGBlinear(ColorSpace):
     """Rec. 709 SRGB."""
 
-    def __init__(self, whitepoint_correction: bool = True):
+    def __init__(self, mode: str = "error", whitepoint_correction: bool = True):
         # The standard actually gives the values in terms of M, but really inv(M) is a
         # direct derivative of the primary specification at
         # <https://en.wikipedia.org/wiki/SRGB>.
@@ -35,6 +35,9 @@ class SRGBlinear(ColorSpace):
 
         self.invM /= 100
 
+        self.mode = mode
+        self.name = "sRGB (linear)"
+
         # np.linalg.inv(self.invM) is the matrix in the spec:
         # M = np.array([
         #     [+3.2406255, -1.537208, -0.4986286],
@@ -44,24 +47,24 @@ class SRGBlinear(ColorSpace):
         # self.invM = np.linalg.inv(M)
         self.labels = ["R", "G", "B"]
 
-    def from_xyz100(self, xyz: ArrayLike, mode: str = "error") -> np.ndarray:
+    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         # https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
         # https://www.color.org/srgb.pdf
         out = npx.solve(self.invM, xyz) / 100
 
-        if mode == "error":
+        if self.mode == "error":
             if np.any(out < 0) or np.any(out > 1):
                 raise ValueError(
                     "Not all XYZ values could be converted to legal sRGB. "
                     + 'Try with `mode="clip"`.'
                 )
-        elif mode == "ignore":
+        elif self.mode == "ignore":
             pass
-        elif mode == "nan":
+        elif self.mode == "nan":
             out[out < 0] = np.nan
             out[out > 1] = np.nan
         else:
-            assert mode == "clip"
+            assert self.mode == "clip"
             out = out.clip(0.0, 1.0)
 
         return out
@@ -73,11 +76,12 @@ class SRGBlinear(ColorSpace):
 
 
 class SRGB1(ColorSpace):
-    def __init__(self):
-        self._srgb_linear = SRGBlinear()
+    def __init__(self, mode: str = "error"):
+        self._srgb_linear = SRGBlinear(mode=mode)
+        self.name = "sRGB-1"
 
-    def from_xyz100(self, xyz: ArrayLike, **kwargs) -> np.ndarray:
-        srgb = self._srgb_linear.from_xyz100(xyz, **kwargs)
+    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
+        srgb = self._srgb_linear.from_xyz100(xyz)
 
         a = 0.055
         is_smaller = srgb <= 0.0031308
@@ -98,17 +102,18 @@ class SRGB1(ColorSpace):
 
 
 class SRGB255(ColorSpace):
-    def __init__(self):
-        self._srgb1 = SRGB1()
+    def __init__(self, mode: str = "error"):
+        self._srgb1 = SRGB1(mode=mode)
+        self.name = "sRGB-255"
 
-    def from_xyz100(self, xyz: ArrayLike, **kwargs) -> np.ndarray:
-        return 255 * self._srgb1.from_xyz100(xyz, **kwargs)
+    def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
+        return 255 * self._srgb1.from_xyz100(xyz)
 
     def to_xyz100(self, coords: ArrayLike) -> np.ndarray:
         return self._srgb1.to_xyz100(np.asarray(coords) / 255)
 
 
-# class SrgbHex(ColorSpace):
+# class SRGBhex(ColorSpace):
 #     def __init__(self):
 #         self._srgb255 = SRGB255()
 #
@@ -124,3 +129,11 @@ class SRGB255(ColorSpace):
 #             [prepend + f"{r:02x}{g:02x}{b:02x}" for r, g, b in rgb255.T]
 #         ).reshape(shape[1:])
 #         return hex_vals
+#
+#     def to_xyz100(self, coords: ArrayLike) -> np.ndarray:
+#
+#         coords = np.asarray(coords)
+#
+#         int("deadbeef", 16)
+#
+#         return self._srgb1.to_xyz100(np.asarray(coords) / 255)

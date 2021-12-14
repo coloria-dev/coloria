@@ -200,7 +200,7 @@ def get_srgb1_gradient(
     # linspace
     ls = np.linspace(cs0, cs1, endpoint=True, num=n, axis=0)
     coords = ColorCoordinates(ls.T, colorspace)
-    return convert(coords, SRGB1(), mode="clip").data.T
+    return convert(coords, SRGB1(mode="clip")).data.T
 
 
 def plot_srgb255_gradient(

@@ -23,10 +23,10 @@ class ColorCoordinates:
     def copy(self):
         return deepcopy(self)
 
-    def convert(self, cs: ColorSpace, **kwargs) -> None:
+    def convert(self, cs: ColorSpace) -> None:
         if cs == self.color_space:
             return
-        self.data = cs.from_xyz100(self.color_space.to_xyz100(self.data), **kwargs)
+        self.data = cs.from_xyz100(self.color_space.to_xyz100(self.data))
         self.color_space = cs
 
     @property
@@ -42,7 +42,7 @@ class ColorCoordinates:
         return self.data[hue_idx]
 
 
-def convert(coords: ColorCoordinates, cs: ColorSpace, **kwargs) -> ColorCoordinates:
+def convert(coords: ColorCoordinates, cs: ColorSpace) -> ColorCoordinates:
     out = coords.copy()
-    out.convert(cs, **kwargs)
+    out.convert(cs)
     return out

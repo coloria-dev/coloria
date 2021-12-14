@@ -26,6 +26,9 @@ colorspaces = [
     (colorio.cs.XYY(100), 1.0e-14),
     (colorio.cs.XYZ(1), 1.0e-14),
     (colorio.cs.XYZ(100), 1.0e-14),
+    (colorio.cs.SRGBlinear(mode="ignore"), 1.0e-13),
+    (colorio.cs.SRGB1(mode="ignore"), 1.0e-13),
+    (colorio.cs.SRGB255(mode="ignore"), 1.0e-13),
 ]
 
 

@@ -41,7 +41,7 @@ class Munsell:
         # pick the data from the given munsell level
         xyz100 = ColorCoordinates(self.xyz100.data[:, V == self.V], XYZ(100))
         coords = convert(xyz100, cs)
-        rgb = convert(coords, SRGB1(), mode="nan").data
+        rgb = convert(coords, SRGB1(mode="nan")).data
 
         # plot the ones that cannot be represented in SRGB in black
         is_legal_srgb = ~np.any(np.isnan(rgb), axis=0)

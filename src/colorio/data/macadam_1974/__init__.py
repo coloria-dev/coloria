@@ -134,7 +134,7 @@ class MacAdam1974(ColorDistanceDataset):
             coords.hue[0],
             coords.hue[1],
             marker="s",
-            color=convert(tiles, SRGB1(), mode="clip").data.T,
+            color=convert(tiles, SRGB1(mode="clip")).data.T,
             edgecolors="w",
             zorder=2,
         )

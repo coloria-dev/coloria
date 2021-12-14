@@ -32,7 +32,7 @@ def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50
         filename,
         coords.data.T,
         {"hexahedron": cells},
-        point_data={"srgb": convert(coords, SRGB1(), mode="clip").data.T},
+        point_data={"srgb": convert(coords, SRGB1(mode="clip")).data.T},
     )
 
 
@@ -62,7 +62,7 @@ def plot_rgb_gamut(colorspace, n: int = 51, show_grid: bool = True):
     p = pv.Plotter()
     p.add_mesh(
         grid,
-        scalars=convert(cs_coords, SRGB1(), mode="clip").data,
+        scalars=convert(cs_coords, SRGB1(mode="clip")).data,
         rgb=True,
         # show_edges=True,
     )
@@ -110,7 +110,7 @@ def plot_rgb_slice(
 
     # https://github.com/pyvista/pyvista-support/issues/351#issuecomment-814574043
     grid = pv.UnstructuredGrid(cells.ravel(), celltypes, cs_coords.data.T)
-    grid["rgb"] = convert(cs_coords, SRGB1(), mode="clip").data.T
+    grid["rgb"] = convert(cs_coords, SRGB1(mode="clip")).data.T
 
     slc = grid.slice([1.0, 0.0, 0.0], [lightness, 0.0, 0.0])
     # slc = grid.slice_along_axis(10, 0)

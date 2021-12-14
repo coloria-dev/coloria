@@ -68,7 +68,7 @@ cc.data
 # cc.get_rgb1("clip")
 # cc.get_rgb_hex("clip")
 
-convert(cc, SRGB1(), mode="clip")
+convert(cc, SRGB1(mode="clip"))
 
 # convert to other color space
 cc_oklab = convert(cc, OKLAB())
