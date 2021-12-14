@@ -4,7 +4,6 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from ._color_space import ColorSpace
-from ._srgb import SrgbLinear
 
 
 class ColorCoordinates:
@@ -24,8 +23,10 @@ class ColorCoordinates:
     def copy(self):
         return deepcopy(self)
 
-    def convert(self, cs: ColorSpace) -> None:
-        self.data = cs.from_xyz100(self.color_space.to_xyz100(self.data))
+    def convert(self, cs: ColorSpace, **kwargs) -> None:
+        if cs == self.color_space:
+            return
+        self.data = cs.from_xyz100(self.color_space.to_xyz100(self.data), **kwargs)
         self.color_space = cs
 
     @property
@@ -40,20 +41,8 @@ class ColorCoordinates:
         hue_idx[self.color_space.k0] = False
         return self.data[hue_idx]
 
-    def get_rgb1(self, mode: str = "error") -> np.ndarray:
-        s = SrgbLinear()
-        return s.to_rgb1(
-            s.from_xyz100(self.color_space.to_xyz100(self.data), mode=mode)
-        )
 
-    def get_rgb_hex(self, mode: str = "error", prepend: str = "#") -> np.ndarray:
-        s = SrgbLinear()
-        xyz100 = self.color_space.to_xyz100(self.data)
-        rgb_linear = s.from_xyz100(xyz100, mode)
-        return s.to_rgb_hex(rgb_linear, prepend=prepend)
-
-
-def convert(coords: ColorCoordinates, cs: ColorSpace) -> ColorCoordinates:
+def convert(coords: ColorCoordinates, cs: ColorSpace, **kwargs) -> ColorCoordinates:
     out = coords.copy()
-    out.convert(cs)
+    out.convert(cs, **kwargs)
     return out

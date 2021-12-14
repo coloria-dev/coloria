@@ -2,23 +2,17 @@ import numpy as np
 import pytest
 
 import colorio
+from colorio.cs import ColorCoordinates, Srgb1, Srgb255, SrgbLinear, convert
 
 rng = np.random.default_rng(0)
 
 
+@pytest.mark.parametrize("cs", [SrgbLinear(), Srgb1(), Srgb255()])
 @pytest.mark.parametrize(
     "vals", [100 * rng.random(3), 100 * rng.random((3, 7)), 100 * rng.random((3, 4, 5))]
 )
-def test_conversion(vals):
-    srgb_linear = colorio.cs.SrgbLinear()
-
-    out = srgb_linear.to_xyz100(srgb_linear.from_xyz100(vals, mode="ignore"))
-    assert np.all(abs(vals - out) < 1.0e-13)
-
-    out = srgb_linear.to_rgb1(srgb_linear.from_rgb1(vals))
-    assert np.all(abs(vals - out) < 1.0e-13)
-
-    out = srgb_linear.to_rgb255(srgb_linear.from_rgb255(vals))
+def test_conversion(cs, vals):
+    out = cs.to_xyz100(cs.from_xyz100(vals, mode="ignore"))
     assert np.all(abs(vals - out) < 1.0e-13)
 
 
@@ -34,8 +28,8 @@ def test_conversion(vals):
     ],
 )
 def test_reference_srgb(vals, ref):
-    srgb_linear = colorio.cs.SrgbLinear()
-    assert np.all(abs(srgb_linear.from_rgb1(vals) - ref) < 1.0e-14 * np.array(ref))
+    vals = ColorCoordinates(vals, Srgb1())
+    assert np.all(abs(convert(vals, SrgbLinear()).data - ref) < 1.0e-14 * np.array(ref))
 
 
 @pytest.mark.parametrize(
@@ -46,12 +40,12 @@ def test_reference_srgb(vals, ref):
     ],
 )
 def test_reference_xyz(vals, ref):
-    srgb_linear = colorio.cs.SrgbLinear()
+    srgb_linear = SrgbLinear()
     assert np.all(abs(srgb_linear.to_xyz100(vals) - ref) < 1.0e-3 * np.array(ref))
 
 
 def test_whitepoint():
-    srgb_linear = colorio.cs.SrgbLinear()
+    srgb_linear = SrgbLinear()
     val = srgb_linear.to_xyz100([1.0, 1.0, 1.0])
     d65_whitepoint = colorio.illuminants.whitepoints_cie1931["D65"]
     assert np.all(np.abs(val - d65_whitepoint) < 1.0e-12)

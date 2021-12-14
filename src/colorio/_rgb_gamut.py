@@ -1,6 +1,6 @@
 import numpy as np
 
-from .cs import ColorCoordinates, HdrLinear, SrgbLinear, convert
+from .cs import ColorCoordinates, HdrLinear, Srgb1, SrgbLinear, convert
 
 
 def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50):
@@ -32,7 +32,7 @@ def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50
         filename,
         coords.data.T,
         {"hexahedron": cells},
-        point_data={"srgb": coords.get_rgb1(mode="clip").T},
+        point_data={"srgb": convert(coords, Srgb1(), mode="clip").data.T},
     )
 
 
@@ -62,7 +62,7 @@ def plot_rgb_gamut(colorspace, n: int = 51, show_grid: bool = True):
     p = pv.Plotter()
     p.add_mesh(
         grid,
-        scalars=cs_coords.get_rgb1("clip"),
+        scalars=convert(cs_coords, Srgb1(), mode="clip").data,
         rgb=True,
         # show_edges=True,
     )
@@ -110,7 +110,7 @@ def plot_rgb_slice(
 
     # https://github.com/pyvista/pyvista-support/issues/351#issuecomment-814574043
     grid = pv.UnstructuredGrid(cells.ravel(), celltypes, cs_coords.data.T)
-    grid["rgb"] = cs_coords.get_rgb1("clip").T
+    grid["rgb"] = convert(cs_coords, Srgb1(), mode="clip").data.T
 
     slc = grid.slice([1.0, 0.0, 0.0], [lightness, 0.0, 0.0])
     # slc = grid.slice_along_axis(10, 0)

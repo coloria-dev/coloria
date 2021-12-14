@@ -71,40 +71,56 @@ class SrgbLinear(ColorSpace):
         # 0.2126 * R_linear + 0.7152 * G_linear + 0.0722 * B_linear
         return 100 * npx.dot(self.invM, srgb1_linear)
 
-    def from_rgb1(self, srgb1: ArrayLike) -> np.ndarray:
-        srgb_linear = np.array(srgb1, dtype=float)
+
+class Srgb1(ColorSpace):
+    def __init__(self):
+        self._srgb_linear = SrgbLinear()
+
+    def from_xyz100(self, xyz: ArrayLike, **kwargs) -> np.ndarray:
+        srgb = self._srgb_linear.from_xyz100(xyz, **kwargs)
 
         a = 0.055
-        # https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation
-        is_smaller = srgb_linear <= 0.040449936  # 12.92 * 0.0031308
-
-        srgb_linear[is_smaller] /= 12.92
-        srgb_linear[~is_smaller] = ((srgb_linear[~is_smaller] + a) / (1 + a)) ** 2.4
-        return srgb_linear
-
-    def to_rgb1(self, srgb_linear: ArrayLike) -> np.ndarray:
-        a = 0.055
-        srgb = np.copy(srgb_linear)
         is_smaller = srgb <= 0.0031308
         srgb[is_smaller] *= 12.92
         srgb[~is_smaller] = (1 + a) * srgb[~is_smaller] ** (1 / 2.4) - a
         return srgb
 
-    def from_rgb255(self, srgb255: ArrayLike) -> np.ndarray:
-        return self.from_rgb1(np.asarray(srgb255) / 255)
+    def to_xyz100(self, coords: ArrayLike) -> np.ndarray:
+        coords = np.asarray(coords)
 
-    def to_rgb255(self, srgb_linear: ArrayLike) -> np.ndarray:
-        return 255 * self.to_rgb1(srgb_linear)
+        a = 0.055
+        # https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation
+        is_smaller = coords <= 0.040449936  # 12.92 * 0.0031308
+        coords[is_smaller] /= 12.92
+        coords[~is_smaller] = ((coords[~is_smaller] + a) / (1 + a)) ** 2.4
 
-    def to_rgb_hex(self, srgb1: ArrayLike, prepend: str = "#") -> np.ndarray:
-        rgb255 = self.to_rgb255(srgb1)
-        # round to closest int
-        rgb255 = np.around(rgb255).astype(int)
-        # convert to hex, preserve shape
-        shape = rgb255.shape
-        assert shape[0] == 3
-        rgb255 = rgb255.reshape(3, -1)
-        hex_vals = np.array(
-            [prepend + f"{r:02x}{g:02x}{b:02x}" for r, g, b in rgb255.T]
-        ).reshape(shape[1:])
-        return hex_vals
+        return self._srgb_linear.to_xyz100(coords)
+
+
+class Srgb255(ColorSpace):
+    def __init__(self):
+        self._srgb1 = Srgb1()
+
+    def from_xyz100(self, xyz: ArrayLike, **kwargs) -> np.ndarray:
+        return 255 * self._srgb1.from_xyz100(xyz, **kwargs)
+
+    def to_xyz100(self, coords: ArrayLike) -> np.ndarray:
+        return self._srgb1.to_xyz100(np.asarray(coords) / 255)
+
+
+# class SrgbHex(ColorSpace):
+#     def __init__(self):
+#         self._srgb255 = Srgb255()
+#
+#     def from_xyz100(self, xyz: ArrayLike, prepend: str = "#") -> np.ndarray:
+#         rgb255 = self._srgb255.from_xyz100(xyz)
+#         # round to closest int
+#         rgb255 = np.around(rgb255).astype(int)
+#         # convert to hex, preserve shape
+#         shape = rgb255.shape
+#         assert shape[0] == 3
+#         rgb255 = rgb255.reshape(3, -1)
+#         hex_vals = np.array(
+#             [prepend + f"{r:02x}{g:02x}{b:02x}" for r, g, b in rgb255.T]
+#         ).reshape(shape[1:])
+#         return hex_vals
