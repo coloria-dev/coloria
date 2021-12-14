@@ -55,7 +55,7 @@ Color coordinates are handled as NumPy arrays or as `ColorCoordinates`, a thin w
 that retains the color space information and has some handy helper methods:
 
 ```python
-from colorio.cs import ColorCoordinates, CIELAB, OKLAB, convert, Srgb1
+from colorio.cs import ColorCoordinates, CIELAB, OKLAB, convert, SRGB1
 
 # you can also plug in large numpy arrays here
 cc = ColorCoordinates([0.1, 0.5, 13.3], CIELAB())
@@ -68,7 +68,7 @@ cc.data
 # cc.get_rgb1("clip")
 # cc.get_rgb_hex("clip")
 
-convert(cc, Srgb1(), mode="clip")
+convert(cc, SRGB1(), mode="clip")
 
 # convert to other color space
 cc_oklab = convert(cc, OKLAB())
@@ -90,12 +90,8 @@ that provides those two methods. The following color spaces are already implemen
   parameter determining the scaling)
 - [xyY](src/colorio/cs/_xyy.py)
   (`colorio.cs.XYY(100)`, the parameter determining the scaling of `Y`)
-- [Linear sRGB](src/colorio/cs/_srgb.py) (`colorio.SrgbLinear()`)
-  This class has the additional methods
-  ```
-  [to,from]_rgb[1,255,_hex]()
-  ```
-  for conversion from and to standard RGB (Gamma correction).
+- [sRGB](src/colorio/cs/_srgb.py) (`colorio.cs.SRGBlinear()`,
+  `colorio.cs.SRGB1()`, `colorio.cs.SRGB255()`)
 - [HSL](src/colorio/cs/_hsl.py) and [HSV](src/colorio/cs/_hsv.py) (`colorio.cs.HSL()`,
   `colorio.cs.HSV()`)
   These classes have the two methods

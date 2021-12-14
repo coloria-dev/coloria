@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import ArrayLike
 
-from ..cs import XYZ, ColorCoordinates, ColorSpace, Srgb1, convert
+from ..cs import SRGB1, XYZ, ColorCoordinates, ColorSpace, convert
 from .helpers import create_cs_class_instance
 
 
@@ -36,7 +36,7 @@ class HueLinearityDataset:
         all_rgb1 = []
         for xyz in self.arms:
             coords = convert(ColorCoordinates(xyz, XYZ(100)), cs)
-            rgb1 = convert(coords, Srgb1(), mode="clip").data
+            rgb1 = convert(coords, SRGB1(), mode="clip").data
 
             pts = coords.hue
 

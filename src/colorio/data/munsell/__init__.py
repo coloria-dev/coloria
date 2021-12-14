@@ -5,7 +5,7 @@ from typing import Type
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import XYY, XYZ, ColorCoordinates, ColorSpace, Srgb1, convert
+from ...cs import SRGB1, XYY, XYZ, ColorCoordinates, ColorSpace, convert
 from ...illuminants import whitepoints_cie1931
 from ..helpers import create_cs_class_instance, stress_absolute
 
@@ -41,7 +41,7 @@ class Munsell:
         # pick the data from the given munsell level
         xyz100 = ColorCoordinates(self.xyz100.data[:, V == self.V], XYZ(100))
         coords = convert(xyz100, cs)
-        rgb = convert(coords, Srgb1(), mode="nan").data
+        rgb = convert(coords, SRGB1(), mode="nan").data
 
         # plot the ones that cannot be represented in SRGB in black
         is_legal_srgb = ~np.any(np.isnan(rgb), axis=0)

@@ -14,7 +14,7 @@ def _xyy_to_xyz100(xyy):
     return np.array([Y / y * x, Y, Y / y * (1 - x - y)]) * 100
 
 
-class SrgbLinear(ColorSpace):
+class SRGBlinear(ColorSpace):
     """Rec. 709 SRGB."""
 
     def __init__(self, whitepoint_correction: bool = True):
@@ -72,9 +72,9 @@ class SrgbLinear(ColorSpace):
         return 100 * npx.dot(self.invM, srgb1_linear)
 
 
-class Srgb1(ColorSpace):
+class SRGB1(ColorSpace):
     def __init__(self):
-        self._srgb_linear = SrgbLinear()
+        self._srgb_linear = SRGBlinear()
 
     def from_xyz100(self, xyz: ArrayLike, **kwargs) -> np.ndarray:
         srgb = self._srgb_linear.from_xyz100(xyz, **kwargs)
@@ -97,9 +97,9 @@ class Srgb1(ColorSpace):
         return self._srgb_linear.to_xyz100(coords)
 
 
-class Srgb255(ColorSpace):
+class SRGB255(ColorSpace):
     def __init__(self):
-        self._srgb1 = Srgb1()
+        self._srgb1 = SRGB1()
 
     def from_xyz100(self, xyz: ArrayLike, **kwargs) -> np.ndarray:
         return 255 * self._srgb1.from_xyz100(xyz, **kwargs)
@@ -110,7 +110,7 @@ class Srgb255(ColorSpace):
 
 # class SrgbHex(ColorSpace):
 #     def __init__(self):
-#         self._srgb255 = Srgb255()
+#         self._srgb255 = SRGB255()
 #
 #     def from_xyz100(self, xyz: ArrayLike, prepend: str = "#") -> np.ndarray:
 #         rgb255 = self._srgb255.from_xyz100(xyz)
