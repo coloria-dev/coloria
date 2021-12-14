@@ -91,7 +91,7 @@ that provides those two methods. The following color spaces are already implemen
 - [xyY](src/colorio/cs/_xyy.py)
   (`colorio.cs.XYY(100)`, the parameter determining the scaling of `Y`)
 - [sRGB](src/colorio/cs/_srgb.py) (`colorio.cs.SRGBlinear()`,
-  `colorio.cs.SRGB1()`, `colorio.cs.SRGB255()`)
+  `colorio.cs.SRGB1()`, `colorio.cs.SRGB255()`, `colorio.cs.SRGBhex()`)
 - [HSL](src/colorio/cs/_hsl.py) and [HSV](src/colorio/cs/_hsv.py) (`colorio.cs.HSL()`,
   `colorio.cs.HSV()`)
   These classes have the two methods
