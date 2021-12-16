@@ -23,14 +23,45 @@ class ColorCoordinates:
     def __mul__(self, alpha):
         return ColorCoordinates(alpha * self.data, self.color_space)
 
-    def __add__(self, cc):
-        assert isinstance(cc, ColorCoordinates)
-        if self.color_space.name != cc.color_space.name:
-            raise ValueError(
-                "Color spaces not equal "
-                f"({self.color_space.name} != {cc.color_space.name})"
-            )
-        return ColorCoordinates(self.data + cc.data, self.color_space)
+    __rmul__ = __mul__
+
+    def __add__(self, other):
+        if isinstance(other, ColorCoordinates):
+            if self.color_space.name != other.color_space.name:
+                raise ValueError(
+                    "Color spaces not equal "
+                    f"({self.color_space.name} != {other.color_space.name})"
+                )
+            return ColorCoordinates(self.data + other.data, self.color_space)
+
+        # fallback for int/float etc
+        return ColorCoordinates(self.data + other, self.color_space)
+
+    __radd__ = __add__
+
+    def __eq__(self, other):
+        if isinstance(other, ColorCoordinates):
+            if self.color_space.name != other.color_space.name:
+                raise ValueError(
+                    "Color spaces not equal "
+                    f"({self.color_space.name} != {other.color_space.name})"
+                )
+            return self.data == other.data
+
+        # fallback for int/float etc
+        return self.data == other
+
+    def __lt__(self, other):
+        return self.data < other
+
+    def __le__(self, other):
+        return self.data <= other
+
+    def __gt__(self, other):
+        return self.data > other
+
+    def __ge__(self, other):
+        return self.data >= other
 
     def copy(self):
         return deepcopy(self)
