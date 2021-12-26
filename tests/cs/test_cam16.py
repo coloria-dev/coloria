@@ -52,16 +52,6 @@ def test_zero(xyz, tol=1.0e-12):
 
 
 @pytest.mark.parametrize(
-    "xyz", [np.random.rand(3), np.random.rand(3, 7), np.random.rand(3, 4, 5)]
-)
-def test_conversion_variants(xyz, tol=1.0e-13):
-    # test with srgb conditions
-    cam16 = colorio.cs.CAM16UCS(0.69, 20, 20)
-    out = cam16.to_xyz100(cam16.from_xyz100(xyz))
-    assert np.all(abs(xyz - out) < tol)
-
-
-@pytest.mark.parametrize(
     "xyz,ref",
     [
         (

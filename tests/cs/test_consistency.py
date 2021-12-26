@@ -6,6 +6,8 @@ import colorio
 rng = np.random.default_rng(0)
 
 colorspaces = [
+    (colorio.cs.CAM02("LCD", 0.69, 20, 20), 1.0e-12),
+    (colorio.cs.CAM02("SCD", 0.69, 20, 20), 1.0e-12),
     (colorio.cs.CAM02("UCS", 0.69, 20, 20), 1.0e-12),
     (colorio.cs.CAM16UCS(0.69, 20, 20), 1.0e-12),
     (colorio.cs.CIELCH(), 1.0e-14),

@@ -31,17 +31,6 @@ def test_breakdown():
         ciecam02.from_xyz100(bad_xyz)
 
 
-@pytest.mark.parametrize("variant", ["LCD", "SCD", "UCS"])
-@pytest.mark.parametrize(
-    "xyz", [rng.random(3), rng.random((3, 7)), rng.random((3, 4, 5))]
-)
-def test_conversion_variants(variant, xyz):
-    # test with srgb conditions
-    cam02 = colorio.cs.CAM02(variant, 0.69, 20, 20)
-    out = cam02.to_xyz100(cam02.from_xyz100(xyz))
-    assert np.all(abs(xyz - out) < 1.0e-14)
-
-
 @pytest.mark.parametrize("xyz", [np.zeros(3), np.zeros((3, 4, 5))])
 def test_zero(xyz):
     cs = colorio.cs.CIECAM02(0.69, 20, 20)
@@ -138,13 +127,6 @@ def test_gold():
     assert np.all(values.round(5) == reference_values)
 
 
-def test_nan():
-    ciecam02 = colorio.cs.CIECAM02(0.69, 20, 20)
-    xyz = np.full(3, np.nan)
-    out = ciecam02.from_xyz100(xyz)
-    assert np.all(np.isnan(out))
-
-
 # @pytest.mark.parametrize('variant, xyz100, ref', [
 #     # From
 # <https://github.com/njsmith/colorspacious/blob/master/colorspacious/gold_values.py>.
@@ -163,7 +145,3 @@ def test_nan():
 #     assert np.all(
 #         abs(cs.from_xyz100(xyz) - ref) < 1.0e-6 * abs(np.array(ref))
 #         )
-
-
-if __name__ == "__main__":
-    test_nan()
