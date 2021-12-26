@@ -18,6 +18,8 @@ class CAM16:
     For an explanation of the parameter, see CIECAM02.
     """
 
+    name = "CAM16"
+
     def __init__(
         self,
         c: float,

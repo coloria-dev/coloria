@@ -6,6 +6,10 @@ import colorio
 rng = np.random.default_rng(0)
 
 colorspaces = [
+    (colorio.cs.CAM02("LCD", 0.69, 20, 20), 1.0e-12),
+    (colorio.cs.CAM02("SCD", 0.69, 20, 20), 1.0e-12),
+    (colorio.cs.CAM02("UCS", 0.69, 20, 20), 1.0e-12),
+    (colorio.cs.CAM16UCS(0.69, 20, 20), 1.0e-12),
     (colorio.cs.CIELCH(), 1.0e-14),
     (colorio.cs.CIEHCL(), 1.0e-13),
     (colorio.cs.CIELAB(), 1.0e-14),
@@ -56,20 +60,28 @@ def test_zero(cs, tol):
     ],
 )
 def test_round_trip(cs, tol, xyz):
+    print(cs.__class__)
+    print(cs)
     xyz_orig = xyz.copy()
+    print()
     print(xyz)
     out = cs.to_xyz100(cs.from_xyz100(xyz))
     # make sure that xyz doesn't change during the calls
     assert np.all(np.abs(np.asarray(xyz) - xyz_orig) < tol * np.abs(xyz_orig))
+    print()
     print(xyz)
-    print(cs)
+    print()
     print(out)
     assert np.asarray(xyz).shape == out.shape
+    print(np.max(np.abs(np.asarray(xyz) - out) / np.abs(xyz)))
     assert np.all(np.abs(np.asarray(xyz) - out) < tol * np.abs(xyz))
 
     # # make sure it works the other way around, too
     # out = cs.from_xyz100(cs.to_xyz100(xyz))
     # assert np.all(np.abs(np.array(xyz) - out) < tol * np.abs(xyz))
+
+    # make sure the name attribute is set
+    assert cs.name != "unknown"
 
 
 @pytest.mark.parametrize("cs, _", colorspaces)
