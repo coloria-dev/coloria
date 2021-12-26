@@ -361,6 +361,7 @@ class CAM02(ColorSpace):
         }
         self.K_L, self.c1, self.c2 = params[variant]
         self.ciecam02 = CIECAM02(c, Y_b, L_A, whitepoint)
+        self.name = f"CAM02 ({variant})"
 
     def from_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         J, _, _, h, M, _, _ = self.ciecam02.from_xyz100(xyz)

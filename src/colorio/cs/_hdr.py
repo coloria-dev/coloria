@@ -17,6 +17,8 @@ class HdrLinear(ColorSpace):
     <https://www.itu.int/dms_pubrec/itu-r/rec/bt/R-REC-BT.2020-2-201510-I!!PDF-E.pdf>.
     """
 
+    name = "HDR (linear)"
+
     def __init__(self):
         # TODO The Y-coordinate is guessed, it does not explicitly appear in the spec.
         primaries_xyy = np.array(
