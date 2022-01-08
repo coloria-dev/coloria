@@ -226,7 +226,7 @@ colorio.save_rgb_gamut("srgb.vtk", colorspace, n=51)
 # all formats supported by https://github.com/nschloe/meshio
 ```
 
-an open it with a tool of your choice. See
+and open it with a tool of your choice. See
 [here](https://github.com/nschloe/colorio/wiki/Visualizing-VTK-files) for how to open
 the file in [ParaView](https://www.paraview.org/).
 
