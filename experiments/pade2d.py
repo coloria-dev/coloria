@@ -160,12 +160,12 @@ class Pade2d:
         jac = np.array(
             [
                 [
-                    (ux_dx * vx - vx_dx * ux) / vx ** 2,
-                    (ux_dy * vx - vx_dy * ux) / vx ** 2,
+                    (ux_dx * vx - vx_dx * ux) / vx**2,
+                    (ux_dy * vx - vx_dy * ux) / vx**2,
                 ],
                 [
-                    (uy_dx * vy - vy_dx * uy) / vy ** 2,
-                    (uy_dy * vy - vy_dy * uy) / vy ** 2,
+                    (uy_dx * vy - vy_dx * uy) / vy**2,
+                    (uy_dy * vy - vy_dy * uy) / vy**2,
                 ],
             ]
         )

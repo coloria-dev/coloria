@@ -51,7 +51,7 @@ class MacAdam1942(ColorDistanceDataset):
             _, _, _, _, delta_y_delta_x, delta_s = np.array(datak["data"]).T
             offset = (
                 np.array([np.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
-                / np.sqrt(1 + delta_y_delta_x ** 2)
+                / np.sqrt(1 + delta_y_delta_x**2)
                 * delta_s
             )
             if offset.shape[1] < 2:

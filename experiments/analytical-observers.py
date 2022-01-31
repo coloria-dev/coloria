@@ -69,11 +69,11 @@ def plot_new():
     def fun(lmbda, alpha, lmbda0, sigma, beta, alpha2, lmbda02, sigma2, beta2):
         return (
             alpha
-            * np.exp(-((lmbda - lmbda0) ** 2) / 2 / sigma ** 2)
+            * np.exp(-((lmbda - lmbda0) ** 2) / 2 / sigma**2)
             * (1 + erf(beta * (lmbda - lmbda0) / np.sqrt(2) / sigma))
         ) + (
             alpha2
-            * np.exp(-((lmbda - lmbda02) ** 2) / 2 / sigma2 ** 2)
+            * np.exp(-((lmbda - lmbda02) ** 2) / 2 / sigma2**2)
             * (1 + erf(beta2 * (lmbda - lmbda02) / np.sqrt(2) / sigma2))
         )
 

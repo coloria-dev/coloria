@@ -26,13 +26,13 @@ def cie94(
     l2, a2, b2 = np.asarray(lab2)
 
     dL = l1 - l2
-    C1 = np.sqrt(a1 ** 2 + b1 ** 2)
-    C2 = np.sqrt(a2 ** 2 + b2 ** 2)
+    C1 = np.sqrt(a1**2 + b1**2)
+    C2 = np.sqrt(a2**2 + b2**2)
     dC = C1 - C2
     da = a1 - a2
     db = b1 - b2
     # dH2 is mathematically >=0, but round-off can lead to small negatives
-    dH2 = da ** 2 + db ** 2 - dC ** 2
+    dH2 = da**2 + db**2 - dC**2
 
     S_L = 1.0
     S_C = 1 + K_1 * C1

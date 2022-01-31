@@ -152,12 +152,12 @@ def planckian_radiator(temperature):
     h = 6.62607015e-34
     # Boltzmann constant
     k = 1.380649e-23
-    c1 = 2 * np.pi * h * c ** 2
+    c1 = 2 * np.pi * h * c**2
     c2 = h * c / k
     lmbda = 1.0e-9 * lmbda_nm
     return SpectralData(
         lmbda_nm,
-        c1 / lmbda ** 5 / (np.exp(c2 / lmbda / temperature) - 1),
+        c1 / lmbda**5 / (np.exp(c2 / lmbda / temperature) - 1),
         f"Planckian radiator ({temperature} K)",
     )
 

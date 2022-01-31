@@ -42,15 +42,15 @@ class OsaUcs(ColorSpace):
 
         # Avoid division by s, could be 0.
         YKs2 = (
-            4.4934 * Y * X ** 2
-            + 4.3034 * Y ** 3
-            - 4.276 * X * Y ** 2
+            4.4934 * Y * X**2
+            + 4.3034 * Y**3
+            - 4.276 * X * Y**2
             - 1.3744 * X * Y * s
-            - 2.5643 * Y ** 2 * s
-            + 1.8103 * Y * s ** 2
+            - 2.5643 * Y**2 * s
+            + 1.8103 * Y * s**2
         )
         Y0 = np.zeros_like(s)
-        np.divide(YKs2, s ** 2, out=Y0, where=s != 0.0)
+        np.divide(YKs2, s**2, out=Y0, where=s != 0.0)
 
         #  L' is L in original article
         L_prime = 5.9 * (np.cbrt(Y0) - 2 / 3 + 0.042 * np.cbrt(Y0 - 30))
@@ -85,17 +85,17 @@ class OsaUcs(ColorSpace):
         # hence has exactly one root.
         #
         u = L_prime / 5.9 + 2 / 3
-        v = 0.042 ** 3
+        v = 0.042**3
         # Polynomial coefficients
         a = -(v + 1)
         b = 3 * u
-        c = -3 * u ** 2
-        d = u ** 3 + v * 30
+        c = -3 * u**2
+        d = u**3 + v * 30
         # val = a * t ** 3 + b * t ** 2 + c * t + d
         #
         # x = t + b / (3 * a)
-        p = (3 * a * c - b ** 2) / (3 * a ** 2)
-        q = (2 * b ** 3 - 9 * a * b * c + 27 * a ** 2 * d) / (27 * a ** 3)
+        p = (3 * a * c - b**2) / (3 * a**2)
+        q = (2 * b**3 - 9 * a * b * c + 27 * a**2 * d) / (27 * a**3)
         # val = (x ** 3 + p * x + q) * a
         #
         # No need to assert this: We already know from the original expression that the
@@ -106,7 +106,7 @@ class OsaUcs(ColorSpace):
         t = np.cbrt(-q / 2 + s) + np.cbrt(-q / 2 - s)
         t -= b / (3 * a)
 
-        Y0 = t ** 3
+        Y0 = t**3
         C = L_prime / (5.9 * (t - 2 / 3))
         a = g / C
         b = j / C
@@ -131,7 +131,7 @@ class OsaUcs(ColorSpace):
             # # a = -13.7 * np.cbrt(R) + 17.7 * np.cbrt(G) - 4 * np.cbrt(B)
             # # b = 1.7 * np.cbrt(R) + 8 * np.cbrt(G) - 9.7 * np.cbrt(B)
 
-            RGB = cbrt_RGB ** 3
+            RGB = cbrt_RGB**3
             xyz100 = npx.dot(self.Minv, RGB)
 
             X, Y, _ = xyz100
@@ -139,8 +139,8 @@ class OsaUcs(ColorSpace):
             x = X / sum_xyz
             y = Y / sum_xyz
             K = (
-                4.4934 * x ** 2
-                + 4.3034 * y ** 2
+                4.4934 * x**2
+                + 4.3034 * y**2
                 - 4.276 * x * y
                 - 1.3744 * x
                 - 2.5643 * y
@@ -151,13 +151,13 @@ class OsaUcs(ColorSpace):
             # df/domega
             # dcbrt_RGB = 1.0
             # dRGB = 3 * cbrt_RGB ** 2 * dcbrt_RGB
-            dRGB = 3 * cbrt_RGB ** 2
+            dRGB = 3 * cbrt_RGB**2
             dxyz100 = npx.dot(self.Minv, dRGB)
 
             dX, dY, _ = dxyz100
             dsum_xyz = np.sum(dxyz100, axis=0)
-            dx = (dX * sum_xyz - X * dsum_xyz) / sum_xyz ** 2
-            dy = (dY * sum_xyz - Y * dsum_xyz) / sum_xyz ** 2
+            dx = (dX * sum_xyz - X * dsum_xyz) / sum_xyz**2
+            dy = (dY * sum_xyz - Y * dsum_xyz) / sum_xyz**2
             dK = (
                 4.4934 * 2 * x * dx
                 + 4.3034 * 2 * y * dy

@@ -51,5 +51,5 @@ def stress_relative(
     wtarget = weights * target
     alpha = np.sum(wtarget) / np.sum(wtarget * target / actual)
     diff = alpha * target - actual
-    val = np.sum(weights * diff ** 2 / actual) / np.sum(weights * actual)
+    val = np.sum(weights * diff**2 / actual) / np.sum(weights * actual)
     return 100 * np.sqrt(val)

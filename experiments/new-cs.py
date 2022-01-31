@@ -35,8 +35,8 @@ def f_ellipse(a_b_theta, x):
     cos = np.cos(theta)
     sin = np.sin(theta)
     return (
-        +(a ** 2) * (x[0] * cos + x[1] * sin) ** 2
-        + b ** 2 * (x[0] * sin - x[1] * cos) ** 2
+        +(a**2) * (x[0] * cos + x[1] * sin) ** 2
+        + b**2 * (x[0] * sin - x[1] * cos) ** 2
         - 1.0
     )
 
@@ -51,8 +51,8 @@ def jac_ellipse(a_b_theta, x):
             #
             +2 * b * (x[0] * sin - x[1] * cos) ** 2,
             #
-            +(a ** 2) * 2 * (x[0] * cos + x[1] * sin) * (-x[0] * sin + x[1] * cos)
-            + b ** 2 * 2 * (x[0] * sin - x[1] * cos) * (+x[0] * cos + x[1] * sin),
+            +(a**2) * 2 * (x[0] * cos + x[1] * sin) * (-x[0] * sin + x[1] * cos)
+            + b**2 * 2 * (x[0] * sin - x[1] * cos) * (+x[0] * cos + x[1] * sin),
         ]
     ).T
 
@@ -101,7 +101,7 @@ def _get_macadam():
         centers.append(center)
         offset = (
             np.array([np.ones(delta_y_delta_x.shape[0]), delta_y_delta_x])
-            / np.sqrt(1 + delta_y_delta_x ** 2)
+            / np.sqrt(1 + delta_y_delta_x**2)
             * delta_s
         )
         points.append(np.column_stack([(center + offset.T).T, (center - offset.T).T]))
@@ -274,8 +274,8 @@ class PadeEllipse:
         #   s1 = q + r
         #   s2 = q - r
         #
-        q2 = a ** 2 + d ** 2
-        r2 = b ** 2 + c ** 2
+        q2 = a**2 + d**2
+        r2 = b**2 + c**2
 
         return q2, r2
 
@@ -291,7 +291,7 @@ class PadeEllipse:
 
         self.num_f_eval += 1
         if self.num_f_eval % 10000 == 0:
-            cost = np.sum(out ** 2)
+            cost = np.sum(out**2)
             print(f"{self.num_f_eval:7d}     {cost}")
         return out
 
@@ -491,8 +491,8 @@ class PiecewiseEllipse:
         #   s1 = q + r
         #   s2 = q - r
         #
-        q2 = a ** 2 + d ** 2
-        r2 = b ** 2 + c ** 2
+        q2 = a**2 + d**2
+        r2 = b**2 + c**2
         return q2, r2
 
     def jac_q2_r2(self, ax, ay, bx, by):
@@ -835,7 +835,7 @@ def _main():
 
     # problem = PadeEllipse(centers, J, [2, 0, 2, 0])
     for k in range(8):
-        n = 2 ** k
+        n = 2**k
         problem = PiecewiseEllipse(centers, J.copy(), n)
 
         print()

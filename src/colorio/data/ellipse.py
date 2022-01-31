@@ -20,7 +20,7 @@ class EllipseDataset:
         distances = np.sqrt(np.einsum("ij,ij->j", diff, diff))
 
         alpha = np.average(distances)
-        return 100 * np.sqrt(np.sum((alpha - distances) ** 2) / np.sum(distances ** 2))
+        return 100 * np.sqrt(np.sum((alpha - distances) ** 2) / np.sum(distances**2))
 
     def plot(self, cs: ColorSpace, ellipse_scaling: float = 1.0):
         # merge centers and points
@@ -63,8 +63,8 @@ def _plot_ellipses(
             sin_t = np.sin(theta)
             cos_t = np.cos(theta)
             return (
-                +(a ** 2) * (X[0] * cos_t + X[1] * sin_t) ** 2
-                + b ** 2 * (X[0] * sin_t - X[1] * cos_t) ** 2
+                +(a**2) * (X[0] * cos_t + X[1] * sin_t) ** 2
+                + b**2 * (X[0] * sin_t - X[1] * cos_t) ** 2
                 - 1.0
             )
 
@@ -78,8 +78,8 @@ def _plot_ellipses(
                 [
                     +2 * a * (x0cos + x1sin) ** 2,
                     +2 * b * (x0sin - x1cos) ** 2,
-                    +(a ** 2) * 2 * (x0cos + x1sin) * (-x0sin + x1cos)
-                    + b ** 2 * 2 * (x0sin - x1cos) * (x0cos + x1sin),
+                    +(a**2) * 2 * (x0cos + x1sin) * (-x0sin + x1cos)
+                    + b**2 * 2 * (x0sin - x1cos) * (x0cos + x1sin),
                 ]
             ).T
 
