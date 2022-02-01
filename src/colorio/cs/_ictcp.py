@@ -39,7 +39,7 @@ class ICtCp(ColorSpace):
         lms = npx.dot(self.M1, rgb)
 
         lms_ = (
-            (self.c1 + self.c2 * lms ** self.m1) / (1 + self.c3 * lms ** self.m1)
+            (self.c1 + self.c2 * lms**self.m1) / (1 + self.c3 * lms**self.m1)
         ) ** self.m2
 
         ictcp = npx.dot(self.M2, lms_)

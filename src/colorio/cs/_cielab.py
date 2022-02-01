@@ -12,7 +12,7 @@ from ._color_space import ColorSpace
 def f(t):
     delta = 6 / 29
     out = np.array(t, dtype=float)
-    is_greater = out > delta ** 3
+    is_greater = out > delta**3
     out[is_greater] = 116 * np.cbrt(out[is_greater]) - 16
     out[~is_greater] = out[~is_greater] / (delta / 2) ** 3
     return out
@@ -23,7 +23,7 @@ def finv(t):
     out = np.array(t / 116, dtype=float)
     is_greater = out > 2 / 29
     out[is_greater] = (out[is_greater] + 4 / 29) ** 3
-    out[~is_greater] = 3 * delta ** 2 * out[~is_greater]
+    out[~is_greater] = 3 * delta**2 * out[~is_greater]
     return out
 
 

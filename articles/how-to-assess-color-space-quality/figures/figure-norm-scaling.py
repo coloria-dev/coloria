@@ -23,7 +23,7 @@ x1 = x1[idx]
 y1 = y1[idx]
 
 x2 = np.linspace(0.0, 5.0, 101)
-y2 = (1 - x2) ** 2 / x2 ** 2
+y2 = (1 - x2) ** 2 / x2**2
 
 idx = y2 < ymax * 1.5
 x2 = x2[idx]

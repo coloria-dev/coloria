@@ -54,13 +54,13 @@ class CAM16:
         )
 
         k = 1 / (5 * L_A + 1)
-        l4 = 1 - k ** 4
-        k4_L_A = 0.0 if L_A == np.inf else k ** 4 * L_A
-        self.F_L = k4_L_A + 0.1 * l4 ** 2 * np.cbrt(5 * L_A)
+        l4 = 1 - k**4
+        k4_L_A = 0.0 if L_A == np.inf else k**4 * L_A
+        self.F_L = k4_L_A + 0.1 * l4**2 * np.cbrt(5 * L_A)
 
         self.n = Y_b / Y_w
         self.z = 1.48 + np.sqrt(self.n)
-        self.N_bb = 0.725 / self.n ** 0.2
+        self.N_bb = 0.725 / self.n**0.2
         self.N_cb = self.N_bb
 
         RGB_wc = self.M @ whitepoint

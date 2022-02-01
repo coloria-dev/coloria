@@ -23,7 +23,7 @@ b = perfplot.bench(
         np.cbrt,
     ],
     labels=["OSA-UCS", "CIELAB", "CIECAM02", "cbrt"],
-    n_range=[2 ** n for n in range(23)],
+    n_range=[2**n for n in range(23)],
 )
 b.plot()
 plt.title("Runtime [s]")

@@ -147,7 +147,7 @@ def get_mono_outline_xy(observer, max_stepsize):
 
     #
     diff = first - last
-    dist = np.sqrt(np.sum(diff ** 2))
+    dist = np.sqrt(np.sum(diff**2))
     num_steps = dist / max_stepsize
     num_steps = int(num_steps) + 2
     # connection between lowest and highest frequencies

@@ -50,11 +50,11 @@ class CAM16Legacy:
         self.D_RGB = D * Y_w / RGB_w + 1 - D
 
         k = 1 / (5 * L_A + 1)
-        self.F_L = k ** 4 * L_A + 0.1 * (1 - k ** 4) ** 2 * np.cbrt(5 * L_A)
+        self.F_L = k**4 * L_A + 0.1 * (1 - k**4) ** 2 * np.cbrt(5 * L_A)
 
         self.n = Y_b / Y_w
         self.z = 1.48 + np.sqrt(self.n)
-        self.N_bb = 0.725 / self.n ** 0.2
+        self.N_bb = 0.725 / self.n**0.2
         self.N_cb = self.N_bb
 
         RGB_wc = self.D_RGB * RGB_w
@@ -100,7 +100,7 @@ class CAM16Legacy:
 
         # Step 8: Calculate the correlate of brightness
         sqrt_J_100 = np.sqrt(J / 100)
-        Q = (4 / self.c) * sqrt_J_100 * (self.A_w + 4) * self.F_L ** 0.25
+        Q = (4 / self.c) * sqrt_J_100 * (self.A_w + 4) * self.F_L**0.25
 
         # Step 9: Calculate the correlates of chroma (C), colourfulness (M)
         #          and saturation (s)
@@ -111,11 +111,11 @@ class CAM16Legacy:
             * e_t
             * self.N_c
             * self.N_cb
-            * np.sqrt(a ** 2 + b ** 2)
+            * np.sqrt(a**2 + b**2)
             / npx.dot(np.array([1, 1, 21 / 20]), rgb_a)
         )
-        C = t ** 0.9 * (1.64 - 0.29 ** self.n) ** 0.73 * sqrt_J_100
-        M = C * self.F_L ** 0.25
+        C = t**0.9 * (1.64 - 0.29**self.n) ** 0.73 * sqrt_J_100
+        M = C * self.F_L**0.25
         s = 100 * np.sqrt(M / Q)
 
         return np.array([J, C, H, h, M, s, Q])
@@ -125,23 +125,23 @@ class CAM16Legacy:
         if description[0] == "J":
             J = data[0]
             # Q perhaps needed for C
-            Q = (4 / self.c) * np.sqrt(J / 100) * (self.A_w + 4) * self.F_L ** 0.25
+            Q = (4 / self.c) * np.sqrt(J / 100) * (self.A_w + 4) * self.F_L**0.25
         else:
             # Step 1–1: Compute J from Q (if start from Q)
             assert description[0] == "Q"
             Q = data[0]
-            J = 6.25 * (self.c * Q / (self.A_w + 4) / self.F_L ** 0.25) ** 2
+            J = 6.25 * (self.c * Q / (self.A_w + 4) / self.F_L**0.25) ** 2
 
         # Step 1–2: Calculate C from M or s
         if description[1] == "C":
             C = data[1]
         elif description[1] == "M":
             M = data[1]
-            C = M / self.F_L ** 0.25
+            C = M / self.F_L**0.25
         else:
             assert description[1] == "s"
             s = data[1]
-            C = (s / 100) ** 2 * Q / self.F_L ** 0.25
+            C = (s / 100) ** 2 * Q / self.F_L**0.25
 
         if description[2] == "h":
             h = data[2]
@@ -164,7 +164,7 @@ class CAM16Legacy:
         A = self.A_w * (J / 100) ** (1 / self.c / self.z)
 
         # Step 3: Calculate a and b
-        t = (C / np.sqrt(J / 100) / (1.64 - 0.29 ** self.n) ** 0.73) ** (1 / 0.9)
+        t = (C / np.sqrt(J / 100) / (1.64 - 0.29**self.n) ** 0.73) ** (1 / 0.9)
         e_t = 0.25 * (np.cos(h + 2) + 3.8)
 
         one_over_t = 1 / t

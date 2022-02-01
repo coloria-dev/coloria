@@ -118,7 +118,7 @@ class RLAB(ColorSpace):
         # account for the environment adaptation of the human visual system.
         xyz_ref = npx.dot(self.A, xyz)
 
-        x_ref_s, y_ref_s, z_ref_s = xyz_ref ** self.sigma
+        x_ref_s, y_ref_s, z_ref_s = xyz_ref**self.sigma
 
         # LR represents an achromatic response analogous to CIELAB L*. The red-green
         # chromatic response is given by a_R (analogous to CIELAB a*) and the

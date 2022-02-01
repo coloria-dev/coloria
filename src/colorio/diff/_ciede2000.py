@@ -18,16 +18,16 @@ def ciede2000(
     L1, a1, b1 = lab1
     L2, a2, b2 = lab2
 
-    C1 = np.sqrt(a1 ** 2 + b1 ** 2)
-    C2 = np.sqrt(a2 ** 2 + b2 ** 2)
+    C1 = np.sqrt(a1**2 + b1**2)
+    C2 = np.sqrt(a2**2 + b2**2)
     C_mean = (C1 + C2) / 2
 
-    G = 0.5 * (1 - np.sqrt(C_mean ** 7 / (C_mean ** 7 + 25 ** 7)))
+    G = 0.5 * (1 - np.sqrt(C_mean**7 / (C_mean**7 + 25**7)))
     a1p = (1 + G) * a1
     a2p = (1 + G) * a2
 
-    C1p = np.sqrt(a1p ** 2 + b1 ** 2)
-    C2p = np.sqrt(a2p ** 2 + b2 ** 2)
+    C1p = np.sqrt(a1p**2 + b1**2)
+    C2p = np.sqrt(a2p**2 + b2**2)
 
     # 0 <= h1p, h2p <= 360
     h1p = np.degrees(np.arctan2(b1, a1p)) % 360
@@ -85,7 +85,7 @@ def ciede2000(
     )
     dtheta = 30 * np.exp(-(((hp_mean - 275) / 25) ** 2))
 
-    R_C = 2 * np.sqrt(Cp_mean ** 7 / (Cp_mean ** 7 + 25 ** 7))
+    R_C = 2 * np.sqrt(Cp_mean**7 / (Cp_mean**7 + 25**7))
     S_L = 1 + 0.015 * (Lp_mean - 50) ** 2 / np.sqrt(20 + (Lp_mean - 50) ** 2)
     S_C = 1 + 0.045 * Cp_mean
     S_H = 1 + 0.015 * Cp_mean * T
