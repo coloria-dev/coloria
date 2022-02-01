@@ -10,7 +10,7 @@ def pnorm(a, p):
     n = len(a)
     if p == 0:
         return np.prod(np.abs(a)) ** (1 / n)
-    return (np.sum(a ** p) / n) ** (1 / p)
+    return (np.sum(a**p) / n) ** (1 / p)
 
 
 n = 20

@@ -1,0 +1,14 @@
+include data/bfd_p/*.json
+include data/ebner_fairchild/*.json
+include data/fairchild_chen/*.json
+include data/hung_berns/*.json
+include data/illuminants/*.json
+include data/leeds/*.json
+include data/luo_rigg/*.json
+include data/macadam_1942/*.json
+include data/macadam_1974/*.json
+include data/munsell/*.json
+include data/observers/*.json
+include data/rit_dupont/*.json
+include data/witt/*.json
+include data/xiao/*.json

@@ -17,7 +17,7 @@ def cmc(lab1: ArrayLike, lab2: ArrayLike, l: float = 2.0, c: float = 1.0) -> np.
     L1, C1, h1 = lch1
     L2, C2, _ = lch2
 
-    F = np.sqrt(C1 ** 4 / (C1 ** 4 + 1900))
+    F = np.sqrt(C1**4 / (C1**4 + 1900))
 
     idx = (164 <= h1) & (h1 <= 345)
     #
@@ -48,7 +48,7 @@ def cmc(lab1: ArrayLike, lab2: ArrayLike, l: float = 2.0, c: float = 1.0) -> np.
     dC = C1 - C2
     da = a1 - a2
     db = b1 - b2
-    dHab2 = da ** 2 + db ** 2 - dC ** 2
+    dHab2 = da**2 + db**2 - dC**2
 
-    dE = np.sqrt(((L2 - L1) / l / S_L) ** 2 + (dC / c / S_C) ** 2 + dHab2 / S_H ** 2)
+    dE = np.sqrt(((L2 - L1) / l / S_L) ** 2 + (dC / c / S_C) ** 2 + dHab2 / S_H**2)
     return dE

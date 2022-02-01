@@ -1,4 +1,5 @@
 from . import cat, cs, data, diff, illuminants, observers
+from .__about__ import __version__
 from ._exceptions import ColorioError
 from ._helpers import SpectralData
 from ._rgb_gamut import plot_rgb_gamut, plot_rgb_slice, save_rgb_gamut
@@ -31,4 +32,6 @@ __all__ = [
     "plot_srgb255_gradient",
     "plot_primary_srgb_gradients",
     "plot_surface_gamut",
+    #
+    "__version__",
 ]
