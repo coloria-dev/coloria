@@ -54,4 +54,4 @@ def test_stress_diff(fun, ref):
     data = colorio.data.RitDupont()
     res = data.stress_lab_diff(fun)
     print(res)
-    assert abs(res - ref) < 1.0e-14 * ref
+    assert abs(res - ref) < 1.0e-12 * ref
