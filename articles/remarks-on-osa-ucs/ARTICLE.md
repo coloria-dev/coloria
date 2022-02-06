@@ -169,6 +169,7 @@ typically only takes around 10 iterations to converge to machine precision._
 
 _Cardano's method finds the root at once at the expense of computing one square
 root and two cube roots. This approach is found to be about 15 times faster._
+
 ---
 
 \begin{figure}
@@ -238,6 +239,7 @@ $`\sqrt[3]{R}`$, it is reasonable to chose $`w_0`$ to be the maximum possible va
 that $`\sqrt[3]{R}`$ can take, namely that corresponding to $`X=Y=100`$, $`Z=0`$
 (see~\eqref{eq:m}), $`w_0=\sqrt[3]{79.9 + 41.94}\approx 4.9575`$.
 
+---
 ##### Remark
 
 _[Cao et al.](https://doi.org/10.1364/josaa.30.001508) found that the
@@ -256,6 +258,8 @@ converge in the first step. The redundant work inflicted by this approach is far
 outweighed by the advantages of vectorization._
 
 _All code is published as open-source in [colorio](https://github.com/nschloe/colorio)._
+
+---
 
 \begin{figure}
 \centering
