@@ -159,6 +159,7 @@ Hence, it has exactly one root that can be found using the classical Cardano for
   {\left(p/3\right)}^3`$ is always positive since, as argued above, $`f`$ has
   exactly one root.
 
+---
 ##### Remark
 
 _Kobayasi and Yosiki find the root of $`f`$ using Newton's method. A good
@@ -168,6 +169,7 @@ typically only takes around 10 iterations to converge to machine precision._
 
 _Cardano's method finds the root at once at the expense of computing one square
 root and two cube roots. This approach is found to be about 15 times faster._
+---
 
 \begin{figure}
 \centering
