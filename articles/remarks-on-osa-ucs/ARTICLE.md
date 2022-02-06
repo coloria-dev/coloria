@@ -15,13 +15,13 @@ In 1974, MacAdam published the definition of the OSA-UCS color
 space~\cite{macadam} that tries to adhere particularly well to experimentally
 measured color distances. It combines work that had been going on since the
 late 1940s. One aspect of OSA-UCS is that, while the conversion from CIEXYZ
-coordinates into OSA-UCS $Lgj$ coordinates is straightforward, the conversion
+coordinates into OSA-UCS $`Lgj`$ coordinates is straightforward, the conversion
 the other way around is not. In fact, there is no conversion method that works
 solely in elementary functions. Apparently, this had not been a design goal of
 OSA-UCS although is severely limits the usability of OSA-UCS.
 
-In 2002, Kobayasi and Yosiki presented an algorithm for conversion from $Lgj$
-to $XYZ$ coordinates that leverages Newton's method for solving nonlinear
+In 2002, Kobayasi and Yosiki presented an algorithm for conversion from $`Lgj`$
+to $`XYZ`$ coordinates that leverages Newton's method for solving nonlinear
 equation systems~\cite{kobayasi}. Unfortunately, the article remains vague at
 important points and also contains false assertions about the nature of the
 involved functions.
@@ -35,7 +35,7 @@ and improves the efficiency of the algorithm.
 
 ## The forward conversion
 
-The conversion from CIEXYZ-100 coordinates to OSA-UCS $Lgj$ coordinates is
+The conversion from CIEXYZ-100 coordinates to OSA-UCS $`Lgj`$ coordinates is
 defined as follows:
 
 - Compute $`x`$, $`y`$ coordinates via
@@ -150,12 +150,12 @@ Hence, it has exactly one root that can be found using the classical Cardano for
   exactly one root.
 
 ##### Remark
-_Kobayasi and Yosiki find the root of $f$ using Newton's method.  A good
-initial guess here is $t = \frac{L'}{5.9} + \frac{2}{3}$ since the second term
-in $f(t)$, containing $0.042^3$, is comparatively small. Indeed it typically
-only takes around 10 iterations to converge to machine precision.
+_Kobayasi and Yosiki find the root of $`f`$ using Newton's method.  A good
+initial guess here is $`t = \frac{L'}{5.9} + \frac{2}{3}`$ since the second
+term in $`f(t)`$, containing $`0.042^3`$, is comparatively small. Indeed it
+typically only takes around 10 iterations to converge to machine precision._
 
-Cardano's method finds the root at once at the expense of computing one square
+_Cardano's method finds the root at once at the expense of computing one square
 root and two cube roots. This approach is found to be about 15 times faster._
 
 
@@ -224,7 +224,7 @@ that $`\sqrt[3]{R}`$ can take, namely that corresponding to $`X=Y=100`$, $`Z=0`$
 + 41.94}\approx 4.9575`$.
 
 ##### Remark
-_Cao et al.~\cite{cao} found that the conversion to from $Lgj$ to $XYZ$ takes
+_Cao et al.~\cite{cao} found that the conversion to from $`Lgj`$ to $`XYZ`$ takes
 so long that alternative methods need to be researched. They even find that the
 Newton iterations sometimes do not converge, or find the correct result only to
 a few digits of accuracy.  The author cannot confirm these observations. The
@@ -232,7 +232,7 @@ computation of hundreds of thousands of coordinates at once merely takes a
 second of computation time on a recent computer (figure~\ref{fig:speed}).
 
 To achieve this speed, it is important to vectorize all computation, i.e., not to
-perform the conversion for each $Lgj$-tuple individually one after another, but to
+perform the conversion for each $`Lgj`$-tuple individually one after another, but to
 perform all steps on the array. This also means to perform the Newton iteration on all
 tuples until the last one of them has converged successfully, even if some already
 converge in the first step. The redundant work inflicted by this approach is far
