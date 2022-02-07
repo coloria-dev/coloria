@@ -127,7 +127,7 @@ which we will retrieve $`Y_0`$. First set $`t\coloneqq \sqrt[3]{Y_0}`$ and consi
   0 = f(t) \coloneqq {\left(\frac{L'}{5.9} + \frac{2}{3} - t\right)}^3 - 0.042^3 (t^3 - 30).
 ```
 
-$`f`$ is a monotonically decreasing cubic polynomial (see figure~\ref{fig:singularity}).
+$`f`$ is a monotonically decreasing cubic polynomial (see [figure](#figure)).
 
 Hence, it has exactly one root that can be found using the classical Cardano formula:
 
@@ -176,7 +176,6 @@ root and two cube roots. This approach is found to be about 15 times faster._
 
 <img src="https://raw.githubusercontent.com/nschloe/colorio/assets/f.svg"/>             |  <img src="https://raw.githubusercontent.com/nschloe/colorio/assets/psi.svg"/>
 :-------------------------:|:-------------------------:
-   |
 
 _Left: Graph of $`f(t)`$ \eqref{eq:f} for $`L'=25`$. Note that the root is not
 in the turning point, but close to it. This is because of the small second term
@@ -227,7 +226,7 @@ of which a root needs to be found is defined as follows.
 If the difference between $`\tilde{Y}_0(w)`$ and $`Y_0`$ from~\eqref{eq:gather}
 is 0, the correct $`w`$ has been found. Kobayasi states the function $`\phi`$
 is "monotone increasing, convex downward, and smooth". Unfortunately, none of
-this is true (see figure~\ref{fig:singularity}). In fact, the function has a
+this is true (see [figure](#figure)). In fact, the function has a
 singularity at $`w`$ chosen such that the computed tentative $`\tilde{X}`$,
 $`\tilde{Y}`$, $`\tilde{Z}`$ sum up to 0 while the individual values of
 $`|\tilde{X}|, |\tilde{Y}|, |\tilde{Z}| > 0`$. This happens if the tentative
@@ -249,7 +248,7 @@ need to be researched. They even find that the Newton iterations sometimes do
 not converge, or find the correct result only to a few digits of accuracy. The
 author cannot confirm these observations. The computation of hundreds of
 thousands of coordinates at once merely takes a second of computation time on a
-recent computer (figure~\ref{fig:speed})._
+recent computer ([figure](#figure-1))._
 
 _To achieve this speed, it is important to vectorize all computation, i.e., not to
 perform the conversion for each $`Lgj`$-tuple individually one after another, but to
@@ -266,10 +265,9 @@ _All code is published as open-source in [colorio](https://github.com/nschloe/co
 
 <img src="https://raw.githubusercontent.com/nschloe/colorio/assets/speed-absolute.svg"/>             |  <img src="https://raw.githubusercontent.com/nschloe/colorio/assets/speed-relative.svg"/>
 :-------------------------:|:-------------------------:
-   |
 
 _Computation speed for arrays of $`Lgj`$ values measured with
-colorio~\cite{colorio}. Left: Comparison with CIELAB and CIECAM02. The
+[colorio](https://github.com/nschloe/colorio). Left: Comparison with CIELAB and CIECAM02. The
 conversion of several hundred thousand $Lgj$ values takes about 1 second.
 Right: Computation speed relative to the evaluation of the cubic root. For
 large arrays, the conversion to $`XYZ`$ is about as costly as the evaluation of
