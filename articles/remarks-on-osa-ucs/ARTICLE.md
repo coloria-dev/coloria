@@ -176,12 +176,12 @@ root and two cube roots. This approach is found to be about 15 times faster._
 
 <img src="https://raw.githubusercontent.com/nschloe/colorio/assets/f.svg"/>             |  <img src="https://raw.githubusercontent.com/nschloe/colorio/assets/psi.svg"/>
 :-------------------------:|:-------------------------:
-left   |  right
+   |
 
 _Left: Graph of $`f(t)`$ \eqref{eq:f} for $`L'=25`$. Note that the root is not
 in the turning point, but close to it. This is because of the small second term
 in $`f`$. Right: Graph of the function $`\phi`$ for $`L`$, $`g`$, $`j`$
-computed from $`X=12`$, $`Y=67`$, $Z=20$. The singularity is at
+computed from $`X=12`$, $`Y=67`$, $`Z=20`$. The singularity is at
 $`w\approx 0.59652046418`$. Note that the function has three roots only the
 largest of which is of interest._
 
@@ -264,20 +264,15 @@ _All code is published as open-source in [colorio](https://github.com/nschloe/co
 
 ##### Figure
 
-\begin{figure}
-\centering
-\hfill
-\input{figures/speed-absolute.tex}
-\hfill
-\input{figures/speed-relative.tex}
-\hfill
-\caption{
+<img src="https://raw.githubusercontent.com/nschloe/colorio/assets/speed-absolute.svg"/>             |  <img src="https://raw.githubusercontent.com/nschloe/colorio/assets/speed-relative.svg"/>
+:-------------------------:|:-------------------------:
+   |
 
 _Computation speed for arrays of $`Lgj`$ values measured with
 colorio~\cite{colorio}. Left: Comparison with CIELAB and CIECAM02. The
 conversion of several hundred thousand $Lgj$ values takes about 1 second.
 Right: Computation speed relative to the evaluation of the cubic root. For
-large arrays, the conversion to $XYZ$ is about as costly as the evaluation of
+large arrays, the conversion to $`XYZ`$ is about as costly as the evaluation of
 35 cubic roots._
 
 ---
