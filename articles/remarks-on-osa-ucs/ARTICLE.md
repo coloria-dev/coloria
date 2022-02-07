@@ -174,7 +174,7 @@ root and two cube roots. This approach is found to be about 15 times faster._
 
 ##### Figure
 
-f.tex             |  phi.tex
+<img src="https://raw.githubusercontent.com/nschloe/colorio/assets/f.svg"/>             |  <img src="https://raw.githubusercontent.com/nschloe/colorio/assets/psi.svg"/>
 :-------------------------:|:-------------------------:
 left   |  right
 
