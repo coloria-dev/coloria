@@ -172,19 +172,20 @@ root and two cube roots. This approach is found to be about 15 times faster._
 
 ---
 
-\begin{figure}
-\centering
-\hfill
-\input{figures/f.tex}
-\hfill
-\input{figures/phi.tex}
-\hfill
-\caption{Left: Graph of $f(t)$ \eqref{eq:f} for $L'=25$. Note that the root is not in
-the turning point, but close to it. This is because of the small second term in $f$.
-Right: Graph of the function $\phi$ for $L$, $g$, $j$ computed from $X=12$, $Y=67$,
-$Z=20$. The singularity is at $w\approx 0.59652046418$. Note that the function has
-three roots only the largest of which is of interest.}\label{fig:singularity}
-\end{figure}
+##### Figure
+
+f.tex             |  phi.tex
+:-------------------------:|:-------------------------:
+left   |  right
+
+_Left: Graph of $`f(t)`$ \eqref{eq:f} for $`L'=25`$. Note that the root is not
+in the turning point, but close to it. This is because of the small second term
+in $`f`$. Right: Graph of the function $`\phi`$ for $`L`$, $`g`$, $`j`$
+computed from $`X=12`$, $`Y=67`$, $Z=20$. The singularity is at
+$`w\approx 0.59652046418`$. Note that the function has three roots only the
+largest of which is of interest._
+
+---
 
 From here, one can compute
 
@@ -261,6 +262,8 @@ _All code is published as open-source in [colorio](https://github.com/nschloe/co
 
 ---
 
+##### Figure
+
 \begin{figure}
 \centering
 \hfill
@@ -268,9 +271,13 @@ _All code is published as open-source in [colorio](https://github.com/nschloe/co
 \hfill
 \input{figures/speed-relative.tex}
 \hfill
-\caption{Computation speed for arrays of $Lgj$ values measured with
-colorio~\cite{colorio}. Left: Comparison with CIELAB and CIECAM02.
-The conversion of several hundred thousand $Lgj$ values takes about 1 second. Right:
-Computation speed relative to the evaluation of the cubic root. For large arrays, the
-conversion to $XYZ$ is about as costly as the evaluation of 35 cubic roots.}\label{fig:speed}
-\end{figure}
+\caption{
+
+_Computation speed for arrays of $`Lgj`$ values measured with
+colorio~\cite{colorio}. Left: Comparison with CIELAB and CIECAM02. The
+conversion of several hundred thousand $Lgj$ values takes about 1 second.
+Right: Computation speed relative to the evaluation of the cubic root. For
+large arrays, the conversion to $XYZ$ is about as costly as the evaluation of
+35 cubic roots._
+
+---

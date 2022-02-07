@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import perfplot
-import tikzplotlib
 
 import colorio
+
+# import tikzplotlib
+
 
 rng = np.random.default_rng(1)
 osa = colorio.cs.OsaUcs()
@@ -28,22 +30,24 @@ b = perfplot.bench(
 b.plot()
 plt.title("Runtime [s]")
 plt.ylabel("")
-tikzplotlib.save(
-    "figures/speed-absolute.tex",
-    externalize_tables=True,
-    override_externals=True,
-    externals_search_path="./figures/",
-)
+plt.savefig("speed-absolute.svg", transparent=True, bbox_inches="tight")
+# tikzplotlib.save(
+#     "figures/speed-absolute.tex",
+#     externalize_tables=True,
+#     override_externals=True,
+#     externals_search_path="./figures/",
+# )
 plt.close()
 
 
 b.plot(relative_to=3)
 plt.title("Runtime relative to cbrt")
 plt.ylabel("")
-tikzplotlib.save(
-    "figures/speed-relative.tex",
-    externalize_tables=True,
-    override_externals=True,
-    externals_search_path="./figures/",
-)
+plt.savefig("speed-relative.svg", transparent=True, bbox_inches="tight")
+# tikzplotlib.save(
+#     "figures/speed-relative.tex",
+#     externalize_tables=True,
+#     override_externals=True,
+#     externals_search_path="./figures/",
+# )
 plt.close()
