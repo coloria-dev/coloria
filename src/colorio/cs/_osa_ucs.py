@@ -173,10 +173,10 @@ class OsaUcs(ColorSpace):
         #   An Effective Conversion Algorithm from OSA-UCS to CIEXYZ,
         # one reads:
         #
-        # > Examining the property of phi(w) for many (L,j,g)'s, it is found that the
+        # > Examining the property of psi(w) for many (L,j,g)'s, it is found that the
         # > function (w) is monotone increasing, convex downward, and smooth.
         #
-        # None of this is correct. Unfortunately, phi has a singularity and more than
+        # None of this is correct. Unfortunately, psi has a singularity and more than
         # one zeros. It is thus very important to have a reasonable initial guess.
         # Indeed, one reads further:
         #
