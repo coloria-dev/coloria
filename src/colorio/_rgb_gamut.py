@@ -54,7 +54,7 @@ def plot_rgb_gamut(colorspace, n: int = 51, show_grid: bool = True):
     # each cell is a VTK_HEXAHEDRON
     celltypes = np.full(len(cells), vtk.VTK_HEXAHEDRON, dtype=np.uint8)
 
-    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, cs_coords.data)
+    grid = pv.UnstructuredGrid(cells.ravel(), celltypes, cs_coords.data.T)
     # grid = grid.slice_orthogonal()
     # grid.slice_along_axis(n=7, axis="z")
     # single_slice = mesh.slice(normal=[0, 0, 1])
@@ -62,7 +62,7 @@ def plot_rgb_gamut(colorspace, n: int = 51, show_grid: bool = True):
     p = pv.Plotter()
     p.add_mesh(
         grid,
-        scalars=convert(cs_coords, SRGB1(mode="clip")).data,
+        scalars=convert(cs_coords, SRGB1(mode="clip")).data.T,
         rgb=True,
         # show_edges=True,
     )
