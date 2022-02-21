@@ -147,13 +147,13 @@ plt.close()
 
 
 # observer
-srgb = colorio.cs.SrgbLinear()
 xyz100 = colorio.cs.XYZ100()
+srgb = colorio.cs.SRGBlinear(mode="clip")
 
 cols = [
-    ColorCoordinates([30.0, 0.0, 0.0], xyz100).get_rgb1("clip"),
-    ColorCoordinates([0.0, 30.0, 0.0], xyz100).get_rgb1("clip"),
-    ColorCoordinates([0.0, 0.0, 30.0], xyz100).get_rgb1("clip"),
+    ColorCoordinates([30.0, 0.0, 0.0], xyz100).convert(srgb),
+    ColorCoordinates([0.0, 30.0, 0.0], xyz100).convert(srgb),
+    ColorCoordinates([0.0, 0.0, 30.0], xyz100).convert(srgb),
 ]
 obs = colorio.observers.cie_1931_2()
 plt.plot(obs.lmbda_nm, obs.data[0], color=cols[0], label="$\\overline{x}$")
