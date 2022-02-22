@@ -12,7 +12,7 @@ from typing import Type
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import XYY, ColorCoordinates, ColorSpace
+from ...cs import ColorCoordinates, ColorSpace, convert
 from ...illuminants import whitepoints_cie1931
 from ..color_distance import ColorDistanceDataset
 from ..ellipse import _plot_ellipses
@@ -64,16 +64,17 @@ class MacAdam1942(ColorDistanceDataset):
         for center, offset in zip(self.xy_centers, self.xy_offsets):
             for pt in center + offset.T:
                 xyy_pairs.append([[*center, Y], [*pt, Y]])
+        xyy_pairs = ColorCoordinates(np.array(xyy_pairs).T, "xyy100")
 
-        xyz_pairs = XYY(100).to_xyz100(np.array(xyy_pairs).T).T
+        xyz_pairs = convert(xyy_pairs, "xyz100")
 
-        super().__init__("MacAdam (1942)", np.ones(len(xyz_pairs)), xyz_pairs)
+        data = xyz_pairs.data.T
+        super().__init__("MacAdam (1942)", np.ones(len(data)), data)
 
     def plot(self, cs_class: Type[ColorSpace], ellipse_scaling: float = 10.0):
         cs = create_cs_class_instance(
             cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
         )
-        xyy100 = XYY(100)
 
         Y = self.Y
         centers_points = []
@@ -81,7 +82,9 @@ class MacAdam1942(ColorDistanceDataset):
             ctr = np.array([*c, Y])
             p = (c + off.T).T
             pts = np.array([*p, np.full(p.shape[1], Y)])
-            centers_points.append(ColorCoordinates(np.column_stack([ctr, pts]), xyy100))
+            centers_points.append(
+                ColorCoordinates(np.column_stack([ctr, pts]), "xyy100")
+            )
 
         _plot_ellipses(cs, centers_points, ellipse_scaling)
         plt.title(f"MacAdam ellipses for {cs.name}")

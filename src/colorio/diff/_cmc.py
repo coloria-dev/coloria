@@ -4,18 +4,19 @@ https://en.wikipedia.org/wiki/Color_difference#CMC_l:c_(1984)
 import numpy as np
 from numpy.typing import ArrayLike
 
-from ..cs import CIELAB, CIELCH
+from ..cs import ColorCoordinates, convert
 
 
 # Acceptability: l=2, c=1 Perceptability: l=1, c=1
 def cmc(lab1: ArrayLike, lab2: ArrayLike, l: float = 2.0, c: float = 1.0) -> np.ndarray:
-    cielab = CIELAB()
-    cielch = CIELCH()
-    lch1 = cielch.from_xyz100(cielab.to_xyz100(lab1))
-    lch2 = cielch.from_xyz100(cielab.to_xyz100(lab2))
+    lab1 = ColorCoordinates(lab1, "cielab")
+    lab2 = ColorCoordinates(lab2, "cielab")
 
-    L1, C1, h1 = lch1
-    L2, C2, _ = lch2
+    lch1 = convert(lab1, "cielch")
+    lch2 = convert(lab2, "cielch")
+
+    L1, C1, h1 = lch1.data
+    L2, C2, _ = lch2.data
 
     F = np.sqrt(C1**4 / (C1**4 + 1900))
 
@@ -43,8 +44,8 @@ def cmc(lab1: ArrayLike, lab2: ArrayLike, l: float = 2.0, c: float = 1.0) -> np.
     S_C = 0.0638 * C1 / (1 + 0.0131 * C1) + 0.638
     S_H = S_C * (F * T + 1 - F)
 
-    _, a1, b1 = np.asarray(lab1)
-    _, a2, b2 = np.asarray(lab2)
+    _, a1, b1 = lab1.data
+    _, a2, b2 = lab2.data
     dC = C1 - C2
     da = a1 - a2
     db = b1 - b2

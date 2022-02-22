@@ -3,7 +3,7 @@ import numpy as np
 
 from . import observers
 from ._tools import get_mono_outline_xy
-from .cs import XYY, XYZ, ColorCoordinates, ColorSpace, convert
+from .cs import ColorCoordinates, ColorSpace, convert
 
 
 def _get_visible_gamut_mesh(observer, max_Y1, h=4.0e-2):
@@ -27,8 +27,8 @@ def plot_visible_gamut(colorspace, observer, max_Y1, show_grid=True, h=4.0e-2):
 
     points, cells = _get_visible_gamut_mesh(observer, max_Y1, h=h)
 
-    xyy1 = ColorCoordinates(points.T, XYY(1))
-    xyz100 = convert(xyy1, XYZ(100))
+    xyy1 = ColorCoordinates(points.T, "XYY1")
+    xyz100 = convert(xyy1, "XYZ100")
     xyz100.data[xyz100.data < 0] = 0.0
     coords = convert(xyz100, colorspace)
 
@@ -103,20 +103,18 @@ def _find_Y(cs, xy, level, tol=1.0e-5):
     x, y = xy
     min_Y = 0.0
 
-    xyy1 = XYY(1)
-
-    xyy = ColorCoordinates([x, y, min_Y], xyy1)
+    xyy = ColorCoordinates([x, y, min_Y], "xyy1")
     min_val = convert(xyy, cs).lightness
     assert min_val <= level
 
     # search for an appropriate max_Y to start with
     max_Y = 1.0
-    while convert(ColorCoordinates([x, y, max_Y], xyy1), cs).lightness < level:
+    while convert(ColorCoordinates([x, y, max_Y], "xyy1"), cs).lightness < level:
         max_Y *= 2
 
     while True:
         Y = (max_Y + min_Y) / 2
-        val = convert(ColorCoordinates([x, y, Y], xyy1), cs)
+        val = convert(ColorCoordinates([x, y, Y], "xyy1"), cs)
         if abs(val.lightness - level) < tol:
             break
         elif val.lightness > level:

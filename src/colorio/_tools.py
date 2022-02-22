@@ -5,7 +5,7 @@ from numpy.typing import ArrayLike
 
 from . import observers
 from ._helpers import SpectralData
-from .cs import XYY100, XYZ100, ColorCoordinates, ColorSpace, SRGBlinear, convert
+from .cs import ColorCoordinates, ColorSpace, convert
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
 
@@ -20,13 +20,16 @@ def _plot_monochromatic(observer, fill_horseshoe=True):
     lmbda_nm = np.arange(380, 701)
 
     n = len(lmbda_nm)
-    values = np.array(
-        [
-            spectrum_to_xyz100(SpectralData(lmbda_nm, _unit_vector(n, k)), observer)
-            for k in range(n)
-        ]
+    values = ColorCoordinates(
+        np.array(
+            [
+                spectrum_to_xyz100(SpectralData(lmbda_nm, _unit_vector(n, k)), observer)
+                for k in range(n)
+            ]
+        ).T,
+        "XYZ100",
     )
-    values = convert(ColorCoordinates(values.T, XYZ100()), XYY100()).hue.T
+    values = convert(values, "XYY100").hue.T
 
     # Add the values between the first and the last point of the horseshoe
     t = np.linspace(0.0, 1.0, 101)
@@ -49,13 +52,16 @@ def _plot_monochromatic(observer, fill_horseshoe=True):
 
 def _plot_planckian_locus(observer):
     # plot planckian locus
-    values = np.array(
-        [
-            spectrum_to_xyz100(planckian_radiator(temp), observer)
-            for temp in np.arange(1000, 20001, 100)
-        ]
+    values = ColorCoordinates(
+        np.array(
+            [
+                spectrum_to_xyz100(planckian_radiator(temp), observer)
+                for temp in np.arange(1000, 20001, 100)
+            ]
+        ).T,
+        "XYZ100",
     )
-    x, y = convert(ColorCoordinates(values.T, XYZ100()), XYY100()).data[:2]
+    x, y = convert(values, "XYY100").data[:2]
     plt.plot(x, y, ":k", label="Planckian locus")
 
 
@@ -94,14 +100,17 @@ def xy_gamut_mesh(lcar):
     lmbda_nm = np.arange(380, 701)
 
     n = len(lmbda_nm)
-    xyz100 = np.array(
-        [
-            spectrum_to_xyz100(SpectralData(lmbda_nm, _unit_vector(n, k)), observer)
-            for k in range(n)
-        ]
+    xyz100 = ColorCoordinates(
+        np.array(
+            [
+                spectrum_to_xyz100(SpectralData(lmbda_nm, _unit_vector(n, k)), observer)
+                for k in range(n)
+            ]
+        ).T,
+        "XYZ100",
     )
 
-    x, y = convert(ColorCoordinates(xyz100.T, XYZ100()), XYY100()).data[:2]
+    x, y = convert(xyz100, "XYY100").data[:2]
 
     # Generate gmsh geometry: spline + straight line
     all_points = np.column_stack([x, y, np.zeros_like(x)])
@@ -133,16 +142,16 @@ def get_mono_outline_xy(observer, max_stepsize):
     mono[-1] = 1.0
     mono_spectrum = SpectralData(observer.lmbda_nm, mono)
     first = convert(
-        ColorCoordinates(spectrum_to_xyz100(mono_spectrum, observer), XYZ100()),
-        XYY100(),
+        ColorCoordinates(spectrum_to_xyz100(mono_spectrum, observer), "XYZ100"),
+        "XYY100",
     ).data[:2]
 
     mono[:] = 0.0
     mono[0] = 1.0
     mono_spectrum = SpectralData(observer.lmbda_nm, mono)
     last = convert(
-        ColorCoordinates(spectrum_to_xyz100(mono_spectrum, observer), XYZ100()),
-        XYY100(),
+        ColorCoordinates(spectrum_to_xyz100(mono_spectrum, observer), "XYZ100"),
+        "XYY100",
     ).data[:2]
 
     #
@@ -161,8 +170,8 @@ def get_mono_outline_xy(observer, max_stepsize):
         mono[k] = 1.0
         mono_spectrum = SpectralData(observer.lmbda_nm, mono)
         val = convert(
-            ColorCoordinates(spectrum_to_xyz100(mono_spectrum, observer), XYZ100()),
-            XYY100(),
+            ColorCoordinates(spectrum_to_xyz100(mono_spectrum, observer), "XYZ100"),
+            "XYY100",
         ).data[:2]
 
         diff = vals_mono[-1] - val
@@ -193,9 +202,8 @@ def get_srgb1_gradient(
     colorspace: ColorSpace, srgb0: ArrayLike, srgb1: ArrayLike, n: int
 ) -> np.ndarray:
     # convert to colorspace
-    srgb_linear = SRGBlinear()
-    cs0 = convert(ColorCoordinates(srgb0, srgb_linear), colorspace).data
-    cs1 = convert(ColorCoordinates(srgb1, srgb_linear), colorspace).data
+    cs0 = convert(ColorCoordinates(srgb0, "srgb_linear"), colorspace).data
+    cs1 = convert(ColorCoordinates(srgb1, "srgb_linear"), colorspace).data
 
     # linspace
     ls = np.linspace(cs0, cs1, endpoint=True, num=n, axis=0)

@@ -1,15 +1,15 @@
 import numpy as np
 
-from colorio.cs import CIELAB, OKLAB, ColorCoordinates, convert
+from colorio.cs import ColorCoordinates, convert
 
 
 def test_conversion():
-    data = np.array([[0.0, 1.0, 0.3], [1.5, 0.6, 0.5]]).T
+    color_coords = ColorCoordinates(
+        np.array([[0.0, 1.0, 0.3], [1.5, 0.6, 0.5]]).T, "OKLAB"
+    )
 
-    color_coords = ColorCoordinates(data, OKLAB())
-
-    # out = color_coords.convert(CIELAB())
-    out = convert(color_coords, CIELAB())
+    # out = color_coords.convert("CIELAB")
+    out = convert(color_coords, "CIELAB")
 
     print(out.data.T.tolist())
 
