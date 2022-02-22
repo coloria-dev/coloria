@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 import numpy as np
 
-from .cs import ColorCoordinates, convert
+from .cs import ColorCoordinates, ColorSpace, convert, string_to_cs
 
 
-def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50):
+def save_rgb_gamut(
+    filename: str, colorspace: ColorSpace | str, variant: str = "srgb", n: int = 50
+) -> None:
     import meshio
     import meshzoo
 
@@ -18,6 +22,9 @@ def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50
         np.linspace(0.0, 1.0, n + 1),
         np.linspace(0.0, 1.0, n + 1),
     )
+
+    if isinstance(colorspace, str):
+        colorspace = string_to_cs[colorspace]
 
     if not colorspace.is_origin_well_defined:
         # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
@@ -36,10 +43,13 @@ def save_rgb_gamut(filename: str, colorspace, variant: str = "srgb", n: int = 50
     )
 
 
-def plot_rgb_gamut(colorspace, n: int = 51, show_grid: bool = True):
+def plot_rgb_gamut(colorspace: ColorSpace | str, n: int = 51, show_grid: bool = True):
     import meshzoo
     import pyvista as pv
     import vtk
+
+    if isinstance(colorspace, str):
+        colorspace = string_to_cs[colorspace]
 
     points, cells = meshzoo.cube_hexa(
         np.linspace(0.0, 1.0, n + 1),
@@ -81,7 +91,7 @@ def plot_rgb_gamut(colorspace, n: int = 51, show_grid: bool = True):
 
 
 def plot_rgb_slice(
-    colorspace,
+    colorspace: ColorSpace | str,
     lightness: float,
     camera_elevation: float,
     n: int = 50,
@@ -94,6 +104,9 @@ def plot_rgb_slice(
 
     # TODO HDR
     assert variant in ["srgb", "rec709"]
+
+    if isinstance(colorspace, str):
+        colorspace = string_to_cs[colorspace]
 
     points, cells = meshzoo.cube_hexa(
         np.linspace(0.0, 1.0, n + 1),

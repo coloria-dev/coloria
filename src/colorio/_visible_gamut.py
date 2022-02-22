@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import matplotlib.pyplot as plt
 import numpy as np
 
 from . import observers
 from ._tools import get_mono_outline_xy
-from .cs import ColorCoordinates, ColorSpace, convert
+from .cs import ColorCoordinates, ColorSpace, convert, string_to_cs
 
 
 def _get_visible_gamut_mesh(observer, max_Y1, h=4.0e-2):
@@ -21,9 +23,14 @@ def _get_visible_gamut_mesh(observer, max_Y1, h=4.0e-2):
     return mesh.points, mesh.get_cells_type("tetra")
 
 
-def plot_visible_gamut(colorspace, observer, max_Y1, show_grid=True, h=4.0e-2):
+def plot_visible_gamut(
+    colorspace: ColorSpace | str, observer, max_Y1, show_grid=True, h=4.0e-2
+):
     import pyvista as pv
     import vtk
+
+    if isinstance(colorspace, str):
+        colorspace = string_to_cs[colorspace]
 
     points, cells = _get_visible_gamut_mesh(observer, max_Y1, h=h)
 
@@ -59,11 +66,14 @@ def plot_visible_gamut(colorspace, observer, max_Y1, show_grid=True, h=4.0e-2):
 
 
 def plot_visible_slice(
-    colorspace: ColorSpace,
+    colorspace: ColorSpace | str,
     lightness: float,
     outline_prec: float = 1.0e-2,
     fill_color="0.8",
 ):
+    if isinstance(colorspace, str):
+        colorspace = string_to_cs[colorspace]
+
     # first plot the monochromatic outline
     mono_xy, conn_xy = get_mono_outline_xy(
         observer=observers.cie_1931_2(), max_stepsize=outline_prec

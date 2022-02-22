@@ -211,8 +211,11 @@ into other color spaces. The above images show the sRGB gamut in different color
 ```python
 import colorio
 
-colorspace = colorio.cs.CIELAB()
-p = colorio.plot_rgb_gamut(colorspace, n=51, show_grid=True)
+p = colorio.plot_rgb_gamut(
+    "cielab",  # or colorio.cs.CIELAB()
+    n=51,
+    show_grid=True,
+)
 p.show()
 ```
 
@@ -221,8 +224,7 @@ For more visualization options, you can store the sRGB data in a file
 ```python
 import colorio
 
-colorspace = colorio.cs.CIELAB()
-colorio.save_rgb_gamut("srgb.vtk", colorspace, n=51)
+colorio.save_rgb_gamut("srgb.vtk", "cielab", n=51)
 # all formats supported by https://github.com/nschloe/meshio
 ```
 
@@ -237,8 +239,7 @@ For lightness slices of the sRGB gamut, use
 ```python
 import colorio
 
-colorspace = colorio.cs.CIELAB()
-p = colorio.plot_rgb_slice(colorspace, lightness=50.0, n=51)
+p = colorio.plot_rgb_slice("cielab", lightness=50.0, n=51)
 p.show()
 # or
 # p.screenshot("screenshot.png")
@@ -260,10 +261,11 @@ import colorio
 illuminant = colorio.illuminants.d65()
 observer = colorio.observers.cie_1931_2()
 
-colorspace = colorio.cs.XYZ(100)
-
-colorio.save_surface_gamut("surface.vtk", colorspace, observer, illuminant)
-p = colorio.plot_surface_gamut(colorspace, observer, illuminant)
+p = colorio.plot_surface_gamut(
+    "xyz100",  # or colorio.cs.XYZ(100)
+    observer,
+    illuminant,
+)
 p.show()
 ```
 
@@ -298,8 +300,7 @@ For slices, use
 ```python
 import colorio
 
-colorspace = colorio.cs.CIELAB()
-plt = colorio.plot_visible_slice(colorspace, lightness=0.5)
+plt = colorio.plot_visible_slice("cielab", lightness=0.5)
 plt.show()
 ```
 
@@ -313,8 +314,7 @@ below](#hue-linearity).)
 ```python
 import colorio
 
-lab = colorio.cs.CIELAB()
-plt = colorio.plot_primary_srgb_gradients(lab)
+plt = colorio.plot_primary_srgb_gradients("cielab")
 plt.show()
 ```
 

@@ -4,13 +4,16 @@ import numpy as np
 
 from ._helpers import SpectralData
 from ._tools import spectrum_to_xyz100
-from .cs import ColorSpace
+from .cs import ColorSpace, string_to_cs
 
 
 def _get_surface_gamut_mesh(
-    colorspace: ColorSpace, observer: SpectralData, illuminant: SpectralData
+    colorspace: ColorSpace | str, observer: SpectralData, illuminant: SpectralData
 ) -> tuple[np.ndarray, np.ndarray]:
     from scipy.spatial import ConvexHull
+
+    if isinstance(colorspace, str):
+        colorspace = string_to_cs[colorspace]
 
     # lmbda, illu = illuminant
     values = []
@@ -51,9 +54,14 @@ def _get_surface_gamut_mesh(
     return pts, cells
 
 
-def plot_surface_gamut(colorspace, observer, illuminant, show_grid=True):
+def plot_surface_gamut(
+    colorspace: ColorSpace | str, observer, illuminant, show_grid=True
+):
     import pyvista as pv
     import vtk
+
+    if isinstance(colorspace, str):
+        colorspace = string_to_cs[colorspace]
 
     points, cells = _get_surface_gamut_mesh(colorspace, observer, illuminant)
     cells = np.column_stack(
@@ -74,3 +82,4 @@ def plot_surface_gamut(colorspace, observer, illuminant, show_grid=True):
             ylabel=colorspace.labels[1],
             zlabel=colorspace.labels[2],
         )
+    return p

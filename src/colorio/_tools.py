@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -185,7 +187,9 @@ def get_mono_outline_xy(observer, max_stepsize):
     return vals_mono, vals_conn
 
 
-def plot_srgb1_gradient(colorspace, srgb0, srgb1, n=256):
+def plot_srgb1_gradient(
+    colorspace: ColorSpace | str, srgb0: ArrayLike, srgb1: ArrayLike, n: int = 256
+):
     srgb = get_srgb1_gradient(colorspace, srgb0, srgb1, n=n)
 
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list("empty", srgb, n)
@@ -199,7 +203,7 @@ def plot_srgb1_gradient(colorspace, srgb0, srgb1, n=256):
 
 
 def get_srgb1_gradient(
-    colorspace: ColorSpace, srgb0: ArrayLike, srgb1: ArrayLike, n: int
+    colorspace: ColorSpace | str, srgb0: ArrayLike, srgb1: ArrayLike, n: int
 ) -> np.ndarray:
     # convert to colorspace
     cs0 = convert(ColorCoordinates(srgb0, "srgb_linear"), colorspace).data
@@ -212,7 +216,7 @@ def get_srgb1_gradient(
 
 
 def plot_srgb255_gradient(
-    colorspace: ColorSpace, srgb0: ArrayLike, srgb1: ArrayLike, n: int = 256
+    colorspace: ColorSpace | str, srgb0: ArrayLike, srgb1: ArrayLike, n: int = 256
 ):
     srgb0 = np.asarray(srgb0)
     srgb1 = np.asarray(srgb1)
@@ -220,7 +224,7 @@ def plot_srgb255_gradient(
 
 
 def get_srgb255_gradient(
-    colorspace: ColorSpace, srgb0: ArrayLike, srgb1: ArrayLike, n: int
+    colorspace: ColorSpace | str, srgb0: ArrayLike, srgb1: ArrayLike, n: int
 ) -> np.ndarray:
     srgb0 = np.asarray(srgb0)
     srgb1 = np.asarray(srgb1)

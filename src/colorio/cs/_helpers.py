@@ -1,6 +1,6 @@
 import re
 
-_string_to_cs = {}
+string_to_cs = {}
 
 
 def _normalize_string(string: str) -> str:
@@ -11,4 +11,4 @@ def _normalize_string(string: str) -> str:
 
 
 def register(string, cs):
-    _string_to_cs[_normalize_string(string)] = cs
+    string_to_cs[_normalize_string(string)] = cs

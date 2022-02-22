@@ -8,6 +8,7 @@ from ._color_coordinates import ColorCoordinates, convert
 from ._color_space import ColorSpace
 from ._din99 import DIN99
 from ._hdr import HdrLinear
+from ._helpers import string_to_cs
 from ._hsl import HSL
 from ._hsv import HSV
 from ._ictcp import ICtCp
@@ -60,4 +61,6 @@ __all__ = [
     #
     "ColorCoordinates",
     "convert",
+    #
+    "string_to_cs",
 ]
