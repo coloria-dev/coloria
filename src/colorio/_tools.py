@@ -7,7 +7,7 @@ from numpy.typing import ArrayLike
 
 from . import observers
 from ._helpers import SpectralData
-from .cs import ColorCoordinates, ColorSpace, convert
+from .cs import ColorCoordinates, ColorSpace, convert, string_to_cs
 from .illuminants import planckian_radiator, spectrum_to_xyz100
 
 
@@ -231,7 +231,10 @@ def get_srgb255_gradient(
     return get_srgb1_gradient(colorspace, srgb0 / 255, srgb1 / 255, n) * 255
 
 
-def plot_primary_srgb_gradients(colorspace: ColorSpace, n: int = 256):
+def plot_primary_srgb_gradients(colorspace: ColorSpace | str, n: int = 256):
+    if isinstance(colorspace, str):
+        colorspace = string_to_cs(colorspace)
+
     pairs = [
         [([1, 1, 1], [1, 0, 0]), ([1, 0, 0], [0, 1, 0])],
         [([1, 1, 1], [0, 1, 0]), ([0, 1, 0], [0, 0, 1])],
