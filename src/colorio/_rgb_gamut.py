@@ -62,7 +62,7 @@ def plot_rgb_gamut(colorspace, n: int = 51, show_grid: bool = True):
     p = pv.Plotter()
     p.add_mesh(
         grid,
-        scalars=convert(cs_coords, SRGB1(mode="clip")).data.T,
+        scalars=convert(cs_coords, "srgb1", mode="clip").data.T,
         rgb=True,
         # show_edges=True,
     )

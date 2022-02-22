@@ -55,22 +55,22 @@ Color coordinates are handled as NumPy arrays or as `ColorCoordinates`, a thin w
 that retains the color space information and has some handy helper methods. For example, to interpolate two sRGB colors in OKLAB, and return the sRGB:
 
 ```python
-from colorio.cs import ColorCoordinates, OKLAB, SRGB1, SRGBhex
+from colorio.cs import ColorCoordinates
 
 # you can also plug in large numpy arrays instead of two lists here
-c0 = ColorCoordinates([1.0, 1.0, 0.0], SRGB1())  # yellow
-c1 = ColorCoordinates([0.0, 0.0, 1.0], SRGB1())  # blue
+c0 = ColorCoordinates([1.0, 1.0, 0.0], "srgb1")  # yellow
+c1 = ColorCoordinates([0.0, 0.0, 1.0], "srgb1")  # blue
 
 # naive interpolation gives [0.5, 0.5, 0.5], a mid gray
 
 # convert to OKLAB
-c0.convert(OKLAB())
-c1.convert(OKLAB())
+c0.convert("oklab")
+c1.convert("oklab")
 
 # interpolate
 c2 = (c0 + c1) * 0.5
 
-c2.convert(SRGBhex(mode="clip"))
+c2.convert("srgbhex", mode="clip")
 
 print(c2.color_space)
 print(c2.data)

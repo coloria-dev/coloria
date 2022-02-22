@@ -1,16 +1,23 @@
+from __future__ import annotations
+
 from copy import deepcopy
 
 import numpy as np
 from numpy.typing import ArrayLike
 
 from ._color_space import ColorSpace
+from ._helpers import _string_to_cs
 
 
 class ColorCoordinates:
-    def __init__(self, data: ArrayLike, color_space: ColorSpace):
+    def __init__(self, data: ArrayLike, color_space: ColorSpace | str):
         self.data = np.asarray(data)
         if self.data.shape[0] != 3:
             raise ValueError(f"Input data needs shape [3,...], got {self.data.shape}.")
+
+        if isinstance(color_space, str):
+            color_space = _string_to_cs[color_space.lower()]
+
         self.color_space = color_space
 
     def __repr__(self) -> str:
@@ -66,10 +73,14 @@ class ColorCoordinates:
     def copy(self):
         return deepcopy(self)
 
-    def convert(self, cs: ColorSpace) -> None:
+    def convert(self, cs: ColorSpace | str, **kwargs) -> None:
+        if isinstance(cs, str):
+            cs = _string_to_cs[cs.lower()]
+
         if cs == self.color_space:
             return
-        self.data = cs.from_xyz100(self.color_space.to_xyz100(self.data))
+
+        self.data = cs.from_xyz100(self.color_space.to_xyz100(self.data), **kwargs)
         self.color_space = cs
 
     @property
@@ -85,7 +96,9 @@ class ColorCoordinates:
         return self.data[hue_idx]
 
 
-def convert(coords: ColorCoordinates, cs: ColorSpace) -> ColorCoordinates:
+def convert(
+    coords: ColorCoordinates, cs: ColorSpace | str, **kwargs
+) -> ColorCoordinates:
     out = coords.copy()
-    out.convert(cs)
+    out.convert(cs, **kwargs)
     return out

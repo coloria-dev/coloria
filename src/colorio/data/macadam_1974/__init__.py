@@ -12,7 +12,7 @@ from typing import Type
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import SRGB1, XYY, XYZ, ColorCoordinates, ColorSpace, convert
+from ...cs import XYY, XYZ, ColorCoordinates, ColorSpace, convert
 from ...illuminants import whitepoints_cie1964
 from ..color_distance import ColorDistanceDataset
 from ..helpers import create_cs_class_instance
@@ -134,7 +134,7 @@ class MacAdam1974(ColorDistanceDataset):
             coords.hue[0],
             coords.hue[1],
             marker="s",
-            color=convert(tiles, SRGB1(mode="clip")).data.T,
+            color=convert(tiles, "srgb1", mpde="clip").data.T,
             edgecolors="w",
             zorder=2,
         )

@@ -6,6 +6,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from ._color_space import ColorSpace
+from ._helpers import register
 
 
 class OKLAB(ColorSpace):
@@ -37,3 +38,6 @@ class OKLAB(ColorSpace):
 
     def to_xyz100(self, lab: ArrayLike) -> np.ndarray:
         return npx.dot(self.M1inv, npx.dot(self.M2inv, lab) ** 3) * 100
+
+
+register("oklab", OKLAB())
