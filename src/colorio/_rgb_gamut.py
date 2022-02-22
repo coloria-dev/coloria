@@ -24,7 +24,7 @@ def save_rgb_gamut(
     )
 
     if isinstance(colorspace, str):
-        colorspace = string_to_cs[colorspace]
+        colorspace = string_to_cs(colorspace)
 
     if not colorspace.is_origin_well_defined:
         # cut off [0, 0, 0] to avoid division by 0 in the xyz conversion
@@ -49,7 +49,7 @@ def plot_rgb_gamut(colorspace: ColorSpace | str, n: int = 51, show_grid: bool = 
     import vtk
 
     if isinstance(colorspace, str):
-        colorspace = string_to_cs[colorspace]
+        colorspace = string_to_cs(colorspace)
 
     points, cells = meshzoo.cube_hexa(
         np.linspace(0.0, 1.0, n + 1),
@@ -106,7 +106,7 @@ def plot_rgb_slice(
     assert variant in ["srgb", "rec709"]
 
     if isinstance(colorspace, str):
-        colorspace = string_to_cs[colorspace]
+        colorspace = string_to_cs(colorspace)
 
     points, cells = meshzoo.cube_hexa(
         np.linspace(0.0, 1.0, n + 1),

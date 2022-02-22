@@ -30,7 +30,7 @@ def plot_visible_gamut(
     import vtk
 
     if isinstance(colorspace, str):
-        colorspace = string_to_cs[colorspace]
+        colorspace = string_to_cs(colorspace)
 
     points, cells = _get_visible_gamut_mesh(observer, max_Y1, h=h)
 
@@ -72,7 +72,7 @@ def plot_visible_slice(
     fill_color="0.8",
 ):
     if isinstance(colorspace, str):
-        colorspace = string_to_cs[colorspace]
+        colorspace = string_to_cs(colorspace)
 
     # first plot the monochromatic outline
     mono_xy, conn_xy = get_mono_outline_xy(

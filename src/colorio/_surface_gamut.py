@@ -13,7 +13,7 @@ def _get_surface_gamut_mesh(
     from scipy.spatial import ConvexHull
 
     if isinstance(colorspace, str):
-        colorspace = string_to_cs[colorspace]
+        colorspace = string_to_cs(colorspace)
 
     # lmbda, illu = illuminant
     values = []
@@ -61,7 +61,7 @@ def plot_surface_gamut(
     import vtk
 
     if isinstance(colorspace, str):
-        colorspace = string_to_cs[colorspace]
+        colorspace = string_to_cs(colorspace)
 
     points, cells = _get_surface_gamut_mesh(colorspace, observer, illuminant)
     cells = np.column_stack(

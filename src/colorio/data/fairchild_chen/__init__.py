@@ -76,7 +76,6 @@ class FairchildChen:
         plt.xlabel("Y")
         plt.ylabel(cs.labels[cs.k0], rotation=0)
         plt.title(f"Fairchild-Chen {self.key} lightness data")
-        # dufte.legend()
         plt.legend()
         return plt
 

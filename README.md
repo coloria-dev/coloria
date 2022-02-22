@@ -63,8 +63,9 @@ colorio.cs.CIELAB()
 ```
 
 Most methods that accept such a colorspace also accept a string, e.g.,
-`cielab`. For example, to interpolate two sRGB colors in OKLAB, and return the
-sRGB:
+`cielab`.
+
+As an example, to interpolate two sRGB colors in OKLAB, and return the sRGB:
 
 ```python
 from colorio.cs import ColorCoordinates

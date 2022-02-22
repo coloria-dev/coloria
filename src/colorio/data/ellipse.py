@@ -3,7 +3,7 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..cs import ColorCoordinates, ColorSpace, convert
+from ..cs import ColorCoordinates, ColorSpace, convert, string_to_cs
 
 
 class EllipseDataset:
@@ -22,7 +22,9 @@ class EllipseDataset:
         alpha = np.average(distances)
         return 100 * np.sqrt(np.sum((alpha - distances) ** 2) / np.sum(distances**2))
 
-    def plot(self, cs: ColorSpace, ellipse_scaling: float = 1.0):
+    def plot(self, cs: ColorSpace | str, ellipse_scaling: float = 1.0):
+        if isinstance(cs, str):
+            cs = string_to_cs(cs)
         # merge centers and points
         centers_points = [
             ColorCoordinates(np.column_stack([center, pts.T]), self.centers.color_space)
