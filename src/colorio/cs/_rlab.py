@@ -4,6 +4,7 @@ from numpy.typing import ArrayLike
 
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
+from ._helpers import register
 
 
 class RLAB(ColorSpace):
@@ -138,3 +139,6 @@ class RLAB(ColorSpace):
 
         xyz_ref = np.array([x_ref_s, y_ref_s, z_ref_s]) ** (1.0 / self.sigma)
         return npx.dot(self.Ainv, xyz_ref)
+
+
+register("rlab", RLAB())

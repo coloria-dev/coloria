@@ -6,7 +6,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from ._color_space import ColorSpace
-from ._helpers import _string_to_cs
+from ._helpers import _normalize_string, _string_to_cs
 
 
 class ColorCoordinates:
@@ -16,7 +16,7 @@ class ColorCoordinates:
             raise ValueError(f"Input data needs shape [3,...], got {self.data.shape}.")
 
         if isinstance(color_space, str):
-            color_space = _string_to_cs[color_space.lower()]
+            color_space = _string_to_cs[_normalize_string(color_space)]
 
         self.color_space = color_space
 
@@ -75,7 +75,7 @@ class ColorCoordinates:
 
     def convert(self, cs: ColorSpace | str, **kwargs) -> None:
         if isinstance(cs, str):
-            cs = _string_to_cs[cs.lower()]
+            cs = _string_to_cs[_normalize_string(cs)]
 
         if cs == self.color_space:
             return

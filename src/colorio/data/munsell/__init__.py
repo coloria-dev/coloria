@@ -5,7 +5,7 @@ from typing import Type
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...cs import SRGB1, XYY, XYZ, ColorCoordinates, ColorSpace, convert
+from ...cs import ColorCoordinates, ColorSpace, convert
 from ...illuminants import whitepoints_cie1931
 from ..helpers import create_cs_class_instance, stress_absolute
 
@@ -21,8 +21,8 @@ class Munsell:
         self.V = np.array(data["V"])
         self.C = np.array(data["C"])
 
-        xyy100 = ColorCoordinates([data["x"], data["y"], data["Y"]], XYY(100))
-        self.xyz100 = convert(xyy100, XYZ(100))
+        xyy100 = ColorCoordinates([data["x"], data["y"], data["Y"]], "XYY100")
+        self.xyz100 = convert(xyy100, "XYZ100")
 
         # Whitepoint and CIECAM02 info from the JzAzBz paper:
         self.whitepoint_xyz100 = whitepoints_cie1931["C"]
@@ -39,9 +39,9 @@ class Munsell:
         )
 
         # pick the data from the given munsell level
-        xyz100 = ColorCoordinates(self.xyz100.data[:, V == self.V], XYZ(100))
+        xyz100 = ColorCoordinates(self.xyz100.data[:, V == self.V], "XYZ100")
         coords = convert(xyz100, cs)
-        rgb = convert(coords, SRGB1(mode="nan")).data
+        rgb = convert(coords, "SRGB1", mode="nan").data
 
         # plot the ones that cannot be represented in SRGB in black
         is_legal_srgb = ~np.any(np.isnan(rgb), axis=0)
@@ -65,7 +65,7 @@ class Munsell:
             cs_class, self.whitepoint_xyz100, self.c, self.Y_b, self.L_A
         )
 
-        xyz_origin = ColorCoordinates(np.zeros(3), XYZ(100))
+        xyz_origin = ColorCoordinates(np.zeros(3), "XYZ100")
         L0_ = convert(xyz_origin, cs).lightness
         L_ = convert(self.xyz100, cs).lightness - L0_
 
@@ -123,7 +123,7 @@ class Munsell:
         )
 
         # Move L0 into origin for translation invariance
-        xyz_origin = ColorCoordinates(np.zeros(3), XYZ(100))
+        xyz_origin = ColorCoordinates(np.zeros(3), "XYZ100")
         L0_ = convert(xyz_origin, cs).lightness
         L_ = convert(self.xyz100, cs).lightness - L0_
 

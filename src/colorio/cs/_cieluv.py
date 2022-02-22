@@ -7,6 +7,7 @@ from numpy.typing import ArrayLike
 from ..illuminants import whitepoints_cie1931
 from ._cielab import f, finv
 from ._color_space import ColorSpace
+from ._helpers import register
 
 
 class CIELUV(ColorSpace):
@@ -43,3 +44,6 @@ class CIELUV(ColorSpace):
         X = Y * 9 * uu / (4 * vv)
         Z = Y * (12 - 3 * uu - 20 * vv) / (4 * vv)
         return np.array([X, Y, Z])
+
+
+register("cieluv", CIELUV())

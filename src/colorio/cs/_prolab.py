@@ -9,6 +9,7 @@ from numpy.typing import ArrayLike
 
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
+from ._helpers import register
 
 
 class PROLAB(ColorSpace):
@@ -52,3 +53,6 @@ class PROLAB(ColorSpace):
         xyz = y / (1 - npx.dot(self.q, y))
         xyz = (xyz.T * self.whitepoint_xyz100).T
         return xyz
+
+
+register("prolab", PROLAB())

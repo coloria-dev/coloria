@@ -9,6 +9,7 @@ from .._exceptions import ColorioError
 from ..cat import cat02
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
+from ._helpers import register
 
 M_hpe = np.array(
     [
@@ -398,3 +399,8 @@ class CAM02UCS(CAM02):
 
     def __init__(self, c, Y_b, L_A, whitepoint):
         super().__init__("UCS", c, Y_b, L_A, whitepoint)
+
+
+register("cam02lcd", CAM02LCD(0.69, 18.0, 20.0, whitepoints_cie1931["D65"]))
+register("cam02scd", CAM02SCD(0.69, 18.0, 20.0, whitepoints_cie1931["D65"]))
+register("cam02ucs", CAM02UCS(0.69, 18.0, 20.0, whitepoints_cie1931["D65"]))

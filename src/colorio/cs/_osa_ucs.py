@@ -3,6 +3,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from ._color_space import ColorSpace
+from ._helpers import register
 
 
 class OsaUcs(ColorSpace):
@@ -205,3 +206,6 @@ class OsaUcs(ColorSpace):
             k += 1
 
         return xyz100
+
+
+register("osaucs", OsaUcs())

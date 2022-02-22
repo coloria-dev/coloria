@@ -7,6 +7,7 @@ from numpy.typing import ArrayLike
 
 from ..illuminants import whitepoints_cie1931
 from ._color_space import ColorSpace
+from ._helpers import register
 
 
 def f(t):
@@ -62,3 +63,6 @@ class CIELAB(ColorSpace):
 
     def to_xyz100(self, lab: ArrayLike) -> np.ndarray:
         return (finv(npx.dot(Ainv, lab)).T * self.whitepoint_xyz100).T
+
+
+register("cielab", CIELAB())

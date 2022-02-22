@@ -3,6 +3,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from ._color_space import ColorSpace
+from ._helpers import register
 
 
 class IPT(ColorSpace):
@@ -44,3 +45,6 @@ class IPT(ColorSpace):
         lms_ = npx.solve(self.M2, ipt)
         lms = np.sign(lms_) * np.abs(lms_) ** (1 / 0.43)
         return npx.solve(self.M1, lms)
+
+
+register("ipt", IPT())

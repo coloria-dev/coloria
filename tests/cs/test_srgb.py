@@ -54,16 +54,18 @@ def test_whitepoint():
 def test_modes():
     xyz = [83.0, 53.0, 67.0]
 
-    with pytest.raises(Exception):
-        colorio.cs.SRGBlinear(mode="error").from_xyz100(xyz)
+    srgb_linear = colorio.cs.SRGBlinear()
 
-    rgb = colorio.cs.SRGBlinear(mode="nan").from_xyz100(xyz)
+    with pytest.raises(Exception):
+        srgb_linear.from_xyz100(xyz, mode="error")
+
+    rgb = srgb_linear.from_xyz100(xyz, mode="nan")
     assert np.isnan(rgb[0])
 
-    rgb = colorio.cs.SRGBlinear(mode="ignore").from_xyz100(xyz)
+    rgb = srgb_linear.from_xyz100(xyz, mode="ignore")
     ref = [1.5411487959020491, 0.21767779000754928, 0.6463796478923135]
     assert np.all(np.abs(rgb - ref) < 1.0e-13 * np.abs(ref))
 
-    rgb = colorio.cs.SRGBlinear(mode="clip").from_xyz100(xyz)
+    rgb = srgb_linear.from_xyz100(xyz, mode="clip")
     ref = [1.0, 0.21767779000754928, 0.6463796478923135]
     assert np.all(np.abs(rgb - ref) < 1.0e-13 * np.abs(ref))

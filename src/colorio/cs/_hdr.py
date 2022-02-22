@@ -2,6 +2,7 @@ import npx
 import numpy as np
 
 from ._color_space import ColorSpace
+from ._helpers import register
 
 
 def _xyy_to_xyz100(xyy):
@@ -62,3 +63,6 @@ class HdrLinear(ColorSpace):
 
     def to_rgb255(self, srgb_linear):
         return 255 * self.to_rgb1(srgb_linear)
+
+
+register("hdrlinear", HdrLinear())

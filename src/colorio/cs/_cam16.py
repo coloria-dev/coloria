@@ -6,6 +6,7 @@ from ..cat import cat16
 from ..illuminants import whitepoints_cie1931
 from ._ciecam02 import compute_from, compute_to
 from ._color_space import ColorSpace
+from ._helpers import register
 
 
 class CAM16:
@@ -125,3 +126,6 @@ class CAM16UCS(ColorSpace):
         M_ = np.hypot(a, b)
         M = (np.exp(M_ * self.c2) - 1) / self.c2
         return self.cam16.to_xyz100(np.array([J, M, h]), "JMh")
+
+
+register("cam16ucs", CAM16UCS(0.69, 18.0, 20.0))

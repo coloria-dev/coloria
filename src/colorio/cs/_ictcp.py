@@ -4,6 +4,7 @@ from numpy.typing import ArrayLike
 
 from ._color_space import ColorSpace
 from ._hdr import HdrLinear
+from ._helpers import register
 
 
 class ICtCp(ColorSpace):
@@ -62,3 +63,6 @@ class ICtCp(ColorSpace):
 
     def to_xyz100(self, ictcp: ArrayLike) -> ArrayLike:
         return self._hdr.to_xyz100(self.to_rec2100(ictcp))
+
+
+register("ictcp", ICtCp())

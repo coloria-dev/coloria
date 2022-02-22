@@ -8,6 +8,7 @@ from numpy.typing import ArrayLike
 
 from .._exceptions import ColorioError
 from ._color_space import ColorSpace
+from ._helpers import register
 
 
 class XYY(ColorSpace):
@@ -61,3 +62,7 @@ class XYY100(XYY):
 
     def __init__(self):
         super().__init__(100)
+
+
+register("xyy1", XYY1())
+register("xyy100", XYY100())

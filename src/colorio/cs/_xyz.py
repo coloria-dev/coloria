@@ -8,6 +8,7 @@ from numpy.typing import ArrayLike
 
 from .._exceptions import ColorioError
 from ._color_space import ColorSpace
+from ._helpers import register
 
 
 class XYZ(ColorSpace):
@@ -54,3 +55,7 @@ class XYZ100(ColorSpace):
 
     def to_xyz100(self, xyz: ArrayLike) -> np.ndarray:
         return np.asarray(xyz)
+
+
+register("xyz1", XYZ1())
+register("xyz100", XYZ100())

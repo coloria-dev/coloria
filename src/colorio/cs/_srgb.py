@@ -38,6 +38,7 @@ class SRGBlinear(ColorSpace):
 
         self.invM /= 100
 
+        self.default_mode = default_mode
         self.name = "sRGB (linear)"
 
         # np.linalg.inv(self.invM) is the matrix in the spec:
@@ -81,12 +82,10 @@ class SRGBlinear(ColorSpace):
 
 class SRGB1(ColorSpace):
     def __init__(self, default_mode: str = "error"):
-        self._srgb_linear = SRGBlinear()
+        self._srgb_linear = SRGBlinear(default_mode=default_mode)
         self.name = "sRGB-1"
 
     def from_xyz100(self, xyz: ArrayLike, mode: str | None = None) -> np.ndarray:
-        if mode is None:
-            mode = self.default_mode
         srgb = self._srgb_linear.from_xyz100(xyz, mode=mode)
 
         a = 0.055
@@ -109,10 +108,10 @@ class SRGB1(ColorSpace):
 
 class SRGB255(ColorSpace):
     def __init__(self, default_mode: str = "error"):
-        self._srgb1 = SRGB1()
+        self._srgb1 = SRGB1(default_mode=default_mode)
         self.name = "sRGB-255"
 
-    def from_xyz100(self, xyz: ArrayLike, mode: str = "error") -> np.ndarray:
+    def from_xyz100(self, xyz: ArrayLike, mode: str | None = None) -> np.ndarray:
         return 255 * self._srgb1.from_xyz100(xyz, mode=mode)
 
     def to_xyz100(self, coords: ArrayLike) -> np.ndarray:
@@ -121,14 +120,12 @@ class SRGB255(ColorSpace):
 
 class SRGBhex(ColorSpace):
     def __init__(self, default_mode: str = "error", prepend: str = "#"):
-        self._srgb255 = SRGB255()
+        self._srgb255 = SRGB255(default_mode=default_mode)
         self.name = "sRGB-hex"
         self.prepend = prepend
 
     def from_xyz100(self, xyz: ArrayLike, mode: str | None = None) -> np.ndarray:
-        if mode is None:
-            mode = self.default_mode
-        rgb255 = self._srgb255.from_xyz100(xyz, mode)
+        rgb255 = self._srgb255.from_xyz100(xyz, mode=mode)
 
         # round to closest int
         rgb255_rounded = np.around(rgb255).astype(int)

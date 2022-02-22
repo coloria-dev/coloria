@@ -12,6 +12,7 @@ from ..illuminants import whitepoints_cie1931
 from ._ciecam02 import M_hpe
 from ._cielab import A, f, finv
 from ._color_space import ColorSpace
+from ._helpers import register
 
 
 class SRLAB2(ColorSpace):
@@ -35,3 +36,6 @@ class SRLAB2(ColorSpace):
 
     def to_xyz100(self, lab: ArrayLike) -> np.ndarray:
         return npx.dot(self.Binv, finv(npx.dot(self.Cinv, lab)))
+
+
+register("srlab2", SRLAB2())

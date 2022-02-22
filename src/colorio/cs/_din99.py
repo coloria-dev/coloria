@@ -8,6 +8,7 @@ from numpy.typing import ArrayLike
 
 from ._cielab import CIELAB
 from ._color_space import ColorSpace
+from ._helpers import register
 
 
 class DIN99(ColorSpace):
@@ -91,3 +92,9 @@ class DIN99(ColorSpace):
         L = (np.exp(L99 * self.k_E / self.p[0]) - 1) / self.p[1]
 
         return self.cielab.to_xyz100([L, a, b])
+
+
+register("din99", DIN99())
+register("din99b", DIN99(variant="b"))
+register("din99c", DIN99(variant="c"))
+register("din99d", DIN99(variant="d"))

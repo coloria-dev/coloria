@@ -4,6 +4,7 @@ from numpy.typing import ArrayLike
 from ..illuminants import whitepoints_cie1931
 from ._cielab import CIELAB
 from ._color_space import ColorSpace
+from ._helpers import register
 
 
 class CIELCH(ColorSpace):
@@ -25,3 +26,6 @@ class CIELCH(ColorSpace):
         h_ = np.radians(h)
         lab = np.array([L, C * np.cos(h_), C * np.sin(h_)])
         return self.cielab.to_xyz100(lab)
+
+
+register("cielch", CIELCH())
