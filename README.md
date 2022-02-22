@@ -51,8 +51,20 @@ Observers:
 
 ### Color coordinates and spaces
 
-Color coordinates are handled as NumPy arrays or as `ColorCoordinates`, a thin wrapper
-that retains the color space information and has some handy helper methods. For example, to interpolate two sRGB colors in OKLAB, and return the sRGB:
+Color coordinates are handled as NumPy arrays or as `ColorCoordinates`, a thin
+wrapper around the data that retains the color space information and has some
+handy helper methods. Color spaces can be instantiated from the classes in
+`colorio.cs`, e.g.,
+
+```python
+import colorio
+
+colorio.cs.CIELAB()
+```
+
+Most methods that accept such a colorspace also accept a string, e.g.,
+`cielab`. For example, to interpolate two sRGB colors in OKLAB, and return the
+sRGB:
 
 ```python
 from colorio.cs import ColorCoordinates
