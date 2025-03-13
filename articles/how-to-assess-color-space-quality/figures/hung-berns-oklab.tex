@@ -1,0 +1,100 @@
+% This file was created with tikzplotlib v0.9.12.
+\begin{tikzpicture}
+
+\begin{axis}[
+tick align=outside,
+tick pos=left,
+ticks=none,
+title={Oklab},
+width=0.39\textwidth,
+x grid style={white!69.0196078431373!black},
+xlabel={a},
+xmin=-0.288307512005136, xmax=0.286141954639072,
+xtick style={color=black},
+y grid style={white!69.0196078431373!black},
+ylabel style={rotate=-90.0},
+ylabel={b},
+ymin=-0.322127479094392, ymax=0.228811043834133,
+ytick style={color=black}
+]
+\addplot [semithick, gray]
+table {%
+0.0137565554683805 -0.0148789811996328
+0.214596337211429 0.143591784000024
+};
+\addplot [semithick, gray]
+table {%
+0.0137565554683805 -0.0148789811996328
+0.0514852487639785 0.176292155547739
+};
+\addplot [semithick, gray]
+table {%
+0.0137565554683805 -0.0148789811996328
+-0.0595662853089172 0.203544635881957
+};
+\addplot [semithick, gray]
+table {%
+0.0137565554683805 -0.0148789811996328
+-0.145832522001159 0.195775092575124
+};
+\addplot [semithick, gray]
+table {%
+0.0137565554683805 -0.0148789811996328
+-0.260889697777951 0.182855649831706
+};
+\addplot [semithick, gray]
+table {%
+0.0137565554683805 -0.0148789811996328
+-0.194003195692591 0.010404680847883
+};
+\addplot [semithick, gray]
+table {%
+0.0137565554683805 -0.0148789811996328
+-0.154031014673414 -0.0690988040380578
+};
+\addplot [semithick, gray]
+table {%
+0.0137565554683805 -0.0148789811996328
+-0.108206416192123 -0.133629409466217
+};
+\addplot [semithick, gray]
+table {%
+0.0137565554683805 -0.0148789811996328
+-0.0390112196334746 -0.294073449729041
+};
+\addplot [semithick, gray]
+table {%
+0.0137565554683805 -0.0148789811996328
+0.191230633092283 -0.208650835956893
+};
+\addplot [semithick, gray]
+table {%
+0.0137565554683805 -0.0148789811996328
+0.257719185584806 -0.146344775121726
+};
+\addplot [semithick, gray]
+table {%
+0.0137565554683805 -0.0148789811996328
+0.259562150573521 -0.0463907316188274
+};
+\addplot [
+  mark=*,
+  only marks,
+  scatter,
+  scatter/@post marker code/.code={%
+  \endscope
+},
+  scatter/@pre marker code/.code={%
+  \expanded{%
+  \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
+  \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
+  }%
+  \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
+},
+  visualization depends on={value \thisrow{draw} \as \drawcolor},
+  visualization depends on={value \thisrow{fill} \as \fillcolor}
+]
+table [search path={./figures/}]{hung-berns-oklab-000.dat};
+\end{axis}
+
+\end{tikzpicture}

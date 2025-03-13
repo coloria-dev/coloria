@@ -1,0 +1,25 @@
+% This file was created by tikzplotlib v0.8.5.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+
+\begin{axis}[
+width=0.5\textwidth,
+height=0.4\textwidth,
+tick align=outside,
+tick pos=left,
+x grid style={white!70!black},
+xmajorgrids,
+xmin=-1, xmax=5,
+xlabel={$w$},
+xtick style={color=black},
+y grid style={white!70!black},
+ymajorgrids,
+ymin=-120, ymax=150,
+ytick style={color=black}
+]
+\addplot [semithick, color0, very thick]
+table {figures/phi.dat};
+\end{axis}
+
+\end{tikzpicture}

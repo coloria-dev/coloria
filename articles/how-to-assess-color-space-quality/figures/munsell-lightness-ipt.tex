@@ -1,0 +1,68 @@
+% This file was created with tikzplotlib v0.9.12.
+\begin{tikzpicture}
+\scriptsize
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+\definecolor{color1}{rgb}{1,0.498039215686275,0.0549019607843137}
+
+\begin{axis}[
+axis line style={white!58.8235294117647!black},
+height=0.3\textwidth,
+tick align=outside,
+tick pos=left,
+title={IPT},
+width=0.33\textwidth,
+x grid style={white!58.8235294117647!black},
+xlabel={Y},
+xmin=0, xmax=102.56,
+xtick style={color=white!58.8235294117647!black},
+y grid style={white!58.8235294117647!black},
+ylabel style={rotate=-90.0},
+ylabel={I},
+ymajorgrids,
+ymin=0, ymax=7.18187462223965,
+ytick style={color=white!58.8235294117647!black}
+]
+\addplot [semithick, color0]
+table [search path={./figures/}] {munsell-lightness-ipt-000.dat};
+\path [draw=color1, semithick]
+(axis cs:1.21,0.919189723601696)
+--(axis cs:1.21,2.18028435365019);
+
+\path [draw=color1, semithick]
+(axis cs:3.126,1.35036487591379)
+--(axis cs:3.126,2.69422770146139);
+
+\path [draw=color1, semithick]
+(axis cs:6.555,1.86440469480022)
+--(axis cs:6.555,3.26591888412707);
+
+\path [draw=color1, semithick]
+(axis cs:12,2.40417588868152)
+--(axis cs:12,3.86208817235529);
+
+\path [draw=color1, semithick]
+(axis cs:19.77,2.95098814706442)
+--(axis cs:19.77,4.42054177606006);
+
+\path [draw=color1, semithick]
+(axis cs:30.05,3.52440771467503)
+--(axis cs:30.05,4.96696794127002);
+
+\path [draw=color1, semithick]
+(axis cs:43.06,4.15853254448133)
+--(axis cs:43.06,5.56389163621633);
+
+\path [draw=color1, semithick]
+(axis cs:59.1,4.69394682727128)
+--(axis cs:59.1,6.1478586806875);
+
+\path [draw=color1, semithick]
+(axis cs:78.66,5.45545216758606)
+--(axis cs:78.66,6.73670858328733);
+
+\addplot [semithick, color1, mark=*, mark size=3, mark options={solid}, only marks]
+table [search path={./figures/}] {munsell-lightness-ipt-001.dat};
+\end{axis}
+
+\end{tikzpicture}
