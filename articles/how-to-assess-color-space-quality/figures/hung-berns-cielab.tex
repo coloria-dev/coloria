@@ -1,0 +1,100 @@
+% This file was created with tikzplotlib v0.9.12.
+\begin{tikzpicture}
+
+\begin{axis}[
+tick align=outside,
+tick pos=left,
+ticks=none,
+title={CIELAB},
+width=0.39\textwidth,
+x grid style={white!69.0196078431373!black},
+xlabel={a*},
+xmin=-112.250085473829, xmax=96.184670969242,
+xtick style={color=black},
+y grid style={white!69.0196078431373!black},
+ylabel style={rotate=-90.0},
+ylabel={b*},
+ymin=-112.951524451915, ymax=110.094398910775,
+ytick style={color=black}
+]
+\addplot [semithick, gray]
+table {%
+-2.48689957516035e-14 -8.88178419700125e-15
+76.8010690344318 75.872136735876
+};
+\addplot [semithick, gray]
+table {%
+-2.48689957516035e-14 -8.88178419700125e-15
+17.3671627534718 88.9236167055233
+};
+\addplot [semithick, gray]
+table {%
+-2.48689957516035e-14 -8.88178419700125e-15
+-25.0687149057562 99.1927280865854
+};
+\addplot [semithick, gray]
+table {%
+-2.48689957516035e-14 -8.88178419700125e-15
+-57.5394687302649 93.0437622356096
+};
+\addplot [semithick, gray]
+table {%
+-2.48689957516035e-14 -8.88178419700125e-15
+-102.77577836278 84.6066823151244
+};
+\addplot [semithick, gray]
+table {%
+-2.48689957516035e-14 -8.88178419700125e-15
+-72.7526672245822 9.35296920021948
+};
+\addplot [semithick, gray]
+table {%
+-2.48689957516035e-14 -8.88178419700125e-15
+-50.1861375747503 -19.3823327997839
+};
+\addplot [semithick, gray]
+table {%
+-2.48689957516035e-14 -8.88178419700125e-15
+-23.7389713507566 -41.2902986147263
+};
+\addplot [semithick, gray]
+table {%
+-2.48689957516035e-14 -8.88178419700125e-15
+54.9325541757379 -102.813073389974
+};
+\addplot [semithick, gray]
+table {%
+-2.48689957516035e-14 -8.88178419700125e-15
+77.4599860178008 -69.4601267659611
+};
+\addplot [semithick, gray]
+table {%
+-2.48689957516035e-14 -8.88178419700125e-15
+86.7103638581934 -48.2628909910948
+};
+\addplot [semithick, gray]
+table {%
+-2.48689957516035e-14 -8.88178419700125e-15
+80.0895002388906 -13.7651237148024
+};
+\addplot [
+  mark=*,
+  only marks,
+  scatter,
+  scatter/@post marker code/.code={%
+  \endscope
+},
+  scatter/@pre marker code/.code={%
+  \expanded{%
+  \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
+  \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
+  }%
+  \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
+},
+  visualization depends on={value \thisrow{draw} \as \drawcolor},
+  visualization depends on={value \thisrow{fill} \as \fillcolor}
+]
+table [search path={./figures/}]{hung-berns-cielab-000.dat};
+\end{axis}
+
+\end{tikzpicture}

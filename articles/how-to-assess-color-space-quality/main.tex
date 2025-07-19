@@ -1,0 +1,656 @@
+\documentclass{scrartcl}
+
+\usepackage{fixltx2e}
+
+% Step environment
+% <https://tex.stackexchange.com/a/12943/13262>
+\usepackage{amsthm}
+\newtheorem*{remark}{Remark}
+%
+\newtheoremstyle{named}{}{}{\itshape}{}{\bfseries}{.}{.5em}{\thmnote{#1 }#3}
+\theoremstyle{named}
+\newtheorem*{step}{Step}
+
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{import}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+
+\usepackage{siunitx}
+
+\newcommand\mytitle{How to evaluate and optimize color spaces against experimental data}
+\newcommand\myauthor{Nico Schlömer}
+
+\usepackage[
+  pdfencoding=unicode,
+  ]{hyperref}
+\hypersetup{
+  pdfauthor={\myauthor},
+  pdftitle={\mytitle}
+}
+
+% <https://tex.stackexchange.com/a/43009/13262>
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+
+% degree symbol
+\usepackage{gensymb}
+
+% % <https://tex.stackexchange.com/a/413899/13262>
+% \usepackage{etoolbox}
+% \makeatletter
+% \long\def\etb@listitem#1#2{%
+%   \expandafter\ifblank\expandafter{\@gobble#2}
+%     {}
+%     {\expandafter\etb@listitem@i
+%      \expandafter{\@secondoftwo#2}{#1}}}
+% \long\def\etb@listitem@i#1#2{#2{#1}}
+% \makeatother
+
+% Okay. Don't use biblatex/biber for now. There are breaking changes in every
+% revision, and we'd have to stick to the exact version that arxiv.org has,
+% otherwise it's error messages like
+% ```
+% Package biblatex Warning: File 'main.bbl' is wrong format version
+% - expected 2.8.
+% ```
+% \usepackage[sorting=none]{biblatex}
+% \bibliography{bib}
+
+\usepackage{amsmath}
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+% \usepackage{amsfonts}
+\usepackage{bm}
+\newcommand\rr{\ensuremath{\bm{r}}}
+\newcommand\R{\ensuremath{\mathbb{R}}}
+\newcommand\xt{\ensuremath{\bm{\tilde{x}}}}
+\newcommand\yt{\ensuremath{\bm{\tilde{y}}}}
+
+\title{\mytitle\footnote{The LaTeX sources of this article are on
+\url{https://github.com/nschloe/coloria}}}
+\author{\myauthor}
+
+\begin{document}
+
+\maketitle
+\begin{abstract}
+  todo
+\end{abstract}
+
+\section{Introduction}
+
+Every year, articles on new color spaces are created, claiming that they comply to
+certain experimental data better than other color spaces. In many cases, numbers are
+provided in form of a table showing that the new color space is indeed better.
+Unfortunately, it is often not explained how those numbers are computed.
+
+This article describes in detail how to assess the experimental compliance of color
+space with experimental data. The article focuses on the three most-used types of
+experimental data: Hue linearity \cite{ebner,xiao,hung}, color difference ellipses
+\cite{macadam1942,luorigg}, and lightness data \cite{fairchildchen}. It also devotes
+some time explaining how to combine results and illustrates the difference between,
+e.g., the orginary average and the root mean square.
+
+Almost every color space is defined by a transformation $T$ that maps the CIE-1931-XYZ
+coordinates into a three-dimensional new coordinate space (e.g., LAB). The
+transformation is usually continuously differentiable and bijective. When talking about
+a \emph{colorspace}, one almost always means the transformation $T$ and its inverse.
+
+
+TODO desirable properties of cost functionals:
+\begin{itemize}
+  \item Are continuous, and ideally continuously differentiable (for optimization)
+  \item Are 0 if the experimental data is matched exactly (will never be fulfilled since
+    experimental data contains errors). Together with the first one, number are small if
+    the match is approximate.
+  \item are scaling invariant
+  \item are rotation invariant
+  \item are translation invariant
+\end{itemize}
+
+
+\section{Average, root mean square, and how to combine results}
+
+In several stages of the assessment or optimization process, we will have to combine
+several nonnegative result values (e.g., residuals from different data sets) into one.
+There are multiple meaningful ways of doing so. The most common are certainly the
+\emph{average} and the \emph{root mean square} of different results
+$\rr = \{|r_i|\}_{i=1}^n$,
+\[
+  M_1(\rr) = \frac{1}{n}\sum_{i=1}^n r_i,\quad
+  M_2(\rr) = \sqrt{\frac{1}{n}\sum_{i=1}^n r_i^2}.
+\]
+This is readily generalized to the
+\emph{generalized mean}
+\[
+  M_p(\rr) \coloneqq \left(\frac{1}{n}\sum_{i=1}^n r_i^p\right)^{1/p} =
+  \frac{1}{n^{1/p}} \|\rr\|_p
+\]
+with any given $-\infty \le p \le \infty$. In the limits, $p\to-\infty$ and
+$p\to +\infty$, this becomes the \emph{minimum} and the \emph{maximum}
+\[
+  M_{-\infty}(\rr) \coloneqq \min_{i\in\{1,\dots,n\}} r_i, \quad
+  M_{\infty}(\rr) \coloneqq \max_{i\in\{1,\dots,n\}} r_i.
+\]
+Other interesting means are the \emph{harmonic mean} $M_{-1}$, the \emph{geometric mean}
+$M_0$, the \emph{root mean square} $M_2$, and the \emph{cubic mean} $M_3$.
+
+Note that, for every $\rr$, $M_p(\rr)$ as a function in $p$ is smooth and monotonic
+increasing
+\[
+  M_{-\infty}(\rr) \le M_p(\rr) \le M_q(\rr) \le M_{\infty}(\rr) \quad (p\le q).
+\]
+(Compare figure \ref{fig:1}.)
+Hence, the larger $p$, the closer $M_p(\rr)$ will be to $\max(\rr)$.
+
+When optimizing against a data set, combining the results with the average ($M_1$), an
+improvement in any variable is just as valuable as the next. Combining the results with
+the root mean square ($M_2$) puts more emphasis on the larger values; choosing an even
+larger $p$ will reinforce this effect. Choosing $p < 1$, on the other hand, puts more
+emphasis on the smaller values in $\rr$.  In particular, $M_p(\rr)=0$ for all $p\le 0$
+if even only one $r_i=0$. One almost never wants this in the context of experimental
+validation or optimization.
+
+If the goal of your optimization is to minimize the larger outliers first, choose $p>1$,
+e.g., the root mean square. If you want to minimize all entries equally, use the
+average.
+
+\begin{figure}
+  \centering
+  \import{figures/}{averages.tex}
+  \caption{$p$-means for sequences of length $n=20$, $s_\text{equal1} = \{1, \dots,
+  1\}$, $s_\text{outliner-small} = \{10^{-4}, 1,\dots, 1\}$, $s_\text{uniform} =
+  \{10^{-4}, h, 2h, \dots, 1\}$ (with $h = 1 / (n-1)$), $s_\text{outlier1} = \{1,
+  0,\dots, 0\}$, and $s_\text{equal0} = \{0,\dots,0\}$. Note how the $M_p$ are monotonic
+  increasing and smooth. For large $p$, all curves approach the maximum value in the
+  set.}
+  \label{fig:1}
+\end{figure}
+
+
+\section{Residuals and STRESS}
+
+% There are numerous experiments~\cite{ebner,xiao,hung,macadam,macadam,luo} which try to
+% gauge perceptual distances between colors or to determine which colors of different
+% luminosity are perceived as the same chroma.
+%
+% These experimental data have been used in the past to approximate a perceptually uniform
+% colorspace, i.e., a color space in which the Euclidean distance represents the perceived
+% distance, and in which colors of same chroma all sit in one line. (These two goals are
+% mutually inclusive.) So far, the general approach was to assume that the transformation
+% from XYZ space takes a certain mathematical form with a number of free parameters, e.g.,
+% the parameters $e$, $\alpha_{i,j}$, and $\omega_{i,j}$.
+% \begin{equation}\label{eq:safdar}
+%   \begin{split}
+%     \begin{bmatrix}
+%       L\\M\\S
+%     \end{bmatrix}
+%     =
+%     \begin{bmatrix}
+%       \alpha_{1,1} & \alpha_{1,2} & 1 - \alpha_{1,1} - \alpha_{1,2}\\
+%       \alpha_{2,1} & \alpha_{2,2} & 1 - \alpha_{2,1} - \alpha_{2,2}\\
+%       \alpha_{3,1} & \alpha_{3,2} & 1 - \alpha_{3,1} - \alpha_{3,2}
+%     \end{bmatrix}
+%     \begin{bmatrix}
+%       X_{D65}\\Y_{D65}\\Z_{D65}
+%     \end{bmatrix}\\
+%     \{L',M',S'\} = \left(\frac{c_1 + c_2\left(\frac{\{L,M,S\}}{10000}\right)^n}{1 + c_3\left(\frac{\{L,M,S\}}{10000}\right)^n}\right)^{pe}\\
+%     \begin{bmatrix}
+%       I_z\\a_z\\b_z
+%     \end{bmatrix}
+%     =
+%     \begin{bmatrix}
+%       \omega_{1,1} & \omega_{1,2} & 1 - \omega_{1,1} - \omega_{1,2}\\
+%       \omega_{2,1} & \omega_{2,2} &   - \omega_{2,1} - \omega_{2,2}\\
+%       \omega_{3,1} & \omega_{3,2} &   - \omega_{3,1} - \omega_{3,2}
+%     \end{bmatrix}
+%     \begin{bmatrix}
+%       L'\\M'\\S'
+%     \end{bmatrix}\\
+%   \end{split}
+% \end{equation}
+% in~\cite{safdar}. Then, an optimization algorithm was applied to retrieve those
+% parameters which best match the given experimental data. The resulting color space has
+% then been declared ``optimal'', which held true until a new article with a different
+% assumption was published which, almost by chance, achieved even better accordance with
+% the data.
+%
+% The assumption that the transformation of XYZ to the perceptually uniform color space
+% takes a particular form is of course of practical nature: A low-dimensional parameter
+% space is easy to search. However, to put it mildly, it is quite optimistic to assume
+% that the visual system of the brain (see figure~\ref{fig:monkey}) does a transformation that
+% can be expressed in terms of some linear transformations and elementary mathematical
+% functions.
+%
+% TODO why doesn't polynomial approximation, pade not work? runge!
+%
+% \begin{figure}
+%   \centering
+%   \includegraphics[width=0.3\textwidth]{images/monkey.png}
+%   \caption{Wiring diagram of the visual system of the macaque monkey, reproduced
+%   from~\cite{felleman}.}
+%   \label{fig:monkey}
+% \end{figure}
+%
+% This article describes a much more general approach and succeeds in finding a color
+% space that is far more perceptually uniform that everything that has been found so far.
+% Even more, there can be no color space matching the given experimental data even better.
+%
+% \section{Optimization problem}
+%
+% There are many ideas that generalize the few-parameter approaches like~\ref{eq:safdar}.
+% What comes to mind are polynomial approximations
+% \begin{equation}\label{eq:poly}
+%   p_{\alpha}(x, y) = \sum_{i+j\le n} \alpha_{i,j} x^i y^j
+% \end{equation}
+% where optimization happens over the coefficients $\alpha_{i,j}$, or even fractional
+% polynomials,
+% \[
+%   r_{\alpha, \beta}(x, y) = \frac{p_\alpha(x,y)}{q_\beta(x, y)}
+% \]
+% where both numerator and denominator are of the form~\ref{eq:poly} (Padé approximant).
+% Both of the approaches offer the advantage that -- given an infinite source of
+% experimental data -- the actual transformation $t$ can be approximated arbitrarily well
+% with increased polynomial degrees. Unfortunately, polynomial approximations suffer from
+% Runge's phenomenon, meaning that naively chosen reference points for the optimization
+% can lead solutions which approximate $t$ well at those points, but very badly everywhere
+% else. See section~\ref{sec:polyfail}.
+%
+% This article takes a more robust approach. The key idea is to divide the domain into
+% many small triangles (see figure~\ref{fig:triangles}) and to allow each of the nodes to
+% move around more or less freely such that the resulting shape matches the experimental
+% data well. All continuous transformations can be approximated by this approach so it is
+% reasonable to assume that we do not restrict ourselves too much here.
+%
+% The mathematical concept
+% \[
+%   F(x, y) = \begin{bmatrix}a(x,y)\\b(x,y)\end{bmatrix}
+% \]
+% where both $a:\Omega\to\R^2$ and $b:\Omega\to\R^2$ are piecewise linear functions on the
+% triangles.
+%
+% Each of the two
+% \[
+% fl
+% \]
+% \[
+%   \begin{split}
+%   F(a_x, a_y) &=\\
+%   &F_{\text{Hung--Berns}}(a_x, a_y) +
+%   F_{\text{Ebner--Fairchild}}(a_x, a_y) +
+%   F_{\text{Xiao}}(a_x, a_y) +\\
+%   &F_{\text{MacAdam}}(a_x, a_y) +
+%   F_{\text{Luo--Rigg}}(a_x, a_y) +\\
+%   &F_{\Delta}(a_x, a_y)
+%   \end{split}
+% \]
+%
+% % This is achieved by dividing the xy-triangle into many smaller triangles, i.e., nodes
+% % and cells, and allowing each of the nodes to move around freely to match the
+% % experimental data. This is the most general approach possible; all smooth
+% % transformations can be expressed in this way.
+%
+% Let $(X_i, Y_i, Z_i)\in\R^3$ be a given set of points in XYZ space which, according to
+% some experiment, are of equal perceived hue. Consider the two non-lightness coordinates
+% of their image $(x_i, y_i) \coloneqq T(X_i, Y_i, Z_i)$ (see figure TODO). What is
+% measure of how well the points $(x_i, y_i)$ sit on a straight line? The general idea
+% here is to cast a line through ``the middle'' of the point cloud and sum up the
+% distances of all points to that line. There are multiple meaningful ways in which
+% ``the middle'' and ``distance'' can be defined. Remember that in $\R^n$, the distance
+% between two points $a$ and $b$ can be defined by a \emph{norm}.
+
+
+\subsection{Cost functional for target distances and ellipses}
+
+Some data sets give target distance values $d_i$ for pairs of colors $X_{i,1}, X_{i,2}$.
+Notable examples are the following.
+\begin{itemize}
+  \item MacAdam (1942) \cite{macadam1942}.
+     25 ellipses,
+     1 observer,
+  \item MacAdam (1974) \cite{macadam1974}.
+     128 pairs of colored tiles,
+     49 to 76 observers,
+     The CIE specifications for D65 and for the 1964
+     supplementary observer for 100 visual field
+     at least 500 lm/m2
+   \item BFD-P (1986) \cite{luorigg}.
+
+   \item Witt (1998) \cite{witt}.
+     Illumination by a high-quality D65 light source
+     Samples field size 10 degrees x 10 degrees of visual angle
+     Illuminance 1300 lx
+     10 to 14 observers
+     418 sample pairs
+     The data in the original article contains printing errors
+
+  \item Leeds ()
+
+  \item RIT-DuPont
+
+  \item COMBVD.
+    This collection is the union of BFD-P, Leeds, RIT-DuPont, and Witt, weighted such
+    that all subsets contribute about equally, i.e., BFD-P with factor 1, Leeds 9,
+    RIT-DuPont 9, Witt 7.
+\end{itemize}
+
+A color space conforms with this data if the distance between the transformed points
+$\delta_i \coloneqq \norm{T(X_{i,1}) - T(X_{i,2})}_2$
+is close to the scaled target distance $\alpha d_i$, i.e.,
+\begin{equation}\label{eq:p}
+  p_2
+  \coloneqq \sqrt{\sum_{i=1}^n (\alpha d_i - \delta_i)^2}
+\end{equation}
+where the parameter $\alpha$ is chosen to minimize the expression (see below).
+This scaling makes sure that the expression in invariant for scaling of $d$, too. To
+achieve scale-invariance in $\delta$, one divides by $\sqrt{\sum_{i=1}^n \delta_i^2}$.
+The resulting expression is always between 0 and 1, and after multiplying by 100, this
+is called the STRESS (STandardized REsidual Sum of Squares) metric for target distances,
+\begin{equation}\label{eq:p}
+  p_{\text{STRESS}}
+  \coloneqq
+  100
+  \frac{%
+    \sqrt{\sum_{i=1}^n (\alpha d_i - \delta_i)^2}
+  }{
+    \sqrt{\sum_{i=1}^n \delta_i^2}
+  },\quad
+  \alpha = \frac{\sum_{i=1}^n d_i \delta_i}{\sum_{i=1}^n d_i^2}.
+\end{equation}
+
+\begin{remark}
+One could as well have put the minimizing parameter at $\delta_i$ and divided by $\sum
+  d_i^2$; the resulting expression is the same.
+\end{remark}
+
+\begin{remark}
+Instead of the $2$-norm, one could in principle have chosen any other $-\infty\le
+  p\le\infty$ as well,
+\[
+p_p = \left(\sum_{i=1}^n |\alpha d_i - \delta_i|^p\right)^{1/p}.
+\]
+The reason why $p_2$ is always chosen in practice is that the global minimizer $\alpha$
+  is easily determined and the dependence on the data set is smooth.
+\end{remark}
+
+$p_\text{STRESS}$ measures the \emph{absolute} deviation from target values which in
+many situations is appropriate. Sometimes, however, one would like to measure the
+\emph{relative} deviation,
+\[
+  p_\text{relSTRESS} = 100 \frac{\sqrt{\sum_{i=1}^n (\tilde{\alpha} d_i -
+  \delta_i)^2 / \delta_i}}{\sqrt{\sum_{i=1}^n \delta_i}}, \quad
+  \tilde{\alpha} = \frac{\sum_{i=1}^n d_i}{\sum_{i=1}^n d_i^2 / \delta_i}.
+\]
+$p_\text{relSTRESS}$ also is between 0 and 100, but unlike $p_\text{STRESS}$ it
+is also large if any $\delta_i$ is small or vanishes.
+The value of $\delta_i=\tilde{\alpha} d_i / r$ is the same as for $\delta_i = r
+\tilde{\alpha} d_i$ for any $r > 0$, e.g., deviation from $d_i$ by half has the same
+value deviation by double.
+This can be useful in optimization when trying punish deviations
+towards 0 to prevent a collapsing of color distances or ellipses.
+% Another such variant is
+% \[
+%   \hat{p}_\text{STRESS} = 100 \sqrt{\sum_{i=1}^n \frac{(\hat{\alpha} d_i -
+%   \delta_i)^2}{\delta_i^2}}.
+% \]
+% It is less useful as the value of each of the summands is limited by $1$ for growing
+% $\delta_i$.
+See figure~\ref{fig:norm-scaling}.
+
+\begin{figure}
+  \label{fig:norm-scaling}
+  \centering
+  \input{figures/norm-scaling.tex}
+  \caption{Different possibilities for the norm-scaling in $p_\text{STRESS}$ with target
+  distance 1. The common variant $(1-x)^2$ is a simple quadratic and bounded for
+  deviations towards 0. The relative STRESS is large for deviations towards both 0 and
+  $+\infty$.}
+\end{figure}
+
+% TODO reactivate once tikzplotlib is fixed
+% \begin{figure}
+%   \centering
+%   \input{figures/macadam1974-xyy.tex}
+%   \hfill
+%   \input{figures/macadam1974-cielab.tex}
+%   \hfill
+%   \input{figures/macadam1974-cam16.tex}
+%   \caption{MacAdam 1974 color distance data in three color spaces. If the arrows meet,
+%   the dots are as far apart as prediced by MacAdam. Note that only those 43 color pairs
+%   are shown which are of approximately equal lightness.}
+% \end{figure}
+
+\begin{figure}
+\centering
+\input{figures/pstress.tex}
+\caption{$p_\text{STRESS}$ for a number of color spaces. The color space OSA-UCS was
+designed specifically with the MacAdam \cite{macadam1974} dataset in mind. Both CAM
+spaces perform well for all data sets. The MacAdam ellipses are assumed to exist without
+  significant change in a wide luminosity range, and is presented with $Y=50$ here.}
+\end{figure}
+
+\begin{figure}
+\centering
+  \input{figures/pstress-diff.tex}
+  \caption{$p_\text{STRESS}$ for a number of color difference formulae.  CIE76 is the
+  Euclidean distance in CIELAB, the other difference formulas are non-Euclidean.}
+\end{figure}
+
+A common special case of STRESS is distance data given in terms of ellipse points,
+i.e., a color center with a number of standard deviations (or similar) in various
+directions. The famous MacAdam ellipses \cite{macadam1942} are derived from such data.
+Since the ellipses are supposed to to be circles of equal size in the transformed space,
+the target value for all $d_i$ is 1. The parameter $\alpha$ simplifies to be the
+arithmetic mean $M_1$ over all $\delta_i$ and the harmonic mean $M_{-1}$ in the
+relative case. We have
+\begin{align}\label{eq:e}
+  e_{\text{STRESS}}
+  &\coloneqq
+  100
+  \frac{%
+    \sqrt{\sum_{i=1}^n (M_1(\delta) - \delta_{i})^2}
+  }{
+    \sqrt{\sum_{i=1}^n \delta_i^2}
+  },
+  \\
+  \nonumber
+  e_{\text{relSTRESS}}
+  &\coloneqq
+  100
+  \frac{%
+    \sqrt{\sum_{i=1}^n (M_{-1}(\delta) - \delta_{i})^2 / \delta_i}
+  }{
+    \sqrt{\sum_{i=1}^n \delta_i}
+  }.
+\end{align}
+In case only the actual ellipses are given (e.g., \cite{luorigg}), one can place a
+number of points onto their boundaries (e.g., 8 or 16) and compute the residual with
+from them.
+
+\begin{remark}
+  While the generation of ellipses from experimental data is useful for visually
+  representing color difference data, there are a number of criticisms associated with
+  using them in color space evaluation and optimization.
+  \begin{itemize}
+    \item Ellipses encode the raw experimental data, and perhaps distort it in some way.
+      If experimental data is available, using it directly eliminates this layer of
+      distortion.
+    \item When calculating the STRESS of ellipse data, one has to choose a set of points
+      on each ellipse and compute the STRESS for the distances. The final value depends
+      on how many values where chosen and where they sit on the ellipses.
+    \item Ellipses are two-dimensional geometric objects while color spaces are
+      three-dimensional. In many cases, ellipses are drawn orthogonal to the perceived
+      lightness dimension, and hence contain no information about lightness, even if the
+      original data did.
+    \item In some cases, e.g., \cite{macadam1942}, only the chromaticity coordinates $x$
+      and $y$ are given for the ellipses, not the lightness component $Y$. The claim is
+      that the ellipses don't change significantly between different levels of lightness
+      \cite{brown}. However, this is true at most in a particular range of luminosity
+      which is often not provided.
+    \end{itemize}
+\end{remark}
+
+
+\subsection{Cost functional for hue linearity}
+
+\begin{figure}
+  \centering
+  \input{figures/hung-berns-xyy.tex}
+  \hfill
+  \input{figures/hung-berns-cielab.tex}
+  \hfill
+  \input{figures/hung-berns-oklab.tex}
+  \caption{Hung-Berns \cite{hung} hue linearity data for three color spaces. The points
+  representable in sRGB are shown in color.}
+  \label{fig:hung}
+\end{figure}
+
+There are multiple experiments to determine which colors are perceived to be of equal
+hue~\cite{hung,ebner,xiao}. Color spaces are considered good if the transformation maps
+points of equal perceived hue onto a straight line (see figure~\ref{fig:hung}).
+
+What is a good measure of how well points sit on a straight line?
+A common idea is to find the straight line that mimizes the sum of squared distances to
+all points. This general approach is referred to as \emph{total least squares (TLS)}.
+The line is typically
+given implicitly by $\alpha_1 x + \alpha_2 y
+= 0$ with $\alpha_1,\alpha_2\in\R$, $\|\alpha\|_2^2 = \alpha_1^2 + \alpha_2^2 = 1$.
+Because this assumes that the line passes through the origin, all points are
+first translated such that the whitepoint sits in the origin,
+\[
+  \tilde{x}_i \coloneqq x_i-w_x,\qquad
+  \tilde{y}_i \coloneqq y_i-w_y.
+\]
+For scale-invariance, it is convenient to divide by the maximizer of the squared
+distances,
+\begin{equation}\label{eq:l}
+h_2 \coloneqq
+  \frac{
+\min_{\|\alpha\|_2=1}
+  \sqrt{\sum_{i=1}^n (\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2}
+}{
+\max_{\|\alpha\|_2=1}
+  \sqrt{\sum_{i=1}^n (\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2}.
+}
+\end{equation}
+The value of $h_2$ can be determined reasonably well with any appropriate optimization
+method. A more explicit and more easily computable representation however is retrieved
+as follows.  With the $n$-by-2 coordinate matrix
+\[
+  A \coloneqq \begin{pmatrix}
+    \tilde{x}_1 & \tilde{y}_1\\
+    \vdots & \vdots\\
+    \tilde{x}_n & \tilde{y}_n
+  \end{pmatrix},
+\]
+and $\alpha=(\alpha_1, \alpha_2)$, the sum in \eqref{eq:l} can be written as
+\[
+  \sum_{i=1}^n (\alpha_1 \tilde{x}_i + \alpha_2 \tilde{y}_i)^2
+  = (A \alpha)^T (A \alpha)
+  = \alpha^T A^T A \alpha.
+\]
+This makes clear that $h_2$ is exactly the ratio of the square roots of the two
+eigenvalues of $A^TA$ or equivalently the ratio of the two singular values of $A$,
+\[
+h_2
+= \frac{
+  \sqrt{\lambda_{\min}(A^T A)}
+  }{
+    \sqrt{\lambda_{\max}(A^T A)}
+  }
+= \frac{\sigma_{\min}(A)}{\sigma_{\max}(A)}.
+\]
+The value is given explicitly by
+\begin{equation*}
+  h_2 = \sqrt{
+    \frac{
+      \xt^T\xt
+      + \yt^T\yt
+      - \sqrt{(\xt^T\xt - \yt^T\yt)^2 + 4 (\xt^T\yt)^2}
+    }{
+      \xt^T\xt
+      + \yt^T\yt
+      + \sqrt{(\xt^T\xt - \yt^T\yt)^2 + 4 (\xt^T\yt)^2}
+    }
+    }.
+\end{equation*}
+The expression under the outer root is indeed always nonnegative by virtue of the
+Cauchy-Schwarz inequality $(\xt^T\yt)^2 \le (\xt^T\xt) (\yt^T\yt)$. It is 0 if and only
+if $\xt$ and $\yt$ are linearly dependent, i.e., if the points $(x_i, y_i)$ sit on a
+straight line through the origin.
+
+Since $0\le h_2\le 1$, the value can be given in terms of STRESS,
+\begin{equation}\label{eq:hstress}
+  h_\text{STRESS} = 100 \frac{\sigma_{\min}(A)}{\sigma_{\max}(A)}.
+\end{equation}
+
+
+% \begin{remark}
+%   The representation \eqref{eq:s2} is suitable for optimization purposes. Since a value
+%   $\sqrt{t}$ is small if and only if $t$ is small, one would in the interest of
+%   simplicity disregard the outer square root.
+% \end{remark}
+
+
+\begin{figure}
+  \centering
+  \input{figures/hstress.tex}
+  \caption{$h_\text{STRESS}$ for different data sets. The darker bar represents the
+  average $h_\text{STRESS}$ over all arms in the data set ($M_1$), the light bar
+  indicates the maximum ($M_{\infty}$).  The largest maxima are CIELAB's and CAM16's
+  famous nonlinearities for blue.
+  $J_za_zb_z$ and Oklab perform best for all data sets.}
+  \label{fig:hstress}
+\end{figure}
+
+\subsection{Cost functional for lightness data}
+
+\begin{figure}
+  \centering
+  \input{figures/munsell-lightness-cielab.tex}
+  \hfill
+  \input{figures/munsell-lightness-ipt.tex}
+  \hfill
+  \input{figures/munsell-lightness-osa-ucs.tex}
+  \caption{Lightness of the Munsell samples compared to the Munsell reference values in
+  three color spaces.
+  There are nine Munsell levels each with a particular $Y$.
+  The dot shows the root-mean square ($M_2$) for all values on that level, the
+  vertical lines indicate the minimum and maximum values ($M_{-\infty}$, $M_{\infty}$).
+  The CIELAB lightness $L^*$ only depends on $Y$ which is why there is no variation.
+  Clearly, CIELAB was designed to match the Munsell lightness scale.}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \input{figures/light_stress.tex}
+  \caption{lightness stress.}
+\end{figure}
+
+
+\cite{munsell}
+\cite{fairchildchen}
+
+\section{Optimization}
+
+It has become fashionable to propose a color space format with free parameters, and then
+optimize those parameters against a number of goal functionals. Examples are
+\cite{prolab,oklab,jzazbz}.
+
+
+% \printbibliography{}
+\bibliography{main}{}
+\bibliographystyle{plain}
+
+\end{document}
