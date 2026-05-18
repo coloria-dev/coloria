@@ -1,0 +1,25 @@
+% This file was created by tikzplotlib v0.8.5.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+
+\begin{axis}[
+width=0.5\textwidth,
+height=0.4\textwidth,
+tick align=outside,
+tick pos=left,
+x grid style={white!69.01960784313725!black},
+xmajorgrids,
+xmin=3.9, xmax=6.1,
+xlabel={$t$},
+xtick style={color=black},
+y grid style={white!69.01960784313725!black},
+ymajorgrids,
+ymin=-1.36340273736755, ymax=0.88755207389457,
+ytick style={color=black}
+]
+\addplot [semithick, color0, very thick]
+table {figures/f.dat};
+\end{axis}
+
+\end{tikzpicture}

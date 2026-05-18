@@ -1,0 +1,100 @@
+% This file was created with tikzplotlib v0.9.12.
+\begin{tikzpicture}
+
+\begin{axis}[
+tick align=outside,
+tick pos=left,
+ticks=none,
+title={xyY1},
+width=0.39\textwidth,
+x grid style={white!69.0196078431373!black},
+xlabel={x},
+xmin=0.119853419956019, xmax=0.643318261961687,
+xtick style={color=black},
+y grid style={white!69.0196078431373!black},
+ylabel style={rotate=-90.0},
+ylabel={y},
+ymin=0.051747422449696, ymax=0.636002979799659,
+ytick style={color=black}
+]
+\addplot [semithick, gray]
+table {%
+0.310060511024135 0.316149551383787
+0.618510782465492 0.359524123377867
+};
+\addplot [semithick, gray]
+table {%
+0.310060511024135 0.316149551383787
+0.492805485084296 0.450964897591934
+};
+\addplot [semithick, gray]
+table {%
+0.310060511024135 0.316149551383787
+0.425845205623366 0.49947312734917
+};
+\addplot [semithick, gray]
+table {%
+0.310060511024135 0.316149551383787
+0.373114155681491 0.539497615223761
+};
+\addplot [semithick, gray]
+table {%
+0.310060511024135 0.316149551383787
+0.287216983469216 0.609445909011024
+};
+\addplot [semithick, gray]
+table {%
+0.310060511024135 0.316149551383787
+0.22737797418911 0.382732622800503
+};
+\addplot [semithick, gray]
+table {%
+0.310060511024135 0.316149551383787
+0.209349676200864 0.304924341509052
+};
+\addplot [semithick, gray]
+table {%
+0.310060511024135 0.316149551383787
+0.189844060535908 0.237486274034248
+};
+\addplot [semithick, gray]
+table {%
+0.310060511024135 0.316149551383787
+0.143647276410822 0.0878670043500509
+};
+\addplot [semithick, gray]
+table {%
+0.310060511024135 0.316149551383787
+0.263191431588283 0.132669856355077
+};
+\addplot [semithick, gray]
+table {%
+0.310060511024135 0.316149551383787
+0.33161599834101 0.174382451500175
+};
+\addplot [semithick, gray]
+table {%
+0.310060511024135 0.316149551383787
+0.415156388774311 0.226490214166486
+};
+\addplot [
+  mark=*,
+  only marks,
+  scatter,
+  scatter/@post marker code/.code={%
+  \endscope
+},
+  scatter/@pre marker code/.code={%
+  \expanded{%
+  \noexpand\definecolor{thispointdrawcolor}{RGB}{\drawcolor}%
+  \noexpand\definecolor{thispointfillcolor}{RGB}{\fillcolor}%
+  }%
+  \scope[draw=thispointdrawcolor, fill=thispointfillcolor]%
+},
+  visualization depends on={value \thisrow{draw} \as \drawcolor},
+  visualization depends on={value \thisrow{fill} \as \fillcolor}
+]
+table [search path={./figures/}]{hung-berns-xyy-000.dat};
+\end{axis}
+
+\end{tikzpicture}

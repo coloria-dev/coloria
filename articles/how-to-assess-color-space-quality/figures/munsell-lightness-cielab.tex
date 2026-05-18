@@ -1,0 +1,68 @@
+% This file was created with tikzplotlib v0.9.12.
+\begin{tikzpicture}
+\scriptsize
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+\definecolor{color1}{rgb}{1,0.498039215686275,0.0549019607843137}
+
+\begin{axis}[
+axis line style={white!58.8235294117647!black},
+height=0.3\textwidth,
+tick align=outside,
+tick pos=left,
+title={CIELAB},
+width=0.33\textwidth,
+x grid style={white!58.8235294117647!black},
+xlabel={Y},
+xmin=0, xmax=102.56,
+xtick style={color=white!58.8235294117647!black},
+y grid style={white!58.8235294117647!black},
+ylabel style={rotate=-90.0},
+ylabel={L*},
+ymajorgrids,
+ymin=0, ymax=102.235748429383,
+ytick style={color=white!58.8235294117647!black}
+]
+\addplot [semithick, color0]
+table [search path={./figures/}] {munsell-lightness-cielab-000.dat};
+\path [draw=color1, semithick]
+(axis cs:1.21,10.6309369261204)
+--(axis cs:1.21,10.6309369261204);
+
+\path [draw=color1, semithick]
+(axis cs:3.126,20.5416073870883)
+--(axis cs:3.126,20.5416073870883);
+
+\path [draw=color1, semithick]
+(axis cs:6.555,30.7715993950525)
+--(axis cs:6.555,30.7715993950525);
+
+\path [draw=color1, semithick]
+(axis cs:12,41.2161201244669)
+--(axis cs:12,41.2161201244669);
+
+\path [draw=color1, semithick]
+(axis cs:19.77,51.5761656343387)
+--(axis cs:19.77,51.5761656343387);
+
+\path [draw=color1, semithick]
+(axis cs:30.05,61.6973394989073)
+--(axis cs:30.05,61.6973394989073);
+
+\path [draw=color1, semithick]
+(axis cs:43.06,71.5956751616161)
+--(axis cs:43.06,71.5956751616161);
+
+\path [draw=color1, semithick]
+(axis cs:59.1,81.3465316853443)
+--(axis cs:59.1,81.3465316853443);
+
+\path [draw=color1, semithick]
+(axis cs:78.66,91.0802319490308)
+--(axis cs:78.66,91.0802319490308);
+
+\addplot [semithick, color1, mark=*, mark size=3, mark options={solid}, only marks]
+table [search path={./figures/}] {munsell-lightness-cielab-001.dat};
+\end{axis}
+
+\end{tikzpicture}

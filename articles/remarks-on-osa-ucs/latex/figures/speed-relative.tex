@@ -1,0 +1,62 @@
+% This file was created with tikzplotlib v0.9.11.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+\definecolor{color1}{rgb}{1,0.498039215686275,0.0549019607843137}
+\definecolor{color2}{rgb}{0.172549019607843,0.627450980392157,0.172549019607843}
+\definecolor{color3}{rgb}{0.83921568627451,0.152941176470588,0.156862745098039}
+
+\begin{axis}[
+width=0.5\textwidth,
+height=0.4\textwidth,
+axis line style={white!58.8235294117647!black},
+log basis x={10},
+% minor xticklabels={},
+% scaled minor x ticks=manual:{}{\pgfmathparse{#1}},
+tick align=outside,
+tick pos=left,
+title={Runtime relative to cbrt},
+x grid style={white!58.8235294117647!black},
+xmin=1, xmax=4194304,
+xmode=log,
+xtick style={color=white!58.8235294117647!black},
+y grid style={white!58.8235294117647!black},
+ymajorgrids,
+ymin=0, ymax=834.131274131274,
+ytick style={color=white!58.8235294117647!black}
+]
+\addplot [semithick, color0]
+table [search path={./figures/}] {speed-relative-000.dat};
+\addplot [semithick, color1]
+table [search path={./figures/}] {speed-relative-001.dat};
+\addplot [semithick, color2]
+table [search path={./figures/}] {speed-relative-002.dat};
+\addplot [semithick, color3]
+table [search path={./figures/}] {speed-relative-003.dat};
+\draw (axis cs:6627346.86902761,249.795352293639) node[
+  scale=0.7,
+  anchor=west,
+  text=color0,
+  rotate=0.0
+]{OSA-UCS};
+\draw (axis cs:6627346.86902761,-34.6988650809704) node[
+  scale=0.7,
+  anchor=west,
+  text=color1,
+  rotate=0.0
+]{CIELAB};
+\draw (axis cs:6627346.86902761,53.0674726853673) node[
+  scale=0.7,
+  anchor=west,
+  text=color2,
+  rotate=0.0
+]{CIECAM02};
+\draw (axis cs:6627346.86902761,9.18430380219846) node[
+  scale=0.7,
+  anchor=west,
+  text=color3,
+  rotate=0.0
+]{cbrt};
+\end{axis}
+
+\end{tikzpicture}

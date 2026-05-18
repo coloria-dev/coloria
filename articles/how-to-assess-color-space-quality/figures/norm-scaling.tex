@@ -1,0 +1,42 @@
+% This file was created with tikzplotlib v0.9.12.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+\definecolor{color1}{rgb}{1,0.498039215686275,0.0549019607843137}
+\definecolor{color2}{rgb}{0.172549019607843,0.627450980392157,0.172549019607843}
+
+\begin{axis}[
+axis line style={white!58.8235294117647!black},
+height=0.4\textwidth,
+legend cell align={left},
+legend style={
+  fill opacity=0.8,
+  draw opacity=1,
+  text opacity=1,
+  at={(0.91,0.5)},
+  anchor=east,
+  draw=white!80!black
+},
+tick align=outside,
+tick pos=left,
+width=\textwidth,
+x grid style={white!58.8235294117647!black},
+xmin=0, xmax=5,
+xtick style={color=white!58.8235294117647!black},
+y grid style={white!58.8235294117647!black},
+ymajorgrids,
+ymin=0, ymax=2,
+ytick style={color=white!58.8235294117647!black}
+]
+\addplot [semithick, color0]
+table [search path={./figures/}] {norm-scaling-000.dat};
+\addlegendentry{$(1-x)^2$}
+\addplot [semithick, color1]
+table [search path={./figures/}] {norm-scaling-001.dat};
+\addlegendentry{$(1-x)^2 / x$}
+\addplot [semithick, color2]
+table [search path={./figures/}] {norm-scaling-002.dat};
+\addlegendentry{$(1-x)^2 / x^2$}
+\end{axis}
+
+\end{tikzpicture}
