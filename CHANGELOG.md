@@ -52,8 +52,11 @@ All notable changes to this project will be documented in this file.
   ```
 
 - Color appearance models now initialize with a literal surround parameters, e.g.,
+
   ```python
   import coloria
+
   ciecam02 = coloria.cam.CIECAM02("average", 20, 100)
   ```
+
   Possible values are `"average"`, `"dim"`, and `"dark"`.
